@@ -13,34 +13,42 @@
 	}
 ]]
 
-function register.register_seat(name, base_def, seat_def, craft_def)
+local default_on_construct = function(pos)
+	minetest.get_meta(pos):set_string("is_busy", "")
+end
+
+local default_on_destruct = function(pos)
+	sitting.standup_player(minetest.get_player_by_name(minetest.get_meta(pos):get_string("is_busy")), pos)
+end
+
+local default_on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+	local bool = sitting.sit_player(clicker, pos)
+
+	if not bool then
+		sitting.standup_player(clicker, pos)
+	end
+end
+
+function register.register_seat(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
-    
+
 	def.type = "seat"
 	def.paramtype2 = "facedir"
-    
-	def.add_properties = {
-		seat_data = seat_def
-	}
-	
-	if not def.callbacks then
-		def.callbacks = {}
-		def.callbacks.on_construct = function(pos)
-			minetest.get_meta(pos):set_string("is_busy", "")
-		end
-		
-		def.callbacks.on_destruct = function(pos)
-			sitting.standup_player(minetest.get_player_by_name(minetest.get_meta(pos):get_string("is_busy")), pos)
-		end
-		
-		def.callbacks.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-			local bool = sitting.sit_player(clicker, pos)
-			
-			if not bool then
-				sitting.standup_player(clicker, pos)
-			end
-		end
+
+	-- additional properties
+	def.add_properties = add_def
+
+	if def.callbacks then
+		def.callbacks.on_construct = def.callbacks.on_construct or default_on_construct
+		def.callbacks.on_destruct = def.callbacks.on_destruct or default_on_destruct
+		def.callbacks.on_rightclick = def.callbacks.on_rightclick or default_on_rightclick
+	else
+		def.callbacks = {
+			on_construct = default_on_construct,
+			on_destruct = default_on_destruct,
+			on_rightclick = default_on_rightclick
+		}
 	end
-	
+
 	register.register_furniture_unit(name, def, craft_def)
 end

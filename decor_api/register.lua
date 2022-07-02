@@ -104,9 +104,10 @@ function register.register_furniture_unit(name, def, craft_def)
 	assert(register.check_for_style(def.style), "The type with a name \"" .. def.style .. "\" is not registered!")
 
 	f_def.description = def.description
-	f_def.visual_scale = def.visual_scale
+	f_def.visual_scale = def.visual_scale or 0.4
 	f_def.wield_scale = def.wield_scale
 	f_def.drawtype = def.drawtype or "mesh"
+	f_def.paramtype = "light"
 	f_def.paramtype2 = def.paramtype2 or "facedir"
 	f_def.use_texture_alpha = "clip"
 
@@ -122,48 +123,56 @@ function register.register_furniture_unit(name, def, craft_def)
 	f_def.groups[def.type] = 1
 	f_def.groups[def.style] = 1
 
+
 	if def.material then
 		f_def.groups[def.material] = 1
 	end
 
+	if def.material == "wood" then
+		f_def.groups.choppy = 1.5
+	elseif def.material == "glass" or def.material == "metal" or def.material == "stone" then
+		f_def.groups.cracky = 1.5
+	elseif def.material == "plastic" then
+		f_def.groups.snappy = 1.5
+	end
+
+	f_def.description = f_def.description .. "\nStyle: " .. def.style .. (def.material and "\nMaterial: " .. def.material or "")
 	if def.bounding_boxes then
 		if f_def.drawtype == "nodebox" then
 			f_def.node_box = {
 				type = "fixed",
 				fixed = def.bounding_boxes
 			}
-			f_def.selection_box = f_def.node_box
 		elseif f_def.drawtype == "mesh" then
 			f_def.collision_box = {
 				type = "fixed",
 				fixed = def.bounding_boxes
 			}
-			f_def.selection_box = f_def.collision_box
-			minetest.debug("f_def.collision_box: " .. dump(f_def.collision_box))
 		end
+		f_def.selection_box = f_def.collision_box or f_def.node_box
 	end
 
 	if def.sounds then
 		f_def.sounds = def.sounds
 	else
-		if f_def.material == "wood" then
+		if def.material == "wood" then
 			f_def.sounds = default.node_sound_wood_defaults()
-		elseif f_def.material == "glass" then
+		elseif def.material == "glass" then
 			f_def.sounds = default.node_sound_glass_defaults()
-		elseif f_def.material == "metal" then
+		elseif def.material == "metal" then
 			f_def.sounds = default.node_sound_metal_defaults()
-		elseif f_def.material == "plastic" then
+		elseif def.material == "plastic" then
 			f_def.sounds = default.node_sound_leaves_defaults()
-		elseif f_def.material == "stone" then
+		elseif def.material == "stone" then
 			f_def.sounds = default.node_sound_stone_defaults()
 		end
 	end
 
-	f_def.on_construct = def.callbacks.on_construct
-	f_def.on_destruct = def.callbacks.on_destruct
-	f_def.on_rightclick = def.callbacks.on_rightclick
-	f_def.on_timer = def.callbacks.on_timer
-
+	if def.callbacks then
+		for cb_name, f in pairs(def.callbacks) do
+			f_def[cb_name] = f
+		end
+	end
 	f_def.add_properties = def.add_properties
 	local f_name = def.style .. ":" .. name
 	minetest.register_node(f_name, f_def)
