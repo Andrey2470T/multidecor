@@ -174,7 +174,7 @@ function register.register_furniture_unit(name, def, craft_def)
 		end
 	end
 	f_def.add_properties = def.add_properties
-	local f_name = def.style .. ":" .. name
+	local f_name = ":multidecor:" .. name
 	minetest.register_node(f_name, f_def)
 
 	if craft_def then
