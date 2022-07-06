@@ -169,25 +169,17 @@ register.register_table("modern_wooden_desk", {
 	shelves_data = {
 		{
 			type = "drawer",
-			pos = {x=-1.15, y=0.225, z=0.05},
+			pos = {x=-1.15, y=0.225, z=0.025},
 			object = "modern:wooden_desk_drawer",
 			length = 0.8,
-			inventory = [[
-				formspec_version[5]size[8,3]
-				list[detached:multidecor_modern_wooden_desk_1_inv;modern_wooden_desk_drawer;0.5,1;6,1;]
-			]],
-			inv_size = {w=1,h=6}
+			inv_size = {w=6,h=1}
         },
 		{
 			type = "door",
-			pos = {x=-0.825, y=-0.15, z=0.45},
+			pos = {x=-0.825, y=-0.15, z=0.4},
 			object = "modern:wooden_desk_door",
 			side = "left",
-			inventory = [[
-				formspec_version[5]size[8,5]
-				list[detached:multidecor_modern_wooden_desk_2_inv;modern_wooden_desk_door;0.5,1;6,3;]
-			]],
-			inv_size = {w=3,h=6}
+			inv_size = {w=6,h=3}
 		}
 	}
 })

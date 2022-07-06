@@ -86,7 +86,7 @@ function shelves.open_shelf(obj, dir_sign)
 	self.dir = dir_sign
 	if shelf.type == "drawer" then
 		-- Will pull out the drawer at the distance equal to 2/3 its length
-		obj:set_velocity(vector.multiply(dir*dir_sign, 0.4))
+		obj:set_velocity(vector.multiply(dir*dir_sign, 0.6))
 	end
 end
 
@@ -104,7 +104,13 @@ function shelves.set_shelves(pos)
 	local rot_y = vector.dir_to_rotation(dir)
 
 	for i, shelf_data in ipairs(def.add_properties.shelves_data) do
-		local obj = minetest.add_entity(vector.add(pos, shelf_data.pos), shelf_data.object, minetest.serialize({shelf_data.inventory, {name=node.name, pos=pos}, 0}))
+		local inv_name = node.name:gsub(":", "_") .. "_" .. i .. "_inv"
+		local list_name = node.name:gsub(node.name:sub(1, node.name:find(":")), "") .. "_" .. shelf_data.type
+		local fs = "formspec_version[5]size[11," .. shelf_data.inv_size.h+7 .. "]" ..
+				"list[detached:" .. inv_name .. ";" .. list_name .. ";0.5,1;" ..
+				shelf_data.inv_size.w .. "," .. shelf_data.inv_size.h .. ";]" ..
+				"list[current_player;main;0.5," .. shelf_data.inv_size.h+2 .. ";8,4;]"
+		local obj = minetest.add_entity(vector.add(pos, shelf_data.pos), shelf_data.object, minetest.serialize({fs, {name=node.name, pos=pos}, 0}))
 		local move_dist
 
 		if shelf_data.type == "drawer" then
@@ -113,8 +119,6 @@ function shelves.set_shelves(pos)
 			move_dist = shelf_data.side == "left" and -math.pi/2 or math.pi/2
 		end
 		shelves.rotate_shelf(pos, obj, shelf_data.type == "drawer", move_dist)
-		local inv_name = node.name:gsub(":", "_") .. "_" .. i .. "_inv"
-		minetest.debug(inv_name)
 		minetest.create_detached_inventory(inv_name, {
 			allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
 				return count
@@ -128,10 +132,12 @@ function shelves.set_shelves(pos)
 		})
 
 		local inv = minetest.get_inventory({type="detached", name=inv_name})
-		local list_name = node.name:gsub(node.name:sub(1, node.name:find(":")), "") .. "_" .. shelf_data.type
 		inv:set_list(list_name, {})
 		inv:set_size(list_name, shelf_data.inv_size.w*shelf_data.inv_size.h)
 		inv:set_width(list_name, shelf_data.inv_size.w)
+
+		inv:set_size("main", 32)
+		inv:set_width("main", 8)
 	end
 end
 
@@ -204,15 +210,30 @@ shelves.default_door_on_step = function(self, dtime)
 
 	local rot = self.object:get_rotation()
 	local target_rot = self.dir == 1 and self.end_v or self.start_v
+	local data = minetest.registered_nodes[node.name].add_properties.shelves_data
+	local shelf_i
 
-	if math.abs(target_rot-rot.y) <= math.rad(10) then
+	for i, d in ipairs(data) do
+		if self.name == d.object then
+			shelf_i = i
+			break
+		end
+	end
+	local is_exceeded_tr = data[shelf_i].type == "left" and rot.y < target_rot or
+			data[shelf_i].type == "right" and rot.y > target_rot
+
+	if math.abs(target_rot-rot.y) <= math.rad(10) or is_exceeded_tr then
 		self.dir = 0
+		self.step_c = nil
 		self.object:set_rotation({x=rot.x, y=target_rot, z=rot.z})
 		return
 	end
 
-	-- Rotation speed is 45 degrees/sec
-	self.object:set_rotation({x=rot.x, y=rot.y+(-self.dir)*math.pi/3*dtime, z=rot.z})
+	self.step_c = self.step_c and self.step_c+1 or 1
+	-- Rotation speed is 60 degrees/sec
+	local new_rot = (-self.dir)*math.pi/3*dtime*0.5*self.step_c
+
+	self.object:set_rotation({x=rot.x, y=rot.y+new_rot, z=rot.z})
 end
 
 shelves.default_on_receive_fields = function(player, formname, fields)
