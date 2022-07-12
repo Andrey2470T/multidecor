@@ -105,7 +105,7 @@ function register.register_furniture_unit(name, def, craft_def)
 
 	f_def.description = def.description
 	f_def.visual_scale = def.visual_scale or 0.4
-	f_def.wield_scale = def.wield_scale
+	f_def.wield_scale = def.wield_scale or {x=0.5, y=0.5, z=0.5}
 	f_def.drawtype = def.drawtype or "mesh"
 	f_def.paramtype = "light"
 	f_def.paramtype2 = def.paramtype2 or "facedir"
@@ -168,12 +168,12 @@ function register.register_furniture_unit(name, def, craft_def)
 		end
 	end
 
-	if def.callbacks then
-		for cb_name, f in pairs(def.callbacks) do
-			f_def[cb_name] = f
-		end
+	f_def.callbacks = def.callbacks or {}
+	for cb_name, f in pairs(f_def.callbacks) do
+		f_def[cb_name] = f
 	end
-	f_def.add_properties = def.add_properties
+
+	f_def.add_properties = def.add_properties or {}
 	local f_name = ":multidecor:" .. name
 	minetest.register_node(f_name, f_def)
 
@@ -183,6 +183,10 @@ function register.register_furniture_unit(name, def, craft_def)
 			recipe = craft_def.recipe,
 			replacements = craft_def.replacements
 		})
+	end
+
+	if f_def.add_properties.common_name then
+		connecting.register_connect_parts(f_def)
 	end
 end
 
