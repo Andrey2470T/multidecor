@@ -25,6 +25,13 @@ register.register_table("kitchen_modern_wooden_table", {
 		["edge_middle"] = "multidecor_kitchen_modern_wooden_table_4.obj",
 		["off_edge"] = "multidecor_kitchen_modern_wooden_table_5.obj"
 	}
+},
+{
+	recipe = {
+		{"", "multidecor:board", ""},
+		{"multidecor:plank", "", "multidecor:plank"},
+		{"default:stick", "default:stick", "default:stick"}
+	}
 })
 
 register.register_table("round_modern_metallic_table", {
@@ -36,6 +43,13 @@ register.register_table("round_modern_metallic_table", {
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}
 	}
+},
+{
+	recipe = {
+		{"", "multidecor:aspen_board", ""},
+		{"multidecor:metal_bar", "multidecor:metal_bar", "multidecor:metal_bar"},
+		{"", "multidecor:metal_bar", ""}
+	}
 })
 
 register.register_table("round_modern_wooden_table", {
@@ -46,6 +60,13 @@ register.register_table("round_modern_wooden_table", {
 	tiles = {"multidecor_jungle_wood.png"},
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}
+	}
+},
+{
+	recipe = {
+		{"multidecor:jungle_board", "", ""},
+		{"multidecor:jungle_plank", "multidecor:jungle_plank", ""},
+		{"default:stick", "", ""}
 	}
 })
 
@@ -80,6 +101,13 @@ register.register_table("modern_wooden_desk", {
 			side = "left",
 			inv_size = {w=6,h=3}
 		}
+	}
+},
+{
+	recipe = {
+		{"multidecor:jungle_board", "multidecor:jungle_board", "multidecor:jungle_board"},
+		{"multidecor:jungle_board", "multidecor:wooden_drawer", "multidecor:jungle_board"},
+		{"multidecor:jungle_board", "multidecor:jungle_board", "multidecor:jungle_board"}
 	}
 })
 
@@ -120,4 +148,12 @@ register.register_table("modern_wooden_table_with_metallic_legs", {
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}
 	}
-})
+},
+{
+	recipe = {
+		{"", "multidecor:pine_board", ""},
+		{"multidecor:metal_bar", "multidecor:pine_board", "multidecor:metal_bar"},
+		{"multidecor:metal_bar", "", "multidecor:metal_bar"}
+	}
+}
+)
