@@ -36,7 +36,13 @@ function register.register_seat(name, base_def, add_def, craft_def)
 	def.paramtype2 = "facedir"
 
 	-- additional properties
-	def.add_properties = add_def
+	if add_def then
+		if add_def.recipe then
+			craft_def = add_def
+		else
+			def.add_properties = add_def
+		end
+	end
 
 	if def.callbacks then
 		def.callbacks.on_construct = def.callbacks.on_construct or default_on_construct

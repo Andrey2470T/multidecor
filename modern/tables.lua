@@ -64,8 +64,8 @@ register.register_table("round_modern_wooden_table", {
 },
 {
 	recipe = {
-		{"multidecor:jungle_board", "", ""},
-		{"multidecor:jungle_plank", "multidecor:jungle_plank", ""},
+		{"multidecor:jungleboard", "", ""},
+		{"multidecor:jungleplank", "multidecor:jungleplank", ""},
 		{"default:stick", "", ""}
 	}
 })
@@ -105,9 +105,9 @@ register.register_table("modern_wooden_desk", {
 },
 {
 	recipe = {
-		{"multidecor:jungle_board", "multidecor:jungle_board", "multidecor:jungle_board"},
-		{"multidecor:jungle_board", "multidecor:wooden_drawer", "multidecor:jungle_board"},
-		{"multidecor:jungle_board", "multidecor:jungle_board", "multidecor:jungle_board"}
+		{"multidecor:jungleboard", "multidecor:jungleboard", "multidecor:jungleboard"},
+		{"multidecor:jungleboard", "multidecor:drawer", "multidecor:jungleboard"},
+		{"multidecor:jungleboard", "multidecor:jungleboard", "multidecor:jungleboard"}
 	}
 })
 

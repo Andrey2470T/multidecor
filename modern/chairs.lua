@@ -20,6 +20,13 @@ register.register_seat("kitchen_modern_wooden_chair", {
 			}
 		}
 	}
+},
+{
+	recipe = {
+		{"multidecor:board", "multidecor:board", ""},
+		{"default:stick", "default:stick", "default:stick"},
+		{"", "default:stick", ""}
+	}
 })
 
 register.register_seat("soft_kitchen_modern_wooden_chair", {
@@ -43,6 +50,13 @@ register.register_seat("soft_kitchen_modern_wooden_chair", {
 				anim = {range = {x=1, y=80}, speed = 15}
 			}
 		}
+	}
+},
+{
+	recipe = {
+		{"multidecor:board", "multidecor:board", "wool:white"},
+		{"default:stick", "default:stick", "default:stick"},
+		{"", "default:stick", ""}
 	}
 })
 
@@ -68,6 +82,13 @@ register.register_seat("soft_modern_jungle_chair", {
 			}
 		}
 	}
+},
+{
+	recipe = {
+		{"multidecor:jungleboard", "multidecor:jungleboard", "default:stick"},
+		{"default:stick", "default:stick", "default:stick"},
+		{"default:stick", "default:stick", ""}
+	}
 })
 
 register.register_seat("soft_round_modern_metallic_chair", {
@@ -92,6 +113,13 @@ register.register_seat("soft_round_modern_metallic_chair", {
 			}
 		}
 	}
+},
+{
+	recipe = {
+		{"wool:white", "wool:white", ""},
+		{"multidecor:metal_bar", "multidecor:metal_bar", ""},
+		{"multidecor:metal_bar", "multidecor:metal_bar", ""}
+	}
 })
 
 register.register_seat("round_modern_metallic_stool", {
@@ -114,5 +142,12 @@ register.register_seat("round_modern_metallic_stool", {
 				anim = {range = {x=1, y=80}, speed = 15}
 			}
 		}
+	}
+},
+{
+	recipe = {
+		{"wool:white", "", ""},
+		{"multidecor:metal_bar", "multidecor:metal_bar", "multidecor:metal_bar"},
+		{"multidecor:metal_bar", "multidecor:metal_bar", ""}
 	}
 })

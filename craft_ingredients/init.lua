@@ -32,59 +32,62 @@ local items_and_crafts = {
 }
 
 local format_nested_strings = function(t, wood)
-	for i, item_n in ipairs(t) do
+	local t2 = table.copy(t)
+	for i, item_n in ipairs(t2) do
 		if type(item_n) == "table" then
 			for i2, item_n2 in ipairs(item_n) do
-				t[i][i2] = item_n2:format(wood)
+				t2[i][i2] = item_n2:format(wood)
 			end
 		else
-			t[i] = item_n:format(wood)
+			t2[i] = item_n:format(wood)
 		end
 	end
+
+	return t2
 end
 
 for _, wood in ipairs(woods) do
-	wood = wood ~= "" and wood .. "_" or wood
-	to_capital_l = wood ~= "" and wood:sub(1,1):upper() .. wood:sub(2) or ""
+	wood = wood ~= "" and wood ~= "jungle" and wood .. "_" or wood
+	local to_capital_l = wood ~= "" and wood:sub(1,1):upper() .. wood:sub(2, -2) .. " " or ""
 
 	for item, recipes in pairs(items_and_crafts) do
-		minetest.debug("item: " .. dump(item))
 		minetest.register_craftitem(":multidecor:" .. wood .. item,
 		{
-			description = to_capital_l .. " " .. item:sub(1,1):upper() .. item:sub(2),
-			inventory_image = "multidecor_" .. wood .. item .. ".png"
+			description = to_capital_l .. item:sub(1,1):upper() .. item:sub(2),
+			inventory_image = "multidecor_" .. (wood == "jungle" and wood .. "_" or wood) .. item .. ".png"
 		})
 
 		for _, recipe in ipairs(recipes) do
-			minetest.register_craft({
+			local def = {
 				type = recipe.type,
 				output = "multidecor:" .. wood .. item .. " " .. recipe.amount,
 				recipe = format_nested_strings(recipe.recipe, wood),
-				replacements = recipe.type == "shapeless" and {{recipe.recipe[1]:format(wood), ""}, {"multidecor:saw", "multidecor:saw"}}
-			})
+				replacements = recipe.type == "shapeless" and {{"multidecor:saw", "multidecor:saw"}} or nil
+			}
+			minetest.register_craft(def)
 		end
 	end
 end
 
-minetest.register_craftitem("multidecor:saw",
+minetest.register_craftitem(":multidecor:saw",
 {
 	description = "Saw",
 	inventory_image = "multidecor_saw.png"
 })
 
-minetest.register_craftitem("multidecor:metal_bar",
+minetest.register_craftitem(":multidecor:metal_bar",
 {
 	description = "Metal Bar",
 	inventory_image = "multidecor_metal_bar.png"
 })
 
-minetest.register_craftitem("multidecor:steel_sheet",
+minetest.register_craftitem(":multidecor:steel_sheet",
 {
 	description = "Steel Sheet",
-	inventory_image = "multidecor_sheet.png"
+	inventory_image = "multidecor_steel_sheet.png"
 })
 
-minetest.register_craftitem("multidecor:steel_scissors",
+minetest.register_craftitem(":multidecor:steel_scissors",
 {
 	description = "Steel Scissors",
 	inventory_image = "multidecor_steel_scissors.png"
@@ -95,47 +98,29 @@ minetest.register_craft(
 	type = "shapeless",
 	output = "multidecor:steel_sheet",
 	recipe = {"default:steel_ingot", "multidecor:steel_scissors"},
-	replacements = {{"default:steel_ingot", ""}, {"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 minetest.register_craft(
 {
+	type = "shapeless",
 	output = "multidecor:metal_bar",
-	recipe = {
-		{"", "default:steel_ingot", ""},
-		{"", "default:steel_ingot", ""},
-		{"", "", ""}
-	}
+	recipe = {"default:steel_ingot", "default:steel_ingot", "multidecor:steel_scissors"},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 minetest.register_craft(
 {
+	type = "shapeless",
 	output = "multidecor:saw",
-	recipe = {
-		{"multidecor:plank", "multidecor:steel_sheet", "multidecor:saw"},
-		{"", "", ""},
-		{"", "", ""}
-	},
-	replacements = {
-		{{"multidecor:plank", ""}, {"multidecor:steel_sheet", ""}, {"multidecor:saw", "multidecor:saw"}},
-		{{"", ""}, {"", ""}, {"", ""}},
-		{{"", ""}, {"", ""}, {"", ""}}
-	}
+	recipe = {"multidecor:plank", "multidecor:steel_sheet"}
 })
 
 minetest.register_craft(
 {
+	type = "shapeless",
 	output = "multidecor:steel_scissors",
-	recipe = {
-		{"multidecor:plank", "default:steel_ingot", "multidecor:saw"},
-		{"", "", ""},
-		{"", "", ""}
-	},
-	replacements = {
-		{{"multidecor:plank", ""}, {"default:steel_ingot", ""}, {"multidecor:saw", "multidecor:saw"}},
-		{{"", ""}, {"", ""}, {"", ""}},
-		{{"", ""}, {"", ""}, {"", ""}}
-	}
+	recipe = {"multidecor:plank", "default:steel_ingot"}
 })
 
 
@@ -153,25 +138,18 @@ minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv
 			return
 		end
 	end
-	for _, item in ipairs(old_craft_grid) do
+
+	for _, stack in ipairs(old_craft_grid) do
+		check_for_item(stack:get_name())
 		if contains_saw or contains_steel_scissors then
 			break
 		end
-		if type(item) == "table" then
-			for _, item2 in ipairs(item) do
-				if contains_saw or contains_steel_scissors then
-					break
-				end
-				check_for_item(item2)
-			end
-		else
-			check_for_item(item)
-		end
 	end
 
-	local sound = contains_saw and "multidecor_saw.ogg" or contains_steel_scissors and "multidecor_steel_scissors.ogg"
-
+	local sound = contains_saw and "multidecor_saw" or contains_steel_scissors and "multidecor_steel_scissors"
 	if sound then
 		minetest.sound_play(sound, {to_player = player:get_player_name()})
 	end
+
+	return
 end)

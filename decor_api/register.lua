@@ -174,14 +174,14 @@ function register.register_furniture_unit(name, def, craft_def)
 	end
 
 	f_def.add_properties = def.add_properties or {}
-	local f_name = ":multidecor:" .. name
-	minetest.register_node(f_name, f_def)
+	local f_name = "multidecor:" .. name
+	minetest.register_node(":" .. f_name, f_def)
 
 	if craft_def then
 		minetest.register_craft({
 			output = f_name,
 			recipe = craft_def.recipe,
-			replacements = craft_def.replacements
+			replacements = craft_def.replacements or nil
 		})
 	end
 
