@@ -19,7 +19,9 @@
 	}
 ]]
 
-shelves = {}
+multidecor.shelves = {}
+
+shelves = multidecor.shelves
 
 -- Temporary saving objects of current "open" shelves in the following format: ["playername"] = objref
 local open_shelves = {}
@@ -49,6 +51,27 @@ function shelves.rotate_shelf(pos, obj, is_drawer, move_dist)
 	end
 end
 
+-- Rotates the obj`s selectionbox depending on the connected node rotation
+function shelves.rotate_shelf_bbox(obj)
+	local self = obj:get_luaentity()
+
+	if not self then return end
+
+	local sel_box = minetest.registered_entities[self.name].selectionbox
+	local dir = shelves.get_dir(self.connected_to.pos)
+	local yaw = vector.dir_to_rotation(dir).y
+
+	local box = {
+		min = {x=sel_box[1], y=sel_box[2], z=sel_box[3]},
+		max = {x=sel_box[4], y=sel_box[5], z=sel_box[6]}
+	}
+
+	box.min = vector.rotate_around_axis(box.min, {x=0, y=1, z=0}, yaw)
+	box.max = vector.rotate_around_axis(box.max, {x=0, y=1, z=0}, yaw)
+
+	obj:set_properties({selectionbox={box.min.x, box.min.y, box.min.z, box.max.x, box.max.y, box.max.z}})
+end
+
 -- Returns a direction of the node with 'pos' position
 function shelves.get_dir(pos)
 	local node = minetest.get_node(pos)
@@ -72,15 +95,7 @@ function shelves.open_shelf(obj, dir_sign)
 	end
 
 	local node_name = self.connected_to.name
-
-	local shelf_i
-	for i, data in ipairs(minetest.registered_nodes[node_name].add_properties.shelves_data) do
-		if self.name == data.object then
-			shelf_i = i
-		end
-	end
-
-	local shelf = minetest.registered_nodes[node_name].add_properties.shelves_data[shelf_i]
+	local shelf = minetest.registered_nodes[node_name].add_properties.shelves_data[self.shelf_data_i]
 	local dir = shelves.get_dir(self.connected_to.pos)
 
 	self.dir = dir_sign
@@ -110,7 +125,8 @@ function shelves.set_shelves(pos)
 				"list[detached:" .. inv_name .. ";" .. list_name .. ";0.5,1;" ..
 				shelf_data.inv_size.w .. "," .. shelf_data.inv_size.h .. ";]" ..
 				"list[current_player;main;0.5," .. shelf_data.inv_size.h+2 .. ";8,4;]"
-		local obj = minetest.add_entity(vector.add(pos, shelf_data.pos), shelf_data.object, minetest.serialize({fs, {name=node.name, pos=pos}, 0}))
+		local obj = minetest.add_entity(vector.add(pos, shelf_data.pos), shelf_data.object, minetest.serialize({fs, {name=node.name, pos=pos}, 0, i}))
+
 		local move_dist
 
 		if shelf_data.type == "drawer" then
@@ -147,28 +163,36 @@ shelves.default_on_activate = function(self, staticdata)
 		self.inv = data[1]
 		self.connected_to = data[2]
 		self.dir = data[3]
-		self.start_v = data[4]
-		self.end_v = data[5]
+		self.shelf_data_i = data[4]
+		self.start_v = data[5]
+		self.end_v = data[6]
 	end
+
+	local shelf_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data[self.shelf_data_i]
+	local obj_props = {}
+
+	-- Addendums for 'visual_size' multipliers
+	if shelf_data.visual_size_adds then
+		obj_props.visual_size = vector.add(self.object:get_properties().visual_size, shelf_data.visual_size_adds)
+	end
+	-- Usually means a material which the shelf is made of
+	if shelf_data.base_texture then
+		obj_props.textures = {shelf_data.base_texture .. "^multidecor_metallic_fittings.png"}
+	end
+	self.object:set_properties(obj_props)
+
+	shelves.rotate_shelf_bbox(self.object)
+
+
 end
 
 shelves.default_get_staticdata = function(self)
-	return minetest.serialize({self.inv, self.connected_to, self.dir, self.start_v, self.end_v})
+	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.start_v, self.end_v})
 end
 
 shelves.default_on_rightclick = function(self, clicker)
-	local def = minetest.registered_nodes[self.connected_to.name]
-	local shelf_i
-
-	for i, data in ipairs(def.add_properties.shelves_data) do
-		if self.name == data.object then
-			shelf_i = i
-			break
-		end
-	end
-
 	open_shelves[clicker:get_player_name()] = self.object
-	minetest.show_formspec(clicker:get_player_name(), self.connected_to.name .. "_" .. shelf_i .. "_fs", self.inv)
+	minetest.show_formspec(clicker:get_player_name(), self.connected_to.name .. "_" .. self.shelf_data_i .. "_fs", self.inv)
 
 	if self.dir == 0 then
 		shelves.open_shelf(self.object, 1)

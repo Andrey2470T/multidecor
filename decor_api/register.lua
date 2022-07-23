@@ -110,6 +110,7 @@ function register.register_furniture_unit(name, def, craft_def)
 	f_def.paramtype = "light"
 	f_def.paramtype2 = def.paramtype2 or "facedir"
 	f_def.use_texture_alpha = "clip"
+	f_def.drop = def.drop
 
 	if f_def.drawtype == "mesh" then
 		f_def.mesh = def.mesh
@@ -185,9 +186,9 @@ function register.register_furniture_unit(name, def, craft_def)
 		})
 	end
 
-	if f_def.add_properties.common_name then
+	--[[if f_def.add_properties.common_name then
 		connecting.register_connect_parts(f_def)
-	end
+	end]]
 end
 
 -- Registers a set of furniture components of certain type: "kitchen", "bathroom", "bedroom", "living_room" and etc.
