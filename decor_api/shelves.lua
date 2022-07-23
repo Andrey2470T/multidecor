@@ -135,25 +135,6 @@ function shelves.set_shelves(pos)
 			move_dist = shelf_data.side == "left" and -math.pi/2 or math.pi/2
 		end
 		shelves.rotate_shelf(pos, obj, shelf_data.type == "drawer", move_dist)
-		minetest.create_detached_inventory(inv_name, {
-			allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
-				return count
-			end,
-			allow_put = function(inv, listname, index, stack, player)
-				return stack:get_count()
-			end,
-			allow_take = function(inv, listname, index, stack, player)
-				return stack:get_count()
-			end
-		})
-
-		local inv = minetest.get_inventory({type="detached", name=inv_name})
-		inv:set_list(list_name, {})
-		inv:set_size(list_name, shelf_data.inv_size.w*shelf_data.inv_size.h)
-		inv:set_width(list_name, shelf_data.inv_size.w)
-
-		inv:set_size("main", 32)
-		inv:set_width("main", 8)
 	end
 end
 
@@ -164,8 +145,9 @@ shelves.default_on_activate = function(self, staticdata)
 		self.connected_to = data[2]
 		self.dir = data[3]
 		self.shelf_data_i = data[4]
-		self.start_v = data[5]
-		self.end_v = data[6]
+		self.inv_list = data[5] or {}
+		self.start_v = data[6]
+		self.end_v = data[7]
 	end
 
 	local shelf_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data[self.shelf_data_i]
@@ -183,11 +165,41 @@ shelves.default_on_activate = function(self, staticdata)
 
 	shelves.rotate_shelf_bbox(self.object)
 
+	local inv_name = self.connected_to.name:gsub(":", "_") .. "_" .. self.shelf_data_i .. "_inv"
+	minetest.create_detached_inventory(inv_name, {
+		allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
+			return count
+		end,
+		allow_put = function(inv, listname, index, stack, player)
+			return stack:get_count()
+		end,
+		allow_take = function(inv, listname, index, stack, player)
+			return stack:get_count()
+		end
+	})
 
+	local inv = minetest.get_inventory({type="detached", name=inv_name})
+	local inv_list = {}
+
+	for _, stack_t in ipairs(self.inv_list) do
+		local stack = ItemStack(stack_t.name)
+		stack:set_count(stack_t.count)
+		stack:set_wear(stack_t.wear)
+
+		table.insert(inv_list, stack)
+	end
+
+	local list_name = self.connected_to.name:sub(self.connected_to.name:find(":")+1) .. "_" .. shelf_data.type
+	inv:set_list(list_name, inv_list)
+	inv:set_size(list_name, shelf_data.inv_size.w*shelf_data.inv_size.h)
+	inv:set_width(list_name, shelf_data.inv_size.w)
+
+	inv:set_size("main", 32)
+	inv:set_width("main", 8)
 end
 
 shelves.default_get_staticdata = function(self)
-	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.start_v, self.end_v})
+	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.inv_list, self.start_v, self.end_v})
 end
 
 shelves.default_on_rightclick = function(self, clicker)
@@ -290,6 +302,17 @@ shelves.default_on_receive_fields = function(player, formname, fields)
 	local shelf = open_shelves[player:get_player_name()]
 	if fields.quit == "true" and shelf then
 		open_shelves[player:get_player_name()] = nil
+
+		local self = shelf:get_luaentity()
+		local inv_name = self.connected_to.name:gsub(":", "_") .. "_" .. self.shelf_data_i .. "_inv"
+		local inv = minetest.get_inventory({type="detached", name=inv_name})
+		local shelf_data = def.add_properties.shelves_data[self.shelf_data_i]
+		local list = inv:get_list(self.connected_to.name:sub(self.connected_to.name:find(":")+1) .. "_" .. shelf_data.type)
+
+		for _, stack in ipairs(list) do
+			table.insert(self.inv_list, {name=stack:get_name(), count=stack:get_count(), wear=stack:get_wear()})
+		end
+
 		shelves.open_shelf(shelf, -1)
 	end
 end
