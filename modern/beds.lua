@@ -29,6 +29,13 @@ register.register_bed("jungle_bed", {
 		inv_image = "multidecor_double_jungle_bed_inv.png",
 		mesh = "multidecor_double_jungle_bed.obj"
 	}
+},
+{
+	recipe = {
+		{"multidecor:jungleboard", "wool:white", "multidecor:jungleboard"},
+		{"multidecor:jungleboard", "wool:white", "multidecor:jungleboard"},
+		{"multidecor:jungleplank", "multidecor:jungleplank", "multidecor:jungleplank"}
+	}
 })
 
 register.register_bed("wooden_bed_with_legs", {
@@ -62,5 +69,12 @@ register.register_bed("wooden_bed_with_legs", {
 		description = "Wooden bed with legs (double)",
 		inv_image = "multidecor_double_wooden_bed_inv.png",
 		mesh = "multidecor_double_wooden_bed_with_legs.b3d"
+	}
+},
+{
+	recipe = {
+		{"multidecor:board", "wool:white", "multidecor:plank"},
+		{"multidecor:board", "wool:white", "multidecor:plank"},
+		{"multidecor:board", "multidecor:plank", ""}
 	}
 })

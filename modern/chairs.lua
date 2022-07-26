@@ -65,7 +65,7 @@ register.register_seat("soft_modern_jungle_chair", {
 	material = "wood",
 	description = "Soft Modern Jungle Chair",
 	mesh = "multidecor_soft_modern_jungle_chair.b3d",
-	tiles = {"multidecor_modern_jungle_chair.png"},
+	tiles = {"multidecor_jungle_wood.png", "multidecor_wool_material.png"},
 	bounding_boxes = {
 		{-0.35, -0.5, -0.35, 0.35, 0.25, 0.25},
 		{-0.35, -0.5, 0.25, 0.35, 1.2, 0.35}
@@ -96,7 +96,7 @@ register.register_seat("soft_round_modern_metallic_chair", {
 	material = "metal",
 	description = "Soft Round Modern Metallic Chair",
 	mesh = "multidecor_round_soft_metallic_chair.b3d",
-	tiles = {"multidecor_round_soft_metallic_chair.png"},
+	tiles = {"multidecor_wool_material.png", "multidecor_metal_material.png"},
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 0.5, 0.25, 0.25},
 		{-0.5, -0.5, 0.25, 0.5, 0.95, 0.5}
@@ -127,7 +127,7 @@ register.register_seat("round_modern_metallic_stool", {
 	material = "metal",
 	description = "Round Modern Jungle Stool",
 	mesh = "multidecor_modern_round_metallic_stool.b3d",
-	tiles = {"multidecor_modern_round_metallic_stool.png"},
+	tiles = {"multidecor_wool_material.png", "multidecor_metal_material.png"},
 	bounding_boxes = {
 		{-0.4, -0.5, -0.4, 0.4, 0.35, 0.4}
 	}

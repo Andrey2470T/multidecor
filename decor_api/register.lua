@@ -9,7 +9,8 @@ register.supported_types = {
 	"seat",
 	"table",
 	"shelf",
-	"bed"
+	"bed",
+	"light"
 }
 
 -- Default furniture styles
@@ -111,6 +112,8 @@ function register.register_furniture_unit(name, def, craft_def)
 	f_def.paramtype2 = def.paramtype2 or "facedir"
 	f_def.use_texture_alpha = "clip"
 	f_def.drop = def.drop
+	f_def.light_source = def.light_source
+	f_def.use_texture_alpha = def.use_texture_alpha
 
 	if f_def.drawtype == "mesh" then
 		f_def.mesh = def.mesh

@@ -38,8 +38,8 @@ register.register_table("round_modern_metallic_table", {
 	style = "modern",
 	material = "metal",
 	description = "Round Modern Metallic Table",
-	mesh = "multidecor_round_metallic_table.obj",
-	tiles = {"multidecor_round_metallic_table.png"},
+	mesh = "multidecor_round_metallic_table.b3d",
+	tiles = {"multidecor_metal_material.png", "multidecor_aspen_wood.png"},
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}
 	}
@@ -143,8 +143,8 @@ register.register_table("modern_wooden_table_with_metallic_legs", {
 	style = "modern",
 	material = "metal",
 	description = "Modern Wooden Table With Metallic Legs",
-	mesh = "multidecor_wooden_table_with_metallic_legs.obj",
-	tiles = {"multidecor_wooden_table_with_metallic_legs.png"},
+	mesh = "multidecor_wooden_table_with_metallic_legs.b3d",
+	tiles = {"multidecor_aspen_wood.png", "multidecor_metal_material.png"},
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}
 	}

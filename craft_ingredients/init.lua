@@ -93,6 +93,30 @@ minetest.register_craftitem(":multidecor:steel_scissors",
 	inventory_image = "multidecor_steel_scissors.png"
 })
 
+minetest.register_craftitem(":multidecor:bulb",
+{
+	description = "Bulb",
+	inventory_image = "multidecor_bulb.png"
+})
+
+minetest.register_craftitem(":multidecor:lampshade",
+{
+	description = "Lampshade",
+	inventory_image = "multidecor_lampshade.png"
+})
+
+minetest.register_craftitem(":multidecor:plastic_sheet",
+{
+	description = "Plastic Sheet",
+	inventory_image = "multidecor_plastic_sheet.png"
+})
+
+minetest.register_craftitem(":multidecor:metal_wire",
+{
+	description = "Metal Wire",
+	inventory_image = "multidecor_metal_wire.png"
+})
+
 minetest.register_craft(
 {
 	type = "shapeless",
@@ -123,6 +147,19 @@ minetest.register_craft(
 	recipe = {"multidecor:plank", "default:steel_ingot"}
 })
 
+minetest.register_craft(
+{
+	type = "shapeless",
+	output = "multidecor:lampshade 3",
+	recipe = {"wool:white", "multidecor:metal_wire"}
+})
+
+minetest.register_craft({
+    type = "cooking",
+    output = "multidecor:plastic_sheet",
+    recipe = "default:leaves",
+	cooktime = 10
+})
 
 minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
 	local contains_saw = false
