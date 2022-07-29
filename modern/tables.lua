@@ -114,8 +114,8 @@ register.register_table("modern_wooden_desk", {
 minetest.register_entity("modern:wooden_drawer", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_wooden_drawer.obj",
-	textures = {"multidecor_wooden_desk2.png"},
+	mesh = "multidecor_wooden_drawer.b3d",
+	textures = {"multidecor_jungle_wood.png", "multidecor_metal_material.png"},
 	physical = false,
 	selectionbox = {-0.35, -0.15, -0.4, 0.35, 0.15, 0.4},
 	static_save = true,
@@ -128,8 +128,8 @@ minetest.register_entity("modern:wooden_drawer", {
 minetest.register_entity("modern:wooden_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_wooden_door.obj",
-	textures = {"multidecor_wooden_desk2.png"},
+	mesh = "multidecor_wooden_door.b3d",
+	textures = {"multidecor_jungle_wood.png", "multidecor_metal_material.png"},
 	physical = false,
 	selectionbox = {-0.65, -0.25, 0, 0, 0.25, 0.05},
 	static_save = true,

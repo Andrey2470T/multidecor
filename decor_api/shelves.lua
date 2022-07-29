@@ -26,6 +26,10 @@ shelves = multidecor.shelves
 -- Temporary saving objects of current "open" shelves in the following format: ["playername"] = objref
 local open_shelves = {}
 
+function shelves.build_name_from_tmp(name, type, i)
+	return name .. "_" .. i .. "_" .. type
+end
+
 -- Rotates the shelf 'obj' around 'pos' position of the node
 function shelves.rotate_shelf(pos, obj, is_drawer, move_dist)
 	if not obj:get_luaentity() then
@@ -69,6 +73,18 @@ function shelves.rotate_shelf_bbox(obj)
 	box.min = vector.rotate_around_axis(box.min, {x=0, y=1, z=0}, yaw)
 	box.max = vector.rotate_around_axis(box.max, {x=0, y=1, z=0}, yaw)
 
+	local shelf = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data[self.shelf_data_i]
+
+	if shelf.type == "sym_doors" and
+			vector.round(vector.subtract(obj:get_pos(), self.connected_to.pos)) == vector.round(shelf.pos2) or self.is_flip_z_scale then
+		local x_dist = math.abs(sel_box[1])+math.abs(sel_box[4])
+		local rot_dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, -math.pi/2)
+		local x_shift = rot_dir * x_dist
+
+		box.min = box.min + x_shift
+		box.max = box.max + x_shift
+	end
+
 	obj:set_properties({selectionbox={box.min.x, box.min.y, box.min.z, box.max.x, box.max.y, box.max.z}})
 end
 
@@ -93,7 +109,7 @@ function shelves.open_shelf(obj, dir_sign)
 	if not self.connected_to then
 		return
 	end
-
+	--minetest.debug("2")
 	local node_name = self.connected_to.name
 	local shelf = minetest.registered_nodes[node_name].add_properties.shelves_data[self.shelf_data_i]
 	local dir = shelves.get_dir(self.connected_to.pos)
@@ -103,6 +119,24 @@ function shelves.open_shelf(obj, dir_sign)
 		-- Will pull out the drawer at the distance equal to 2/3 its length
 		obj:set_velocity(vector.multiply(dir*dir_sign, 0.6))
 	end
+	--minetest.debug("3")
+	if shelf.type == "sym_doors" then
+		local tpos = self.is_flip_z_scale and shelf.pos or shelf.pos2
+		tpos = self.connected_to.pos + vector.rotate_around_axis(tpos, {x=0, y=1, z=0}, vector.dir_to_rotation(dir).y)
+		local obj2 = minetest.get_objects_inside_radius(tpos, 0.05)[1]
+
+		if obj2 then
+			--minetest.debug("4")
+			local self2 = obj2:get_luaentity()
+
+			if self2 and self.name == self2.name then
+				--minetest.debug("5")
+				self2.dir = dir_sign
+				minetest.debug("sym_self: " .. dump(obj2:get_luaentity()))
+			end
+		end
+	end
+	--minetest.debug("6")
 end
 
 -- Adds shelf objects for the node with 'pos' position. They should save formspec inventory and position of the node which they are connected to
@@ -119,8 +153,8 @@ function shelves.set_shelves(pos)
 	local rot_y = vector.dir_to_rotation(dir)
 
 	for i, shelf_data in ipairs(def.add_properties.shelves_data) do
-		local inv_name = node.name:gsub(":", "_") .. "_" .. i .. "_inv"
-		local list_name = node.name:gsub(node.name:sub(1, node.name:find(":")), "") .. "_" .. shelf_data.type
+		local inv_name = shelves.build_name_from_tmp(node.name, "inv", i)
+		local list_name = shelves.build_name_from_tmp(node.name, "list", i)
 		local fs = "formspec_version[5]size[11," .. shelf_data.inv_size.h+7 .. "]" ..
 				"list[detached:" .. inv_name .. ";" .. list_name .. ";0.5,1;" ..
 				shelf_data.inv_size.w .. "," .. shelf_data.inv_size.h .. ";]" ..
@@ -131,10 +165,22 @@ function shelves.set_shelves(pos)
 
 		if shelf_data.type == "drawer" then
 			move_dist = 2/3*shelf_data.length
-		else
+		elseif shelf_data.type == "door" then
 			move_dist = shelf_data.side == "left" and -math.pi/2 or math.pi/2
+		elseif shelf_data.type == "sym_doors" then
+			move_dist = -math.pi/2
 		end
 		shelves.rotate_shelf(pos, obj, shelf_data.type == "drawer", move_dist)
+
+		if shelf_data.type == "sym_doors" then
+			local obj2 = minetest.add_entity(vector.add(pos, shelf_data.pos2), shelf_data.object, minetest.serialize({fs, {name=node.name, pos=pos}, 0, i}))
+
+			local vis_size = obj2:get_properties().visual_size
+			obj2:set_properties({visual_size={x=vis_size.x*-1, y=vis_size.y, z=vis_size.z}})
+			obj2:get_luaentity().is_flip_z_scale = true
+
+			shelves.rotate_shelf(pos, obj2, false, math.pi/2)
+		end
 	end
 end
 
@@ -148,24 +194,31 @@ shelves.default_on_activate = function(self, staticdata)
 		self.inv_list = data[5] or {}
 		self.start_v = data[6]
 		self.end_v = data[7]
+		self.is_flip_z_scale = data[8]
 	end
 
 	local shelf_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data[self.shelf_data_i]
 	local obj_props = {}
 
+	obj_props.visual_size = self.object:get_properties().visual_size
 	-- Addendums for 'visual_size' multipliers
 	if shelf_data.visual_size_adds then
-		obj_props.visual_size = vector.add(self.object:get_properties().visual_size, shelf_data.visual_size_adds)
+		obj_props.visual_size = vector.add(obj_props.visual_size, shelf_data.visual_size_adds)
+	end
+
+	if self.is_flip_z_scale then
+		obj_props.visual_size.x = obj_props.visual_size.x * -1
 	end
 	-- Usually means a material which the shelf is made of
 	if shelf_data.base_texture then
-		obj_props.textures = {shelf_data.base_texture .. "^multidecor_metallic_fittings.png"}
+		obj_props.textures = self.object:get_properties().textures
+		obj_props.textures[1] = shelf_data.base_texture
 	end
 	self.object:set_properties(obj_props)
 
 	shelves.rotate_shelf_bbox(self.object)
 
-	local inv_name = self.connected_to.name:gsub(":", "_") .. "_" .. self.shelf_data_i .. "_inv"
+	local inv_name = shelves.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
 	minetest.create_detached_inventory(inv_name, {
 		allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
 			return count
@@ -189,7 +242,7 @@ shelves.default_on_activate = function(self, staticdata)
 		table.insert(inv_list, stack)
 	end
 
-	local list_name = self.connected_to.name:sub(self.connected_to.name:find(":")+1) .. "_" .. shelf_data.type
+	local list_name = shelves.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i)
 	inv:set_list(list_name, inv_list)
 	inv:set_size(list_name, shelf_data.inv_size.w*shelf_data.inv_size.h)
 	inv:set_width(list_name, shelf_data.inv_size.w)
@@ -199,12 +252,12 @@ shelves.default_on_activate = function(self, staticdata)
 end
 
 shelves.default_get_staticdata = function(self)
-	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.inv_list, self.start_v, self.end_v})
+	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.inv_list, self.start_v, self.end_v, self.is_flip_z_scale})
 end
 
 shelves.default_on_rightclick = function(self, clicker)
 	open_shelves[clicker:get_player_name()] = self.object
-	minetest.show_formspec(clicker:get_player_name(), self.connected_to.name .. "_" .. self.shelf_data_i .. "_fs", self.inv)
+	minetest.show_formspec(clicker:get_player_name(), shelves.build_name_from_tmp(self.connected_to.name, "fs", self.shelf_data_i), self.inv)
 
 	if self.dir == 0 then
 		shelves.open_shelf(self.object, 1)
@@ -235,29 +288,25 @@ end
 shelves.default_door_on_step = function(self, dtime)
 	local node = minetest.get_node(self.connected_to.pos)
 
+	--minetest.debug("1")
 	if node.name ~= self.connected_to.name then
 		self.object:remove()
 		return
 	end
-
+	--minetest.debug("2")
 	if self.dir == 0 then
+		--minetest.debug("self.dir = 0")
 		return
 	end
-
+	--minetest.debug("3")
 	local rot = self.object:get_rotation()
 	local target_rot = self.dir == 1 and self.end_v or self.start_v
-	local data = minetest.registered_nodes[node.name].add_properties.shelves_data
-	local shelf_i
 
-	for i, d in ipairs(data) do
-		if self.name == d.object then
-			shelf_i = i
-			break
-		end
-	end
-	local is_exceeded_tr = data[shelf_i].type == "left" and rot.y < target_rot or
-			data[shelf_i].type == "right" and rot.y > target_rot
+	local is_exceeded_tr = self.start_v > self.end_v and rot.y < target_rot or
+			self.start_v < self.end_v and rot.y > target_rot
 
+	--minetest.debug("rot.y: " .. rot.y)
+	--minetest.debug("target_rot: " .. target_rot)
 	if math.abs(target_rot-rot.y) <= math.rad(10) or is_exceeded_tr then
 		self.dir = 0
 		self.step_c = nil
@@ -267,7 +316,8 @@ shelves.default_door_on_step = function(self, dtime)
 
 	self.step_c = self.step_c and self.step_c+1 or 1
 	-- Rotation speed is 60 degrees/sec
-	local new_rot = (-self.dir)*math.pi/3*dtime*0.5*self.step_c
+	local sign = self.start_v > self.end_v and -1 or 1
+	local new_rot = self.dir*sign*math.pi/3*dtime*0.5*self.step_c
 
 	self.object:set_rotation({x=rot.x, y=rot.y+new_rot, z=rot.z})
 end
@@ -304,15 +354,15 @@ shelves.default_on_receive_fields = function(player, formname, fields)
 		open_shelves[player:get_player_name()] = nil
 
 		local self = shelf:get_luaentity()
-		local inv_name = self.connected_to.name:gsub(":", "_") .. "_" .. self.shelf_data_i .. "_inv"
+		local inv_name = shelves.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
 		local inv = minetest.get_inventory({type="detached", name=inv_name})
 		local shelf_data = def.add_properties.shelves_data[self.shelf_data_i]
-		local list = inv:get_list(self.connected_to.name:sub(self.connected_to.name:find(":")+1) .. "_" .. shelf_data.type)
+		local list = inv:get_list(shelves.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i))
 
 		for _, stack in ipairs(list) do
 			table.insert(self.inv_list, {name=stack:get_name(), count=stack:get_count(), wear=stack:get_wear()})
 		end
-
+		--minetest.debug("1")
 		shelves.open_shelf(shelf, -1)
 	end
 end

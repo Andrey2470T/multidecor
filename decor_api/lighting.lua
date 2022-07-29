@@ -45,8 +45,5 @@ function register.register_light(name, base_def, add_def, craft_def)
 	def2.add_properties.swap_light = {name=name}
 
 	register.register_furniture_unit(swap_light_name, def2)
-
-	minetest.debug(name .. ": " .. dump(minetest.registered_nodes["multidecor:" .. name]))
-	minetest.debug(swap_light_name .. ": " .. dump(minetest.registered_nodes["multidecor:" .. swap_light_name]))
 end
 
