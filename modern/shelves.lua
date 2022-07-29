@@ -46,4 +46,26 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 			{"", "", ""}
 		}
 	})
+
+	register.register_table("modern_wooden_" .. wood_n .. "wall_shelf", {
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		paramtype2 = "wallmounted",
+		description = "Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf",
+		mesh = "multidecor_wall_shelf.obj",
+		tiles = {tex},
+		bounding_boxes = {
+			{-0.5, 0, 0.4, 0.5, -0.5, 0.5},
+			{-0.5, 0, 0.15, -0.4, -0.5, 0.4},
+			{0.4, 0, 0.15, 0.5, -0.5, 0.4}
+			--[[{-0.5, 0.4, 0, 0.5, 0.5, 0.5},
+			{-0.5, 0.15, 0, -0.4, 0.4, 0.5},
+			{0.4, 0.15, 0, 0.5, 0.4, 0.5}]]
+		}
+	},
+	{
+		type = "shapeless",
+		recipe = {"multidecor:" .. wood_n .. "plank", "multidecor:" .. wood_n .. "plank"}
+	})
 end

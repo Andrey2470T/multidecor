@@ -183,6 +183,7 @@ function register.register_furniture_unit(name, def, craft_def)
 
 	if craft_def then
 		minetest.register_craft({
+			type = craft_def.type,
 			output = f_name,
 			recipe = craft_def.recipe,
 			replacements = craft_def.replacements or nil
