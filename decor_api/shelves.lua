@@ -36,7 +36,7 @@ function shelves.rotate_shelf(pos, obj, is_drawer, move_dist)
 		return
 	end
 
-	local dir = shelves.get_dir(pos)
+	local dir = helpers.get_dir(pos)
 	local rot_y = vector.dir_to_rotation(dir).y
 
 	local rel_obj_pos = vector.subtract(obj:get_pos(), pos)
@@ -62,7 +62,7 @@ function shelves.rotate_shelf_bbox(obj)
 	if not self then return end
 
 	local sel_box = minetest.registered_entities[self.name].selectionbox
-	local dir = shelves.get_dir(self.connected_to.pos)
+	local dir = helpers.get_dir(self.connected_to.pos)
 	local yaw = vector.dir_to_rotation(dir).y
 
 	local box = {
@@ -88,16 +88,6 @@ function shelves.rotate_shelf_bbox(obj)
 	obj:set_properties({selectionbox={box.min.x, box.min.y, box.min.z, box.max.x, box.max.y, box.max.z}})
 end
 
--- Returns a direction of the node with 'pos' position
-function shelves.get_dir(pos)
-	local node = minetest.get_node(pos)
-	local def = minetest.registered_nodes[node.name]
-	local dir = def.paramtype2 == "facedir" and vector.copy(minetest.facedir_to_dir(node.param2)) or
-			def.paramtype2 == "wallmounted" and vector.copy(minetest.wallmounted_to_dir(node.param2))
-	dir = dir*-1
-	return dir
-end
-
 -- Animates opening or closing the shelf 'obj'. The action directly depends on 'dir_sign' value ('1' is open, '-1' is close)
 function shelves.open_shelf(obj, dir_sign)
 	local self = obj:get_luaentity()
@@ -112,7 +102,7 @@ function shelves.open_shelf(obj, dir_sign)
 	--minetest.debug("2")
 	local node_name = self.connected_to.name
 	local shelf = minetest.registered_nodes[node_name].add_properties.shelves_data[self.shelf_data_i]
-	local dir = shelves.get_dir(self.connected_to.pos)
+	local dir = helpers.get_dir(self.connected_to.pos)
 
 	self.dir = dir_sign
 	if shelf.type == "drawer" then

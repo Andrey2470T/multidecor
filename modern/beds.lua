@@ -23,6 +23,8 @@ register.register_bed("jungle_bed", {
 },
 {
 	common_name = "jungle_bed",
+	lay_pos1 = {x=0, y=0, z=1},
+	lay_pos2 = {x=-1, y=0, z=1},
 	double = {
 		mutable_bounding_box_indices = {1, 2},
 		description = "Jungle Bed (double)",
@@ -64,6 +66,8 @@ register.register_bed("wooden_bed_with_legs", {
 },
 {
 	common_name = "wooden_bed_with_legs",
+	lay_pos1 = {x=0, y=0, z=1},
+	lay_pos2 = {x=-1, y=0, z=1},
 	double = {
 		mutable_bounding_box_indices = {1, 2, 3},
 		description = "Wooden bed with legs (double)",

@@ -2,6 +2,7 @@ multidecor = {}
 
 local modpath = minetest.get_modpath("decor_api")
 
+dofile(modpath .. "/common_helpers.lua")
 dofile(modpath .. "/connecting.lua")
 dofile(modpath .. "/register.lua")
 dofile(modpath .. "/bed.lua")
