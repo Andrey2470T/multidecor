@@ -151,3 +151,72 @@ register.register_seat("round_modern_metallic_stool", {
 		{"multidecor:metal_bar", "multidecor:metal_bar", ""}
 	}
 })
+
+register.register_seat("armchair_with_wooden_legs", {
+	style = "modern",
+	material = "wood",
+	description = "Armchair with wooden legs",
+	inventory_image = "multidecor_armchair_with_wooden_legs_inv.png",
+	visual_scale = 0.5,
+	mesh = "multidecor_armchair_with_wooden_legs.b3d",
+	tiles = {"multidecor_pine_wood2.png", "multidecor_wool_material.png", "multidecor_wool_material.png"},
+	bounding_boxes = {
+		{-0.3, -0.5, -0.45, 0.3, 0.15, 0.3},
+		{-0.5, -0.5, -0.45, -0.3, 0.375, 0.3},
+		{0.3, -0.5, -0.45, 0.5, 0.375, 0.3},
+		{-0.5, -0.5, 0.3, 0.5, 0.85, 0.5}
+	}
+},
+{
+	seat_data = {
+		pos = {x=0.0, y=0.2, z=0.0},
+		rot = {x=0, y=0, z=0},
+		models = {
+			{
+				mesh = "multidecor_character_sitting.b3d",
+				anim = {range = {x=1, y=80}, speed = 15}
+			}
+		}
+	}
+},
+{
+	recipe = {
+		{"wool:white", "stairs:slab_pine_wood", "multidecor:pine_plank"},
+		{"wool:white", "multidecor:pine_plank", ""},
+		{"", "", ""}
+	}
+})
+
+register.register_seat("sofa", {
+	style = "modern",
+	material = "plastic",
+	description = "Sofa",
+	visual_scale = 0.5,
+	mesh = "multidecor_modern_sofa.b3d",
+	tiles = {"multidecor_modern_sofa.png", "multidecor_cloth.png"},
+	bounding_boxes = {
+		{-0.4, -0.5, -0.325, 0.4, 0, 0.225},
+		{-0.5, -0.5, -0.325, -0.4, 0.2, 0.225},
+		{0.4, -0.5, -0.325, 0.5, 0.2, 0.225},
+		{-0.5, -0.5, 0.225, 0.5, 0.6, 0.5}
+	}
+},
+{
+	seat_data = {
+		pos = {x=0.0, y=0.1, z=0.0},
+		rot = {x=0, y=0, z=0},
+		models = {
+			{
+				mesh = "multidecor_character_sitting.b3d",
+				anim = {range = {x=1, y=80}, speed = 15}
+			}
+		}
+	}
+},
+{
+	recipe = {
+		{"wool:white", "wool:white", "wool:white"},
+		{"multidecor:plastic_sheet", "multidecor:plastic_sheet", ""},
+		{"multidecor:plastic_sheet", "", ""}
+	}
+})

@@ -166,7 +166,7 @@ function register.register_furniture_unit(name, def, craft_def)
 		elseif def.material == "metal" then
 			f_def.sounds = default.node_sound_metal_defaults()
 		elseif def.material == "plastic" then
-			f_def.sounds = default.node_sound_leaves_defaults()
+			f_def.sounds = default.node_sound_wood_defaults({dig={name="default_dig_snappy", gain=0.5}})
 		elseif def.material == "stone" then
 			f_def.sounds = default.node_sound_stone_defaults()
 		end

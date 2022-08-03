@@ -6,7 +6,7 @@ local default_on_rightclick = function(pos)
 		return
 	end
 
-	minetest.set_node(pos, {name="multidecor:" .. add_props.swap_light.name})
+	minetest.set_node(pos, {name="multidecor:" .. add_props.swap_light.name, param2=node.param2})
 end
 
 
