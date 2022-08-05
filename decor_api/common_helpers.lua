@@ -11,3 +11,15 @@ function helpers.get_dir(pos)
 	dir = dir*-1
 	return dir
 end
+
+function helpers.clamp(s, e, v)
+	local start_v = s
+	local end_v = e
+
+	if s > e then
+		start_v = e
+		end_v = s
+	end
+
+	return v < start_v and start_v or v > end_v and end_v or v
+end

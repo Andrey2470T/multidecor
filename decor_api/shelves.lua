@@ -99,7 +99,7 @@ function shelves.open_shelf(obj, dir_sign)
 	if not self.connected_to then
 		return
 	end
-	--minetest.debug("2")
+
 	local node_name = self.connected_to.name
 	local shelf = minetest.registered_nodes[node_name].add_properties.shelves_data[self.shelf_data_i]
 	local dir = helpers.get_dir(self.connected_to.pos)
@@ -109,24 +109,20 @@ function shelves.open_shelf(obj, dir_sign)
 		-- Will pull out the drawer at the distance equal to 2/3 its length
 		obj:set_velocity(vector.multiply(dir*dir_sign, 0.6))
 	end
-	--minetest.debug("3")
+
 	if shelf.type == "sym_doors" then
 		local tpos = self.is_flip_z_scale and shelf.pos or shelf.pos2
 		tpos = self.connected_to.pos + vector.rotate_around_axis(tpos, {x=0, y=1, z=0}, vector.dir_to_rotation(dir).y)
 		local obj2 = minetest.get_objects_inside_radius(tpos, 0.05)[1]
 
 		if obj2 then
-			--minetest.debug("4")
 			local self2 = obj2:get_luaentity()
 
 			if self2 and self.name == self2.name then
-				--minetest.debug("5")
 				self2.dir = dir_sign
-				minetest.debug("sym_self: " .. dump(obj2:get_luaentity()))
 			end
 		end
 	end
-	--minetest.debug("6")
 end
 
 -- Adds shelf objects for the node with 'pos' position. They should save formspec inventory and position of the node which they are connected to
@@ -205,6 +201,7 @@ shelves.default_on_activate = function(self, staticdata)
 		obj_props.textures[1] = shelf_data.base_texture
 	end
 	self.object:set_properties(obj_props)
+	self.object:set_armor_groups({immortal=1})
 
 	shelves.rotate_shelf_bbox(self.object)
 
@@ -278,26 +275,21 @@ end
 shelves.default_door_on_step = function(self, dtime)
 	local node = minetest.get_node(self.connected_to.pos)
 
-	--minetest.debug("1")
 	if node.name ~= self.connected_to.name then
 		self.object:remove()
 		return
 	end
-	--minetest.debug("2")
+
 	if self.dir == 0 then
-		--minetest.debug("self.dir = 0")
 		return
 	end
-	--minetest.debug("3")
+
 	local rot = self.object:get_rotation()
 	local target_rot = self.dir == 1 and self.end_v or self.start_v
 
-	local is_exceeded_tr = self.start_v > self.end_v and rot.y < target_rot or
-			self.start_v < self.end_v and rot.y > target_rot
+	rot.y = helpers.clamp(self.start_v, self.end_v, rot.y)
 
-	--minetest.debug("rot.y: " .. rot.y)
-	--minetest.debug("target_rot: " .. target_rot)
-	if math.abs(target_rot-rot.y) <= math.rad(10) or is_exceeded_tr then
+	if math.abs(target_rot-rot.y) <= math.rad(10) then
 		self.dir = 0
 		self.step_c = nil
 		self.object:set_rotation({x=rot.x, y=target_rot, z=rot.z})
@@ -352,7 +344,7 @@ shelves.default_on_receive_fields = function(player, formname, fields)
 		for _, stack in ipairs(list) do
 			table.insert(self.inv_list, {name=stack:get_name(), count=stack:get_count(), wear=stack:get_wear()})
 		end
-		--minetest.debug("1")
+
 		shelves.open_shelf(shelf, -1)
 	end
 end
