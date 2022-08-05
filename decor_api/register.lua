@@ -50,7 +50,6 @@ end
 
 -- Checks whether style with 'style_name' name is registered
 function register.check_for_style(style_name)
-	minetest.debug("style_name: " .. style_name)
 	for _, style in ipairs(register.supported_styles) do
 		if style == style_name then
 			return true

@@ -1,3 +1,8 @@
+local modpath = minetest.get_modpath("craft_ingredients")
+
+dofile(modpath .. "/ores.lua")
+
+
 local woods = {"", "jungle", "aspen", "pine"}
 local items_and_crafts = {
 	["board"] = {
@@ -117,10 +122,40 @@ minetest.register_craftitem(":multidecor:metal_wire",
 	inventory_image = "multidecor_metal_wire.png"
 })
 
+minetest.register_craftitem(":multidecor:metal_chain",
+{
+	description = "Chain",
+	inventory_image = "multidecor_chain.png"
+})
+
+minetest.register_craftitem(":multidecor:four_bulbs_set",
+{
+	description = "Set from four bulbs",
+	inventory_image = "multidecor_four_bulbs_set.png"
+})
+
+minetest.register_craftitem(":multidecor:wolfram_wire",
+{
+	description = "Wolfram Wire",
+	inventory_image = "multidecor_wolfram_wire.png"
+})
+
+minetest.register_craftitem(":multidecor:silver_wire",
+{
+	description = "Silver Wire",
+	inventory_image = "multidecor_silver_wire.png"
+})
+
+minetest.register_craftitem(":multidecor:four_lampshades_set",
+{
+	description = "Set from four lampshades",
+	inventory_image = "multidecor_four_lampshades_set.png"
+})
+
 minetest.register_craft(
 {
 	type = "shapeless",
-	output = "multidecor:steel_sheet",
+	output = "multidecor:steel_sheet 5",
 	recipe = {"default:steel_ingot", "multidecor:steel_scissors"},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
@@ -128,7 +163,7 @@ minetest.register_craft(
 minetest.register_craft(
 {
 	type = "shapeless",
-	output = "multidecor:metal_bar",
+	output = "multidecor:metal_bar 2",
 	recipe = {"default:steel_ingot", "default:steel_ingot", "multidecor:steel_scissors"},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
@@ -159,6 +194,65 @@ minetest.register_craft({
     output = "multidecor:plastic_sheet",
     recipe = "default:leaves",
 	cooktime = 10
+})
+
+if minetest.get_modpath("moreores") then
+	minetest.register_craft(
+	{
+		type = "shapeless",
+		output = "multidecor:silver_chain 3",
+		recipe = {"multidecor:metal_bar", "moreores:silver_ingot", "multidecor:steel_scissors"},
+		replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+	})
+
+	minetest.register_craft({
+		type = "shapeless",
+		output = "multidecor:silver_wire 4",
+		recipe = {"moreores:silver_ingot", "multidecor:steel_scissors"},
+		replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+	})
+end
+
+minetest.register_craft({
+	output = "multidecor:bulb",
+	recipe = {
+		{"vessels:glass_bottle", "multidecor:wolfram_wire", ""},
+		{"multidecor:steel_sheet", "multidecor:steel_scissors", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:four_bulbs_set",
+	recipe = {"multidecor:bulb", "multidecor:bulb", "multidecor:bulb", "multidecor:bulb"}
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:metal_wire 5",
+	recipe = {"multidecor:metal_bar", "multidecor:steel_scissors"},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:wolfram_wire 4",
+	recipe = {"multidecor:wolfram_ingot", "multidecor:steel_scissors"},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:metal_chain",
+	recipe = {"multidecor:metal_wire", "multidecor:metal_wire"}
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:four_lampshades_set",
+	recipe = {"multidecor:lampshade", "multidecor:lampshade", "multidecor:lampshade", "multidecor:lampshade"}
 })
 
 minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)

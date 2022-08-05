@@ -9,7 +9,68 @@ if minetest.get_modpath("moreores") then
 			{"", "", ""}
 		}
 	}
+
+	gold_chandelier_recipe = {
+		recipe = {
+			{"default:gold_ingot", "default:gold_ingot", "default:gold_ingot"},
+			{"default:gold_ingot", "xpanes:pane_flat", "multidecor:four_bulbs_set"},
+			{"moreores:silver_ingot", "multidecor:metal_chain", "multidecor:bulb"}
+		}
+	}
 end
+
+local silver_chain_bbox = {
+	type = "fixed",
+	fixed = {-0.1, -0.5, -0.1, 0.1, 0.5, 0.1}
+}
+
+local silver_chain_on_construct = function(pos)
+	local up_node = minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z})
+	local up_def = minetest.registered_nodes[up_node.name]
+
+	if up_node.name ~= "multidecor:silver_chain_tip" and
+		not (up_def.drawtype == "airlike" or up_def.drawtype == "liquid" or
+			up_def.drawtype == "flowingliquid") then
+		minetest.set_node(pos, {name="multidecor:silver_chain_tip"})
+	end
+end
+
+local silver_chandelier_on_construct = function(pos)
+	local up_node = minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z})
+
+	if minetest.get_item_group(up_node.name, "multidecor_silver_chain") == 0 then
+		minetest.remove_node(pos)
+	end
+end
+
+minetest.register_node(":multidecor:silver_chain", {
+	drawtype = "mesh",
+	visual_scale = 0.5,
+	paramtype = "light",
+	paramtype2 = "facedir",
+	description = "Silver Chain",
+	mesh = "multidecor_silver_chain.b3d",
+	tiles = {"multidecor_silver_material.png"},
+	groups = {cracky=1.5, oddly_breakable_by_hand=0, multidecor_silver_chain=1},
+	sounds = default.node_sound_metal_defaults(),
+	collision_box = silver_chain_bbox,
+    selection_box = silver_chain_bbox,
+	on_construct = silver_chain_on_construct
+})
+
+minetest.register_node(":multidecor:silver_chain_tip", {
+	drawtype = "mesh",
+	visual_scale = 0.5,
+	paramtype = "light",
+	paramtype2 = "facedir",
+	description = "Silver Chain",
+	mesh = "multidecor_silver_chain_tip.b3d",
+	tiles = {"multidecor_silver_material.png", "multidecor_gold_material.png"},
+	groups = {cracky=1.5, oddly_breakable_by_hand=0, not_in_creative_inventory=1, multidecor_silver_chain=1},
+	sounds = default.node_sound_metal_defaults(),
+	collision_box = silver_chain_bbox,
+	selection_box = silver_chain_bbox
+})
 
 
 register.register_light("silvered_desk_lamp_off", {
@@ -91,13 +152,16 @@ register.register_light("gold_chandelier_with_glass_candles_off", {
 		{-0.15, 0, -0.15, 0.15, 0.5, 0.15},
 		{-0.5, -0.5, -0.5, 0.5, 0, 0.5}
 	},
+	callbacks = {
+		on_construct = silver_chandelier_on_construct
+	}
 },
 {
 	swap_light = {
 		name = "gold_chandelier_with_glass_candles_on",
 		light_level = 13
 	}
-})
+}, gold_chandelier_recipe)
 
 register.register_light("metal_chandelier_with_plastic_plafonds_off", {
 	style = "modern",
@@ -120,5 +184,12 @@ register.register_light("metal_chandelier_with_plastic_plafonds_off", {
 	swap_light = {
 		name = "metal_chandelier_with_plastic_plafonds_on",
 		light_level = 12
+	}
+},
+{
+	recipe = {
+		{"multidecor:metal_bar", "multidecor:metal_bar", "multidecor:four_lampshades_set"},
+		{"multidecor:metal_bar", "multidecor:metal_bar", "multidecor:four_bulbs_set"},
+		{"multidecor:metal_bar", "", ""}
 	}
 })
