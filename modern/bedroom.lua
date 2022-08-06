@@ -13,9 +13,6 @@ register.register_bed("jungle_bed", {
 		on_construct = function(pos)
 			connecting.update_adjacent_nodes_connection(pos, "pair")
 		end,
-		after_destruct = function(pos, oldnode)
-			connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
-		end,
 		after_dig_node = function(pos, oldnode)
 			connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
 		end

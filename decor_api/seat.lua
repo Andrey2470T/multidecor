@@ -57,4 +57,8 @@ function register.register_seat(name, base_def, add_def, craft_def)
 	end
 
 	register.register_furniture_unit(name, def, craft_def)
+
+	if def.add_properties and def.add_properties.connect_parts then
+		connecting.register_connect_parts(def)
+	end
 end

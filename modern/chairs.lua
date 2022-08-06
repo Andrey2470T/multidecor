@@ -199,9 +199,24 @@ register.register_seat("sofa", {
 		{-0.5, -0.5, -0.325, -0.4, 0.2, 0.225},
 		{0.4, -0.5, -0.325, 0.5, 0.2, 0.225},
 		{-0.5, -0.5, 0.225, 0.5, 0.6, 0.5}
+	},
+	callbacks = {
+		on_construct = function(pos)
+			connecting.update_adjacent_nodes_connection(pos, "directional")
+		end,
+		after_dig_node = function(pos, old_node)
+			connecting.update_adjacent_nodes_connection(pos, "directional", true, old_node)
+		end
 	}
 },
 {
+	common_name = "sofa",
+	connect_parts = {
+		["left_side"] = "multidecor_modern_sofa_1.b3d",
+		["right_side"] = "multidecor_modern_sofa_2.b3d",
+		["middle"] = "multidecor_modern_sofa_3.b3d",
+		["corner"] = "multidecor_modern_sofa_4.b3d"
+	},
 	seat_data = {
 		pos = {x=0.0, y=0.1, z=0.0},
 		rot = {x=0, y=0, z=0},
