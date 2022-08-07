@@ -141,10 +141,20 @@ function shelves.set_shelves(pos)
 	for i, shelf_data in ipairs(def.add_properties.shelves_data) do
 		local inv_name = shelves.build_name_from_tmp(node.name, "inv", i)
 		local list_name = shelves.build_name_from_tmp(node.name, "list", i)
-		local fs = "formspec_version[5]size[11," .. shelf_data.inv_size.h+7 .. "]" ..
-				"list[detached:" .. inv_name .. ";" .. list_name .. ";0.5,1;" ..
-				shelf_data.inv_size.w .. "," .. shelf_data.inv_size.h .. ";]" ..
-				"list[current_player;main;0.5," .. shelf_data.inv_size.h+2 .. ";8,4;]"
+
+		local padding = 0.25
+		local fs_size = {
+			w = shelf_data.inv_size.w+1+(shelf_data.inv_size.w-1)*padding,
+			h = shelf_data.inv_size.h+5.5+(shelf_data.inv_size.h-1)*padding+3*padding
+		}
+		local player_list_y = shelf_data.inv_size.h+1+(shelf_data.inv_size.h-1)*padding
+
+		local fs = ("formspec_version[4]size[%f,%f]" ..
+				"list[detached:%s;%s;0.5,0.5;%f,%f;]" ..
+				"list[current_player;main;0.5,%f;8,4;]"):format(
+					fs_size.w, fs_size.h,
+					inv_name, list_name,
+					shelf_data.inv_size.w, shelf_data.inv_size.h, player_list_y)
 		local obj = minetest.add_entity(vector.add(pos, shelf_data.pos), shelf_data.object, minetest.serialize({fs, {name=node.name, pos=pos}, 0, i}))
 
 		local move_dist

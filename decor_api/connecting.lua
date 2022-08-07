@@ -107,9 +107,9 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect)
 	minetest.debug("dir_rot: " .. dir_rot)
 	minetest.debug("dir_rot2: " .. dir_rot2)
 	local is_left_corner = add_props.connect_parts.left_side == def.mesh and side == "right" and
-			dir_rot-math.pi/2 == dir_rot2
+			dir_rot-90 == dir_rot2
 	local is_right_corner = add_props.connect_parts.right_side == def.mesh and side == "left" and
-			dir_rot+math.pi/2 == dir_rot2
+			dir_rot+90 == dir_rot2
 	if is_left_corner then
 		--minetest.debug("left corner")
 		right_dir = dir
@@ -137,12 +137,12 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect)
 	end
 
 	if connecting.are_nodes_identical(right_pos, pos) then
-		if target_node == "" then
+		if is_right_corner then
+			target_node = "corner"
+		elseif target_node == "" then
 			target_node = "left_side"
 		elseif target_node == "right_side" then
 			target_node = "middle"
-		elseif is_right_corner then
-			target_node = "corner"
 		end
 	end
 	minetest.debug("target_node: " .. target_node)

@@ -28,7 +28,7 @@ local silver_chain_on_construct = function(pos)
 	local up_node = minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z})
 	local up_def = minetest.registered_nodes[up_node.name]
 
-	if up_node.name ~= "multidecor:silver_chain_tip" and
+	if up_node.name ~= "multidecor:silver_chain_tip" and up_node.name ~= "multidecor:silver_chain" and
 		not (up_def.drawtype == "airlike" or up_def.drawtype == "liquid" or
 			up_def.drawtype == "flowingliquid") then
 		minetest.set_node(pos, {name="multidecor:silver_chain_tip"})
