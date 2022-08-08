@@ -22,14 +22,14 @@ register.register_table("modern_cupboard_with_glass_doors", {
 			pos = {x=0.5, y=1.6625, z=0.25},
 			pos2 = {x=-0.5, y=1.6625, z=0.25},
 			object = "modern:wardrobe_wooden_glass_door",
-			inv_size = {w=8,h=6}
+			inv_size = {w=16,h=8}
 		},
 		{
 			type = "sym_doors",
 			pos = {x=0.5, y=0.2375, z=0.25},
 			pos2 = {x=-0.5, y=0.2375, z=0.25},
 			object = "modern:wardrobe_wooden_door",
-			inv_size = {w=8,h=6}
+			inv_size = {w=16,h=8}
 		}
 	}
 },
