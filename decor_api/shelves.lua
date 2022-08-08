@@ -145,13 +145,13 @@ function shelves.set_shelves(pos)
 		local padding = 0.25
 		local fs_size = {
 			w = shelf_data.inv_size.w+1+(shelf_data.inv_size.w-1)*padding,
-			h = shelf_data.inv_size.h+5.5+(shelf_data.inv_size.h-1)*padding+3*padding
+			h = shelf_data.inv_size.h+2.5+(shelf_data.inv_size.h-1)*padding+4*padding
 		}
 		local player_list_y = shelf_data.inv_size.h+1+(shelf_data.inv_size.h-1)*padding
 
 		local fs = ("formspec_version[4]size[%f,%f]" ..
 				"list[detached:%s;%s;0.5,0.5;%f,%f;]" ..
-				"list[current_player;main;0.5,%f;8,4;]"):format(
+				"list[current_player;main;0.5,%f;16,2;]"):format(
 					fs_size.w, fs_size.h,
 					inv_name, list_name,
 					shelf_data.inv_size.w, shelf_data.inv_size.h, player_list_y)
