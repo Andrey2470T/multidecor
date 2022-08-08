@@ -93,14 +93,14 @@ register.register_table("modern_wooden_desk", {
 			pos = {x=-1.15, y=0.225, z=0.025},
 			object = "modern:wooden_drawer",
 			length = 0.8,
-			inv_size = {w=6,h=1}
+			inv_size = {w=16,h=1}
         },
 		{
 			type = "door",
 			pos = {x=-0.825, y=-0.15, z=0.4},
 			object = "modern:wooden_door",
 			side = "left",
-			inv_size = {w=6,h=3}
+			inv_size = {w=16,h=4}
 		}
 	}
 },
@@ -182,7 +182,7 @@ register.register_table("modern_bedside_table", {
 			pos = {x=0, y=-0.28, z=0.06},
 			object = "modern:wooden_drawer",
 			length = 0.8,
-			inv_size = {w=6,h=1}
+			inv_size = {w=16,h=1}
         },
 		{
 			type = "drawer",
@@ -191,7 +191,7 @@ register.register_table("modern_bedside_table", {
 			pos = {x=0, y=0.06, z=0.06},
 			object = "modern:wooden_drawer",
 			length = 0.8,
-			inv_size = {w=6,h=1}
+			inv_size = {w=16,h=1}
 		}
 	}
 },
