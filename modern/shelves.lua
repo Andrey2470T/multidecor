@@ -65,4 +65,30 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		type = "shapeless",
 		recipe = {"multidecor:" .. wood_n .. "plank", "multidecor:" .. wood_n .. "plank"}
 	})
+
+	register.register_table("modern_wooden_" .. wood_n .. "wall_shelf_with_books", {
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		paramtype2 = "wallmounted",
+		description = "Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf With Books",
+		mesh = "multidecor_wall_shelf_with_books.b3d",
+		tiles = { -- Red, blue, green, darkmagenta, darkorange
+			tex,
+			"multidecor_book_envelope.png^[multiply:red^multidecor_book.png",
+			"multidecor_book_envelope.png^[multiply:darkorange^multidecor_book.png",
+			"multidecor_book_envelope.png^[multiply:blue^multidecor_book_pattern.png^multidecor_book.png",
+			"multidecor_book_envelope.png^[multiply:green^multidecor_book_pattern2.png^multidecor_book.png",
+			"multidecor_book_envelope.png^[multiply:darkmagenta^multidecor_book_pattern.png^multidecor_book.png",
+		},
+		bounding_boxes = {
+			{-0.5, 0, 0.4, 0.5, -0.5, 0.5},
+			{-0.5, 0, 0.15, -0.4, -0.5, 0.4},
+			{0.4, 0, 0.15, 0.5, -0.5, 0.4}
+		}
+	}--[[,
+	{
+		type = "shapeless",
+		recipe = {"multidecor:" .. wood_n .. "plank", "multidecor:" .. wood_n .. "plank"}
+	}]])
 end

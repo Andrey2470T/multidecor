@@ -10,7 +10,8 @@ register.supported_types = {
 	"table",
 	"shelf",
 	"bed",
-	"light"
+	"light",
+	"decoration"
 }
 
 -- Default furniture styles
@@ -109,7 +110,7 @@ function register.register_furniture_unit(name, def, craft_def)
 	f_def.drawtype = def.drawtype or "mesh"
 	f_def.paramtype = "light"
 	f_def.paramtype2 = def.paramtype2 or "facedir"
-	f_def.use_texture_alpha = "clip"
+	f_def.use_texture_alpha = def.use_texture_alpha or "clip"
 	f_def.drop = def.drop
 	f_def.light_source = def.light_source
 	f_def.use_texture_alpha = def.use_texture_alpha
@@ -171,12 +172,15 @@ function register.register_furniture_unit(name, def, craft_def)
 		end
 	end
 
-	f_def.callbacks = def.callbacks or {}
-	for cb_name, f in pairs(f_def.callbacks) do
-		f_def[cb_name] = f
+	if def.type ~= "decoration" then
+		f_def.callbacks = def.callbacks or {}
+		for cb_name, f in pairs(f_def.callbacks) do
+			f_def[cb_name] = f
+		end
+
+		f_def.add_properties = def.add_properties or {}
 	end
 
-	f_def.add_properties = def.add_properties or {}
 	local f_name = "multidecor:" .. name
 	minetest.register_node(":" .. f_name, f_def)
 
@@ -188,10 +192,6 @@ function register.register_furniture_unit(name, def, craft_def)
 			replacements = craft_def.replacements or nil
 		})
 	end
-
-	--[[if f_def.add_properties.common_name then
-		connecting.register_connect_parts(f_def)
-	end]]
 end
 
 -- Registers a set of furniture components of certain type: "kitchen", "bathroom", "bedroom", "living_room" and etc.
