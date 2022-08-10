@@ -79,3 +79,100 @@ register.register_bed("wooden_bed_with_legs", {
 		{"multidecor:board", "multidecor:plank", ""}
 	}
 })
+
+register.register_table("dresser_with_mirror", {
+	style = "modern",
+	material = "wood",
+	description = "Dresser With Mirror",
+	visual_scale = 0.5,
+	mesh = "multidecor_dresser_with_mirror.b3d",
+	tiles = {"multidecor_aspen_wood.png", "multidecor_gloss.png"},
+	use_texture_alpha = "blend",
+	bounding_boxes = {
+		{-0.5, -0.5, -0.5, 1.5, 0.5, 0.5}
+	},
+	callbacks = {
+		on_construct = function(pos)
+			shelves.set_shelves(pos)
+		end
+	}
+},
+{
+	shelves_data = {
+		{
+			type = "drawer",
+			base_texture = "multidecor_aspen_wood.png",
+			visual_size_adds = {x=1.5, y=1.5, z=1.2},
+			pos = {x=-0.02, y=0.28, z=0},
+			object = "modern:wooden_drawer_with_round_handle",
+			length = 0.5,
+			inv_size = {w=6,h=1}
+        },
+		{
+			type = "drawer",
+			base_texture = "multidecor_aspen_wood.png",
+			visual_size_adds = {x=1.5, y=1.5, z=1.2},
+			pos = {x=-0.02, y=0, z=0},
+			object = "modern:wooden_drawer_with_round_handle",
+			length = 0.5,
+			inv_size = {w=6,h=1}
+        },
+		{
+			type = "drawer",
+			base_texture = "multidecor_aspen_wood.png",
+			visual_size_adds = {x=1.5, y=1.5, z=1.2},
+			pos = {x=-0.02, y=-0.28, z=0},
+			object = "modern:wooden_drawer_with_round_handle",
+			length = 0.5,
+			inv_size = {w=6,h=1}
+        },
+		{
+			type = "drawer",
+			base_texture = "multidecor_aspen_wood.png",
+			visual_size_adds = {x=1.5, y=1.5, z=1.2},
+			pos = {x=-1, y=0.28, z=0},
+			object = "modern:wooden_drawer_with_round_handle",
+			length = 0.5,
+			inv_size = {w=6,h=1}
+        },
+		{
+			type = "drawer",
+			base_texture = "multidecor_aspen_wood.png",
+			visual_size_adds = {x=1.5, y=1.5, z=1.2},
+			pos = {x=-1, y=0, z=0},
+			object = "modern:wooden_drawer_with_round_handle",
+			length = 0.5,
+			inv_size = {w=6,h=1}
+        },
+		{
+			type = "drawer",
+			base_texture = "multidecor_aspen_wood.png",
+			visual_size_adds = {x=1.5, y=1.5, z=1.2},
+			pos = {x=-1, y=-0.28, z=0},
+			object = "modern:wooden_drawer_with_round_handle",
+			length = 0.5,
+			inv_size = {w=6,h=1}
+        },
+	}
+},
+{
+	recipe = {
+		{"multidecor:aspen_board", "multidecor:aspen_drawer", "multidecor:aspen_drawer"},
+		{"multidecor:aspen_board", "multidecor:aspen_drawer", "multidecor:aspen_drawer"},
+		{"xpanes:pane_flat", "multidecor:aspen_drawer", "multidecor:aspen_drawer"}
+	}
+})
+
+minetest.register_entity("modern:wooden_drawer_with_round_handle", {
+	visual = "mesh",
+	visual_size = {x=5, y=5, z=5},
+	mesh = "multidecor_wooden_drawer_with_round_handle.b3d",
+	textures = {"multidecor_jungle_wood.png", "multidecor_metal_material.png"},
+	physical = false,
+	selectionbox = {-0.5, -0.16, -0.45, 0.525, 0.16, 0.575},
+	static_save = true,
+	on_activate = shelves.default_on_activate,
+	on_rightclick = shelves.default_on_rightclick,
+	on_step = shelves.default_drawer_on_step,
+	get_staticdata = shelves.default_get_staticdata
+})
