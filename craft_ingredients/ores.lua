@@ -107,7 +107,7 @@ minetest.register_node(":multidecor:desert_zinc_ore", {
 		items = {
 			{
 				rarity = 1000,
-				items = {"multidecor:zinc_lump"}
+				items = {"multidecor:zinc_fragment"}
 			}
 		}
 	},

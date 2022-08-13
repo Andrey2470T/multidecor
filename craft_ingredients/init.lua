@@ -164,6 +164,18 @@ minetest.register_craftitem(":multidecor:brass_ingot",
 	inventory_image = "multidecor_brass_ingot.png"
 })
 
+minetest.register_craftitem(":multidecor:gear",
+{
+	description = "Gear",
+	inventory_image = "multidecor_gear.png"
+})
+
+minetest.register_craftitem(":multidecor:spring",
+{
+	description = "Spring",
+	inventory_image = "multidecor_spring.png"
+})
+
 minetest.register_craft(
 {
 	type = "shapeless",
@@ -287,6 +299,19 @@ minetest.register_craft({
 		{"", "", ""}
 	},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:gear",
+	recipe = {"multidecor:steel_sheet", "default:tin_ingot", "multidecor:steel_scissors"},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:spring",
+	recipe = {"multidecor:metal_wire", "multidecor:metal_wire"}
 })
 
 minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)

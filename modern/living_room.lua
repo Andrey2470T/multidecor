@@ -14,6 +14,13 @@ register.register_furniture_unit("modern_floor_clock", {
 		"multidecor_glass_material.png"
 	},
 	bounding_boxes = {{-0.4, -0.5, -0.3, 0.4, 2, 0.4}}
+},
+{
+	recipe = {
+		{"multidecor:jungleboard", "multidecor:jungleboard", "multidecor:jungleboard"},
+		{"doors:door_glass", "multidecor:digital_dial", "multidecor:jungleboard"},
+		{"multidecor:gear", "multidecor:gear", "multidecor:spring"}
+	}
 })
 
 
@@ -82,7 +89,8 @@ register.register_furniture_unit("alarm_clock", {
 	recipe = {
 		{"multidecor:steel_sheet", "multidecor:steel_sheet", "dye:green"},
 		{"multidecor:plastic_sheet", "multidecor:digital_dial", "multidecor:plastic_sheet"},
-		{"", "multidecor:plastic_sheet", ""}
-	}
+		{"multidecor:spring", "multidecor:gear", "multidecor:steel_scissors"}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
