@@ -9,29 +9,73 @@ local frame_types = {
 
 local materials = {"wood", "plastic"}
 
+local dyes = {
+	"black",
+	"blue",
+	"brown",
+	"cyan",
+	"dark_green",
+	"dark_grey",
+	"green",
+	"grey",
+	"magenta",
+	"orange",
+	"pink",
+	"red",
+	"violet",
+	"white",
+	"yellow"
+}
+
 local bbox = {-0.5, -0.5, 0.35, 0.5, 0.5, 0.5}
 
 local images = {
 	--{<image_name>, <frame_types_i>, <materials_i>, <size>}
-	{"alps", 1, 1, 1},
-	{"cactus_valley", 1, 2, 1},
-	{"cefeus", 1, 2, 1},
-	{"chamomile", 4, 1, 1},
-	{"dark_forest", 2, 1, 1},
-	{"elk", 1, 2, 1},
-	{"forest", 4, 1, 1},
-	{"jupiter_and_saturn", 2, 2, 2},
-	{"minetest_castle", 5, 1, 1},
-	{"minetest_logo", 1, 2, 1},
-	{"prairie", 1, 1, 1},
-	{"rose", 4, 1, 1},
-	{"ship_in_lava", 4, 1, 2},
-	{"sky", 3, 2, 1},
-	{"sunset_in_sea", 6, 1, 1},
-	{"supernova", 3, 1, 2},
-	{"tropic", 2, 2, 1}
+	{"alps", 1, 1, 1, {4, 5, 8, 14, 6}},
+	{"cactus_valley", 1, 2, 1, {3, 7, 14, 15, 11}},
+	{"cefeus", 1, 2, 1, {1, 14, 8, 13}},
+	{"chamomile", 4, 1, 1, {7, 14, 15, 10}},
+	{"dark_forest", 2, 1, 1, {1, 2, 13, 5, 4}},
+	{"elk", 1, 2, 1, {15, 7, 3, 14}},
+	{"forest", 4, 1, 1, {15, 3, 7, 14}},
+	{"jupiter_and_saturn", 2, 2, 2, {1, 3, 12, 11, 15}},
+	{"minetest_castle", 5, 1, 1, {4, 14, 8, 3, 2}},
+	{"minetest_logo", 1, 2, 1, {2, 5, 14, 15, 4}},
+	{"prairie", 1, 1, 1, {15, 4, 14, 2}},
+	{"rose", 4, 1, 1, {12, 5, 11, 7}},
+	{"ship_in_lava", 4, 1, 2, {1, 12, 10, 15, 2}},
+	{"sky", 3, 2, 1, {4, 14, 12, 15, 7}},
+	{"sunset_in_sea", 6, 1, 1, {14, 15, 2, 13}},
+	{"supernova", 3, 1, 2, {1, 11, 14, 13}},
+	{"tropic", 2, 2, 1, {4, 2, 7, 5, 14}}
 }
 
+local function painting_craft_recipe(inds)
+	local recipe = {
+		{"", "", ""},
+		{"", "multidecor:painting_frame", ""},
+		{"", "", ""}
+	}
+
+	local c = 0
+	local n = 0
+	for i, dye_i in ipairs(inds) do
+		n = n + 1
+		if i == 5 then
+			n = n+1
+			c = c+1
+		end
+
+		if c == 3 then
+			c = 0
+		end
+
+		c = c + 1
+		recipe[math.ceil(n/3)][c] = "dye:" .. dyes[dye_i]
+	end
+
+	return recipe
+end
 
 for _, img in ipairs(images) do
 	local img_bbox = table.copy(bbox)
@@ -68,5 +112,24 @@ for _, img in ipairs(images) do
 		mesh = "multidecor_" .. mesh .. ".b3d",
 		tiles = {base_tile, "multidecor_image_" .. img[1] .. ".png"},
 		bounding_boxes = {img_bbox}
+	},
+	{
+		recipe = painting_craft_recipe(img[5])
 	})
 end
+
+
+minetest.register_craftitem(":multidecor:painting_frame", {
+	description = "Painting Frame",
+	inventory_image = "multidecor_painting_frame.png"
+})
+
+minetest.register_craft({
+	output = "multidecor:painting_frame",
+	recipe = {
+		{"default:paper", "multidecor:plank", "multidecor:saw"},
+		{"", "", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:saw", "multidecor:saw"}}
+})

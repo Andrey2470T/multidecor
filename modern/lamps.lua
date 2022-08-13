@@ -193,3 +193,34 @@ register.register_light("metal_chandelier_with_plastic_plafonds_off", {
 		{"multidecor:metal_bar", "", ""}
 	}
 })
+
+register.register_light("brass_candlestick", {
+	style = "modern",
+	material = "metal",
+	description = "Brass Candlestick",
+	visual_scale = 0.5,
+	use_texture_alpha = "blend",
+	light_source = 10,
+	mesh = "multidecor_brass_candlestick.b3d",
+	tiles = {
+		"multidecor_brass_material.png",
+		"multidecor_candle.png",
+		{name="multidecor_flame_anim.png", animation={
+			type = "vertical_frames",
+			aspect_w = 16,
+			aspect_h = 16,
+			length = 3.0
+		}}
+	},
+	bounding_boxes = {
+		{-0.25, -0.5, -0.25, 0.25, -0.4, 0.25},
+		{-0.1, -0.4, -0.1, 0.1, 0.125, 0.1}
+	},
+},
+{
+	recipe = {
+		{"multidecor:steel_sheet", "multidecor:steel_sheet", "multidecor:brass_ingot"},
+		{"", "", ""},
+		{"", "", ""}
+	}
+})

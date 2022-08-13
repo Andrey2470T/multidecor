@@ -35,7 +35,8 @@ function register.register_light(name, base_def, add_def, craft_def)
 	end
 
 	local sound_off
-	if def.add_properties then
+	local are_props = def.add_properties and def.add_properties.swap_light
+	if are_props then
 		sound_off = def.add_properties.swap_light.sound_off or "multidecor_light_off"
 		def.add_properties.swap_light.sound = def.add_properties.swap_light.sound_on or "multidecor_light_on"
 		def.add_properties.swap_light.sound_on = nil
@@ -44,7 +45,7 @@ function register.register_light(name, base_def, add_def, craft_def)
 
 	register.register_furniture_unit(name, def, craft_def)
 
-	if def.add_properties then
+	if are_props then
 		local def2 = table.copy(def)
 		local swap_light_name = def2.add_properties.swap_light.name
 		def2.light_source = def2.add_properties.swap_light.light_level or 8

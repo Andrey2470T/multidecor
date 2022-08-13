@@ -87,6 +87,7 @@ register.register_table("dresser_with_mirror", {
 	visual_scale = 0.5,
 	mesh = "multidecor_dresser_with_mirror.b3d",
 	tiles = {"multidecor_aspen_wood.png", "multidecor_gloss.png"},
+	inventory_image = "multidecor_dresser_with_mirror_inv.png",
 	use_texture_alpha = "blend",
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 1.5, 0.5, 0.5}

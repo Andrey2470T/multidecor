@@ -152,6 +152,18 @@ minetest.register_craftitem(":multidecor:four_lampshades_set",
 	inventory_image = "multidecor_four_lampshades_set.png"
 })
 
+minetest.register_craftitem(":multidecor:digital_dial",
+{
+	description = "Digital Dial",
+	inventory_image = "multidecor_digital_dial.png"
+})
+
+minetest.register_craftitem(":multidecor:brass_ingot",
+{
+	description = "Brass Ingot",
+	inventory_image = "multidecor_brass_ingot.png"
+})
+
 minetest.register_craft(
 {
 	type = "shapeless",
@@ -253,6 +265,28 @@ minetest.register_craft({
 	type = "shapeless",
 	output = "multidecor:four_lampshades_set",
 	recipe = {"multidecor:lampshade", "multidecor:lampshade", "multidecor:lampshade", "multidecor:lampshade"}
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:brass_ingot",
+	recipe = {"default:copper_ingot", "multidecor:zinc_ingot"}
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:brass_ingot",
+	recipe = {"default:copper_ingot", "default:tin_ingot"}
+})
+
+minetest.register_craft({
+	output = "multidecor:digital_dial",
+	recipe = {
+		{"multidecor:plastic_sheet", "dye:white", "dye:black"},
+		{"multidecor:steel_scissors", "", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)

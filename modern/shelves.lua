@@ -86,9 +86,9 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 			{-0.5, 0, 0.15, -0.4, -0.5, 0.4},
 			{0.4, 0, 0.15, 0.5, -0.5, 0.4}
 		}
-	}--[[,
+	},
 	{
 		type = "shapeless",
-		recipe = {"multidecor:" .. wood_n .. "plank", "multidecor:" .. wood_n .. "plank"}
-	}]])
+		recipe = {"multidecor:modern_wooden_" .. wood_n .. "wall_shelf", "multidecor:books_stack"}
+	})
 end

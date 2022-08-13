@@ -78,6 +78,7 @@ function connecting.replace_node_to(pos, disconnect)
 	end
 	minetest.debug("target_node: " .. target_node)
 	target_node = target_node ~= "" and "_" .. target_node or ""
+
 	if not disconnect and target_node == "" then
 		return
 	end
@@ -103,18 +104,13 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect)
 	local dir_rot = math.deg(vector.dir_to_rotation(dir).y)
 	local dir_rot2 = math.deg(vector.dir_to_rotation(helpers.get_dir(pos)).y)
 
-	minetest.debug("side: " .. dump(side))
-	minetest.debug("dir_rot: " .. dir_rot)
-	minetest.debug("dir_rot2: " .. dir_rot2)
 	local is_left_corner = add_props.connect_parts.left_side == def.mesh and side == "right" and
 			dir_rot-90 == dir_rot2
 	local is_right_corner = add_props.connect_parts.right_side == def.mesh and side == "left" and
 			dir_rot+90 == dir_rot2
 	if is_left_corner then
-		--minetest.debug("left corner")
 		right_dir = dir
 	elseif is_right_corner then
-		--minetest.debug("right corner")
 		left_dir = dir
 	end
 
