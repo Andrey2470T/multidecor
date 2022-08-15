@@ -76,7 +76,7 @@ function connecting.replace_node_to(pos, disconnect)
 			rel_rot = -90
 		end
 	end
-	minetest.debug("target_node: " .. target_node)
+	--minetest.debug("target_node: " .. target_node)
 	target_node = target_node ~= "" and "_" .. target_node or ""
 
 	if not disconnect and target_node == "" then
@@ -104,14 +104,31 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect)
 	local dir_rot = math.deg(vector.dir_to_rotation(dir).y)
 	local dir_rot2 = math.deg(vector.dir_to_rotation(helpers.get_dir(pos)).y)
 
-	local is_left_corner = add_props.connect_parts.left_side == def.mesh and side == "right" and
-			dir_rot-90 == dir_rot2
-	local is_right_corner = add_props.connect_parts.right_side == def.mesh and side == "left" and
-			dir_rot+90 == dir_rot2
-	if is_left_corner then
-		right_dir = dir
-	elseif is_right_corner then
-		left_dir = dir
+	local is_left_corner
+	local is_right_corner
+
+	if disconnect then
+		is_left_corner = add_props.connect_parts.corner == def.mesh and side == "right" and
+				math.abs(dir_rot-90) == math.abs(dir_rot2)
+		is_right_corner = add_props.connect_parts.corner == def.mesh and side == "left" and
+				dir_rot == dir_rot2
+
+		if is_left_corner then
+			dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, -math.pi/2)
+		elseif is_right_corner then
+			dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi/2)
+		end
+	else
+		is_left_corner = add_props.connect_parts.left_side == def.mesh and side == "right" and
+				math.abs(dir_rot-90) == math.abs(dir_rot2)
+		is_right_corner = add_props.connect_parts.right_side == def.mesh and side == "left" and
+				math.abs(dir_rot+90) == math.abs(dir_rot2)
+
+		if is_left_corner then
+			right_dir = dir
+		elseif is_right_corner then
+			left_dir = dir
+		end
 	end
 
 	left_dir = left_dir or vector.rotate_around_axis(dir, {x=0, y=1, z=0}, -math.pi/2)
@@ -141,7 +158,7 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect)
 			target_node = "middle"
 		end
 	end
-	minetest.debug("target_node: " .. target_node)
+	--minetest.debug("target_node: " .. target_node)
 	target_node = target_node ~= "" and "_" .. target_node or ""
 
 	if not disconnect and target_node == "" then
@@ -156,7 +173,7 @@ end
 -- *type* can be "horizontal", "vertical", "pair", "sofa"
 function connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_node)
 	local node = minetest.get_node(pos)
-	minetest.debug("update_adjacent_nodes_connection()")
+	--minetest.debug("update_adjacent_nodes_connection()")
 	if not disconnect then
 		local add_props = minetest.registered_nodes[node.name].add_properties
 		local modname = node.name:find("multidecor:")
@@ -220,6 +237,7 @@ function connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_
 		else
 			dir = helpers.get_dir(pos)
 		end
+
 		local left = pos+vector.rotate_around_axis(dir, {x=0, y=1, z=0}, -math.pi/2)
 		local right = pos+vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi/2)
 

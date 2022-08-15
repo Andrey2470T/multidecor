@@ -29,7 +29,7 @@ function helpers.upper_first_letters(s)
 	local new_s = ""
 
 	for substr in s:gmatch("%a+") do
-		minetest.debug("substr: " .. substr)
+		--minetest.debug("substr: " .. substr)
 		new_s = new_s .. substr:sub(1, 1):upper() .. substr:sub(2) .. " "
 	end
 

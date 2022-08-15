@@ -176,6 +176,12 @@ minetest.register_craftitem(":multidecor:spring",
 	inventory_image = "multidecor_spring.png"
 })
 
+minetest.register_craftitem(":multidecor:chainlink",
+{
+	description = "Chainlink",
+	inventory_image = "multidecor_chainlink.png"
+})
+
 minetest.register_craft(
 {
 	type = "shapeless",
@@ -312,6 +318,15 @@ minetest.register_craft({
 	type = "shapeless",
 	output = "multidecor:spring",
 	recipe = {"multidecor:metal_wire", "multidecor:metal_wire"}
+})
+
+minetest.register_craft({
+	output = "multidecor:chainlink",
+	recipe = {
+		{"multidecor:metal_wire", "multidecor:metal_wire", "multidecor:metal_wire"},
+		{"multidecor:metal_wire", "multidecor:metal_wire", "multidecor:metal_wire"},
+		{"multidecor:metal_wire", "multidecor:metal_wire", "multidecor:metal_wire"}
+	}
 })
 
 minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)

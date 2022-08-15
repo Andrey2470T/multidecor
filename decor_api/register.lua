@@ -11,6 +11,7 @@ register.supported_types = {
 	"shelf",
 	"bed",
 	"light",
+	"hedge",
 	"decoration"
 }
 
