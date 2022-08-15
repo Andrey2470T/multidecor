@@ -42,7 +42,7 @@ register.register_hedge("high_dark_rusty_fence", {
 		"multidecor_wood.png"
 	},
 	bounding_boxes = {
-		{-0.5, -0.5, -0.5, 0.5, 1.5, -0.3}
+		{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}
 	}
 },
 {
@@ -56,4 +56,74 @@ register.register_hedge("high_dark_rusty_fence", {
 {
 	type = "shapeless",
 	recipe = {"multidecor:dark_rusty_fence", "multidecor:dark_rusty_fence"}
+})
+
+register.register_furniture_unit("slatted_wooden_fence", {
+	type = "decoration",
+	style = "modern",
+	material = "wood",
+	visual_scale = 0.5,
+	description = "Slatted Wooden Fence",
+	use_texture_alpha = "blend",
+	mesh = "multidecor_slatted_wooden_fence.b3d",
+	tiles = {"multidecor_wood.png^multidecor_fence_nail_knob.png"},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.4}}
+},
+{
+	recipe = {
+		{"multidecor:plank", "multidecor:plank", ""},
+		{"multidecor:plank", "multidecor:metal_bar", ""},
+		{"multidecor:plank", "multidecor:steel_scissors", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+register.register_furniture_unit("high_slatted_wooden_fence", {
+	type = "decoration",
+	style = "modern",
+	material = "wood",
+	visual_scale = 0.5,
+	description = "High Slatted Wooden Fence",
+	use_texture_alpha = "blend",
+	mesh = "multidecor_high_slatted_wooden_fence.b3d",
+	tiles = {"multidecor_wood.png^multidecor_fence_nail_knob2.png"},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
+},
+{
+	type = "shapeless",
+	recipe = {"multidecor:slatted_wooden_fence", "multidecor:slatted_wooden_fence"}
+})
+
+register.register_furniture_unit("corrugated_fence", {
+	type = "decoration",
+	style = "modern",
+	material = "metal",
+	visual_scale = 0.5,
+	description = "Corrugated Fence",
+	mesh = "multidecor_corrugated_fence.b3d",
+	tiles = {"multidecor_plastic_material.png^[multiply:darkgreen"},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.4}}
+},
+{
+	recipe = {
+		{"multidecor:steel_sheet", "multidecor:steel_sheet", "multidecor:steel_sheet"},
+		{"multidecor:steel_scissors", "dye:dark_green", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+register.register_furniture_unit("high_corrugated_fence", {
+	type = "decoration",
+	style = "modern",
+	material = "metal",
+	visual_scale = 0.5,
+	description = "High Corrugated Fence",
+	mesh = "multidecor_high_corrugated_fence.b3d",
+	tiles = {"multidecor_plastic_material.png^[multiply:darkgreen"},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
+},
+{
+	type = "shapeless",
+	recipe = {"multidecor:corrugated_fence", "multidecor:corrugated_fence"}
 })

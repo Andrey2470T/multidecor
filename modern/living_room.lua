@@ -94,3 +94,39 @@ register.register_furniture_unit("alarm_clock", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
+minetest.register_node(":multidecor:laminate",
+{
+	drawtype = "nodebox",
+	description = "Laminate",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	tiles = {"multidecor_laminate.png"},
+	node_box = {
+		type = "fixed",
+		fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5}
+	},
+	selection_box = {
+		type = "fixed",
+		fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5}
+	},
+	groups = {choppy=1.5}
+})
+--[[register.register_furniture_unit("laminate", {
+	type = "decoration",
+	style = "modern",
+	material = "wood",
+	drawtype = "nodebox",
+	visual_scale = 0.5,
+	description = "Laminate",
+	tiles = {"multidecor_laminate.png"},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5 -0.45, 0.5}}
+},
+{
+	recipe = {
+		{"multidecor:plank", "multidecor:multidecor:plank", "multidecor:plank"},
+		{"multidecor:saw", "", ""},
+		{"", "", ""}
+	}
+})]]
+
+minetest.debug("laminate: " .. dump(minetest.registered_nodes["multidecor:laminate"]))
