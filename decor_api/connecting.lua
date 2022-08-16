@@ -7,6 +7,9 @@ function connecting.are_nodes_identical(pos1, pos2)
 	local add_props1 = minetest.registered_nodes[minetest.get_node(pos1).name].add_properties
 	local add_props2 = minetest.registered_nodes[minetest.get_node(pos2).name].add_properties
 
+	minetest.debug("cmn1: " .. dump(add_props1 and add_props1.common_name or nil))
+	minetest.debug("cmn2: " .. dump(add_props2 and add_props2.common_name or nil))
+
 	return add_props1 and add_props2 and add_props1.common_name == add_props2.common_name
 end
 
@@ -18,7 +21,7 @@ function connecting.are_nodes_codirectional(pos1, pos2)
 end
 
 -- Replaces surrounding the identical table nodes to other to look like "connected" with node at 'pos'
-function connecting.replace_node_to(pos, disconnect)
+function connecting.replace_node_to(pos, disconnect, cmn_name)
 	local ord_shifts = {
 		pos + vector.new(-1, 0, 0),
 		pos + vector.new(0, 0, 1),
@@ -34,20 +37,27 @@ function connecting.replace_node_to(pos, disconnect)
 		return
 	end
 
+	if add_props.common_name ~= cmn_name then
+		return
+	end
+
 	local target_node = ""
 	local rel_rot = 0
 
 	if connecting.are_nodes_identical(ord_shifts[1], pos) then
+		minetest.debug("identical")
 		target_node = "edge"
 		rel_rot = 180
 	end
 
 	if connecting.are_nodes_identical(ord_shifts[2], pos) then
+		minetest.debug("identical")
 		target_node = target_node == "edge" and "corner" or "edge"
 		rel_rot = 90
 	end
 
 	if connecting.are_nodes_identical(ord_shifts[3], pos) then
+		minetest.debug("identical")
 		if target_node == "corner" then
 			target_node = "edge_middle"
 		elseif target_node == "edge" then
@@ -59,6 +69,7 @@ function connecting.replace_node_to(pos, disconnect)
 	end
 
 	if connecting.are_nodes_identical(ord_shifts[4], pos) then
+		minetest.debug("identical")
 		if target_node == "edge_middle" then
 			target_node = "off_edge"
 			rel_rot = 0
@@ -87,7 +98,7 @@ function connecting.replace_node_to(pos, disconnect)
 	minetest.set_node(pos, {name="multidecor:" .. add_props.common_name .. target_node, param2=param2})
 end
 
-function connecting.directional_replace_node_to(pos, dir, side, disconnect)
+function connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_name)
 	local node = minetest.get_node(pos)
 	local def = minetest.registered_nodes[node.name]
 	local add_props = def.add_properties
@@ -95,6 +106,10 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect)
 	local modname = node.name:find("multidecor:")
 
 	if not modname or not add_props or not add_props.common_name then
+		return
+	end
+
+	if add_props.common_name ~= cmn_name then
 		return
 	end
 
@@ -192,12 +207,13 @@ function connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_
 			pos + vector.new(0, 0, -1)
 		}
 
+		local cmn_name = minetest.registered_nodes[disconnect and old_node.name or node.name].add_properties.common_name
 		for _, s in ipairs(shifts) do
-			connecting.replace_node_to(s, disconnect)
+			connecting.replace_node_to(s, disconnect, cmn_name)
 		end
 
 		if not disconnect then
-			connecting.replace_node_to(pos)
+			connecting.replace_node_to(pos, nil, cmn_name)
 		end
 	elseif type == "pair" then
 		if not disconnect then
@@ -241,11 +257,12 @@ function connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_
 		local left = pos+vector.rotate_around_axis(dir, {x=0, y=1, z=0}, -math.pi/2)
 		local right = pos+vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi/2)
 
-		connecting.directional_replace_node_to(left, dir, "left", disconnect)
-		connecting.directional_replace_node_to(right, dir, "right", disconnect)
+		local cmn_name = minetest.registered_nodes[disconnect and old_node.name or node.name].add_properties.common_name
+		connecting.directional_replace_node_to(left, dir, "left", disconnect, cmn_name)
+		connecting.directional_replace_node_to(right, dir, "right", disconnect, cmn_name)
 
 		if not disconnect then
-			connecting.directional_replace_node_to(pos, dir, nil)
+			connecting.directional_replace_node_to(pos, dir, nil, nil, cmn_name)
 		end
 	end
 end

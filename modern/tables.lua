@@ -11,9 +11,9 @@ register.register_table("kitchen_modern_wooden_table", {
 		on_construct = function(pos)
 			connecting.update_adjacent_nodes_connection(pos, "horizontal")
 		end,
-		after_dig_node = function(pos)
+		after_dig_node = function(pos, oldnode)
 			minetest.debug("1.2")
-			connecting.update_adjacent_nodes_connection(pos, "horizontal", true)
+			connecting.update_adjacent_nodes_connection(pos, "horizontal", true, oldnode)
 		end
 	}
 },
