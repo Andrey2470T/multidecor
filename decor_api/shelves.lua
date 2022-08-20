@@ -32,24 +32,16 @@ end
 
 -- Rotates the shelf 'obj' around 'pos' position of the node
 function shelves.rotate_shelf(pos, obj, is_drawer, move_dist)
-	if not obj:get_luaentity() then
-		return
-	end
-
 	local dir = helpers.get_dir(pos)
-	local rot_y = vector.dir_to_rotation(dir).y
-
-	local rel_obj_pos = vector.subtract(obj:get_pos(), pos)
-	rel_obj_pos = vector.rotate_around_axis(rel_obj_pos, {x=0, y=1, z=0}, rot_y)
-	obj:set_pos(vector.add(pos, rel_obj_pos))
-	local rot = obj:get_rotation()
-	obj:set_rotation({x=rot.x, y=rot_y, z=rot.z})
+	doors.rotate(obj, dir, pos)
 
 	local self = obj:get_luaentity()
 	if is_drawer then
+		local rel_obj_pos = vector.subtract(obj:get_pos(), pos)
 		self.start_v = vector.add(pos, rel_obj_pos)
 		self.end_v = vector.add(pos, vector.add(rel_obj_pos, vector.multiply(dir, move_dist)))
 	else
+		local rot_y = vector.dir_to_rotation(dir).y
 		self.start_v = rot_y
 		self.end_v = rot_y+move_dist
 	end
@@ -58,34 +50,16 @@ end
 -- Rotates the obj`s selectionbox depending on the connected node rotation
 function shelves.rotate_shelf_bbox(obj)
 	local self = obj:get_luaentity()
-
 	if not self then return end
 
-	local sel_box = minetest.registered_entities[self.name].selectionbox
 	local dir = helpers.get_dir(self.connected_to.pos)
-	local yaw = vector.dir_to_rotation(dir).y
-
-	local box = {
-		min = {x=sel_box[1], y=sel_box[2], z=sel_box[3]},
-		max = {x=sel_box[4], y=sel_box[5], z=sel_box[6]}
-	}
-
-	box.min = vector.rotate_around_axis(box.min, {x=0, y=1, z=0}, yaw)
-	box.max = vector.rotate_around_axis(box.max, {x=0, y=1, z=0}, yaw)
-
 	local shelf = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data[self.shelf_data_i]
 
 	if shelf.type == "sym_doors" and
-			vector.round(vector.subtract(obj:get_pos(), self.connected_to.pos)) == vector.round(shelf.pos2) or self.is_flip_z_scale then
-		local x_dist = math.abs(sel_box[1])+math.abs(sel_box[4])
-		local rot_dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, -math.pi/2)
-		local x_shift = rot_dir * x_dist
-
-		box.min = box.min + x_shift
-		box.max = box.max + x_shift
+			vector.round(vector.subtract(obj:get_pos(), self.connected_to.pos)) == vector.round(shelf.pos2) or self.is_flip_x_scale then
+		dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi)
 	end
-
-	obj:set_properties({selectionbox={box.min.x, box.min.y, box.min.z, box.max.x, box.max.y, box.max.z}})
+	doors.rotate_bbox(obj, dir, false)
 end
 
 -- Animates opening or closing the shelf 'obj'. The action directly depends on 'dir_sign' value ('1' is open, '-1' is close)
@@ -111,7 +85,7 @@ function shelves.open_shelf(obj, dir_sign)
 	end
 
 	if shelf.type == "sym_doors" then
-		local tpos = self.is_flip_z_scale and shelf.pos or shelf.pos2
+		local tpos = self.is_flip_x_scale and shelf.pos or shelf.pos2
 		tpos = self.connected_to.pos + vector.rotate_around_axis(tpos, {x=0, y=1, z=0}, vector.dir_to_rotation(dir).y)
 		local obj2 = minetest.get_objects_inside_radius(tpos, 0.05)[1]
 
@@ -173,7 +147,7 @@ function shelves.set_shelves(pos)
 
 			local vis_size = obj2:get_properties().visual_size
 			obj2:set_properties({visual_size={x=vis_size.x*-1, y=vis_size.y, z=vis_size.z}})
-			obj2:get_luaentity().is_flip_z_scale = true
+			obj2:get_luaentity().is_flip_x_scale = true
 
 			shelves.rotate_shelf(pos, obj2, false, math.pi/2)
 		end
@@ -190,7 +164,14 @@ shelves.default_on_activate = function(self, staticdata)
 		self.inv_list = data[5] or {}
 		self.start_v = data[6]
 		self.end_v = data[7]
-		self.is_flip_z_scale = data[8]
+		self.is_flip_x_scale = data[8]
+	end
+
+	local node = minetest.get_node(self.connected_to.pos)
+
+	if node.name ~= self.connected_to.name then
+		self.object:remove()
+		return
 	end
 
 	local shelf_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data[self.shelf_data_i]
@@ -202,7 +183,7 @@ shelves.default_on_activate = function(self, staticdata)
 		obj_props.visual_size = vector.add(obj_props.visual_size, shelf_data.visual_size_adds)
 	end
 
-	if self.is_flip_z_scale then
+	if self.is_flip_x_scale then
 		obj_props.visual_size.x = obj_props.visual_size.x * -1
 	end
 	-- Usually means a material which the shelf is made of
@@ -249,7 +230,7 @@ shelves.default_on_activate = function(self, staticdata)
 end
 
 shelves.default_get_staticdata = function(self)
-	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.inv_list, self.start_v, self.end_v, self.is_flip_z_scale})
+	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.inv_list, self.start_v, self.end_v, self.is_flip_x_scale})
 end
 
 shelves.default_on_rightclick = function(self, clicker)
@@ -290,28 +271,8 @@ shelves.default_door_on_step = function(self, dtime)
 		return
 	end
 
-	if self.dir == 0 then
-		return
-	end
-
-	local rot = self.object:get_rotation()
-	local target_rot = self.dir == 1 and self.end_v or self.start_v
-
-	rot.y = helpers.clamp(self.start_v, self.end_v, rot.y)
-
-	if math.abs(target_rot-rot.y) <= math.rad(10) then
-		self.dir = 0
-		self.step_c = nil
-		self.object:set_rotation({x=rot.x, y=target_rot, z=rot.z})
-		return
-	end
-
-	self.step_c = self.step_c and self.step_c+1 or 1
-	-- Rotation speed is 60 degrees/sec
-	local sign = self.start_v > self.end_v and -1 or 1
-	local new_rot = self.dir*sign*math.pi/3*dtime*0.5*self.step_c
-
-	self.object:set_rotation({x=rot.x, y=rot.y+new_rot, z=rot.z})
+	local shelf_data = minetest.registered_nodes[node.name].add_properties.shelves_data[self.shelf_data_i]
+	doors.smooth_rotate_step(self, dtime, shelf_data.vel or 30, shelf_data.acc or 0)
 end
 
 shelves.default_on_receive_fields = function(player, formname, fields)

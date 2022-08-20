@@ -1,21 +1,83 @@
-register.register_furniture_unit("modern_floor_clock", {
-	type = "decoration",
-	style = "modern",
-	material = "wood",
+minetest.register_node(":multidecor:modern_floor_clock", {
 	visual_scale = 0.5,
+	drawtype = "mesh",
 	description = "Floor Clock",
+	paramtype = "light",
+	paramtype2 = "facedir",
 	inventory_image = "multidecor_floor_clock_inv.png",
 	use_texture_alpha = "blend",
 	mesh = "multidecor_floor_clock.b3d",
 	tiles = {
+		"multidecor_gold_material.png",
 		"multidecor_jungle_wood.png",
 		"multidecor_dial.png",
-		"multidecor_gold_material.png",
 		"multidecor_glass_material.png"
 	},
-	bounding_boxes = {{-0.4, -0.5, -0.3, 0.4, 2, 0.4}}
-},
+	groups = {choppy=1.5},
+	collision_box = {
+		type = "fixed",
+		fixed = {-0.4, -0.5, -0.3, 0.4, 2, 0.4}
+	},
+	selection_box = {
+		type = "fixed",
+		fixed = {-0.4, -0.5, -0.3, 0.4, 2, 0.4}
+	},
+	on_construct = function(pos)
+		local wheel = minetest.add_entity(pos, "modern:floor_clock_balance_wheel")
+
+		local dir = vector.multiply(minetest.facedir_to_dir(minetest.get_node(pos).param2), -1)
+		local y_rot = vector.dir_to_rotation(dir).y
+
+		wheel:set_rotation({x=0, y=y_rot, z=0})
+
+		minetest.get_meta(pos):set_string("is_activated", "false")
+	end,
+	on_rightclick = function(pos, node, clicker)
+		local wheel = minetest.get_objects_inside_radius(pos, 0.3)
+
+		-- Not found the balance wheel
+		if #wheel == 0 then
+			return
+		end
+
+		wheel = wheel[1]
+
+		if wheel:get_luaentity().name ~= "modern:floor_clock_balance_wheel" then
+			return
+		end
+
+		local meta = minetest.get_meta(pos)
+
+		if meta:get_string("is_activated") == "false" then
+			minetest.debug("activate")
+			wheel:set_animation({x=1, y=40}, 25.0, 0.0, true)
+			meta:set_string("is_activated", "true")
+		else
+			wheel:set_animation({x=1, y=1}, 0.0)
+			meta:set_string("is_activated", "false")
+		end
+	end,
+	after_destruct = function(pos)
+		local wheel = minetest.get_objects_inside_radius(pos, 0.3)
+
+		-- Not found the balance wheel
+		if #wheel == 0 then
+			return
+		end
+
+		wheel = wheel[1]
+
+		if wheel:get_luaentity().name ~= "modern:floor_clock_balance_wheel" then
+			return
+		end
+
+		wheel:remove()
+	end
+})
+
+minetest.register_craft(
 {
+	output = "multidecor:modern_floor_clock",
 	recipe = {
 		{"multidecor:jungleboard", "multidecor:jungleboard", "multidecor:jungleboard"},
 		{"doors:door_glass", "multidecor:digital_dial", "multidecor:jungleboard"},
@@ -23,6 +85,15 @@ register.register_furniture_unit("modern_floor_clock", {
 	}
 })
 
+minetest.register_entity("modern:floor_clock_balance_wheel", {
+	visual = "mesh",
+	visual_size = {x=5, y=5, z=5},
+	physical = false,
+	pointable = false,
+	mesh = "multidecor_floor_clock_balance_wheel.b3d",
+	textures = {"multidecor_gold_material.png"},
+	static_save = true
+})
 
 register.register_furniture_unit("book", {
 	type = "decoration",
@@ -234,29 +305,6 @@ for name, def in pairs(pots_defs) do
 	end
 end
 
---[[minetest.register_node(":multidecor:terracotta_flowerpot", {
-	visual_scale = 0.5,
-	drawtype = "mesh",
-	description = "Terracotta Flowerpot (right-click to place wielded flower)",
-	paramtype = "light"
-	mesh = "multidecor_terracotta_flowerpot.b3d",
-	tiles = {
-		"multidecor_terracotta_material2.png^[multiply:brown",
-		"multidecor_terracotta_material.png^[multiply:brown",
-		"default_dirt.png",
-	},
-	bounding_boxes = {{-0.4, -0.5, -0.4, 0.4, 0.25, 0.4}},
-	callbacks = {
-		on_rightclick = on_rightclick_flowerpot
-	}
-},
-{
-	recipe = {
-		{"multidecor:jungleboard", "multidecor:jungleboard", "multidecor:jungleboard"},
-		{"doors:door_glass", "multidecor:digital_dial", "multidecor:jungleboard"},
-		{"multidecor:gear", "multidecor:gear", "multidecor:spring"}
-	}
-}]]
 
 register.register_furniture_unit("white_plastic_flowerpot", {
 	type = "decoration",
@@ -270,77 +318,4 @@ register.register_furniture_unit("white_plastic_flowerpot", {
 		"default_dirt.png"
 	},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}}
-}--[[,
-{
-	recipe = {
-		{"multidecor:jungleboard", "multidecor:jungleboard", "multidecor:jungleboard"},
-		{"doors:door_glass", "multidecor:digital_dial", "multidecor:jungleboard"},
-		{"multidecor:gear", "multidecor:gear", "multidecor:spring"}
-	}
-}]])
-
---[[register.register_furniture_unit("green_small_flowerpot", {
-	type = "decoration",
-	style = "modern",
-	material = "stone",
-	visual_scale = 0.5,
-	description = "Green Small Flowerpot (right-click to place wielded flower)",
-	mesh = "multidecor_green_small_flowerpot.b3d",
-	tiles = {
-		"multidecor_terracotta_material.png^[multiply:palegreen",
-		"default_dirt.png"
-	},
-	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, 0.05, 0.3}},
-	callbacks = {
-		on_rightclick = on_rightclick_flowerpot
-	}
-}--[[,
-{
-	recipe = {
-		{"multidecor:jungleboard", "multidecor:jungleboard", "multidecor:jungleboard"},
-		{"doors:door_glass", "multidecor:digital_dial", "multidecor:jungleboard"},
-		{"multidecor:gear", "multidecor:gear", "multidecor:spring"}
-	}
 })
-
-
-for i = 1, #flowers do
-	register.register_furniture_unit("terracotta_flowerpot_with_flower_" .. flowers[i], {
-		type = "decoration",
-		style = "modern",
-		material = "stone",
-		visual_scale = 0.5,
-		description = "Terracotta Flowerpot (right-click to place wielded flower)",
-		mesh = "multidecor_terracotta_flowerpot_with_flower.b3d",
-		tiles = {
-			"multidecor_terracotta_material2.png^[multiply:brown",
-			"multidecor_terracotta_material.png^[multiply:brown",
-			"default_dirt.png",
-			"flowers_" .. flowers[i] .. ".png"
-		},
-		bounding_boxes = {{-0.4, -0.5, -0.4, 0.4, 0.25, 0.4}},
-		groups = {not_in_creative_inventory=1, flower_in_pot=i},
-		callbacks = {
-			on_rightclick = on_rightclick_flowerpot_with_flower
-		}
-	})
-
-	register.register_furniture_unit("green_small_flowerpot_with_flower_" .. flowers[i], {
-		type = "decoration",
-		style = "modern",
-		material = "stone",
-		visual_scale = 0.5,
-		description = "Green Small Flowerpot (right-click to place wielded flower)",
-		mesh = "multidecor_green_small_flowerpot_with_flower.b3d",
-		tiles = {
-			"multidecor_terracotta_material.png^[multiply:palegreen",
-			"default_dirt.png",
-			"flowers_" .. flowers[i] .. ".png"
-		},
-		bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, 0.05, 0.3}},
-		groups = {not_in_creative_inventory=1, flower_in_pot=i},
-		callbacks = {
-			on_rightclick = on_rightclick_flowerpot_with_flower
-		}
-	})
-end]]

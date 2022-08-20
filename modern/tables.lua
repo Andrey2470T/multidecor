@@ -100,7 +100,8 @@ register.register_table("modern_wooden_desk", {
 			pos = {x=-0.825, y=-0.15, z=0.4},
 			object = "modern:wooden_door",
 			side = "left",
-			inv_size = {w=6,h=3}
+			inv_size = {w=6,h=3},
+			acc = 1
 		}
 	}
 },
@@ -162,6 +163,7 @@ register.register_table("modern_bedside_table", {
 	style = "modern",
 	material = "wood",
 	description = "Modern Bedside Table",
+	visual_scale = 0.5,
 	mesh = "multidecor_bedside_table.b3d",
 	tiles = {"multidecor_pine_wood2.png", "multidecor_hardboard.png"},
 	bounding_boxes = {
@@ -178,8 +180,8 @@ register.register_table("modern_bedside_table", {
 		{
 			type = "drawer",
 			base_texture = "multidecor_pine_wood2.png",
-			visual_size_adds = {x=1.2, y=1.5, z=-0.8},
-			pos = {x=0, y=-0.28, z=0.06},
+			visual_size_adds = {x=1.2*2.2, y=1.5*2.2, z=-0.8*2.2},
+			pos = {x=0, y=-0.22, z=0.2375},
 			object = "modern:wooden_drawer",
 			length = 0.8,
 			inv_size = {w=6,h=1}
@@ -187,8 +189,8 @@ register.register_table("modern_bedside_table", {
 		{
 			type = "drawer",
 			base_texture = "multidecor_pine_wood2.png",
-			visual_size_adds = {x=1.2, y=1.5, z=-0.8},
-			pos = {x=0, y=0.06, z=0.06},
+			visual_size_adds = {x=1.2*2.2, y=1.5*2.2, z=-0.8*2.2},
+			pos = {x=0, y=0.205, z=0.2375},
 			object = "modern:wooden_drawer",
 			length = 0.8,
 			inv_size = {w=6,h=1}

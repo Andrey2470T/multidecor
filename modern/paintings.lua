@@ -47,7 +47,8 @@ local images = {
 	{"sky", 3, 2, 1, {4, 14, 12, 15, 7}},
 	{"sunset_in_sea", 6, 1, 1, {14, 15, 2, 13}},
 	{"supernova", 3, 1, 2, {1, 11, 14, 13}},
-	{"tropic", 2, 2, 1, {4, 2, 7, 5, 14}}
+	{"tropic", 2, 2, 1, {4, 2, 7, 5, 14}},
+	{"physical_world_map", 2, 2, 2, {4, 14, 7, 15}}
 }
 
 local function painting_craft_recipe(inds)
