@@ -241,6 +241,7 @@ function register.register_door(name, base_def, add_def, craft_def)
 		mesh = c_def2.add_properties.door.mesh_activated,
 		collisionbox = base_def.bounding_boxes[1],
 		selectionbox = base_def.bounding_boxes[1],
+		use_texture_alpha = base_def.use_texture_alpha == "blend",
 		backface_culling = false,
 		static_save = true,
 		on_activate = default_entity_door_on_activate,

@@ -182,6 +182,24 @@ minetest.register_craftitem(":multidecor:chainlink",
 	inventory_image = "multidecor_chainlink.png"
 })
 
+minetest.register_craftitem(":multidecor:terracotta_fragment",
+{
+	description = "Terracotta Fragment",
+	inventory_image = "multidecor_terracotta_fragment.png"
+})
+
+minetest.register_craftitem(":multidecor:copper_and_tin",
+{
+	description = "Copper And Tin",
+	inventory_image = "multidecor_copper_and_tin.png"
+})
+
+minetest.register_craftitem(":multidecor:copper_and_zinc",
+{
+	description = "Copper And Zinc",
+	inventory_image = "multidecor_copper_and_zinc.png"
+})
+
 minetest.register_craft(
 {
 	type = "shapeless",
@@ -224,6 +242,27 @@ minetest.register_craft({
     output = "multidecor:plastic_sheet",
     recipe = "default:leaves",
 	cooktime = 10
+})
+
+minetest.register_craft({
+    type = "cooking",
+    output = "multidecor:terracotta_fragment",
+    recipe = "default:clay_lump",
+	cooktime = 15
+})
+
+minetest.register_craft(
+{
+	type = "shapeless",
+	output = "multidecor:copper_and_tin",
+	recipe = {"default:copper_ingot", "default:tin_ingot"}
+})
+
+minetest.register_craft(
+{
+	type = "shapeless",
+	output = "multidecor:copper_and_zinc",
+	recipe = {"default:copper_ingot", "multidecor:zinc_ingot"}
 })
 
 if minetest.get_modpath("moreores") then
@@ -286,9 +325,17 @@ minetest.register_craft({
 })
 
 minetest.register_craft({
-	type = "shapeless",
+	type = "cooking",
 	output = "multidecor:brass_ingot",
-	recipe = {"default:copper_ingot", "multidecor:zinc_ingot"}
+	recipe = "multidecor:copper_and_tin",
+	cooktime = 8
+})
+
+minetest.register_craft({
+	type = "cooking",
+	output = "multidecor:brass_ingot",
+	recipe = "multidecor:copper_and_zinc",
+	cooktime = 9
 })
 
 minetest.register_craft({

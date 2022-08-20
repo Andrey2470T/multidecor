@@ -259,7 +259,15 @@ local pots_defs = {
 			"multidecor_terracotta_material.png^[multiply:brown",
 			"default_dirt.png",
 		},
-		bounding_boxes = {{-0.4, -0.5, -0.4, 0.4, 0.25, 0.4}}
+		bounding_boxes = {{-0.4, -0.5, -0.4, 0.4, 0.25, 0.4}},
+		sounds = default.node_sound_stone_defaults(),
+		craft = {
+			recipe = {
+				{"multidecor:terracotta_fragment", "multidecor:terracotta_fragment", "multidecor:terracotta_fragment"},
+				{"multidecor:terracotta_fragment", "default:dirt", "multidecor:terracotta_fragment"},
+				{"dye:red", "", ""}
+			}
+		}
 	},
 	["green_small_flowerpot"] = {
 		description = "Green Small Flowerpot (right-click to place wielded flower)",
@@ -269,7 +277,28 @@ local pots_defs = {
 			"default_dirt.png"
 		},
 		bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, 0.05, 0.3}},
-	}
+		sounds = default.node_sound_stone_defaults(),
+		craft = {
+			recipe = {
+				{"multidecor:terracotta_fragment", "default:dirt", "dye:green"},
+				{"multidecor:terracotta_fragment", "", ""},
+				{"", "", ""}
+			}
+		}
+	},
+	["glass_vase"] = {
+		description = "Glass Vase (right-click to place wielded flower)",
+		mesh = "multidecor_glass_vase",
+		tiles = {"multidecor_gloss.png^[opacity:120"},
+		inventory_image = "multidecor_glass_vase_inv.png",
+		use_texture_alpha = "blend",
+		bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0.2, 0.2}},
+		sounds = default.node_sound_glass_defaults(),
+		craft = {
+			type = "shapeless",
+			recipe = {"xpanes:pane_flat", "xpanes:pane_flat"}
+		}
+	},
 }
 
 for name, def in pairs(pots_defs) do
@@ -277,19 +306,23 @@ for name, def in pairs(pots_defs) do
 	cdef.description = def.description
 	cdef.mesh = def.mesh .. ".b3d"
 	cdef.tiles = def.tiles
+	cdef.inventory_image = def.inventory_image
 	cdef.collision_box = {
 		type = "fixed",
 		fixed = def.bounding_boxes
 	}
 
+	cdef.use_texture_alpha = def.use_texture_alpha
 	cdef.groups = {cracky=1.5}
-	cdef.sounds = default.node_sound_stone_defaults()
+	cdef.sounds = def.sounds
 	cdef.selection_box = cdef.collision_box
 
 	cdef.on_rightclick = on_rightclick_flowerpot
 
 	minetest.register_node(":multidecor:" .. name, cdef)
 
+	def.craft.output = "multidecor:" .. name
+	minetest.register_craft(def.craft)
 	for i=1, #flowers do
 		local cdef2 = table.copy(cdef)
 		cdef2.mesh = def.mesh .. "_with_flower.b3d"
@@ -318,4 +351,11 @@ register.register_furniture_unit("white_plastic_flowerpot", {
 		"default_dirt.png"
 	},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}}
+},
+{
+	recipe = {
+		{"multidecor:plastic_sheet", "multidecor:plastic_sheet", "multidecor:plastic_sheet"},
+		{"multidecor:plastic_sheet", "default:dirt", "multidecor:plastic_sheet"},
+		{"multidecor:plastic_sheet", "multidecor:plastic_sheet", "multidecor:plastic_sheet"}
+	}
 })
