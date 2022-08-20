@@ -291,6 +291,7 @@ local pots_defs = {
 		mesh = "multidecor_glass_vase",
 		tiles = {"multidecor_gloss.png^[opacity:120"},
 		inventory_image = "multidecor_glass_vase_inv.png",
+		wield_image = "multidecor_glass_vase_inv.png",
 		use_texture_alpha = "blend",
 		bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0.2, 0.2}},
 		sounds = default.node_sound_glass_defaults(),
@@ -307,6 +308,7 @@ for name, def in pairs(pots_defs) do
 	cdef.mesh = def.mesh .. ".b3d"
 	cdef.tiles = def.tiles
 	cdef.inventory_image = def.inventory_image
+	cdef.wield_image = def.wield_image
 	cdef.collision_box = {
 		type = "fixed",
 		fixed = def.bounding_boxes

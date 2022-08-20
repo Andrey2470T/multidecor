@@ -117,8 +117,9 @@ function shelves.set_shelves(pos)
 		local list_name = shelves.build_name_from_tmp(node.name, "list", i)
 
 		local padding = 0.25
+		local width = shelf_data.inv_size.w > 8 and shelf_data.inv_size.w or 8
 		local fs_size = {
-			w = shelf_data.inv_size.w+1+(shelf_data.inv_size.w-1)*padding,
+			w = width+1+(width-1)*padding,
 			h = shelf_data.inv_size.h+5.5+(shelf_data.inv_size.h-1)*padding+3*padding
 		}
 		local player_list_y = shelf_data.inv_size.h+1+(shelf_data.inv_size.h-1)*padding
