@@ -20,6 +20,10 @@ register.register_hedge("dark_rusty_fence", {
 		["right_side"] = "multidecor_dark_rusty_fence_1.b3d",
 		["middle"] = "multidecor_dark_rusty_fence_3.b3d",
 		["corner"] = "multidecor_dark_rusty_fence_4.b3d"
+	},
+	corner_bounding_boxes = {
+		{-0.5, -0.5, 0.4, 0.5, 0.5, 0.5},
+		{-0.5, -0.5, -0.5, -0.4, 0.5, 0.4}
 	}
 },
 {

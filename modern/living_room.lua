@@ -49,7 +49,6 @@ minetest.register_node(":multidecor:modern_floor_clock", {
 		local meta = minetest.get_meta(pos)
 
 		if meta:get_string("is_activated") == "false" then
-			minetest.debug("activate")
 			wheel:set_animation({x=1, y=40}, 25.0, 0.0, true)
 			meta:set_string("is_activated", "true")
 		else
@@ -199,8 +198,6 @@ local on_rightclick_flowerpot = function(pos, node, clicker, itemstack)
 	local itemname = itemstack:get_name()
 
 	local is_flowers_mod_i, is_flowers_mod_i2 = itemname:find("flowers:")
-	minetest.debug("is_flowers_mod_i: " .. dump(is_flowers_mod_i))
-	minetest.debug("group: " .. minetest.get_item_group(itemname, "flower"))
 	if not is_flowers_mod_i or minetest.get_item_group(itemname, "flower") == 0 then
 		return
 	end
@@ -230,7 +227,6 @@ local on_rightclick_flowerpot_with_flower = function(pos, node, clicker, itemsta
 		minetest.set_node(pos, {name=node.name:gsub("_with_flower_" .. current_flower, ""), param2=node.param2})
 	end
 
-	minetest.debug("current_flower: " .. current_flower)
 	clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
 
 	return itemstack

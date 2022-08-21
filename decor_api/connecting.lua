@@ -7,9 +7,6 @@ function connecting.are_nodes_identical(pos1, pos2)
 	local add_props1 = minetest.registered_nodes[minetest.get_node(pos1).name].add_properties
 	local add_props2 = minetest.registered_nodes[minetest.get_node(pos2).name].add_properties
 
-	minetest.debug("cmn1: " .. dump(add_props1 and add_props1.common_name or nil))
-	minetest.debug("cmn2: " .. dump(add_props2 and add_props2.common_name or nil))
-
 	return add_props1 and add_props2 and add_props1.common_name == add_props2.common_name
 end
 
@@ -45,19 +42,16 @@ function connecting.replace_node_to(pos, disconnect, cmn_name)
 	local rel_rot = 0
 
 	if connecting.are_nodes_identical(ord_shifts[1], pos) then
-		minetest.debug("identical")
 		target_node = "edge"
 		rel_rot = 180
 	end
 
 	if connecting.are_nodes_identical(ord_shifts[2], pos) then
-		minetest.debug("identical")
 		target_node = target_node == "edge" and "corner" or "edge"
 		rel_rot = 90
 	end
 
 	if connecting.are_nodes_identical(ord_shifts[3], pos) then
-		minetest.debug("identical")
 		if target_node == "corner" then
 			target_node = "edge_middle"
 		elseif target_node == "edge" then
@@ -69,7 +63,6 @@ function connecting.replace_node_to(pos, disconnect, cmn_name)
 	end
 
 	if connecting.are_nodes_identical(ord_shifts[4], pos) then
-		minetest.debug("identical")
 		if target_node == "edge_middle" then
 			target_node = "off_edge"
 			rel_rot = 0
@@ -87,7 +80,7 @@ function connecting.replace_node_to(pos, disconnect, cmn_name)
 			rel_rot = -90
 		end
 	end
-	--minetest.debug("target_node: " .. target_node)
+
 	target_node = target_node ~= "" and "_" .. target_node or ""
 
 	if not disconnect and target_node == "" then
@@ -173,7 +166,7 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_
 			target_node = "middle"
 		end
 	end
-	--minetest.debug("target_node: " .. target_node)
+
 	target_node = target_node ~= "" and "_" .. target_node or ""
 
 	if not disconnect and target_node == "" then
@@ -188,7 +181,7 @@ end
 -- *type* can be "horizontal", "vertical", "pair", "sofa"
 function connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_node)
 	local node = minetest.get_node(pos)
-	--minetest.debug("update_adjacent_nodes_connection()")
+
 	if not disconnect then
 		local add_props = minetest.registered_nodes[node.name].add_properties
 		local modname = node.name:find("multidecor:")
@@ -279,6 +272,9 @@ function connecting.register_connect_parts(def)
 			c_def.groups = {not_in_creative_inventory=1}
 		end
 
+		if name == "corner" and def.add_properties.corner_bounding_boxes then
+			c_def.bounding_boxes = def.add_properties.corner_bounding_boxes
+		end
 		c_def.callbacks.on_construct = nil
 
 		register.register_furniture_unit(def.add_properties.common_name .. "_" .. name, c_def)

@@ -2,58 +2,44 @@ multidecor.doors = {}
 
 doors = multidecor.doors
 
--- Rotates an entity corresponding to the 'dir'
-function doors.rotate(obj, dir, rotate_p)
-	if not obj:get_luaentity() then
-		return
-	end
+-- Returns new position rotated around 'rotate_p' and rotation correponding to "dir"
+function doors.rotate(pos, dir, rotate_p)
 	local y_rot = vector.dir_to_rotation(dir).y
+	local rel_pos = pos - rotate_p
 
-	local p = vector.copy(rotate_p)
-	local rel_pos = obj:get_pos() - p
-
-	local y_rel_pos_r = vector.dir_to_rotation(rel_pos).y
 	rel_pos = vector.rotate_around_axis(rel_pos, {x=0, y=1, z=0}, y_rot)
 
-	obj:set_pos(rotate_p + rel_pos)
-
-	local obj_rot = obj:get_rotation()
-	obj:set_rotation({x=obj_rot.x, y=y_rot, z=obj_rot.z})
+	return rotate_p + rel_pos, {x=0, y=y_rot, z=0}
 end
 
--- Rotates obj's collision/selection boxes corresponding to the 'dir'
-function doors.rotate_bbox(obj, dir, rotate_cbox)
-	if not obj:get_luaentity() then
-		return
-	end
-
+-- Returns rotated collisionbox and selectionbox corresponding to "dir"
+function doors.rotate_bbox(sbox, cbox, dir)
 	local y_rot = vector.dir_to_rotation(dir).y
 
-	local sel_box = minetest.registered_entities[obj:get_luaentity().name].selectionbox
 	local box = {
-		min = {x=sel_box[1], y=sel_box[2], z=sel_box[3]},
-		max = {x=sel_box[4], y=sel_box[5], z=sel_box[6]}
+		min = {x=sbox[1], y=sbox[2], z=sbox[3]},
+		max = {x=sbox[4], y=sbox[5], z=sbox[6]}
 	}
 
 	box.min = vector.rotate_around_axis(box.min, {x=0, y=1, z=0}, y_rot)
 	box.max = vector.rotate_around_axis(box.max, {x=0, y=1, z=0}, y_rot)
 
-	local sbox = {box.min.x, box.min.y, box.min.z, box.max.x, box.max.y, box.max.z}
-	obj:set_properties({selectionbox=sbox})
-	obj:get_luaentity().bbox = sbox
+	local new_sbox = {box.min.x, box.min.y, box.min.z, box.max.x, box.max.y, box.max.z}
+	local new_cbox
 
-	if rotate_cbox then
-		local col_box = minetest.registered_entities[obj:get_luaentity().name].collisionbox
-		local cbox = {
-			min = {x=col_box[1], y=col_box[2], z=col_box[3]},
-			max = {x=col_box[4], y=col_box[5], z=col_box[6]}
+	if cbox then
+		box = {
+			min = {x=cbox[1], y=cbox[2], z=cbox[3]},
+			max = {x=cbox[4], y=cbox[5], z=cbox[6]}
 		}
 
-		cbox.min = vector.rotate_around_axis(cbox.min, {x=0, y=1, z=0}, y_rot)
-		cbox.max = vector.rotate_around_axis(cbox.max, {x=0, y=1, z=0}, y_rot)
+		box.min = vector.rotate_around_axis(box.min, {x=0, y=1, z=0}, y_rot)
+		box.max = vector.rotate_around_axis(box.max, {x=0, y=1, z=0}, y_rot)
 
-		obj:set_properties({collisionbox={cbox.min.x, cbox.min.y, cbox.min.z, cbox.max.x, cbox.max.y, cbox.max.z}})
+		new_cbox = {box.min.x, box.min.y, box.min.z, box.max.x, box.max.y, box.max.z}
 	end
+
+	return new_sbox, new_cbox
 end
 
 -- Activates obj rotation from 'self.start_v' to 'self.end_v' or vice versa depending on 'dir_sign' value
@@ -79,7 +65,6 @@ function doors.smooth_rotate_step(self, dtime, vel, acc)
 	rot.y = helpers.clamp(self.start_v, self.end_v, rot.y)
 
 	if math.abs(target_rot-rot.y) <= math.rad(10) then
-		minetest.debug("the door is rotated!")
 		self.dir = 0
 		self.step_c = nil
 		self.object:set_rotation({x=rot.x, y=target_rot, z=rot.z})
@@ -89,7 +74,7 @@ function doors.smooth_rotate_step(self, dtime, vel, acc)
 	self.step_c = self.step_c and self.step_c+acc or 1
 	-- Rotation speed is 60 degrees/sec
 	local sign = self.start_v > self.end_v and -1 or 1
-	local new_rot = self.dir*sign*math.rad(vel)*dtime*0.5*self.step_c
+	local new_rot = self.dir*sign*math.rad(vel)*dtime*self.step_c
 
 	self.object:set_rotation({x=rot.x, y=rot.y+new_rot, z=rot.z})
 end
@@ -104,27 +89,35 @@ function doors.convert_to_entity(pos)
 
 	local obj_name = is_open and node.name:gsub("_open", "") or node.name
 
-	local shift = {x=pos.x+0.495, y=pos.y, z=pos.z+0.45}
-	local obj = minetest.add_entity(shift, obj_name)
-
 	if is_open then
 		dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, -math.pi/2)
 	end
 
-	doors.rotate(obj, dir, pos)
-	doors.rotate_bbox(obj, dir, true)
+	local shift = {x=pos.x+0.495, y=pos.y, z=pos.z+0.45}
+	local new_pos, rot = doors.rotate(shift, dir, pos)
+
+	local def = minetest.registered_entities[obj_name]
+	local sbox, cbox = doors.rotate_bbox(def.selectionbox, def.collisionbox, dir)
 
 	local y_rot = vector.dir_to_rotation(dir).y
-
-	local self = obj:get_luaentity()
-	self.start_v = y_rot
-	self.end_v = y_rot+math.pi/2
+	local start_r, end_r = y_rot, y_rot+math.pi/2
 
 	if is_open then
 		dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi/2)
-		doors.rotate(obj, dir, shift)
-		doors.rotate_bbox(obj, dir, true)
+		local new_pos2, rot2 = doors.rotate(new_pos, dir, shift)
+		rot = rot2
 	end
+
+	local obj = minetest.add_entity(new_pos, obj_name)
+	obj:set_rotation(rot)
+	obj:set_properties({
+		collisionbox = cbox,
+		selectionbox = sbox
+	})
+
+	local self = obj:get_luaentity()
+	self.start_v = start_r
+	self.end_v = end_r
 
 	return obj
 end
@@ -161,7 +154,16 @@ local function default_door_on_rightclick(pos)
 end
 
 local function default_entity_door_on_rightclick(self)
-	self.dir = self.dir * -1
+	local dir_sign = 0
+	if self.action == "open" then
+		dir_sign = -1
+		self.action = "close"
+	else
+		dir_sign = 1
+		self.action = "open"
+	end
+
+	doors.smooth_rotate(self.object, dir_sign)
 end
 
 local function default_entity_door_on_activate(self, staticdata)
@@ -234,13 +236,21 @@ function register.register_door(name, base_def, add_def, craft_def)
 
 	register.register_furniture_unit(name .. "_open", c_def2)
 
+	local bbox = table.copy(base_def.bounding_boxes[1])
+	local z_center = (bbox[3]+bbox[6])/2
+	bbox[3] = bbox[3] - z_center
+	bbox[6] = bbox[6] - z_center
+
+	bbox[1] = bbox[1] - 0.5
+	bbox[4] = bbox[4] - 0.5
 	minetest.register_entity(":multidecor:" .. name, {
 		visual = "mesh",
 		visual_size = {x=5, y=5, z=5},
 		textures = base_def.tiles,
 		mesh = c_def2.add_properties.door.mesh_activated,
-		collisionbox = base_def.bounding_boxes[1],
-		selectionbox = base_def.bounding_boxes[1],
+		physical = true,
+		collisionbox = bbox,
+		selectionbox = bbox,
 		use_texture_alpha = base_def.use_texture_alpha == "blend",
 		backface_culling = false,
 		static_save = true,

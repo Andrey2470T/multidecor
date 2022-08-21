@@ -16,7 +16,7 @@ register.register_door("high_dark_rusty_gate", {
 	door = {
 		mesh_open = "multidecor_high_dark_rusty_gate_open.b3d",
 		mesh_activated = "multidecor_high_dark_rusty_gate_activated.b3d",
-		vel = 90 -- degrees per sec
+		vel = 100 -- degrees per sec
 	}
 },
 {

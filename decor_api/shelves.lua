@@ -33,7 +33,10 @@ end
 -- Rotates the shelf 'obj' around 'pos' position of the node
 function shelves.rotate_shelf(pos, obj, is_drawer, move_dist)
 	local dir = helpers.get_dir(pos)
-	doors.rotate(obj, dir, pos)
+	--doors.rotate(obj, dir, pos)
+	local new_pos, rot = doors.rotate(obj:get_pos(), dir, pos)
+	obj:set_pos(new_pos)
+	obj:set_rotation(rot)
 
 	local self = obj:get_luaentity()
 	if is_drawer then
@@ -59,7 +62,12 @@ function shelves.rotate_shelf_bbox(obj)
 			vector.round(vector.subtract(obj:get_pos(), self.connected_to.pos)) == vector.round(shelf.pos2) or self.is_flip_x_scale then
 		dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi)
 	end
-	doors.rotate_bbox(obj, dir, false)
+	local def = minetest.registered_entities[self.name]
+	local sbox, cbox = doors.rotate_bbox(def.selectionbox, nil, dir)
+	obj:set_properties({
+		collisionbox = cbox,
+		selectionbox = sbox
+	})
 end
 
 -- Animates opening or closing the shelf 'obj'. The action directly depends on 'dir_sign' value ('1' is open, '-1' is close)
