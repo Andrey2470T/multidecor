@@ -62,7 +62,7 @@ minetest.register_node(":multidecor:modern_floor_clock", {
 			minetest.sound_stop(handle)
 		end
 	end,
-	after_destruct = function(pos)
+	after_dig_node = function(pos, oldnode, oldmeta)
 		local wheel = minetest.get_objects_inside_radius(pos, 0.3)
 
 		-- Not found the balance wheel
@@ -76,6 +76,11 @@ minetest.register_node(":multidecor:modern_floor_clock", {
 			return
 		end
 
+		local handle = minetest.deserialize(oldmeta.fields.sound_handle)
+
+		if handle then
+			minetest.sound_stop(handle)
+		end
 		wheel:remove()
 	end
 })
@@ -170,23 +175,54 @@ register.register_furniture_unit("alarm_clock", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-minetest.register_node(":multidecor:laminate",
-{
-	drawtype = "nodebox",
-	description = "Laminate",
-	paramtype = "light",
-	paramtype2 = "facedir",
-	tiles = {"multidecor_laminate.png"},
-	node_box = {
+local floors_defs = {
+	["laminate"] = {
+		"Laminate",
+		"multidecor_laminate.png",
+		{"multidecor:plank", "multidecor:plank", "multidecor:plank", "multidecor:plank"}
+	},
+	["white_laminate"] = {
+		"White Laminate",
+		"multidecor_white_laminate.png",
+		{"multidecor:plank", "multidecor:plank", "multidecor:plank", "multidecor:plank", "dye:white"}
+	},
+	["pine_parquet"] = {
+		"Pine Parquet",
+		"multidecor_pine_parquet.png",
+		{"multidecor:pine_plank", "multidecor:pine_plank", "multidecor:pine_plank", "multidecor:pine_plank"}
+	},
+	["jungle_linoleum"] = {
+		"Jungle Linoleum",
+		"multidecor_jungle_linoleum.png",
+		{"multidecor:jungleplank", "multidecor:jungleplank", "multidecor:jungleplank", "multidecor:jungleplank"}
+	}
+}
+
+for name, def in pairs(floors_defs) do
+	minetest.register_node(":multidecor:" .. name, {
+		drawtype = "nodebox",
+		description = def[1],
+		paramtype = "light",
+		paramtype2 = "facedir",
+		tiles = {def[2]},
+		node_box = {
 		type = "fixed",
 		fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5}
-	},
-	selection_box = {
-		type = "fixed",
-		fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5}
-	},
-	groups = {choppy=1.5}
-})
+		},
+		selection_box = {
+			type = "fixed",
+			fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5}
+		},
+		groups = {choppy=1.5}
+	})
+
+	minetest.register_craft({
+		type = "shapeless",
+		output = "multidecor:" .. name,
+		recipe = def[3]
+	})
+end
+
 
 
 local flowers = {
