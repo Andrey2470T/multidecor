@@ -49,11 +49,17 @@ minetest.register_node(":multidecor:modern_floor_clock", {
 		local meta = minetest.get_meta(pos)
 
 		if meta:get_string("is_activated") == "false" then
-			wheel:set_animation({x=1, y=40}, 25.0, 0.0, true)
+			wheel:set_animation({x=1, y=40}, 40.0, 0.0, true)
 			meta:set_string("is_activated", "true")
+
+			local handle = minetest.sound_play("multidecor_clock_chime", {object=wheel, fade=1.0, max_hear_distance=10, loop=true})
+			meta:set_string("sound_handle", minetest.serialize(handle))
 		else
 			wheel:set_animation({x=1, y=1}, 0.0)
 			meta:set_string("is_activated", "false")
+
+			local handle = minetest.deserialize(meta:get_string("sound_handle"))
+			minetest.sound_stop(handle)
 		end
 	end,
 	after_destruct = function(pos)

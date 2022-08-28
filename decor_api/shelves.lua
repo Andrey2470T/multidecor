@@ -105,6 +105,12 @@ function shelves.open_shelf(obj, dir_sign)
 			end
 		end
 	end
+
+	if shelf.sounds then
+		local play_sound = dir_sign == 1 and shelf.sounds.open or shelf.sounds.close
+
+		minetest.sound_play(play_sound, {pos=obj:get_pos(), fade=1.0, max_hear_distance=10})
+	end
 end
 
 -- Adds shelf objects for the node with 'pos' position. They should save formspec inventory and position of the node which they are connected to
@@ -265,7 +271,7 @@ shelves.default_drawer_on_step = function(self)
 	local target_pos = self.dir == 1 and self.end_v or self.start_v
 	local dist = vector.distance(self.object:get_pos(), target_pos)
 
-	if dist <= 0.1 then
+	if dist <= 0.05 then
 		self.dir = 0
 		self.object:set_velocity(vector.zero())
 		self.object:set_pos(target_pos)

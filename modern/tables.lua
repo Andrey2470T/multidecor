@@ -92,7 +92,11 @@ register.register_table("modern_wooden_desk", {
 			pos = {x=-1.15, y=0.225, z=0.025},
 			object = "modern:wooden_drawer",
 			length = 0.8,
-			inv_size = {w=6,h=1}
+			inv_size = {w=6,h=1},
+			sounds = {
+				open = "multidecor_drawer_open",
+				close = "multidecor_drawer_close"
+			}
         },
 		{
 			type = "door",
@@ -100,7 +104,11 @@ register.register_table("modern_wooden_desk", {
 			object = "modern:wooden_door",
 			side = "left",
 			inv_size = {w=6,h=3},
-			acc = 1
+			acc = 1,
+			sounds = {
+				open = "multidecor_cabinet_door_open",
+				close = "multidecor_cabinet_door_close"
+			}
 		}
 	}
 },
@@ -183,7 +191,11 @@ register.register_table("modern_bedside_table", {
 			pos = {x=0, y=-0.22, z=0.2375},
 			object = "modern:wooden_drawer",
 			length = 0.8,
-			inv_size = {w=6,h=1}
+			inv_size = {w=6,h=1},
+			sounds = {
+				open = "multidecor_drawer_open",
+				close = "multidecor_drawer_close"
+			}
         },
 		{
 			type = "drawer",
@@ -192,7 +204,11 @@ register.register_table("modern_bedside_table", {
 			pos = {x=0, y=0.205, z=0.2375},
 			object = "modern:wooden_drawer",
 			length = 0.8,
-			inv_size = {w=6,h=1}
+			inv_size = {w=6,h=1},
+			sounds = {
+				open = "multidecor_drawer_open",
+				close = "multidecor_drawer_close"
+			}
 		}
 	}
 },

@@ -23,7 +23,11 @@ register.register_table("modern_cupboard_with_glass_doors", {
 			pos2 = {x=-0.5, y=1.6625, z=0.25},
 			object = "modern:wardrobe_wooden_glass_door",
 			inv_size = {w=8,h=6},
-			acc = 1
+			acc = 1,
+			sounds = {
+				open = "multidecor_cabinet_door_open",
+				close = "multidecor_cabinet_door_close"
+			}
 		},
 		{
 			type = "sym_doors",
@@ -31,7 +35,11 @@ register.register_table("modern_cupboard_with_glass_doors", {
 			pos2 = {x=-0.5, y=0.2375, z=0.25},
 			object = "modern:wardrobe_wooden_door",
 			inv_size = {w=8,h=6},
-			acc = 1
+			acc = 1,
+			sounds = {
+				open = "multidecor_cabinet_door_open",
+				close = "multidecor_cabinet_door_close"
+			}
 		}
 	}
 },

@@ -107,7 +107,11 @@ register.register_table("dresser_with_mirror", {
 			pos = {x=-0.02, y=0.28, z=0},
 			object = "modern:wooden_drawer_with_round_handle",
 			length = 0.5,
-			inv_size = {w=6,h=1}
+			inv_size = {w=6,h=1},
+			sounds = {
+				open = "multidecor_drawer_open",
+				close = "multidecor_drawer_close"
+			}
         },
 		{
 			type = "drawer",
@@ -116,7 +120,11 @@ register.register_table("dresser_with_mirror", {
 			pos = {x=-0.02, y=0, z=0},
 			object = "modern:wooden_drawer_with_round_handle",
 			length = 0.5,
-			inv_size = {w=6,h=1}
+			inv_size = {w=6,h=1},
+			sounds = {
+				open = "multidecor_drawer_open",
+				close = "multidecor_drawer_close"
+			}
         },
 		{
 			type = "drawer",
@@ -125,7 +133,11 @@ register.register_table("dresser_with_mirror", {
 			pos = {x=-0.02, y=-0.28, z=0},
 			object = "modern:wooden_drawer_with_round_handle",
 			length = 0.5,
-			inv_size = {w=6,h=1}
+			inv_size = {w=6,h=1},
+			sounds = {
+				open = "multidecor_drawer_open",
+				close = "multidecor_drawer_close"
+			}
         },
 		{
 			type = "drawer",
@@ -134,7 +146,11 @@ register.register_table("dresser_with_mirror", {
 			pos = {x=-1, y=0.28, z=0},
 			object = "modern:wooden_drawer_with_round_handle",
 			length = 0.5,
-			inv_size = {w=6,h=1}
+			inv_size = {w=6,h=1},
+			sounds = {
+				open = "multidecor_drawer_open",
+				close = "multidecor_drawer_close"
+			}
         },
 		{
 			type = "drawer",
@@ -143,7 +159,11 @@ register.register_table("dresser_with_mirror", {
 			pos = {x=-1, y=0, z=0},
 			object = "modern:wooden_drawer_with_round_handle",
 			length = 0.5,
-			inv_size = {w=6,h=1}
+			inv_size = {w=6,h=1},
+			sounds = {
+				open = "multidecor_drawer_open",
+				close = "multidecor_drawer_close"
+			}
         },
 		{
 			type = "drawer",
@@ -152,7 +172,11 @@ register.register_table("dresser_with_mirror", {
 			pos = {x=-1, y=-0.28, z=0},
 			object = "modern:wooden_drawer_with_round_handle",
 			length = 0.5,
-			inv_size = {w=6,h=1}
+			inv_size = {w=6,h=1},
+			sounds = {
+				open = "multidecor_drawer_open",
+				close = "multidecor_drawer_close"
+			}
         },
 	}
 },

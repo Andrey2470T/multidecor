@@ -85,7 +85,8 @@ function doors.convert_to_entity(pos)
 
 	minetest.remove_node(pos)
 
-	local is_open = minetest.registered_nodes[node.name].add_properties.door.mode == "open"
+	local add_props = minetest.registered_nodes[node.name].add_properties
+	local is_open = add_props.door.mode == "open"
 
 	local obj_name = is_open and node.name:gsub("_open", "") or node.name
 
@@ -106,6 +107,10 @@ function doors.convert_to_entity(pos)
 		dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi/2)
 		local new_pos2, rot2 = doors.rotate(new_pos, dir, shift)
 		rot = rot2
+	end
+
+	if add_props.door.sounds and not is_open then
+		minetest.sound_play(add_props.door.sounds.open, {pos=pos, max_hear_distance=10})
 	end
 
 	local obj = minetest.add_entity(new_pos, obj_name)
@@ -129,6 +134,13 @@ function doors.convert_from_entity(obj)
 
 	local pos = obj:get_pos()
 	local self = obj:get_luaentity()
+
+	local add_props = minetest.registered_nodes[self.name].add_properties
+
+	if add_props.door.sounds and self.action == "close" then
+		minetest.sound_play(add_props.door.sounds.close, {pos=pos, max_hear_distance=10})
+	end
+
 	obj:remove()
 
 	local name = self.action == "open" and self.name .. "_open" or self.name

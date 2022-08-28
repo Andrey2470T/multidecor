@@ -16,7 +16,11 @@ register.register_door("high_dark_rusty_gate", {
 	door = {
 		mesh_open = "multidecor_high_dark_rusty_gate_open.b3d",
 		mesh_activated = "multidecor_high_dark_rusty_gate_activated.b3d",
-		vel = 100 -- degrees per sec
+		vel = 90, -- degrees per sec
+		sounds = {
+			open = "multidecor_metallic_door_open",
+			close = "multidecor_metallic_door_close"
+		}
 	}
 },
 {
@@ -46,7 +50,11 @@ register.register_door("dark_rusty_gate", {
 	door = {
 		mesh_open = "multidecor_dark_rusty_gate_open.b3d",
 		mesh_activated = "multidecor_dark_rusty_gate_activated.b3d",
-		vel = 90 -- degrees per sec
+		vel = 90, -- degrees per sec
+		sounds = {
+			open = "multidecor_metallic_door_open",
+			close = "multidecor_metallic_door_close"
+		}
 	}
 },
 {
@@ -70,7 +78,11 @@ register.register_door("wooden_door", {
 	door = {
 		mesh_open = "multidecor_modern_wooden_door_open.b3d",
 		mesh_activated = "multidecor_modern_wooden_door_activated.b3d",
-		vel = 90 -- degrees per sec
+		vel = 100, -- degrees per sec
+		sounds = {
+			open = "multidecor_wooden_door_open",
+			close = "multidecor_wooden_door_close"
+		}
 	}
 },
 {
@@ -100,7 +112,11 @@ register.register_door("pine_glass_door", {
 	door = {
 		mesh_open = "multidecor_pine_glass_door_open.b3d",
 		mesh_activated = "multidecor_pine_glass_door_activated.b3d",
-		vel = 90 -- degrees per sec
+		vel = 100, -- degrees per sec
+		sounds = {
+			open = "multidecor_wooden_door_open",
+			close = "multidecor_wooden_door_close"
+		}
 	}
 },
 {
@@ -130,7 +146,11 @@ register.register_door("technical_door", {
 	door = {
 		mesh_open = "multidecor_technical_door_open.b3d",
 		mesh_activated = "multidecor_technical_door_activated.b3d",
-		vel = 90 -- degrees per sec
+		vel = 80, -- degrees per sec
+		sounds = {
+			open = "multidecor_metallic_door_open",
+			close = "multidecor_metallic_door_close"
+		}
 	}
 },
 {
