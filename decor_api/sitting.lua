@@ -22,6 +22,7 @@ function sitting.attach_player_to_node(attacher, seat_data)
 	if seat_data.model then
 		attacher:set_properties({mesh = seat_data.model.mesh})
 		attacher:set_animation(seat_data.model.anim.range, seat_data.model.anim.speed, seat_data.model.anim.blend, seat_data.model.anim.loop)
+		minetest.debug("anim: " .. dump({attacher:get_animation()}))
 	end
 end
 
@@ -71,7 +72,7 @@ function sitting.sit_player(player, node_pos)
 		physics = {speed = physics.speed, jump = physics.jump}
 	}
 	local node = minetest.get_node(node_pos)
-	local seat_data = minetest.registered_nodes[node.name].add_properties.seat_data
+	local seat_data = table.copy(minetest.registered_nodes[node.name].add_properties.seat_data)
 
 	local rand_model
 	if seat_data.models then
@@ -79,6 +80,21 @@ function sitting.sit_player(player, node_pos)
 
 		prev_pdata.mesh = player:get_properties().mesh
 		prev_pdata.anim = {range = range, speed = speed, blend = blend, loop = loop}
+
+		local node_dir = vector.multiply(minetest.facedir_to_dir(minetest.get_node(node_pos).param2), -1)
+		local near_node = minetest.get_node(vector.add(node_pos, node_dir))
+
+		if minetest.get_item_group(near_node.name, "table") ~= 1 then
+			local models2 = {}
+			for i=1, #seat_data.models do
+				if not seat_data.models[i].is_near_block_required then
+					table.insert(models2, seat_data.models[i])
+				end
+			end
+
+			seat_data.models = models2
+		end
+
 
 		rand_model = seat_data.models[math.random(1, #seat_data.models)]
 	end

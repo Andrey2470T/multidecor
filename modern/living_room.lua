@@ -1,9 +1,29 @@
-minetest.register_node(":multidecor:modern_floor_clock", {
+local function get_current_time()
+	--[[local time = minetest.get_timeofday()
+	local total_seconds = math.floor(time * 1440)
+	local total_minutes = total_seconds % 60
+	local total_hours = total_minutes % 60
+
+	local seconds = total_seconds - (total_minutes*60)
+	local minutes = total_minutes - (total_hours*60)]]
+	local timeofday = minetest.get_timeofday()
+	local time = math.floor(timeofday * 1440)
+	local minute = time % 60
+	local hour = (time - minute) / 60
+
+	return hour, minute
+end
+
+local function get_formatted_time_str(hours, minutes, seconds)
+	return ("Current time: %d:%d"):format(hours, minutes)
+end
+
+register.register_furniture_unit("modern_floor_clock", {
+	type = "decoration",
+	style = "modern",
+	material = "wood",
 	visual_scale = 0.5,
-	drawtype = "mesh",
 	description = "Floor Clock",
-	paramtype = "light",
-	paramtype2 = "facedir",
 	inventory_image = "multidecor_floor_clock_inv.png",
 	use_texture_alpha = "blend",
 	mesh = "multidecor_floor_clock.b3d",
@@ -13,87 +33,89 @@ minetest.register_node(":multidecor:modern_floor_clock", {
 		"multidecor_dial.png",
 		"multidecor_glass_material.png"
 	},
-	groups = {choppy=1.5},
-	collision_box = {
-		type = "fixed",
-		fixed = {-0.4, -0.5, -0.3, 0.4, 2, 0.4}
-	},
-	selection_box = {
-		type = "fixed",
-		fixed = {-0.4, -0.5, -0.3, 0.4, 2, 0.4}
-	},
-	on_construct = function(pos)
-		local wheel = minetest.add_entity(pos, "modern:floor_clock_balance_wheel")
+	bounding_boxes = {{-0.4, -0.5, -0.3, 0.4, 2, 0.4}},
+	callbacks = {
+		on_construct = function(pos)
+			local wheel = minetest.add_entity(pos, "modern:floor_clock_balance_wheel")
 
-		local dir = vector.multiply(minetest.facedir_to_dir(minetest.get_node(pos).param2), -1)
-		local y_rot = vector.dir_to_rotation(dir).y
+			local dir = vector.multiply(minetest.facedir_to_dir(minetest.get_node(pos).param2), -1)
+			local y_rot = vector.dir_to_rotation(dir).y
 
-		wheel:set_rotation({x=0, y=y_rot, z=0})
+			wheel:set_rotation({x=0, y=y_rot, z=0})
 
-		minetest.get_meta(pos):set_string("is_activated", "false")
-	end,
-	on_rightclick = function(pos, node, clicker)
-		local wheel = minetest.get_objects_inside_radius(pos, 0.3)
+			minetest.get_meta(pos):set_string("is_activated", "false")
+		end,
+		on_rightclick = function(pos, node, clicker)
+			local wheel = minetest.get_objects_inside_radius(pos, 0.3)
 
-		-- Not found the balance wheel
-		if #wheel == 0 then
-			return
+			-- Not found the balance wheel
+			if #wheel == 0 then
+				return
+			end
+
+			wheel = wheel[1]
+
+			if wheel:get_luaentity().name ~= "modern:floor_clock_balance_wheel" then
+				return
+			end
+
+			local meta = minetest.get_meta(pos)
+
+			if meta:get_string("is_activated") == "false" then
+				wheel:set_animation({x=1, y=40}, 40.0, 0.0, true)
+				meta:set_string("is_activated", "true")
+
+				local handle = minetest.sound_play("multidecor_clock_chime", {object=wheel, fade=1.0, max_hear_distance=10, loop=true})
+				meta:set_string("sound_handle", minetest.serialize(handle))
+
+				minetest.get_node_timer(pos):start(1)
+			else
+				wheel:set_animation({x=1, y=1}, 0.0)
+				meta:set_string("is_activated", "false")
+
+				local handle = minetest.deserialize(meta:get_string("sound_handle"))
+				minetest.sound_stop(handle)
+
+				minetest.get_node_timer(pos):stop()
+			end
+		end,
+		after_dig_node = function(pos, oldnode, oldmeta)
+			local wheel = minetest.get_objects_inside_radius(pos, 0.3)
+
+			-- Not found the balance wheel
+			if #wheel == 0 then
+				return
+			end
+
+			wheel = wheel[1]
+
+			if wheel:get_luaentity().name ~= "modern:floor_clock_balance_wheel" then
+				return
+			end
+
+			local handle = minetest.deserialize(oldmeta.fields.sound_handle)
+
+			if handle then
+				minetest.sound_stop(handle)
+			end
+			wheel:remove()
+		end,
+		on_timer = function(pos, elapsed)
+			local hours, minutes, seconds = get_current_time()
+			minetest.get_meta(pos):set_string("infotext", get_formatted_time_str(hours, minutes, seconds))
+
+			return true
 		end
-
-		wheel = wheel[1]
-
-		if wheel:get_luaentity().name ~= "modern:floor_clock_balance_wheel" then
-			return
-		end
-
-		local meta = minetest.get_meta(pos)
-
-		if meta:get_string("is_activated") == "false" then
-			wheel:set_animation({x=1, y=40}, 40.0, 0.0, true)
-			meta:set_string("is_activated", "true")
-
-			local handle = minetest.sound_play("multidecor_clock_chime", {object=wheel, fade=1.0, max_hear_distance=10, loop=true})
-			meta:set_string("sound_handle", minetest.serialize(handle))
-		else
-			wheel:set_animation({x=1, y=1}, 0.0)
-			meta:set_string("is_activated", "false")
-
-			local handle = minetest.deserialize(meta:get_string("sound_handle"))
-			minetest.sound_stop(handle)
-		end
-	end,
-	after_dig_node = function(pos, oldnode, oldmeta)
-		local wheel = minetest.get_objects_inside_radius(pos, 0.3)
-
-		-- Not found the balance wheel
-		if #wheel == 0 then
-			return
-		end
-
-		wheel = wheel[1]
-
-		if wheel:get_luaentity().name ~= "modern:floor_clock_balance_wheel" then
-			return
-		end
-
-		local handle = minetest.deserialize(oldmeta.fields.sound_handle)
-
-		if handle then
-			minetest.sound_stop(handle)
-		end
-		wheel:remove()
-	end
-})
-
-minetest.register_craft(
+	}
+},
 {
-	output = "multidecor:modern_floor_clock",
 	recipe = {
 		{"multidecor:jungleboard", "multidecor:jungleboard", "multidecor:jungleboard"},
 		{"doors:door_glass", "multidecor:digital_dial", "multidecor:jungleboard"},
 		{"multidecor:gear", "multidecor:gear", "multidecor:spring"}
 	}
 })
+
 
 minetest.register_entity("modern:floor_clock_balance_wheel", {
 	visual = "mesh",
@@ -164,7 +186,56 @@ register.register_furniture_unit("alarm_clock", {
 		"multidecor_glass_material.png"
 	},
 	use_texture_alpha = "blend",
-	bounding_boxes = {{-0.25, -0.5, -0.175, 0.25, 0.1, 0.175}}
+	bounding_boxes = {{-0.25, -0.5, -0.175, 0.25, 0.1, 0.175}},
+	callbacks = {
+		on_construct = function(pos)
+			local meta = minetest.get_meta(pos)
+			meta:set_string("is_activated", "false")
+            meta:set_int("nodetime_elapsed", -1)
+		end,
+		on_rightclick = function(pos)
+			local meta = minetest.get_meta(pos)
+
+			if meta:get_string("is_activated") == "false" then
+                meta:set_string("is_activated", "true")
+                minetest.get_node_timer(pos):start(1)
+			else
+                meta:set_string("is_activated", "false")
+                meta:set_int("nodetime_elapsed", -1)
+                minetest.get_node_timer(pos):stop()
+
+                local handle = minetest.deserialize(meta:get_string("sound_handle"))
+
+                if handle then
+					minetest.sound_stop(handle)
+                end
+			end
+		end,
+		on_timer = function(pos)
+			local meta = minetest.get_meta(pos)
+
+			local elapsed = meta:get_int("nodetime_elapsed")
+			elapsed = elapsed + 1
+			meta:set_int("nodetime_elapsed", elapsed)
+
+			local hours, minutes, seconds = get_current_time()
+            meta:set_string("infotext", get_formatted_time_str(hours, minutes, seconds))
+
+			if elapsed % 8 == 0 then
+                local handle = minetest.sound_play("multidecor_clock_ticking", {pos=pos, fade=1.0, max_hear_distance=10})
+                meta:set_string("sound_handle", minetest.serialize(handle))
+			end
+
+			return true
+		end,
+		after_dig_node = function(pos, oldnode, oldmeta)
+			local handle = minetest.deserialize(oldmeta.fields.sound_handle)
+
+			if handle then
+				minetest.sound_stop(handle)
+			end
+		end
+	}
 },
 {
 	recipe = {

@@ -1,3 +1,19 @@
+local models = {
+	{
+		mesh = "multidecor_character_sitting.b3d",
+		anim = {range = {x=1, y=80}, speed = 1}
+	},
+	{
+		mesh = "multidecor_character_sitting.b3d",
+		anim = {range = {x=81, y=82}, speed = 1}
+	},
+	{
+		mesh = "multidecor_character_sitting.b3d",
+		anim = {range = {x=83, y=84}, speed = 1},
+		is_near_block_required = true
+	}
+}
+
 register.register_seat("kitchen_modern_wooden_chair", {
 	style = "modern",
 	material = "wood",
@@ -13,12 +29,7 @@ register.register_seat("kitchen_modern_wooden_chair", {
 	seat_data = {
 		pos = {x=0.0, y=0.35, z=0.0},
 		rot = {x=0, y=0, z=0},
-		models = {
-			{
-				mesh = "multidecor_character_sitting.b3d",
-				anim = {range = {x=1, y=80}, speed = 15}
-			}
-		}
+		models = models
 	}
 },
 {
@@ -44,12 +55,7 @@ register.register_seat("soft_kitchen_modern_wooden_chair", {
 	seat_data = {
 		pos = {x=0.0, y=0.4, z=0.0},
 		rot = {x=0, y=0, z=0},
-		models = {
-			{
-				mesh = "multidecor_character_sitting.b3d",
-				anim = {range = {x=1, y=80}, speed = 15}
-			}
-		}
+		models = models
 	}
 },
 {
@@ -75,12 +81,7 @@ register.register_seat("soft_modern_jungle_chair", {
 	seat_data = {
 		pos = {x=0.0, y=0.3, z=0.0},
 		rot = {x=0, y=0, z=0},
-		models = {
-			{
-				mesh = "multidecor_character_sitting.b3d",
-				anim = {range = {x=1, y=80}, speed = 15}
-			}
-		}
+		models = models
 	}
 },
 {
@@ -106,12 +107,7 @@ register.register_seat("soft_round_modern_metallic_chair", {
 	seat_data = {
 		pos = {x=0.0, y=0.3, z=0.0},
 		rot = {x=0, y=0, z=0},
-		models = {
-			{
-				mesh = "multidecor_character_sitting.b3d",
-				anim = {range = {x=1, y=80}, speed = 15}
-			}
-		}
+		models = models
 	}
 },
 {
@@ -136,12 +132,7 @@ register.register_seat("round_modern_metallic_stool", {
 	seat_data = {
 		pos = {x=0.0, y=0.4, z=0.0},
 		rot = {x=0, y=0, z=0},
-		models = {
-			{
-				mesh = "multidecor_character_sitting.b3d",
-				anim = {range = {x=1, y=80}, speed = 15}
-			}
-		}
+		models = models
 	}
 },
 {
@@ -171,12 +162,7 @@ register.register_seat("armchair_with_wooden_legs", {
 	seat_data = {
 		pos = {x=0.0, y=0.2, z=0.0},
 		rot = {x=0, y=0, z=0},
-		models = {
-			{
-				mesh = "multidecor_character_sitting.b3d",
-				anim = {range = {x=1, y=80}, speed = 15}
-			}
-		}
+		models = models
 	}
 },
 {
@@ -220,12 +206,7 @@ register.register_seat("sofa", {
 	seat_data = {
 		pos = {x=0.0, y=0.1, z=0.0},
 		rot = {x=0, y=0, z=0},
-		models = {
-			{
-				mesh = "multidecor_character_sitting.b3d",
-				anim = {range = {x=1, y=80}, speed = 15}
-			}
-		}
+		models = models
 	}
 },
 {

@@ -5,10 +5,10 @@ minetest.register_node(":multidecor:wolfram_ore", {
     paramtype = "light",
     light_source = 2,
     drop = {
-		max_items = 4,
+		max_items = 3,
 		items = {
 			{
-				rarity = 1000,
+				rarity = 1,
 				items = {"multidecor:wolfram_lump"}
 			}
 		}
@@ -24,10 +24,10 @@ minetest.register_node(":multidecor:desert_wolfram_ore", {
     paramtype = "light",
     light_source = 2,
     drop = {
-		max_items = 4,
+		max_items = 3,
 		items = {
 			{
-				rarity = 1000,
+				rarity = 1,
 				items = {"multidecor:wolfram_lump"}
 			}
 		}
@@ -40,7 +40,7 @@ minetest.register_ore({
     ore_type = "scatter",
     ore = "multidecor:wolfram_ore",
     wherein = "default:stone",
-    clust_scarcity = 800,
+    clust_scarcity = 1500,
     clust_num_ores = 4,
     clust_size = 2,
     height_min = -31000,
@@ -51,7 +51,7 @@ minetest.register_ore({
     ore_type = "scatter",
     ore = "multidecor:desert_wolfram_ore",
     wherein = "default:desert_stone",
-    clust_scarcity = 800,
+    clust_scarcity = 1500,
     clust_num_ores = 4,
     clust_size = 2,
     height_min = -31000,
@@ -87,7 +87,7 @@ minetest.register_node(":multidecor:zinc_ore", {
 		max_items = 5,
 		items = {
 			{
-				rarity = 1000,
+				rarity = 1,
 				items = {"multidecor:zinc_fragment"}
 			}
 		}
@@ -106,7 +106,7 @@ minetest.register_node(":multidecor:desert_zinc_ore", {
 		max_items = 5,
 		items = {
 			{
-				rarity = 1000,
+				rarity = 1,
 				items = {"multidecor:zinc_fragment"}
 			}
 		}
@@ -119,7 +119,7 @@ minetest.register_ore({
     ore_type = "scatter",
     ore = "multidecor:zinc_ore",
     wherein = "default:stone",
-    clust_scarcity = 400,
+    clust_scarcity = 900,
     clust_num_ores = 5,
     clust_size = 3,
     height_min = -31000,
@@ -129,8 +129,8 @@ minetest.register_ore({
 minetest.register_ore({
     ore_type = "scatter",
     ore = "multidecor:desert_zinc_ore",
-    wherein = "default:stone",
-    clust_scarcity = 400,
+    wherein = "default:desert_stone",
+    clust_scarcity = 900,
     clust_num_ores = 5,
     clust_size = 3,
     height_min = -31000,

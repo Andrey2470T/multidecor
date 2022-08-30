@@ -173,14 +173,13 @@ function register.register_furniture_unit(name, def, craft_def)
 		end
 	end
 
-	if def.type ~= "decoration" then
-		f_def.callbacks = def.callbacks or {}
-		for cb_name, f in pairs(f_def.callbacks) do
-			f_def[cb_name] = f
-		end
 
-		f_def.add_properties = def.add_properties or {}
+	f_def.callbacks = def.callbacks or {}
+	for cb_name, f in pairs(f_def.callbacks) do
+		f_def[cb_name] = f
 	end
+
+	f_def.add_properties = def.add_properties or {}
 
 	local f_name = "multidecor:" .. name
 	minetest.register_node(":" .. f_name, f_def)
