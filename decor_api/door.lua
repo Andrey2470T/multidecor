@@ -1,6 +1,6 @@
 multidecor.doors = {}
 
-doors = multidecor.doors
+local doors = multidecor.doors
 
 -- Returns new position rotated around 'rotate_p' and rotation correponding to "dir"
 function doors.rotate(pos, dir, rotate_p)
