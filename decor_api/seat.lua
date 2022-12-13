@@ -18,18 +18,18 @@ local default_on_construct = function(pos)
 end
 
 local default_on_destruct = function(pos)
-	sitting.standup_player(minetest.get_player_by_name(minetest.get_meta(pos):get_string("is_busy")), pos)
+	multidecor.sitting.standup_player(minetest.get_player_by_name(minetest.get_meta(pos):get_string("is_busy")), pos)
 end
 
 local default_on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-	local bool = sitting.sit_player(clicker, pos)
+	local bool = multidecor.sitting.sit_player(clicker, pos)
 
 	if not bool then
-		sitting.standup_player(clicker, pos)
+		multidecor.sitting.standup_player(clicker, pos)
 	end
 end
 
-function register.register_seat(name, base_def, add_def, craft_def)
+function multidecor.register.register_seat(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
 
 	def.type = "seat"
@@ -56,9 +56,9 @@ function register.register_seat(name, base_def, add_def, craft_def)
 		}
 	end
 
-	register.register_furniture_unit(name, def, craft_def)
+	multidecor.register.register_furniture_unit(name, def, craft_def)
 
 	if def.add_properties and def.add_properties.connect_parts then
-		connecting.register_connect_parts(def)
+		multidecor.connecting.register_connect_parts(def)
 	end
 end

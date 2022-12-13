@@ -21,20 +21,19 @@
 
 multidecor.shelves = {}
 
-shelves = multidecor.shelves
 
 -- Temporary saving objects of current "open" shelves in the following format: ["playername"] = objref
 local open_shelves = {}
 
-function shelves.build_name_from_tmp(name, type, i)
+function multidecor.shelves.build_name_from_tmp(name, type, i)
 	return name .. "_" .. i .. "_" .. type
 end
 
 -- Rotates the shelf 'obj' around 'pos' position of the node
-function shelves.rotate_shelf(pos, obj, is_drawer, move_dist)
-	local dir = helpers.get_dir(pos)
+function multidecor.shelves.rotate_shelf(pos, obj, is_drawer, move_dist)
+	local dir = multidecor.helpers.get_dir(pos)
 	--doors.rotate(obj, dir, pos)
-	local new_pos, rot = doors.rotate(obj:get_pos(), dir, pos)
+	local new_pos, rot = multidecor.doors.rotate(obj:get_pos(), dir, pos)
 	obj:set_pos(new_pos)
 	obj:set_rotation(rot)
 
@@ -51,11 +50,11 @@ function shelves.rotate_shelf(pos, obj, is_drawer, move_dist)
 end
 
 -- Rotates the obj`s selectionbox depending on the connected node rotation
-function shelves.rotate_shelf_bbox(obj)
+function multidecor.shelves.rotate_shelf_bbox(obj)
 	local self = obj:get_luaentity()
 	if not self then return end
 
-	local dir = helpers.get_dir(self.connected_to.pos)
+	local dir = multidecor.helpers.get_dir(self.connected_to.pos)
 	local shelf = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data[self.shelf_data_i]
 
 	if shelf.type == "sym_doors" and
@@ -63,7 +62,7 @@ function shelves.rotate_shelf_bbox(obj)
 		dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi)
 	end
 	local def = minetest.registered_entities[self.name]
-	local sbox, cbox = doors.rotate_bbox(def.selectionbox, nil, dir)
+	local sbox, cbox = multidecor.doors.rotate_bbox(def.selectionbox, nil, dir)
 	obj:set_properties({
 		collisionbox = cbox,
 		selectionbox = sbox
@@ -71,7 +70,7 @@ function shelves.rotate_shelf_bbox(obj)
 end
 
 -- Animates opening or closing the shelf 'obj'. The action directly depends on 'dir_sign' value ('1' is open, '-1' is close)
-function shelves.open_shelf(obj, dir_sign)
+function multidecor.shelves.open_shelf(obj, dir_sign)
 	local self = obj:get_luaentity()
 
 	if not self then
@@ -84,7 +83,7 @@ function shelves.open_shelf(obj, dir_sign)
 
 	local node_name = self.connected_to.name
 	local shelf = minetest.registered_nodes[node_name].add_properties.shelves_data[self.shelf_data_i]
-	local dir = helpers.get_dir(self.connected_to.pos)
+	local dir = multidecor.helpers.get_dir(self.connected_to.pos)
 
 	self.dir = dir_sign
 	if shelf.type == "drawer" then
@@ -114,7 +113,7 @@ function shelves.open_shelf(obj, dir_sign)
 end
 
 -- Adds shelf objects for the node with 'pos' position. They should save formspec inventory and position of the node which they are connected to
-function shelves.set_shelves(pos)
+function multidecor.shelves.set_shelves(pos)
 	local node = minetest.get_node(pos)
 	local def = minetest.registered_nodes[node.name]
 
@@ -127,8 +126,8 @@ function shelves.set_shelves(pos)
 	local rot_y = vector.dir_to_rotation(dir)
 
 	for i, shelf_data in ipairs(def.add_properties.shelves_data) do
-		local inv_name = shelves.build_name_from_tmp(node.name, "inv", i)
-		local list_name = shelves.build_name_from_tmp(node.name, "list", i)
+		local inv_name = multidecor.shelves.build_name_from_tmp(node.name, "inv", i)
+		local list_name = multidecor.shelves.build_name_from_tmp(node.name, "list", i)
 
 		local padding = 0.25
 		local width = shelf_data.inv_size.w > 8 and shelf_data.inv_size.w or 8
@@ -155,7 +154,7 @@ function shelves.set_shelves(pos)
 		elseif shelf_data.type == "sym_doors" then
 			move_dist = -math.pi/2
 		end
-		shelves.rotate_shelf(pos, obj, shelf_data.type == "drawer", move_dist)
+		multidecor.shelves.rotate_shelf(pos, obj, shelf_data.type == "drawer", move_dist)
 
 		if shelf_data.type == "sym_doors" then
 			local obj2 = minetest.add_entity(vector.add(pos, shelf_data.pos2), shelf_data.object, minetest.serialize({fs, {name=node.name, pos=pos}, 0, i}))
@@ -164,12 +163,12 @@ function shelves.set_shelves(pos)
 			obj2:set_properties({visual_size={x=vis_size.x*-1, y=vis_size.y, z=vis_size.z}})
 			obj2:get_luaentity().is_flip_x_scale = true
 
-			shelves.rotate_shelf(pos, obj2, false, math.pi/2)
+			multidecor.shelves.rotate_shelf(pos, obj2, false, math.pi/2)
 		end
 	end
 end
 
-shelves.default_on_activate = function(self, staticdata)
+multidecor.shelves.default_on_activate = function(self, staticdata)
 	if staticdata ~= "" then
 		local data = minetest.deserialize(staticdata)
 		self.inv = data[1]
@@ -209,9 +208,9 @@ shelves.default_on_activate = function(self, staticdata)
 	self.object:set_properties(obj_props)
 	self.object:set_armor_groups({immortal=1})
 
-	shelves.rotate_shelf_bbox(self.object)
+	multidecor.shelves.rotate_shelf_bbox(self.object)
 
-	local inv_name = shelves.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
+	local inv_name = multidecor.shelves.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
 	minetest.create_detached_inventory(inv_name, {
 		allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
 			return count
@@ -235,7 +234,7 @@ shelves.default_on_activate = function(self, staticdata)
 		table.insert(inv_list, stack)
 	end
 
-	local list_name = shelves.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i)
+	local list_name = multidecor.shelves.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i)
 	inv:set_list(list_name, inv_list)
 	inv:set_size(list_name, shelf_data.inv_size.w*shelf_data.inv_size.h)
 	inv:set_width(list_name, shelf_data.inv_size.w)
@@ -244,20 +243,20 @@ shelves.default_on_activate = function(self, staticdata)
 	inv:set_width("main", 8)
 end
 
-shelves.default_get_staticdata = function(self)
+multidecor.shelves.default_get_staticdata = function(self)
 	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.inv_list, self.start_v, self.end_v, self.is_flip_x_scale})
 end
 
-shelves.default_on_rightclick = function(self, clicker)
+multidecor.shelves.default_on_rightclick = function(self, clicker)
 	open_shelves[clicker:get_player_name()] = self.object
-	minetest.show_formspec(clicker:get_player_name(), shelves.build_name_from_tmp(self.connected_to.name, "fs", self.shelf_data_i), self.inv)
+	minetest.show_formspec(clicker:get_player_name(), multidecor.shelves.build_name_from_tmp(self.connected_to.name, "fs", self.shelf_data_i), self.inv)
 
 	if self.dir == 0 then
-		shelves.open_shelf(self.object, 1)
+		multidecor.shelves.open_shelf(self.object, 1)
 	end
 end
 
-shelves.default_drawer_on_step = function(self)
+multidecor.shelves.default_drawer_on_step = function(self)
 	local node = minetest.get_node(self.connected_to.pos)
 
 	if node.name ~= self.connected_to.name then
@@ -278,7 +277,7 @@ shelves.default_drawer_on_step = function(self)
 	end
 end
 
-shelves.default_door_on_step = function(self, dtime)
+multidecor.shelves.default_door_on_step = function(self, dtime)
 	local node = minetest.get_node(self.connected_to.pos)
 
 	if node.name ~= self.connected_to.name then
@@ -287,10 +286,10 @@ shelves.default_door_on_step = function(self, dtime)
 	end
 
 	local shelf_data = minetest.registered_nodes[node.name].add_properties.shelves_data[self.shelf_data_i]
-	doors.smooth_rotate_step(self, dtime, shelf_data.vel or 30, shelf_data.acc or 0)
+	multidecor.doors.smooth_rotate_step(self, dtime, shelf_data.vel or 30, shelf_data.acc or 0)
 end
 
-shelves.default_on_receive_fields = function(player, formname, fields)
+multidecor.shelves.default_on_receive_fields = function(player, formname, fields)
 	local is_table_inv = formname:find("%d+", -10)
 
 	if not is_table_inv then
@@ -322,17 +321,17 @@ shelves.default_on_receive_fields = function(player, formname, fields)
 		open_shelves[player:get_player_name()] = nil
 
 		local self = shelf:get_luaentity()
-		local inv_name = shelves.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
+		local inv_name = multidecor.shelves.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
 		local inv = minetest.get_inventory({type="detached", name=inv_name})
 		local shelf_data = def.add_properties.shelves_data[self.shelf_data_i]
-		local list = inv:get_list(shelves.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i))
+		local list = inv:get_list(multidecor.shelves.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i))
 
 		for _, stack in ipairs(list) do
 			table.insert(self.inv_list, {name=stack:get_name(), count=stack:get_count(), wear=stack:get_wear()})
 		end
 
-		shelves.open_shelf(shelf, -1)
+		multidecor.shelves.open_shelf(shelf, -1)
 	end
 end
 
-minetest.register_on_player_receive_fields(shelves.default_on_receive_fields)
+minetest.register_on_player_receive_fields(multidecor.shelves.default_on_receive_fields)

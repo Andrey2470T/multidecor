@@ -2,10 +2,9 @@
 
 multidecor.register = {}
 
-register = multidecor.register
 
 -- Default furniture types
-register.supported_types = {
+multidecor.register.supported_types = {
 	"seat",
 	"table",
 	"shelf",
@@ -16,7 +15,7 @@ register.supported_types = {
 }
 
 -- Default furniture styles
-register.supported_styles = {
+multidecor.register.supported_styles = {
 	"baroque",
 	"classic",
 	"high_tech",
@@ -26,7 +25,7 @@ register.supported_styles = {
 }
 
 -- Default furniture materials
-register.supported_materials = {
+multidecor.register.supported_materials = {
 	"wood",
 	"glass",
 	"metal",
@@ -35,13 +34,13 @@ register.supported_materials = {
 }
 
 -- Registers a new furniture type
-function register.register_type(type_name)
-	table.insert(register.supported_types, type_name)
+function multidecor.register.register_type(type_name)
+	table.insert(multidecor.register.supported_types, type_name)
 end
 
 -- Checks whether type with 'type_name' name is registered
-function register.check_for_type(type_name)
-	for _, type in ipairs(register.supported_types) do
+function multidecor.register.check_for_type(type_name)
+	for _, type in ipairs(multidecor.register.supported_types) do
 		if type == type_name then
 			return true
 		end
@@ -51,8 +50,8 @@ function register.check_for_type(type_name)
 end
 
 -- Checks whether style with 'style_name' name is registered
-function register.check_for_style(style_name)
-	for _, style in ipairs(register.supported_styles) do
+function multidecor.register.check_for_style(style_name)
+	for _, style in ipairs(multidecor.register.supported_styles) do
 		if style == style_name then
 			return true
 		end
@@ -99,11 +98,11 @@ end
 ]]
 
 -- Registers some furniture component (chair, stool, table, sofa, cupboard and etc).
-function register.register_furniture_unit(name, def, craft_def)
+function multidecor.register.register_furniture_unit(name, def, craft_def)
 	local f_def = {}
 
-	assert(register.check_for_type(def.type), "The type with a name \"" .. def.type .. "\" is not registered!")
-	assert(register.check_for_style(def.style), "The type with a name \"" .. def.style .. "\" is not registered!")
+	assert(multidecor.register.check_for_type(def.type), "The type with a name \"" .. def.type .. "\" is not registered!")
+	assert(multidecor.register.check_for_style(def.style), "The type with a name \"" .. def.style .. "\" is not registered!")
 
 	f_def.description = def.description
 	f_def.visual_scale = def.visual_scale or 0.4
@@ -195,5 +194,5 @@ function register.register_furniture_unit(name, def, craft_def)
 end
 
 -- Registers a set of furniture components of certain type: "kitchen", "bathroom", "bedroom", "living_room" and etc.
-function register.register_garniture()
+function multidecor.register.register_garniture()
 end

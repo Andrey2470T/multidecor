@@ -2,7 +2,7 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 	wood_n = wood_n .. (wood_n ~= "" and wood_n ~= "jungle" and "_" or "")
 	local tex = "multidecor_" .. wood_n .. (wood_n == "jungle" and "_" or "") .. "wood.png^[sheet:2x2:0,0"
 
-	register.register_table("modern_wooden_" .. wood_n .. "closed_shelf", {
+	multidecor.register.register_table("modern_wooden_" .. wood_n .. "closed_shelf", {
 		style = "modern",
 		material = "wood",
 		drawtype = "nodebox",
@@ -24,7 +24,7 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		}
 	})
 
-	register.register_table("modern_wooden_" .. wood_n .. "closed_shelf_with_back", {
+	multidecor.register.register_table("modern_wooden_" .. wood_n .. "closed_shelf_with_back", {
 		style = "modern",
 		material = "wood",
 		drawtype = "nodebox",
@@ -47,7 +47,7 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		}
 	})
 
-	register.register_table("modern_wooden_" .. wood_n .. "wall_shelf", {
+	multidecor.register.register_table("modern_wooden_" .. wood_n .. "wall_shelf", {
 		style = "modern",
 		material = "wood",
 		visual_scale = 0.5,
@@ -66,7 +66,7 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		recipe = {"multidecor:" .. wood_n .. "plank", "multidecor:" .. wood_n .. "plank"}
 	})
 
-	register.register_table("modern_wooden_" .. wood_n .. "wall_shelf_with_books", {
+	multidecor.register.register_table("modern_wooden_" .. wood_n .. "wall_shelf_with_books", {
 		style = "modern",
 		material = "wood",
 		visual_scale = 0.5,

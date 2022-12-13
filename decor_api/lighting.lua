@@ -14,7 +14,7 @@ local default_on_rightclick = function(pos)
 end
 
 
-function register.register_light(name, base_def, add_def, craft_def)
+function multidecor.register.register_light(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
 
 	def.type = "light"
@@ -43,7 +43,7 @@ function register.register_light(name, base_def, add_def, craft_def)
 		def.add_properties.swap_light.sound_off = nil
 	end
 
-	register.register_furniture_unit(name, def, craft_def)
+	multidecor.register.register_furniture_unit(name, def, craft_def)
 
 	if are_props then
 		local def2 = table.copy(def)
@@ -58,7 +58,7 @@ function register.register_light(name, base_def, add_def, craft_def)
 		end
 		def2.add_properties.swap_light = {name=name, sound=sound_off}
 
-		register.register_furniture_unit(swap_light_name, def2)
+		multidecor.register.register_furniture_unit(swap_light_name, def2)
 	end
 end
 

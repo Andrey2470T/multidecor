@@ -1,4 +1,4 @@
-register.register_bed("jungle_bed", {
+multidecor.register.register_bed("jungle_bed", {
 	style = "modern",
 	material = "wood",
 	description = "Jungle Bed (single)",
@@ -11,10 +11,10 @@ register.register_bed("jungle_bed", {
 	},
 	callbacks = {
 		on_construct = function(pos)
-			connecting.update_adjacent_nodes_connection(pos, "pair")
+			multidecor.connecting.update_adjacent_nodes_connection(pos, "pair")
 		end,
 		after_dig_node = function(pos, oldnode)
-			connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
+			multidecor.connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
 		end
 	}
 },
@@ -37,7 +37,7 @@ register.register_bed("jungle_bed", {
 	}
 })
 
-register.register_bed("wooden_bed_with_legs", {
+multidecor.register.register_bed("wooden_bed_with_legs", {
 	style = "modern",
 	material = "wood",
 	description = "Wooden bed with legs (single)",
@@ -51,13 +51,13 @@ register.register_bed("wooden_bed_with_legs", {
 	},
 	callbacks = {
 		on_construct = function(pos)
-			connecting.update_adjacent_nodes_connection(pos, "pair")
+			multidecor.connecting.update_adjacent_nodes_connection(pos, "pair")
 		end,
 		after_destruct = function(pos, oldnode)
-			connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
+			multidecor.connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
 		end,
 		after_dig_node = function(pos, oldnode)
-			connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
+			multidecor.connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
 		end
 	}
 },
@@ -80,7 +80,7 @@ register.register_bed("wooden_bed_with_legs", {
 	}
 })
 
-register.register_table("dresser_with_mirror", {
+multidecor.register.register_table("dresser_with_mirror", {
 	style = "modern",
 	material = "wood",
 	description = "Dresser With Mirror",
@@ -94,7 +94,7 @@ register.register_table("dresser_with_mirror", {
 	},
 	callbacks = {
 		on_construct = function(pos)
-			shelves.set_shelves(pos)
+			multidecor.shelves.set_shelves(pos)
 		end
 	}
 },
@@ -196,8 +196,8 @@ minetest.register_entity("modern:wooden_drawer_with_round_handle", {
 	physical = false,
 	selectionbox = {-0.5, -0.16, -0.45, 0.525, 0.16, 0.575},
 	static_save = true,
-	on_activate = shelves.default_on_activate,
-	on_rightclick = shelves.default_on_rightclick,
-	on_step = shelves.default_drawer_on_step,
-	get_staticdata = shelves.default_get_staticdata
+	on_activate = multidecor.shelves.default_on_activate,
+	on_rightclick = multidecor.shelves.default_on_rightclick,
+	on_step = multidecor.shelves.default_drawer_on_step,
+	get_staticdata = multidecor.shelves.default_get_staticdata
 })

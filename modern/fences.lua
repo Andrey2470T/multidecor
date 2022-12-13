@@ -1,4 +1,4 @@
-register.register_hedge("dark_rusty_fence", {
+multidecor.register.register_hedge("dark_rusty_fence", {
 	style = "modern",
 	material = "metal",
 	visual_scale = 0.5,
@@ -34,7 +34,7 @@ register.register_hedge("dark_rusty_fence", {
 	}
 })
 
-register.register_hedge("high_dark_rusty_fence", {
+multidecor.register.register_hedge("high_dark_rusty_fence", {
 	style = "modern",
 	material = "metal",
 	visual_scale = 0.5,
@@ -62,7 +62,7 @@ register.register_hedge("high_dark_rusty_fence", {
 	recipe = {"multidecor:dark_rusty_fence", "multidecor:dark_rusty_fence"}
 })
 
-register.register_furniture_unit("slatted_wooden_fence", {
+multidecor.register.register_furniture_unit("slatted_wooden_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
@@ -82,7 +82,7 @@ register.register_furniture_unit("slatted_wooden_fence", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-register.register_furniture_unit("high_slatted_wooden_fence", {
+multidecor.register.register_furniture_unit("high_slatted_wooden_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
@@ -98,7 +98,7 @@ register.register_furniture_unit("high_slatted_wooden_fence", {
 	recipe = {"multidecor:slatted_wooden_fence", "multidecor:slatted_wooden_fence"}
 })
 
-register.register_furniture_unit("corrugated_fence", {
+multidecor.register.register_furniture_unit("corrugated_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
@@ -117,7 +117,7 @@ register.register_furniture_unit("corrugated_fence", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-register.register_furniture_unit("high_corrugated_fence", {
+multidecor.register.register_furniture_unit("high_corrugated_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",

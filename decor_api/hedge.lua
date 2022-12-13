@@ -1,21 +1,21 @@
 local function default_on_construct_dir(pos)
-	connecting.update_adjacent_nodes_connection(pos, "directional")
+	multidecor.connecting.update_adjacent_nodes_connection(pos, "directional")
 end
 
 local function default_after_destruct_dir(pos, oldnode)
-	connecting.update_adjacent_nodes_connection(pos, "directional", true, oldnode)
+	multidecor.connecting.update_adjacent_nodes_connection(pos, "directional", true, oldnode)
 end
 
 local function default_on_construct_pair(pos)
-	connecting.update_adjacent_nodes_connection(pos, "pair")
+	multidecor.connecting.update_adjacent_nodes_connection(pos, "pair")
 end
 
 local function default_after_destruct_pair(pos, oldnode)
-	connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
+	multidecor.connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
 end
 
 
-function register.register_hedge(name, base_def, add_def, craft_def)
+function multidecor.register.register_hedge(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
 
 	def.type = "hedge"
@@ -48,10 +48,10 @@ function register.register_hedge(name, base_def, add_def, craft_def)
 		end
 	end
 
-	register.register_furniture_unit(name, def, craft_def)
+	multidecor.register.register_furniture_unit(name, def, craft_def)
 
 	if add_def.connect_parts then
-		connecting.register_connect_parts(def)
+		multidecor.connecting.register_connect_parts(def)
 	elseif add_def.double then
 		local def2 = table.copy(def)
 		def2.description = add_def.double.description
@@ -75,6 +75,6 @@ function register.register_hedge(name, base_def, add_def, craft_def)
 			def2.callbacks.on_construct = nil
 			def2.callbacks.after_dig_node = base_def.callbacks and base_def.callbacks.after_dig_node or default_after_destruct_pair
 		end
-		register.register_furniture_unit(name .. "_double", def2)
+		multidecor.register.register_furniture_unit(name .. "_double", def2)
 	end
 end

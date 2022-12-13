@@ -1,9 +1,8 @@
 multidecor.helpers = {}
 
-helpers = multidecor.helpers
 
 -- Returns a direction of the node with 'pos' position
-function helpers.get_dir(pos)
+function multidecor.helpers.get_dir(pos)
 	local node = minetest.get_node(pos)
 	local def = minetest.registered_nodes[node.name]
 	local dir = def.paramtype2 == "facedir" and vector.copy(minetest.facedir_to_dir(node.param2)) or
@@ -13,7 +12,7 @@ function helpers.get_dir(pos)
 	return dir
 end
 
-function helpers.clamp(s, e, v)
+function multidecor.helpers.clamp(s, e, v)
 	local start_v = s
 	local end_v = e
 
@@ -25,7 +24,7 @@ function helpers.clamp(s, e, v)
 	return v < start_v and start_v or v > end_v and end_v or v
 end
 
-function helpers.upper_first_letters(s)
+function multidecor.helpers.upper_first_letters(s)
 	local new_s = ""
 
 	for substr in s:gmatch("%a+") do

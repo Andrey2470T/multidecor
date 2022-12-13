@@ -1,4 +1,4 @@
-function register.register_table(name, base_def, add_def, craft_def)
+function multidecor.register.register_table(name, base_def, add_def, craft_def)
 	local c_def = table.copy(base_def)
 
 	c_def.type = "table"
@@ -11,9 +11,9 @@ function register.register_table(name, base_def, add_def, craft_def)
 		end
 	end
 
-	register.register_furniture_unit(name, c_def, craft_def)
+	multidecor.register.register_furniture_unit(name, c_def, craft_def)
 
 	if c_def.add_properties and c_def.add_properties.connect_parts then
-		connecting.register_connect_parts(c_def)
+		multidecor.connecting.register_connect_parts(c_def)
 	end
 end

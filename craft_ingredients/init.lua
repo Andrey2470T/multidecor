@@ -98,6 +98,12 @@ minetest.register_craftitem(":multidecor:steel_scissors",
 	inventory_image = "multidecor_steel_scissors.png"
 })
 
+minetest.register_craftitem(":multidecor:hammer",
+{
+	description = "Hammer",
+	inventory_image = "multidecor_hammer.png"
+})
+
 minetest.register_craftitem(":multidecor:bulb",
 {
 	description = "Bulb",
@@ -220,14 +226,21 @@ minetest.register_craft(
 {
 	type = "shapeless",
 	output = "multidecor:saw",
-	recipe = {"multidecor:plank", "multidecor:steel_sheet"}
+	recipe = {"default:stick", "default:stick", "multidecor:steel_sheet"}
 })
 
 minetest.register_craft(
 {
 	type = "shapeless",
 	output = "multidecor:steel_scissors",
-	recipe = {"multidecor:plank", "default:steel_ingot"}
+	recipe = {"default:stick", "default:steel_ingot"}
+})
+
+minetest.register_craft(
+{
+	type = "shapeless",
+	output = "multidecor:hammer",
+	recipe = {"default:stick", "multidecor:metal_bar"}
 })
 
 minetest.register_craft(
@@ -245,10 +258,10 @@ minetest.register_craft({
 })
 
 minetest.register_craft({
-    type = "cooking",
-    output = "multidecor:terracotta_fragment",
-    recipe = "default:clay_lump",
-	cooktime = 15
+	type = "shapeless",
+	output = "multidecor:terracotta_fragment 4",
+	recipe = {"default:clay_brick", "multidecor:hammer"},
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
 
 minetest.register_craft(
@@ -379,6 +392,7 @@ minetest.register_craft({
 minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
 	local contains_saw = false
 	local contains_steel_scissors = false
+	local contains_hammer = false
 
 	local function check_for_item(item)
 		if item == "multidecor:saw" then
@@ -389,16 +403,22 @@ minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv
 			contains_steel_scissors = true
 			return
 		end
+
+		if item == "multidecor:hammer" then
+			contains_hammer = true
+			return
+		end
 	end
 
 	for _, stack in ipairs(old_craft_grid) do
 		check_for_item(stack:get_name())
-		if contains_saw or contains_steel_scissors then
+		if contains_saw or contains_steel_scissors or contains_hammer then
 			break
 		end
 	end
 
-	local sound = contains_saw and "multidecor_saw" or contains_steel_scissors and "multidecor_steel_scissors"
+	local sound = contains_saw and "multidecor_saw" or
+		contains_steel_scissors and "multidecor_steel_scissors" or contains_hammer and "multidecor_hammer"
 	if sound then
 		minetest.sound_play(sound, {to_player = player:get_player_name()})
 	end

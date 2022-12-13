@@ -18,7 +18,7 @@ local function get_formatted_time_str(hours, minutes, seconds)
 	return ("Current time: %d:%d"):format(hours, minutes)
 end
 
-register.register_furniture_unit("modern_floor_clock", {
+multidecor.register.register_furniture_unit("modern_floor_clock", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
@@ -127,7 +127,7 @@ minetest.register_entity("modern:floor_clock_balance_wheel", {
 	static_save = true
 })
 
-register.register_furniture_unit("book", {
+multidecor.register.register_furniture_unit("book", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
@@ -148,7 +148,7 @@ register.register_furniture_unit("book", {
 	}
 })
 
-register.register_furniture_unit("books_stack", {
+multidecor.register.register_furniture_unit("books_stack", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
@@ -172,7 +172,7 @@ register.register_furniture_unit("books_stack", {
 	}
 })
 
-register.register_furniture_unit("alarm_clock", {
+multidecor.register.register_furniture_unit("alarm_clock", {
 	type = "decoration",
 	style = "modern",
 	material = "plastic",
@@ -450,7 +450,7 @@ for name, def in pairs(pots_defs) do
 end
 
 
-register.register_furniture_unit("white_plastic_flowerpot", {
+multidecor.register.register_furniture_unit("white_plastic_flowerpot", {
 	type = "decoration",
 	style = "modern",
 	material = "plastic",

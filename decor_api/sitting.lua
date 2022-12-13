@@ -11,9 +11,8 @@
 ]]
 multidecor.sitting = {}
 
-sitting = multidecor.sitting
 
-function sitting.attach_player_to_node(attacher, seat_data)
+function multidecor.sitting.attach_player_to_node(attacher, seat_data)
 	attacher:set_pos(seat_data.pos)
 	attacher:set_look_vertical(seat_data.rot.x)
 	attacher:set_look_horizontal(seat_data.rot.y)
@@ -26,7 +25,7 @@ function sitting.attach_player_to_node(attacher, seat_data)
 	end
 end
 
-function sitting.detach_player_from_node(detacher, prev_pdata)
+function multidecor.sitting.detach_player_from_node(detacher, prev_pdata)
 	if not prev_pdata then
 		return
 	end
@@ -39,29 +38,29 @@ function sitting.detach_player_from_node(detacher, prev_pdata)
 	end
 end
 
-function sitting.is_player_attached_to_anything(player)
+function multidecor.sitting.is_player_attached_to_anything(player)
 	local prev_pdata = player:get_meta():get_string("previous_player_data")
 
 	return prev_pdata ~= ""
 end
 
-function sitting.is_seat_busy(node_pos)
+function multidecor.sitting.is_seat_busy(node_pos)
 	local is_busy = minetest.get_meta(node_pos):get_string("is_busy")
 
 	return is_busy ~= ""
 end
 
-function sitting.sit_player(player, node_pos)
+function multidecor.sitting.sit_player(player, node_pos)
 	if not player then
 		return
 	end
 
-	if sitting.is_player_attached_to_anything(player) then
+	if multidecor.sitting.is_player_attached_to_anything(player) then
 		return false
 	end
 
 	local playername = player:get_player_name()
-	if sitting.is_seat_busy(node_pos) then
+	if multidecor.sitting.is_seat_busy(node_pos) then
 		minetest.chat_send_player(playername, "This seat is busy!")
 		return false
 	end
@@ -102,14 +101,14 @@ function sitting.sit_player(player, node_pos)
 	player:get_meta():set_string("previous_player_data", minetest.serialize(prev_pdata))
 
 	local dir_rot = vector.dir_to_rotation(minetest.facedir_to_dir(node.param2))
-	sitting.attach_player_to_node(player, {pos = vector.add(node_pos, seat_data.pos), rot = vector.add(dir_rot, seat_data.rot), model = rand_model})
+	multidecor.sitting.attach_player_to_node(player, {pos = vector.add(node_pos, seat_data.pos), rot = vector.add(dir_rot, seat_data.rot), model = rand_model})
 
 	minetest.get_meta(node_pos):set_string("is_busy", playername)
 
 	return true
 end
 
-function sitting.standup_player(player, node_pos)
+function multidecor.sitting.standup_player(player, node_pos)
 	if not player then
 		return
 	end
@@ -120,7 +119,7 @@ function sitting.standup_player(player, node_pos)
 	end
 
 	local player_meta = player:get_meta()
-	sitting.detach_player_from_node(player, minetest.deserialize(player_meta:get_string("previous_player_data")))
+	multidecor.sitting.detach_player_from_node(player, minetest.deserialize(player_meta:get_string("previous_player_data")))
 
 	player_meta:set_string("previous_player_data", "")
 	meta:set_string("is_busy", "")

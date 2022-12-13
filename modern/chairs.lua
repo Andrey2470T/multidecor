@@ -14,7 +14,7 @@ local models = {
 	}
 }
 
-register.register_seat("kitchen_modern_wooden_chair", {
+multidecor.register.register_seat("kitchen_modern_wooden_chair", {
 	style = "modern",
 	material = "wood",
 	description = "Kitchen Modern Wooden Chair",
@@ -40,7 +40,7 @@ register.register_seat("kitchen_modern_wooden_chair", {
 	}
 })
 
-register.register_seat("soft_kitchen_modern_wooden_chair", {
+multidecor.register.register_seat("soft_kitchen_modern_wooden_chair", {
 	style = "modern",
 	material = "wood",
 	description = "Soft Kitchen Modern Wooden Chair",
@@ -66,7 +66,7 @@ register.register_seat("soft_kitchen_modern_wooden_chair", {
 	}
 })
 
-register.register_seat("soft_modern_jungle_chair", {
+multidecor.register.register_seat("soft_modern_jungle_chair", {
 	style = "modern",
 	material = "wood",
 	description = "Soft Modern Jungle Chair",
@@ -92,7 +92,7 @@ register.register_seat("soft_modern_jungle_chair", {
 	}
 })
 
-register.register_seat("soft_round_modern_metallic_chair", {
+multidecor.register.register_seat("soft_round_modern_metallic_chair", {
 	style = "modern",
 	material = "metal",
 	description = "Soft Round Modern Metallic Chair",
@@ -118,7 +118,7 @@ register.register_seat("soft_round_modern_metallic_chair", {
 	}
 })
 
-register.register_seat("round_modern_metallic_stool", {
+multidecor.register.register_seat("round_modern_metallic_stool", {
 	style = "modern",
 	material = "metal",
 	description = "Round Modern Jungle Stool",
@@ -143,7 +143,7 @@ register.register_seat("round_modern_metallic_stool", {
 	}
 })
 
-register.register_seat("armchair_with_wooden_legs", {
+multidecor.register.register_seat("armchair_with_wooden_legs", {
 	style = "modern",
 	material = "wood",
 	description = "Armchair with wooden legs",
@@ -173,7 +173,7 @@ register.register_seat("armchair_with_wooden_legs", {
 	}
 })
 
-register.register_seat("sofa", {
+multidecor.register.register_seat("sofa", {
 	style = "modern",
 	material = "plastic",
 	description = "Sofa",
@@ -188,10 +188,10 @@ register.register_seat("sofa", {
 	},
 	callbacks = {
 		on_construct = function(pos)
-			connecting.update_adjacent_nodes_connection(pos, "directional")
+			multidecor.connecting.update_adjacent_nodes_connection(pos, "directional")
 		end,
 		after_dig_node = function(pos, old_node)
-			connecting.update_adjacent_nodes_connection(pos, "directional", true, old_node)
+			multidecor.connecting.update_adjacent_nodes_connection(pos, "directional", true, old_node)
 		end
 	}
 },

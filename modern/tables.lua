@@ -1,4 +1,4 @@
-register.register_table("kitchen_modern_wooden_table", {
+multidecor.register.register_table("kitchen_modern_wooden_table", {
 	style = "modern",
 	material = "wood",
 	description = "Kitchen Modern Wooden Table",
@@ -9,10 +9,10 @@ register.register_table("kitchen_modern_wooden_table", {
 	},
 	callbacks = {
 		on_construct = function(pos)
-			connecting.update_adjacent_nodes_connection(pos, "horizontal")
+			multidecor.connecting.update_adjacent_nodes_connection(pos, "horizontal")
 		end,
 		after_dig_node = function(pos, oldnode)
-			connecting.update_adjacent_nodes_connection(pos, "horizontal", true, oldnode)
+			multidecor.connecting.update_adjacent_nodes_connection(pos, "horizontal", true, oldnode)
 		end
 	}
 },
@@ -34,7 +34,7 @@ register.register_table("kitchen_modern_wooden_table", {
 	}
 })
 
-register.register_table("round_modern_metallic_table", {
+multidecor.register.register_table("round_modern_metallic_table", {
 	style = "modern",
 	material = "metal",
 	description = "Round Modern Metallic Table",
@@ -52,7 +52,7 @@ register.register_table("round_modern_metallic_table", {
 	}
 })
 
-register.register_table("round_modern_wooden_table", {
+multidecor.register.register_table("round_modern_wooden_table", {
 	style = "modern",
 	material = "wood",
 	description = "Round Modern Wooden Table",
@@ -70,7 +70,7 @@ register.register_table("round_modern_wooden_table", {
 	}
 })
 
-register.register_table("modern_wooden_desk", {
+multidecor.register.register_table("modern_wooden_desk", {
 	style = "modern",
 	material = "wood",
 	description = "Modern Wooden Desk",
@@ -81,7 +81,7 @@ register.register_table("modern_wooden_desk", {
 	},
 	callbacks = {
 		on_construct = function(pos)
-			shelves.set_shelves(pos)
+			multidecor.shelves.set_shelves(pos)
 		end
 	}
 },
@@ -128,10 +128,10 @@ minetest.register_entity("modern:wooden_drawer", {
 	physical = false,
 	selectionbox = {-0.35, -0.15, -0.4, 0.35, 0.15, 0.4},
 	static_save = true,
-	on_activate = shelves.default_on_activate,
-	on_rightclick = shelves.default_on_rightclick,
-	on_step = shelves.default_drawer_on_step,
-	get_staticdata = shelves.default_get_staticdata
+	on_activate = multidecor.shelves.default_on_activate,
+	on_rightclick = multidecor.shelves.default_on_rightclick,
+	on_step = multidecor.shelves.default_drawer_on_step,
+	get_staticdata = multidecor.shelves.default_get_staticdata
 })
 
 minetest.register_entity("modern:wooden_door", {
@@ -142,13 +142,13 @@ minetest.register_entity("modern:wooden_door", {
 	physical = false,
 	selectionbox = {-0.65, -0.25, 0, 0, 0.25, 0.05},
 	static_save = true,
-	on_activate = shelves.default_on_activate,
-	on_rightclick = shelves.default_on_rightclick,
-	on_step = shelves.default_door_on_step,
-	get_staticdata = shelves.default_get_staticdata
+	on_activate = multidecor.shelves.default_on_activate,
+	on_rightclick = multidecor.shelves.default_on_rightclick,
+	on_step = multidecor.shelves.default_door_on_step,
+	get_staticdata = multidecor.shelves.default_get_staticdata
 })
 
-register.register_table("modern_wooden_table_with_metallic_legs", {
+multidecor.register.register_table("modern_wooden_table_with_metallic_legs", {
 	style = "modern",
 	material = "metal",
 	description = "Modern Wooden Table With Metallic Legs",
@@ -166,7 +166,7 @@ register.register_table("modern_wooden_table_with_metallic_legs", {
 	}
 })
 
-register.register_table("modern_bedside_table", {
+multidecor.register.register_table("modern_bedside_table", {
 	style = "modern",
 	material = "wood",
 	description = "Modern Bedside Table",
@@ -178,7 +178,7 @@ register.register_table("modern_bedside_table", {
 	},
 	callbacks = {
 		on_construct = function(pos)
-			shelves.set_shelves(pos)
+			multidecor.shelves.set_shelves(pos)
 		end
 	}
 },

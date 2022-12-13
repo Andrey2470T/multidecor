@@ -104,12 +104,12 @@ for _, img in ipairs(images) do
 	mesh = img[4] > 1 and "upscaled_" .. mesh or mesh
 
 	local name = mesh .. "_" .. img[1]
-	register.register_furniture_unit(name, {
+	multidecor.register.register_furniture_unit(name, {
 		type = "decoration",
 		style = "modern",
 		material = mat,
 		visual_scale = 0.5,
-		description = helpers.upper_first_letters(name),
+		description = multidecor.helpers.upper_first_letters(name),
 		mesh = "multidecor_" .. mesh .. ".b3d",
 		tiles = {base_tile, "multidecor_image_" .. img[1] .. ".png"},
 		bounding_boxes = {img_bbox}

@@ -1,9 +1,8 @@
 multidecor.doors = {}
 
-doors = multidecor.doors
 
 -- Returns new position rotated around 'rotate_p' and rotation correponding to "dir"
-function doors.rotate(pos, dir, rotate_p)
+function multidecor.doors.rotate(pos, dir, rotate_p)
 	local y_rot = vector.dir_to_rotation(dir).y
 	local rel_pos = pos - rotate_p
 
@@ -13,7 +12,7 @@ function doors.rotate(pos, dir, rotate_p)
 end
 
 -- Returns rotated collisionbox and selectionbox corresponding to "dir"
-function doors.rotate_bbox(sbox, cbox, dir)
+function multidecor.doors.rotate_bbox(sbox, cbox, dir)
 	local y_rot = vector.dir_to_rotation(dir).y
 
 	local box = {
@@ -43,7 +42,7 @@ function doors.rotate_bbox(sbox, cbox, dir)
 end
 
 -- Activates obj rotation from 'self.start_v' to 'self.end_v' or vice versa depending on 'dir_sign' value
-function doors.smooth_rotate(obj, dir_sign)
+function multidecor.doors.smooth_rotate(obj, dir_sign)
 	local self = obj:get_luaentity()
 	if not self then
 		return
@@ -54,7 +53,7 @@ function doors.smooth_rotate(obj, dir_sign)
 end
 
 -- Step of obj rotation
-function doors.smooth_rotate_step(self, dtime, vel, acc)
+function multidecor.doors.smooth_rotate_step(self, dtime, vel, acc)
 	if self.dir == 0 or not self.dir then
 		return
 	end
@@ -62,7 +61,7 @@ function doors.smooth_rotate_step(self, dtime, vel, acc)
 	local rot = self.object:get_rotation()
 	local target_rot = self.dir == 1 and self.end_v or self.start_v
 
-	rot.y = helpers.clamp(self.start_v, self.end_v, rot.y)
+	rot.y = multidecor.helpers.clamp(self.start_v, self.end_v, rot.y)
 
 	if math.abs(target_rot-rot.y) <= math.rad(10) then
 		self.dir = 0
@@ -79,9 +78,9 @@ function doors.smooth_rotate_step(self, dtime, vel, acc)
 	self.object:set_rotation({x=rot.x, y=rot.y+new_rot, z=rot.z})
 end
 
-function doors.convert_to_entity(pos)
+function multidecor.doors.convert_to_entity(pos)
 	local node = minetest.get_node(pos)
-	local dir = helpers.get_dir(pos)
+	local dir = multidecor.helpers.get_dir(pos)
 
 	minetest.remove_node(pos)
 
@@ -95,17 +94,17 @@ function doors.convert_to_entity(pos)
 	end
 
 	local shift = {x=pos.x+0.495, y=pos.y, z=pos.z+0.45}
-	local new_pos, rot = doors.rotate(shift, dir, pos)
+	local new_pos, rot = multidecor.doors.rotate(shift, dir, pos)
 
 	local def = minetest.registered_entities[obj_name]
-	local sbox, cbox = doors.rotate_bbox(def.selectionbox, def.collisionbox, dir)
+	local sbox, cbox = multidecor.doors.rotate_bbox(def.selectionbox, def.collisionbox, dir)
 
 	local y_rot = vector.dir_to_rotation(dir).y
 	local start_r, end_r = y_rot, y_rot+math.pi/2
 
 	if is_open then
 		dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi/2)
-		local new_pos2, rot2 = doors.rotate(new_pos, dir, shift)
+		local new_pos2, rot2 = multidecor.doors.rotate(new_pos, dir, shift)
 		rot = rot2
 	end
 
@@ -127,7 +126,7 @@ function doors.convert_to_entity(pos)
 	return obj
 end
 
-function doors.convert_from_entity(obj)
+function multidecor.doors.convert_from_entity(obj)
 	local y_rots_n = math.round(math.deg(obj:get_rotation().y) / 90)
 	local dir = vector.rotate_around_axis({x=0, y=0, z=1}, {x=0, y=1, z=0}, math.pi/2*y_rots_n)*-1
 	local param2 = minetest.dir_to_facedir(dir)
@@ -151,7 +150,7 @@ end
 local function default_door_on_rightclick(pos)
 	local door_data = minetest.registered_nodes[minetest.get_node(pos).name].add_properties.door
 
-	local obj = doors.convert_to_entity(pos)
+	local obj = multidecor.doors.convert_to_entity(pos)
 	local self = obj:get_luaentity()
 	local dir_sign = 0
 	if door_data.mode == "closed" then
@@ -162,7 +161,7 @@ local function default_door_on_rightclick(pos)
 		self.action = "close"
 	end
 
-	doors.smooth_rotate(obj, dir_sign)
+	multidecor.doors.smooth_rotate(obj, dir_sign)
 end
 
 local function default_entity_door_on_rightclick(self)
@@ -175,7 +174,7 @@ local function default_entity_door_on_rightclick(self)
 		self.action = "open"
 	end
 
-	doors.smooth_rotate(self.object, dir_sign)
+	multidecor.doors.smooth_rotate(self.object, dir_sign)
 end
 
 local function default_entity_door_on_activate(self, staticdata)
@@ -199,10 +198,10 @@ end
 local function default_entity_door_on_step(self, dtime)
 	local door_data = minetest.registered_nodes[self.name].add_properties.door
 
-	doors.smooth_rotate_step(self, dtime, door_data.vel or 30, door_data.acc or 0)
+	multidecor.doors.smooth_rotate_step(self, dtime, door_data.vel or 30, door_data.acc or 0)
 
 	if self.dir == 0 then
-		doors.convert_from_entity(self.object)
+		multidecor.doors.convert_from_entity(self.object)
 	end
 end
 
@@ -210,7 +209,7 @@ local function default_entity_door_get_staticdata(self)
 	return minetest.serialize({self.dir, self.bbox, self.start_v, self.end_v, self.action})
 end
 
-function register.register_door(name, base_def, add_def, craft_def)
+function multidecor.register.register_door(name, base_def, add_def, craft_def)
 	local c_def = table.copy(base_def)
 
 	c_def.type = "table"
@@ -231,7 +230,7 @@ function register.register_door(name, base_def, add_def, craft_def)
 		c_def.callbacks = {on_rightclick = default_door_on_rightclick}
 	end
 
-	register.register_furniture_unit(name, c_def, craft_def)
+	multidecor.register.register_furniture_unit(name, c_def, craft_def)
 
 	local c_def2 = table.copy(c_def)
 	c_def2.add_properties.door.mode = "open"
@@ -246,7 +245,7 @@ function register.register_door(name, base_def, add_def, craft_def)
 		c_def2.groups = {not_in_creative_inventory=1}
 	end
 
-	register.register_furniture_unit(name .. "_open", c_def2)
+	multidecor.register.register_furniture_unit(name .. "_open", c_def2)
 
 	local bbox = table.copy(base_def.bounding_boxes[1])
 	local z_center = (bbox[3]+bbox[6])/2

@@ -1,4 +1,4 @@
-register.register_door("high_dark_rusty_gate", {
+multidecor.register.register_door("high_dark_rusty_gate", {
 	style = "modern",
 	material = "metal",
 	visual_scale = 0.5,
@@ -32,7 +32,7 @@ register.register_door("high_dark_rusty_gate", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-register.register_door("dark_rusty_gate", {
+multidecor.register.register_door("dark_rusty_gate", {
 	style = "modern",
 	material = "metal",
 	visual_scale = 0.5,
@@ -62,7 +62,7 @@ register.register_door("dark_rusty_gate", {
 	recipe = {"multidecor:high_dark_rusty_gate", "multidecor:high_dark_rusty_gate"}
 })
 
-register.register_door("wooden_door", {
+multidecor.register.register_door("wooden_door", {
 	style = "modern",
 	material = "wood",
 	visual_scale = 0.5,
@@ -94,7 +94,7 @@ register.register_door("wooden_door", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-register.register_door("pine_glass_door", {
+multidecor.register.register_door("pine_glass_door", {
 	style = "modern",
 	material = "wood",
 	visual_scale = 0.5,
@@ -128,7 +128,7 @@ register.register_door("pine_glass_door", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-register.register_door("technical_door", {
+multidecor.register.register_door("technical_door", {
 	style = "modern",
 	material = "metal",
 	visual_scale = 0.5,

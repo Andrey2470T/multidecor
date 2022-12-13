@@ -1,4 +1,4 @@
-register.register_table("modern_cupboard_with_glass_doors", {
+multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 	style = "modern",
 	material = "wood",
 	description = "Wooden cupboard with glass doors",
@@ -11,7 +11,7 @@ register.register_table("modern_cupboard_with_glass_doors", {
 	},
 	callbacks = {
 		on_construct = function(pos)
-			shelves.set_shelves(pos)
+			multidecor.shelves.set_shelves(pos)
 		end
 	}
 },
@@ -61,10 +61,10 @@ minetest.register_entity("modern:wardrobe_wooden_glass_door", {
 	backface_culling = false,
 	selectionbox = {-0.5, -0.53, 0, 0, 0.53, 0.075},
 	static_save = true,
-	on_activate = shelves.default_on_activate,
-	on_rightclick = shelves.default_on_rightclick,
-	on_step = shelves.default_door_on_step,
-	get_staticdata = shelves.default_get_staticdata
+	on_activate = multidecor.shelves.default_on_activate,
+	on_rightclick = multidecor.shelves.default_on_rightclick,
+	on_step = multidecor.shelves.default_door_on_step,
+	get_staticdata = multidecor.shelves.default_get_staticdata
 })
 
 minetest.register_entity("modern:wardrobe_wooden_door", {
@@ -76,8 +76,8 @@ minetest.register_entity("modern:wardrobe_wooden_door", {
 	selectionbox = {-0.5, -0.53, 0, 0, 0.53, 0.075},
 	static_save = true,
 	backface_culling = false,
-	on_activate = shelves.default_on_activate,
-	on_rightclick = shelves.default_on_rightclick,
-	on_step = shelves.default_door_on_step,
-	get_staticdata = shelves.default_get_staticdata
+	on_activate = multidecor.shelves.default_on_activate,
+	on_rightclick = multidecor.shelves.default_on_rightclick,
+	on_step = multidecor.shelves.default_door_on_step,
+	get_staticdata = multidecor.shelves.default_get_staticdata
 })

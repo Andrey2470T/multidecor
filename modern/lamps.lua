@@ -73,7 +73,7 @@ minetest.register_node(":multidecor:silver_chain_tip", {
 })
 
 
-register.register_light("silvered_desk_lamp_off", {
+multidecor.register.register_light("silvered_desk_lamp_off", {
 	style = "modern",
 	material = "metal",
 	description = "Silvered Desk Lamp",
@@ -89,7 +89,7 @@ register.register_light("silvered_desk_lamp_off", {
 	}
 }, silvered_lamp_recipe)
 
-register.register_light("copper_wall_sconce_off", {
+multidecor.register.register_light("copper_wall_sconce_off", {
 	style = "modern",
 	material = "glass",
 	description = "Copper Wall Sconce",
@@ -111,7 +111,7 @@ register.register_light("copper_wall_sconce_off", {
 	}
 })
 
-register.register_light("plastic_desk_lamp_off", {
+multidecor.register.register_light("plastic_desk_lamp_off", {
 	style = "modern",
 	material = "plastic",
 	description = "Plastic Desk Lamp",
@@ -134,7 +134,7 @@ register.register_light("plastic_desk_lamp_off", {
 	}
 })
 
-register.register_light("gold_chandelier_with_glass_candles_off", {
+multidecor.register.register_light("gold_chandelier_with_glass_candles_off", {
 	style = "modern",
 	material = "metal",
 	description = "Gold Chandelier With Glass Candles",
@@ -163,7 +163,7 @@ register.register_light("gold_chandelier_with_glass_candles_off", {
 	}
 }, gold_chandelier_recipe)
 
-register.register_light("metal_chandelier_with_plastic_plafonds_off", {
+multidecor.register.register_light("metal_chandelier_with_plastic_plafonds_off", {
 	style = "modern",
 	material = "metal",
 	description = "Metal Chandelier With Plastic Plafonds",
@@ -194,7 +194,7 @@ register.register_light("metal_chandelier_with_plastic_plafonds_off", {
 	}
 })
 
-register.register_light("brass_candlestick", {
+multidecor.register.register_light("brass_candlestick", {
 	style = "modern",
 	material = "metal",
 	description = "Brass Candlestick",

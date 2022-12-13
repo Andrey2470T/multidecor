@@ -5,7 +5,7 @@ local default_on_rightclick = function(pos, node, clicker, itemstack, pointed_th
 		return
 	end
 
-	local bed_dir = helpers.get_dir(pos)
+	local bed_dir = multidecor.helpers.get_dir(pos)
 
 	local lpos = add_props.lay_pos1 or {x=0, y=0, z=0}
 	lpos = pos + vector.rotate_around_axis(lpos, {x=0, y=1, z=0}, vector.dir_to_rotation(bed_dir).y)
@@ -43,7 +43,7 @@ local default_can_dig = function(pos)
 		return
 	end
 
-	local bed_dir = helpers.get_dir(pos)
+	local bed_dir = multidecor.helpers.get_dir(pos)
 
 	local lpos = add_props.lay_pos1 or {x=0, y=0, z=0}
 	lpos = pos + vector.rotate_around_axis(lpos, {x=0, y=1, z=0}, vector.dir_to_rotation(bed_dir).y)
@@ -51,7 +51,7 @@ local default_can_dig = function(pos)
 	return beds.can_dig(lpos)
 end
 
-function register.register_bed(name, base_def, add_def, craft_def)
+function multidecor.register.register_bed(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
 
 	def.type = "bed"
@@ -84,7 +84,7 @@ function register.register_bed(name, base_def, add_def, craft_def)
 		def.add_properties.lay_pos2 = nil
 	end
 
-	register.register_furniture_unit(name, def, craft_def)
+	multidecor.register.register_furniture_unit(name, def, craft_def)
 
 	if add_def.double then
 		local def2 = table.copy(def)
@@ -114,6 +114,6 @@ function register.register_bed(name, base_def, add_def, craft_def)
 		if def2.add_properties then
 			def2.add_properties.lay_pos2 = add_def.lay_pos2
 		end
-		register.register_furniture_unit(name .. "_double", def2)
+		multidecor.register.register_furniture_unit(name .. "_double", def2)
 	end
 end
