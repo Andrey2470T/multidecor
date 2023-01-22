@@ -220,7 +220,7 @@ multidecor.register.register_light("brass_candlestick", {
 {
 	recipe = {
 		{"multidecor:steel_sheet", "multidecor:steel_sheet", "multidecor:brass_ingot"},
-		{"", "", ""},
+		{"multidecor:wax_candle", "", ""},
 		{"", "", ""}
 	}
 })

@@ -1,11 +1,4 @@
 local function get_current_time()
-	--[[local time = minetest.get_timeofday()
-	local total_seconds = math.floor(time * 1440)
-	local total_minutes = total_seconds % 60
-	local total_hours = total_minutes % 60
-
-	local seconds = total_seconds - (total_minutes*60)
-	local minutes = total_minutes - (total_hours*60)]]
 	local timeofday = minetest.get_timeofday()
 	local time = math.floor(timeofday * 1440)
 	local minute = time % 60

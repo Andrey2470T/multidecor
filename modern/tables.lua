@@ -1,3 +1,19 @@
+local table_can_dig = function(pos)
+	local name = minetest.get_node(pos).name
+	local shelves_data = minetest.registered_nodes[name].add_properties.shelves_data
+
+	local is_all_empty = true
+	for i, shelf in ipairs(shelves_data) do
+		local inv_name = multidecor.helpers.build_name_from_tmp(name, "inv", i)
+		local list_name = multidecor.helpers.build_name_from_tmp(name, "list", i)
+		local inv = minetest.get_inventory({type="detached", name=inv_name})
+
+		is_all_empty = is_all_empty and inv:is_empty(list_name)
+	end
+
+	return is_all_empty
+end
+
 multidecor.register.register_table("kitchen_modern_wooden_table", {
 	style = "modern",
 	material = "wood",
@@ -82,7 +98,8 @@ multidecor.register.register_table("modern_wooden_desk", {
 	callbacks = {
 		on_construct = function(pos)
 			multidecor.shelves.set_shelves(pos)
-		end
+		end,
+		can_dig = table_can_dig
 	}
 },
 {
@@ -179,7 +196,8 @@ multidecor.register.register_table("modern_bedside_table", {
 	callbacks = {
 		on_construct = function(pos)
 			multidecor.shelves.set_shelves(pos)
-		end
+		end,
+		can_dig = table_can_dig
 	}
 },
 {

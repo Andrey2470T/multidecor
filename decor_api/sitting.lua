@@ -19,9 +19,8 @@ function multidecor.sitting.attach_player_to_node(attacher, seat_data)
 	attacher:set_physics_override({speed=0, jump=0})
 
 	if seat_data.model then
-		attacher:set_properties({mesh = seat_data.model.mesh})
-		attacher:set_animation(seat_data.model.anim.range, seat_data.model.anim.speed, seat_data.model.anim.blend, seat_data.model.anim.loop)
-		minetest.debug("anim: " .. dump({attacher:get_animation()}))
+		player_api.set_model(attacher, seat_data.model)
+		player_api.set_animation(attacher, seat_data.anim)
 	end
 end
 
@@ -32,9 +31,8 @@ function multidecor.sitting.detach_player_from_node(detacher, prev_pdata)
 
 	detacher:set_physics_override(prev_pdata.physics)
 
-	if prev_pdata.mesh and prev_pdata.anim then
-		detacher:set_properties({mesh = prev_pdata.mesh})
-		detacher:set_animation(prev_pdata.anim.range, prev_pdata.anim.speed, prev_pdata.anim.blend, prev_pdata.anim.loop)
+	if prev_pdata.model then
+		player_api.set_model(detacher, prev_pdata.model.model)
 	end
 end
 
@@ -73,35 +71,38 @@ function multidecor.sitting.sit_player(player, node_pos)
 	local node = minetest.get_node(node_pos)
 	local seat_data = table.copy(minetest.registered_nodes[node.name].add_properties.seat_data)
 
-	local rand_model
-	if seat_data.models then
-		local range, speed, blend, loop = player:get_animation()
-
-		prev_pdata.mesh = player:get_properties().mesh
-		prev_pdata.anim = {range = range, speed = speed, blend = blend, loop = loop}
+	local rand_anim
+	if seat_data.model then
+		prev_pdata.model = player_api.get_animation(player)
+		minetest.debug("prev_pdata.model: " .. dump(prev_pdata.model))
 
 		local node_dir = vector.multiply(minetest.facedir_to_dir(minetest.get_node(node_pos).param2), -1)
 		local near_node = minetest.get_node(vector.add(node_pos, node_dir))
 
 		if minetest.get_item_group(near_node.name, "table") ~= 1 then
-			local models2 = {}
-			for i=1, #seat_data.models do
-				if not seat_data.models[i].is_near_block_required then
-					table.insert(models2, seat_data.models[i])
+			local anims2 = {}
+			for i=1, #seat_data.anims do
+				if not player_api.registered_models[seat_data.model].animations[seat_data.anims[i]].is_near_block_required then
+					table.insert(anims2, seat_data.anims[i])
 				end
 			end
 
-			seat_data.models = models2
+			seat_data.anims = anims2
 		end
 
 
-		rand_model = seat_data.models[math.random(1, #seat_data.models)]
+		rand_anim = seat_data.anims[math.random(1, #seat_data.anims)]
 	end
 
 	player:get_meta():set_string("previous_player_data", minetest.serialize(prev_pdata))
 
 	local dir_rot = vector.dir_to_rotation(minetest.facedir_to_dir(node.param2))
-	multidecor.sitting.attach_player_to_node(player, {pos = vector.add(node_pos, seat_data.pos), rot = vector.add(dir_rot, seat_data.rot), model = rand_model})
+	multidecor.sitting.attach_player_to_node(player, {
+		pos = vector.add(node_pos, seat_data.pos),
+		rot = vector.add(dir_rot, seat_data.rot),
+		model = seat_data.model,
+		anim = rand_anim
+	})
 
 	minetest.get_meta(node_pos):set_string("is_busy", playername)
 

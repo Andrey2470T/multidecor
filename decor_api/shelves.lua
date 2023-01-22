@@ -25,10 +25,6 @@ multidecor.shelves = {}
 -- Temporary saving objects of current "open" shelves in the following format: ["playername"] = objref
 local open_shelves = {}
 
-function multidecor.shelves.build_name_from_tmp(name, type, i)
-	return name .. "_" .. i .. "_" .. type
-end
-
 -- Rotates the shelf 'obj' around 'pos' position of the node
 function multidecor.shelves.rotate_shelf(pos, obj, is_drawer, move_dist)
 	local dir = multidecor.helpers.get_dir(pos)
@@ -126,8 +122,8 @@ function multidecor.shelves.set_shelves(pos)
 	local rot_y = vector.dir_to_rotation(dir)
 
 	for i, shelf_data in ipairs(def.add_properties.shelves_data) do
-		local inv_name = multidecor.shelves.build_name_from_tmp(node.name, "inv", i)
-		local list_name = multidecor.shelves.build_name_from_tmp(node.name, "list", i)
+		local inv_name = multidecor.helpers.build_name_from_tmp(node.name, "inv", i)
+		local list_name = multidecor.helpers.build_name_from_tmp(node.name, "list", i)
 
 		local padding = 0.25
 		local width = shelf_data.inv_size.w > 8 and shelf_data.inv_size.w or 8
@@ -210,7 +206,7 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 
 	multidecor.shelves.rotate_shelf_bbox(self.object)
 
-	local inv_name = multidecor.shelves.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
+	local inv_name = multidecor.helpers.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
 	minetest.create_detached_inventory(inv_name, {
 		allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
 			return count
@@ -234,7 +230,7 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 		table.insert(inv_list, stack)
 	end
 
-	local list_name = multidecor.shelves.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i)
+	local list_name = multidecor.helpers.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i)
 	inv:set_list(list_name, inv_list)
 	inv:set_size(list_name, shelf_data.inv_size.w*shelf_data.inv_size.h)
 	inv:set_width(list_name, shelf_data.inv_size.w)
@@ -249,7 +245,7 @@ end
 
 multidecor.shelves.default_on_rightclick = function(self, clicker)
 	open_shelves[clicker:get_player_name()] = self.object
-	minetest.show_formspec(clicker:get_player_name(), multidecor.shelves.build_name_from_tmp(self.connected_to.name, "fs", self.shelf_data_i), self.inv)
+	minetest.show_formspec(clicker:get_player_name(), multidecor.helpers.build_name_from_tmp(self.connected_to.name, "fs", self.shelf_data_i), self.inv)
 
 	if self.dir == 0 then
 		multidecor.shelves.open_shelf(self.object, 1)
@@ -321,10 +317,10 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 		open_shelves[player:get_player_name()] = nil
 
 		local self = shelf:get_luaentity()
-		local inv_name = multidecor.shelves.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
+		local inv_name = multidecor.helpers.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
 		local inv = minetest.get_inventory({type="detached", name=inv_name})
 		local shelf_data = def.add_properties.shelves_data[self.shelf_data_i]
-		local list = inv:get_list(multidecor.shelves.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i))
+		local list = inv:get_list(multidecor.helpers.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i))
 
 		for _, stack in ipairs(list) do
 			table.insert(self.inv_list, {name=stack:get_name(), count=stack:get_count(), wear=stack:get_wear()})

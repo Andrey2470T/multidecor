@@ -74,6 +74,17 @@ for _, wood in ipairs(woods) do
 	end
 end
 
+bucket.register_liquid(
+	"multidecor:oil_source",
+	"multidecor:oil_flowing",
+	"craft_ingredients:oil_bucket",
+	"multidecor_oil_bucket.png",
+	"Oil Bucket",
+	nil,
+	true
+)
+
+
 minetest.register_craftitem(":multidecor:saw",
 {
 	description = "Saw",
@@ -182,6 +193,18 @@ minetest.register_craftitem(":multidecor:spring",
 	inventory_image = "multidecor_spring.png"
 })
 
+minetest.register_craftitem(":multidecor:wax_lump",
+{
+	description = "Wax Lump",
+	inventory_image = "multidecor_wax_lump.png"
+})
+
+minetest.register_craftitem(":multidecor:wax_candle",
+{
+	description = "Wax Candle",
+	inventory_image = "multidecor_wax_candle.png"
+})
+
 minetest.register_craftitem(":multidecor:chainlink",
 {
 	description = "Chainlink",
@@ -241,6 +264,13 @@ minetest.register_craft(
 	type = "shapeless",
 	output = "multidecor:hammer",
 	recipe = {"default:stick", "multidecor:metal_bar"}
+})
+
+minetest.register_craft(
+{
+	type = "shapeless",
+	output = "multidecor:wax_candle 2",
+	recipe = {"multidecor:wax_lump"}
 })
 
 minetest.register_craft(
@@ -342,6 +372,20 @@ minetest.register_craft({
 	output = "multidecor:brass_ingot",
 	recipe = "multidecor:copper_and_tin",
 	cooktime = 8
+})
+
+minetest.register_craft({
+	type = "cooking",
+	output = "multidecor:oil_source",
+	recipe = "multidecor:consolidated_oil",
+	cooktime = 5
+})
+
+minetest.register_craft({
+	type = "cooking",
+	output = "multidecor:wax_lump",
+	recipe = "multidecor:oil_source",
+	cooktime = 10
 })
 
 minetest.register_craft({
