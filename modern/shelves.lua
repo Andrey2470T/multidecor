@@ -104,6 +104,27 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		recipe = {"multidecor:" .. wood_n .. "plank", "multidecor:" .. wood_n .. "plank"}
 	})
 
+	multidecor.register.register_table("modern_corner_wooden_" .. wood_n .. "wall_shelf", {
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		paramtype2 = "wallmounted",
+		description = "Modern Corner Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf",
+		mesh = "multidecor_corner_wall_shelf.b3d",
+		tiles = {tex},
+		bounding_boxes = {
+			{-0.5, 0, 0.4, 0.5, -0.5, 0.5},
+			--{-0.5, 0, 0.15, -0.4, -0.5, 0.4},
+			{0.4, 0, 0.15, 0.5, -0.5, 0.4},
+			{-0.5, 0.5, 0.4, 0, 0, 0.5},
+			{-0.5, 0.4, 0.15, 0, 0.5, 0.4}
+		}
+	},
+	{
+		type = "shapeless",
+		recipe = {"multidecor:modern_wooden_" .. wood_n .. "wall_shelf", "multidecor:" .. wood_n .. "plank"}
+	})
+
 	multidecor.register.register_table("modern_wooden_" .. wood_n .. "wall_shelf_with_books", {
 		style = "modern",
 		material = "wood",
