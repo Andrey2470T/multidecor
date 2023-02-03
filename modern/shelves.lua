@@ -151,3 +151,13 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		recipe = {"multidecor:modern_wooden_" .. wood_n .. "wall_shelf", "multidecor:books_stack"}
 	})
 end
+
+
+multidecor.register.register_table("three_level_wooden_rack", {
+	style = "modern",
+	material = "wood",
+	visual_scale = 0.5,
+	description =  "Three Level Wooden Rack",
+	mesh = "multidecor_three_level_wooden_rack.b3d",
+	tiles = {"multidecor_wood.png"}
+})

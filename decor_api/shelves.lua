@@ -26,12 +26,15 @@ multidecor.shelves = {}
 local open_shelves = {}
 
 -- Rotates the shelf 'obj' around 'pos' position of the node
-function multidecor.shelves.rotate_shelf(pos, obj, is_drawer, move_dist)
+function multidecor.shelves.rotate_shelf(pos, obj, is_drawer, move_dist, orig_angle)
+	orig_angle = orig_angle or 0
 	local dir = multidecor.helpers.get_dir(pos)
 	--doors.rotate(obj, dir, pos)
 	local new_pos, rot = multidecor.doors.rotate(obj:get_pos(), dir, pos)
 	obj:set_pos(new_pos)
-	obj:set_rotation(rot)
+	obj:set_rotation(rot+orig_angle)
+
+	dir = vector.rotate_around_axis(dir, vector.new(0, 1, 0), orig_angle)
 
 	local self = obj:get_luaentity()
 	if is_drawer then
@@ -150,7 +153,7 @@ function multidecor.shelves.set_shelves(pos)
 		elseif shelf_data.type == "sym_doors" then
 			move_dist = -math.pi/2
 		end
-		multidecor.shelves.rotate_shelf(pos, obj, shelf_data.type == "drawer", move_dist)
+		multidecor.shelves.rotate_shelf(pos, obj, shelf_data.type == "drawer", move_dist, shelf_data.orig_angle)
 
 		if shelf_data.type == "sym_doors" then
 			local obj2 = minetest.add_entity(vector.add(pos, shelf_data.pos2), shelf_data.object, minetest.serialize({fs, {name=node.name, pos=pos}, 0, i}))
@@ -159,7 +162,7 @@ function multidecor.shelves.set_shelves(pos)
 			obj2:set_properties({visual_size={x=vis_size.x*-1, y=vis_size.y, z=vis_size.z}})
 			obj2:get_luaentity().is_flip_x_scale = true
 
-			multidecor.shelves.rotate_shelf(pos, obj2, false, math.pi/2)
+			multidecor.shelves.rotate_shelf(pos, obj2, false, math.pi/2, shelf_data.orig_angle)
 		end
 	end
 end

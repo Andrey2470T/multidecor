@@ -224,3 +224,47 @@ multidecor.register.register_light("brass_candlestick", {
 		{"", "", ""}
 	}
 })
+
+multidecor.register.register_light("ceiling_round_lamp", {
+	style = "modern",
+	material = "glass",
+	description = "Ceiling Round Lamp",
+	visual_scale = 0.5,
+	light_source = 8,
+	mesh = "multidecor_ceiling_round_lamp.b3d",
+	tiles = {"multidecor_ceiling_round_lamp.png"},
+	bounding_boxes = {{-0.375, 0.4, -0.375, 0.375, 0.5, 0.375}}
+})
+
+multidecor.register.register_light("ceiling_wooden_lamp", {
+	style = "modern",
+	material = "glass",
+	description = "Ceiling Wooden Lamp",
+	visual_scale = 0.5,
+	light_source = 8,
+	mesh = "multidecor_ceiling_wooden_lamp.b3d",
+	tiles = {
+		"multidecor_jungle_wood.png",
+		"multidecor_ceiling_lamp_bottom.png"
+	},
+	bounding_boxes = {{-0.375, 0.4, -0.375, 0.375, 0.5, 0.375}}
+})
+
+multidecor.register.register_light("kitchen_chandelier", {
+	style = "modern",
+	material = "wood",
+	description = "Kitchen Chandelier",
+	visual_scale = 0.5,
+	light_source = 12,
+	mesh = "multidecor_kitchen_chandelier.b3d",
+	tiles = {
+		"multidecor_metal_material.png",
+		"multidecor_polished_jungle_wood.png",
+		"multidecor_plastic_material.png",
+		"multidecor_bulb_surf.png"
+	},
+	bounding_boxes = {
+		{-0.4, -0.5, -0.4, 0.4, 0, 0.4},
+		{-0.15, 0, -0.15, 0.15, 0.5, 0.15}
+	}
+})
