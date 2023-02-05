@@ -255,8 +255,8 @@ multidecor.register.register_light("kitchen_chandelier", {
 	material = "wood",
 	description = "Kitchen Chandelier",
 	visual_scale = 0.5,
-	light_source = 12,
 	mesh = "multidecor_kitchen_chandelier.b3d",
+	use_texture_alpha = "blend",
 	tiles = {
 		"multidecor_metal_material.png",
 		"multidecor_polished_jungle_wood.png",
@@ -266,5 +266,11 @@ multidecor.register.register_light("kitchen_chandelier", {
 	bounding_boxes = {
 		{-0.4, -0.5, -0.4, 0.4, 0, 0.4},
 		{-0.15, 0, -0.15, 0.15, 0.5, 0.15}
+	}
+},
+{
+	swap_light = {
+		name = "kitchen_chandelier_on",
+		light_level = 12
 	}
 })

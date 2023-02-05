@@ -1,8 +1,9 @@
-local function get_shelf_formspec(name, pos)
+local function get_shelf_formspec(name, pos, w, h)
+	local listname = multidecor.helpers.build_name_from_tmp(name, "list", 1)
 	return table.concat({
 		"formspec_version[5]",
 		"size[11,9]",
-		"list[nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z .. ";" .. multidecor.helpers.build_name_from_tmp(name, "list", 1) .. ";0.5,0.5;7,2;]",
+		("list[nodemeta:%f,%f,%f;%s;0.5,0.5;%u,%u;]"):format(pos.x, pos.y, pos.z, listname, w, h),
 		"list[current_player;main;0.5,3.5;8,4;]"
 	}, "")
 end
@@ -10,12 +11,13 @@ end
 local shelf_on_construct = function(pos)
 	local meta = minetest.get_meta(pos)
 	local name = minetest.get_node(pos).name
-	meta:set_string("formspec", get_shelf_formspec(name, pos))
+	local add_props = minetest.registered_nodes[name].add_properties
+	meta:set_string("formspec", get_shelf_formspec(name, pos, add_props.inv_size.w, add_props.inv_size.h))
 
 	local inv = minetest.get_inventory({type="node", pos=pos})
 	local list_name = multidecor.helpers.build_name_from_tmp(name, "list", 1)
-	inv:set_size(list_name, 7*2)
-	inv:set_width(list_name, 7)
+	inv:set_size(list_name, add_props.inv_size.w*add_props.inv_size.h)
+	inv:set_width(list_name, w)
 
 	inv:set_size("main", 8*4)
 	inv:set_width("main", 8)
@@ -51,6 +53,9 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		}
 	},
 	{
+		inv_size = {w=7, h=2}
+	},
+	{
 		recipe = {
 			{"multidecor:" .. wood_n .. "board", "multidecor:" .. wood_n .. "board", "multidecor:" .. wood_n .. "board"},
 			{"multidecor:" .. wood_n .. "board", "multidecor:" .. wood_n .. "board", ""},
@@ -76,6 +81,9 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 			on_construct = shelf_on_construct,
 			can_dig = shelf_can_dig
 		}
+	},
+	{
+		inv_size = {w=7, h=2}
 	},
 	{
 		recipe = {
@@ -159,5 +167,12 @@ multidecor.register.register_table("three_level_wooden_rack", {
 	visual_scale = 0.5,
 	description =  "Three Level Wooden Rack",
 	mesh = "multidecor_three_level_wooden_rack.b3d",
-	tiles = {"multidecor_wood.png"}
+	tiles = {"multidecor_wood.png"},
+	callbacks = {
+		on_construct = shelf_on_construct,
+		can_dig = shelf_can_dig
+	}
+},
+{
+	inv_size = {w=8, h=3}
 })

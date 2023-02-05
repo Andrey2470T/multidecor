@@ -31,8 +31,9 @@ function multidecor.shelves.rotate_shelf(pos, obj, is_drawer, move_dist, orig_an
 	local dir = multidecor.helpers.get_dir(pos)
 	--doors.rotate(obj, dir, pos)
 	local new_pos, rot = multidecor.doors.rotate(obj:get_pos(), dir, pos)
+	rot.y = rot.y + orig_angle
 	obj:set_pos(new_pos)
-	obj:set_rotation(rot+orig_angle)
+	obj:set_rotation(rot)
 
 	dir = vector.rotate_around_axis(dir, vector.new(0, 1, 0), orig_angle)
 
@@ -331,6 +332,22 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 
 		multidecor.shelves.open_shelf(shelf, -1)
 	end
+end
+
+multidecor.shelves.default_can_dig = function(pos)
+	local name = minetest.get_node(pos).name
+	local shelves_data = minetest.registered_nodes[name].add_properties.shelves_data
+
+	local is_all_empty = true
+	for i, shelf in ipairs(shelves_data) do
+		local inv_name = multidecor.helpers.build_name_from_tmp(name, "inv", i)
+		local list_name = multidecor.helpers.build_name_from_tmp(name, "list", i)
+		local inv = minetest.get_inventory({type="detached", name=inv_name})
+
+		is_all_empty = is_all_empty and inv:is_empty(list_name)
+	end
+
+	return is_all_empty
 end
 
 minetest.register_on_player_receive_fields(multidecor.shelves.default_on_receive_fields)
