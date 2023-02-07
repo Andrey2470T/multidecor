@@ -60,7 +60,7 @@ multidecor.register.register_garniture({
 			shelves_data = {
 				pos_left = {x=0.425, y=0, z=0.4},
 				pos_right = {x=-0.425, y=0, z=0.4},
-				inv_size = {w=8, h=3}
+				inv_size = {w=8, h=2}
 			}
 		},
 		["three_floor_doors"] = {
@@ -90,7 +90,8 @@ multidecor.register.register_garniture({
 			bounding_boxes = wall_cab_bbox,
 			shelves_data = {
 				pos = {x=0.45, y=0, z=0.4},
-				inv_size = {w=8, h=3}
+				inv_size = {w=8, h=2},
+				side = "left"
 			}
 		},
 		["two_wall_hdoor"] = {
@@ -100,7 +101,7 @@ multidecor.register.register_garniture({
 			shelves_data = {
 				pos_left = {x=0.425, y=0, z=0.4},
 				pos_right = {x=-0.425, y=0, z=0.4},
-				inv_size = {w=8, h=3}
+				inv_size = {w=8, h=2}
 			}
 		},
 		["two_wall_hgldoor"] = {
@@ -110,7 +111,7 @@ multidecor.register.register_garniture({
 			shelves_data = {
 				pos_left = {x=0.425, y=0, z=0.4},
 				pos_right = {x=-0.425, y=0, z=0.4},
-				inv_size = {w=8, h=3}
+				inv_size = {w=8, h=2}
 			}
 		},
 		["two_wall_crn_hgldoor"] = {
@@ -130,7 +131,8 @@ multidecor.register.register_garniture({
 			tap_pos = tap_pos,
 			shelves_data = {
 				pos_trash = {x=0.45, y=0, z=0.4},
-				inv_size = {w=1, h=1}
+				inv_size = {w=1, h=1},
+				side = "left"
 			},
 			callbacks = {
 				on_rightclick = function(pos, node, clicker)
@@ -143,14 +145,19 @@ multidecor.register.register_garniture({
 						local sound_handle = minetest.deserialize(meta:get_string("sound_handle"))
 						minetest.sound_stop(sound_handle)
 					else
+						local dir = minetest.facedir_to_dir(node.param2)
+						local yaw = vector.dir_to_rotation(dir).y
+
+						local rot_tap_pos = table.copy(tap_pos)
+						rot_tap_pos = vector.rotate_around_axis(rot_tap_pos, vector.new(0, 1, 0), yaw)
 						local id = minetest.add_particlespawner({
-							amount = 10,
+							amount = 20,
 							time = 0,
 							collisiondetection = true,
 							object_collision = true,
 							texture = "multidecor_water_drop.png",
-							minpos = pos+tap_pos+vector.new(-0.05, 0, -0.05),
-							maxpos = pos+tap_pos+vector.new(0.05, 0, 0.05),
+							minpos = pos+rot_tap_pos+vector.new(-0.05, 0, -0.05),
+							maxpos = pos+rot_tap_pos+vector.new(0.05, 0, 0.05),
 							minvel = {x=0, y=-1, z=0},
 							maxvel = {x=0, y=-1, z=0},
 							minsize = 0.8,
@@ -159,24 +166,35 @@ multidecor.register.register_garniture({
 
 						meta:set_string("water_stream_id", tonumber(id))
 
-						local sound_handle = minetest.sound_play("multidecor_tap", {max_hear_distance=12, loop=true})
+						local sound_handle = minetest.sound_play("multidecor_tap", {pos=pos, max_hear_distance=12})
 						meta:set_string("sound_handle", minetest.serialize(sound_handle))
+					end
+				end,
+				on_destruct = function(pos)
+					local meta = minetest.get_meta(pos)
+
+					minetest.debug("on_destruct!")
+					if meta:contains("water_stream_id") then
+						minetest.debug("contains water_stream_id")
+						minetest.delete_particlespawner(tonumber(meta:get_string("water_stream_id")))
+						minetest.sound_stop(minetest.deserialize(meta:get_string("sound_handle")))
 					end
 				end
 			}
 		},
 	},
 	move_parts = {
-		["floor_door"] = {type="door",mesh="multidecor_kitchen_cabinet_door.b3d",box={-0.9,-0.5,0.075,0,0.4,0}},
-		["floor_half_door"] = {type="door",mesh="multidecor_kitchen_cabinet_half_door.b3d",box={-0.45,-0.5,0.075,0,0.4,0}},
-		["wall_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_door.b3d",box={-0.5,-0.5,-0.1,0.4,0,0}},
-		["wall_half_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_half_door.b3d",box={-0.5,-0.5,-0.1,-0.05,0,0}},
-		["wall_half_glass_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_half_glass_door.b3d",box={-0.5,-0.5,-0.1,-0.05,0,0}},
+		["floor_door"] = {type="door",mesh="multidecor_kitchen_cabinet_door.b3d",box={-0.9,-0.5,0,0,0.4,0.075}},
+		["floor_half_door"] = {type="door",mesh="multidecor_kitchen_cabinet_half_door.b3d",box={-0.45,-0.5,0,0,0.4,0.075}},
+		["wall_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_door.b3d",box={-0.9,-0.5,0,0,0.4,0.075}},
+		["wall_half_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_half_door.b3d",box={-0.45,-0.5,0,0,0.4,0.075}},
+		["wall_half_glass_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_half_glass_door.b3d",box={-0.45,-0.5,0,0,0.4,0.075}},
 		["large_drawer"] = {type="drawer",mesh="multidecor_kitchen_cabinet_two_shelves_drawer.b3d",box={-0.3,-0.2,-0.4,0.3,0.2,0.4}},
 		["small_drawer"] = {type="drawer",mesh="multidecor_kitchen_cabinet_three_shelves_drawer.b3d",box={-0.3,-0.15,-0.4,0.3,0.15,0.4}}
 	}
 })
 
+local fans_blades = {}
 
 multidecor.register.register_furniture_unit("ceiling_fan", {
 	type = "decoration",
@@ -186,7 +204,47 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 	mesh = "multidecor_ceiling_fan.b3d",
 	visual_scale = 0.5,
 	tiles = {"multidecor_ceiling_fan.png"},
-	bounding_boxes = {{-0.4, 0, -0.4, 0.4, 0.5, 0.4}}
+	inventory_image = "multidecor_ceiling_fan_inv.png",
+	bounding_boxes = {{-0.2, 0, -0.2, 0.2, 0.5, 0.2}},
+	callbacks = {
+		on_construct = function(pos)
+			local blades = minetest.add_entity(pos, "modern:ceiling_fan_blades", vector.to_string(pos))
+		end,
+		on_destruct = function(pos)
+			local strpos = vector.to_string(pos)
+
+			if fans_blades[strpos] then
+				fans_blades[strpos]:remove()
+				fans_blades[strpos] = nil
+			end
+		end
+	}
+})
+
+minetest.register_entity("modern:ceiling_fan_blades", {
+	visual = "mesh",
+	visual_size = {x=5, y=5, z=5},
+	mesh = "multidecor_ceiling_fan_blades.b3d",
+	textures = {"multidecor_ceiling_fan.png"},
+	physical = true,
+	backface_culling = false,
+	selectionbox = {-0.5, -0.2, -0.5, 0.5, 0, 0.5},
+	static_save = true,
+	on_activate = function(self, staticdata)
+		self.object:set_armor_groups({immortal=1})
+
+		if staticdata ~= "" then
+			self.attached_to = staticdata
+
+			if not fans_blades[self.attached_to] then
+				fans_blades[self.attached_to] = self.object
+				self.object:set_animation({x=1, y=40})
+			end
+		end
+	end,
+	get_staticdata = function(self)
+		return self.attached_to
+	end
 })
 
 multidecor.register.register_furniture_unit("kitchen_cooker", {
@@ -216,6 +274,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker", {
 				pos = {x=0, y=-0.35, z=0.4},
 				inv_size = {w=8, h=1},
 				acc = 1,
+				side = "centered",
 				sounds = {
 					open = "multidecor_cabinet_door_open",
 					close = "multidecor_cabinet_door_close"
@@ -233,7 +292,7 @@ minetest.register_entity("modern:kitchen_cooker_oven_door", {
 	use_texture_alpha = true,
 	physical = false,
 	backface_culling = false,
-	selectionbox = {-0.5, -0.5, 0.1, 0.5, 0, 0},
+	selectionbox = {-0.5, 0, 0.1, 0.5, 0.6, 0},
 	static_save = true,
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
@@ -292,6 +351,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 				pos = {x=-0.5, y=0.7, z=0.4},
 				inv_size = {w=8, h=4},
 				acc = 1,
+				side = "right",
 				sounds = {
 					open = "multidecor_cabinet_door_open",
 					close = "multidecor_cabinet_door_close"
@@ -303,6 +363,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 				pos = {x=-0.5, y=0, z=0.4},
 				inv_size = {w=8, h=2},
 				acc = 1,
+				side = "right",
 				sounds = {
 					open = "multidecor_cabinet_door_open",
 					close = "multidecor_cabinet_door_close"
@@ -320,7 +381,7 @@ minetest.register_entity("modern:kitchen_fridge_upper_door", {
 	use_texture_alpha = true,
 	physical = false,
 	backface_culling = false,
-	selectionbox = {-1, -0.5, 0.1, 0, 0.2, 0},
+	selectionbox = {0, -0.5, 0, 1, 0.8, 0.1},
 	static_save = true,
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
@@ -336,7 +397,7 @@ minetest.register_entity("modern:kitchen_fridge_lower_door", {
 	use_texture_alpha = true,
 	physical = false,
 	backface_culling = false,
-	selectionbox = {-1, -0.5, 0.1, 0, -0.2, 0},
+	selectionbox = {0, -0.5, 0, 1, 0.15, 0.1},
 	static_save = true,
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,

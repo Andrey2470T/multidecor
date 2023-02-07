@@ -59,14 +59,16 @@ function multidecor.doors.smooth_rotate_step(self, dtime, vel, acc)
 	end
 
 	local rot = self.object:get_rotation()
+	local rot_axis = self.rotate_x and "x" or "y"
 	local target_rot = self.dir == 1 and self.end_v or self.start_v
 
-	rot.y = multidecor.helpers.clamp(self.start_v, self.end_v, rot.y)
+	rot[rot_axis] = multidecor.helpers.clamp(self.start_v, self.end_v, rot[rot_axis])
 
-	if math.abs(target_rot-rot.y) <= math.rad(10) then
+	if math.abs(target_rot-rot[rot_axis]) <= math.rad(10) then
 		self.dir = 0
 		self.step_c = nil
-		self.object:set_rotation({x=rot.x, y=target_rot, z=rot.z})
+		rot[rot_axis] = target_rot
+		self.object:set_rotation(rot)
 		return
 	end
 
@@ -75,7 +77,8 @@ function multidecor.doors.smooth_rotate_step(self, dtime, vel, acc)
 	local sign = self.start_v > self.end_v and -1 or 1
 	local new_rot = self.dir*sign*math.rad(vel)*dtime*self.step_c
 
-	self.object:set_rotation({x=rot.x, y=rot.y+new_rot, z=rot.z})
+	rot[rot_axis] = rot[rot_axis]+new_rot
+	self.object:set_rotation(rot)
 end
 
 function multidecor.doors.convert_to_entity(pos)

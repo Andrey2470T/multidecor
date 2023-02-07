@@ -15,7 +15,7 @@
 		pos = <position> (relative),
 		object = <object_name>,
 		inventory = <formspec_string>,
-		side = "left"/"right"
+		side = "left"/"right"/"centered"
 	}
 ]]
 
@@ -26,16 +26,16 @@ multidecor.shelves = {}
 local open_shelves = {}
 
 -- Rotates the shelf 'obj' around 'pos' position of the node
-function multidecor.shelves.rotate_shelf(pos, obj, is_drawer, move_dist, orig_angle)
-	orig_angle = orig_angle or 0
+function multidecor.shelves.rotate_shelf(pos, obj, is_drawer, side, move_dist, orig_angle)
+	orig_angle = orig_angle or {x=0, y=0, z=0}
 	local dir = multidecor.helpers.get_dir(pos)
 	--doors.rotate(obj, dir, pos)
 	local new_pos, rot = multidecor.doors.rotate(obj:get_pos(), dir, pos)
-	rot.y = rot.y + orig_angle
+	rot = vector.add(rot, orig_angle)
 	obj:set_pos(new_pos)
 	obj:set_rotation(rot)
 
-	dir = vector.rotate_around_axis(dir, vector.new(0, 1, 0), orig_angle)
+	dir = vector.rotate(dir, orig_angle)
 
 	local self = obj:get_luaentity()
 	if is_drawer then
@@ -43,9 +43,16 @@ function multidecor.shelves.rotate_shelf(pos, obj, is_drawer, move_dist, orig_an
 		self.start_v = vector.add(pos, rel_obj_pos)
 		self.end_v = vector.add(pos, vector.add(rel_obj_pos, vector.multiply(dir, move_dist)))
 	else
-		local rot_y = vector.dir_to_rotation(dir).y
-		self.start_v = rot_y
-		self.end_v = rot_y+move_dist
+		local rot = vector.dir_to_rotation(dir)
+		if side == "centered" then
+			self.rotate_x = true
+			self.start_v = rot.x
+			self.end_v = rot.x+move_dist
+		else
+			self.rotate_x = false
+			self.start_v = rot.y
+			self.end_v = rot.y+move_dist
+		end
 	end
 end
 
@@ -150,11 +157,11 @@ function multidecor.shelves.set_shelves(pos)
 		if shelf_data.type == "drawer" then
 			move_dist = 2/3*shelf_data.length
 		elseif shelf_data.type == "door" then
-			move_dist = shelf_data.side == "left" and -math.pi/2 or math.pi/2
+			move_dist = (shelf_data.side == "left" or shelf_data.side == "centered") and -math.pi/2 or math.pi/2
 		elseif shelf_data.type == "sym_doors" then
 			move_dist = -math.pi/2
 		end
-		multidecor.shelves.rotate_shelf(pos, obj, shelf_data.type == "drawer", move_dist, shelf_data.orig_angle)
+		multidecor.shelves.rotate_shelf(pos, obj, shelf_data.type == "drawer", shelf_data.side, move_dist, shelf_data.orig_angle)
 
 		if shelf_data.type == "sym_doors" then
 			local obj2 = minetest.add_entity(vector.add(pos, shelf_data.pos2), shelf_data.object, minetest.serialize({fs, {name=node.name, pos=pos}, 0, i}))
@@ -163,7 +170,7 @@ function multidecor.shelves.set_shelves(pos)
 			obj2:set_properties({visual_size={x=vis_size.x*-1, y=vis_size.y, z=vis_size.z}})
 			obj2:get_luaentity().is_flip_x_scale = true
 
-			multidecor.shelves.rotate_shelf(pos, obj2, false, math.pi/2, shelf_data.orig_angle)
+			multidecor.shelves.rotate_shelf(pos, obj2, false, shelf_data.side, math.pi/2, shelf_data.orig_angle)
 		end
 	end
 end
@@ -179,6 +186,7 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 		self.start_v = data[6]
 		self.end_v = data[7]
 		self.is_flip_x_scale = data[8]
+		self.rotate_x = data[9]
 	end
 
 	local node = minetest.get_node(self.connected_to.pos)
@@ -244,7 +252,7 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 end
 
 multidecor.shelves.default_get_staticdata = function(self)
-	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.inv_list, self.start_v, self.end_v, self.is_flip_x_scale})
+	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.inv_list, self.start_v, self.end_v, self.is_flip_x_scale, self.rotate_x})
 end
 
 multidecor.shelves.default_on_rightclick = function(self, clicker)
@@ -295,15 +303,15 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 	if not is_table_inv then
 		return
 	end
-
+	minetest.debug("1")
 	local name = formname:sub(1, is_table_inv-2)
 	local def = minetest.registered_nodes[name]
 
 	if not def then
 		return
 	end
-
-	local is_table = false
+	minetest.debug("2")
+	--[[local is_table = false
 
 	for n, val in pairs(def.groups) do
 		if n == "table" then
@@ -311,15 +319,17 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 			break
 		end
 	end
+	minetest.debug("1st: " .. tostring(not name:sub(1, name:find(":")-1) == "multidecor"))
+	minetest.debug("2nd: " .. dump(def.groups))]]
 
-	if not name:sub(1, name:find(":")-1) == "multidecor" or not is_table then
+	if not name:sub(1, name:find(":")-1) == "multidecor" then--or not is_table then
 		return
 	end
-
+	minetest.debug("4")
 	local shelf = open_shelves[player:get_player_name()]
 	if fields.quit == "true" and shelf then
 		open_shelves[player:get_player_name()] = nil
-
+		minetest.debug("5")
 		local self = shelf:get_luaentity()
 		local inv_name = multidecor.helpers.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
 		local inv = minetest.get_inventory({type="detached", name=inv_name})

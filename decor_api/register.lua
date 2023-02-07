@@ -336,13 +336,6 @@ function multidecor.register.register_garniture(def)
 	cmn_def.tiles = def.tiles
 	cmn_def.groups = def.groups
 
-	cmn_def.callbacks = {
-		on_construct = function(pos)
-			multidecor.shelves.set_shelves(pos)
-		end,
-		can_dig = multidecor.shelves.default_can_dig
-	}
-
 	local function form_objname(name)
 		return ("%s:%s_%s_%s"):format(def.modname, def.style, def.type, name)
 	end
@@ -372,13 +365,15 @@ function multidecor.register.register_garniture(def)
 		cabdef.description = def.components[name].description
 		cabdef.mesh = def.components[name].mesh
 		cabdef.bounding_boxes = def.components[name].bounding_boxes
-		cabdef.callbacks.on_rightclick = def.components[name].callbacks and def.components[name].callbacks.on_rightclick
+		cabdef.callbacks = def.components[name].callbacks or {}
+		cabdef.callbacks.on_construct = cabdef.callbacks.on_construct or function(pos) multidecor.shelves.set_shelves(pos) end
+		cabdef.callbacks.can_dig = cabdef.callbacks.can_dig or multidecor.shelves.default_can_dig
 		cabdef.add_properties = {}
 
 		return cabdef
 	end
 
-	local function form_shelf_data(name, type, objname, pos1, pos2, orig_angle)
+	local function form_shelf_data(name, type, objname, pos1, pos2, orig_angle, side)
 		return {
 			type = type,
 			object = objname,
@@ -388,6 +383,7 @@ function multidecor.register.register_garniture(def)
 			length = type == "drawer" and 0.5,
 			acc = type ~= "drawer" and 1,
 			orig_angle = orig_angle,
+			side = side,
 			sounds = type == "drawer" and drawer_sounds or door_sounds
 		}
 	end
@@ -439,7 +435,7 @@ function multidecor.register.register_garniture(def)
 	-- kitchen wall two shelves cabinet with door
 	local two_wall_door = form_cab_def("two_wall_door")
 	two_wall_door.add_properties.shelves_data = {
-		form_shelf_data("two_wall_door", "door", objects[3], def.components.two_wall_door.shelves_data.pos)
+		form_shelf_data("two_wall_door", "door", objects[3], def.components.two_wall_door.shelves_data.pos, nil, nil, "left")
 	}
 
 	multidecor.register.register_table("kitchen_cabinet_two_shelves_wall_with_door", two_wall_door)
@@ -464,7 +460,7 @@ function multidecor.register.register_garniture(def)
 	local two_wall_crn_hgldoor = form_cab_def("two_wall_crn_hgldoor")
 	two_wall_crn_hgldoor.add_properties.shelves_data = {
 		form_shelf_data("two_wall_crn_hgldoor", "sym_doors", objects[5], def.components.two_wall_crn_hgldoor.shelves_data.pos_left,
-			def.components.two_wall_crn_hgldoor.shelves_data.pos_right, -math.pi/4)
+			def.components.two_wall_crn_hgldoor.shelves_data.pos_right, {x=0, y=-math.pi/4, z=0})
 	}
 
 	multidecor.register.register_table("kitchen_corner_cabinet_two_shelves_wall_with_half_glass_doors", two_wall_crn_hgldoor)
@@ -472,7 +468,7 @@ function multidecor.register.register_garniture(def)
 	-- kitchen sink
 	local sink = form_cab_def("sink")
 	sink.add_properties.shelves_data = {
-		form_shelf_data("sink", "door", objects[1], def.components.sink.shelves_data.pos_trash)
+		form_shelf_data("sink", "door", objects[1], def.components.sink.shelves_data.pos_trash, nil, nil, "left")
 	}
 
 	multidecor.register.register_table("kitchen_sink", sink)
