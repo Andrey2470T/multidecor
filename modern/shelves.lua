@@ -17,7 +17,7 @@ local shelf_on_construct = function(pos)
 	local inv = minetest.get_inventory({type="node", pos=pos})
 	local list_name = multidecor.helpers.build_name_from_tmp(name, "list", 1)
 	inv:set_size(list_name, add_props.inv_size.w*add_props.inv_size.h)
-	inv:set_width(list_name, w)
+	inv:set_width(list_name, add_props.inv_size.w)
 
 	inv:set_size("main", 8*4)
 	inv:set_width("main", 8)

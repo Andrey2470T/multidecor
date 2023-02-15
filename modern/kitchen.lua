@@ -404,3 +404,37 @@ minetest.register_entity("modern:kitchen_fridge_lower_door", {
 	on_step = multidecor.shelves.default_door_on_step,
 	get_staticdata = multidecor.shelves.default_get_staticdata
 })
+
+multidecor.register.register_furniture_unit("porcelain_plate", {
+	type = "decoration",
+	style = "modern",
+	material = "glass",
+	description = "Porcelain Plate",
+	mesh = "multidecor_porcelain_plate.b3d",
+	visual_scale = 0.5,
+	tiles = {"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png"},
+	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, -0.35, 0.3}}
+})
+
+multidecor.register.register_furniture_unit("porcelain_cup", {
+	type = "decoration",
+	style = "modern",
+	material = "glass",
+	description = "Porcelain Cup",
+	mesh = "multidecor_porcelain_cup.b3d",
+	visual_scale = 0.5,
+	tiles = {"multidecor_porcelain_material.png"},
+	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0, 0.2}}
+})
+
+multidecor.register.register_furniture_unit("glass_cup", {
+	type = "decoration",
+	style = "modern",
+	material = "glass",
+	description = "Glass Cup",
+	mesh = "multidecor_porcelain_cup.b3d",
+	use_texture_alpha = "blend",
+	visual_scale = 0.5,
+	tiles = {"multidecor_glass_material.png"},
+	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0, 0.2}}
+})
