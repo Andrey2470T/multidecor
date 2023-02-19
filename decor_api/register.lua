@@ -364,6 +364,7 @@ function multidecor.register.register_garniture(def)
 		local cabdef = table.copy(cmn_def)
 		cabdef.description = def.components[name].description
 		cabdef.mesh = def.components[name].mesh
+		cabdef.inventory_image = def.components[name].inventory_image
 		cabdef.bounding_boxes = def.components[name].bounding_boxes
 		cabdef.callbacks = def.components[name].callbacks or {}
 		cabdef.callbacks.on_construct = cabdef.callbacks.on_construct or function(pos) multidecor.shelves.set_shelves(pos) end

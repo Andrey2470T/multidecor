@@ -117,7 +117,7 @@ multidecor.register.register_light("plastic_desk_lamp_off", {
 	description = "Plastic Desk Lamp",
 	use_texture_alpha = "blend",
 	mesh = "multidecor_plastic_desk_lamp.b3d",
-	tiles = {"multidecor_plastic_material.png", "multidecor_plastic_desk_lampshade.png"},
+	tiles = {"multidecor_plastic_material.png", "multidecor_plastic_desk_lampshade.png", "multidecor_bulb_surf.png"},
 	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, 0.5, 0.3}},
 },
 {
@@ -220,6 +220,37 @@ multidecor.register.register_light("brass_candlestick", {
 {
 	recipe = {
 		{"multidecor:steel_sheet", "multidecor:steel_sheet", "multidecor:brass_ingot"},
+		{"multidecor:wax_candle", "", ""},
+		{"", "", ""}
+	}
+})
+
+multidecor.register.register_light("silver_candlestick", {
+	style = "modern",
+	material = "metal",
+	description = "Silver Candlestick",
+	visual_scale = 0.5,
+	use_texture_alpha = "blend",
+	light_source = 10,
+	mesh = "multidecor_brass_candlestick.b3d",
+	tiles = {
+		"multidecor_silver_material.png",
+		"multidecor_candle.png",
+		{name="multidecor_flame_anim.png", animation={
+			type = "vertical_frames",
+			aspect_w = 16,
+			aspect_h = 16,
+			length = 3.0
+		}}
+	},
+	bounding_boxes = {
+		{-0.25, -0.5, -0.25, 0.25, -0.4, 0.25},
+		{-0.1, -0.4, -0.1, 0.1, 0.125, 0.1}
+	},
+},
+{
+	recipe = {
+		{"multidecor:steel_sheet", "multidecor:steel_sheet", "multidecor:silver_ingot"},
 		{"multidecor:wax_candle", "", ""},
 		{"", "", ""}
 	}

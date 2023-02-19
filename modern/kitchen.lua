@@ -35,6 +35,7 @@ multidecor.register.register_garniture({
 		["two_floor_drws"] = {
 			description = "Kitchen Two Shelves Cabinet With Drawers",
 			mesh = "multidecor_kitchen_cabinet_two_shelves.b3d",
+			inventory_image = "multidecor_kitchen_cabinet_with_two_drawers_inv.png",
 			bounding_boxes = cab_bboxes,
 			shelves_data = {
 				pos_lower = {x=0, y=-0.15, z=0},
@@ -45,6 +46,7 @@ multidecor.register.register_garniture({
 		["three_floor_drws"] = {
 			description = "Kitchen Three Shelves Cabinet With Drawers",
 			mesh = "multidecor_kitchen_cabinet_three_shelves.b3d",
+			inventory_image = "multidecor_kitchen_cabinet_with_three_drawers_inv.png",
 			bounding_boxes = cab_bboxes,
 			shelves_data = {
 				pos_lower = {x=0, y=-0.2, z=0},
@@ -56,6 +58,7 @@ multidecor.register.register_garniture({
 		["two_floor_doors"] = {
 			description = "Kitchen Two Shelves Cabinet With Doors",
 			mesh = "multidecor_kitchen_cabinet_two_shelves.b3d",
+			inventory_image = "multidecor_kitchen_cabinet_with_doors_inv.png",
 			bounding_boxes = cab_bboxes,
 			shelves_data = {
 				pos_left = {x=0.425, y=0, z=0.4},
@@ -66,6 +69,7 @@ multidecor.register.register_garniture({
 		["three_floor_doors"] = {
 			description = "Kitchen Three Shelves Cabinet With Doors",
 			mesh = "multidecor_kitchen_cabinet_three_shelves.b3d",
+			inventory_image = "multidecor_kitchen_cabinet_with_doors_inv.png",
 			bounding_boxes = cab_bboxes,
 			shelves_data = {
 				pos_left = {x=0.425, y=0, z=0.4},
@@ -76,6 +80,7 @@ multidecor.register.register_garniture({
 		["three_floor_drw_door"] = {
 			description = "Kitchen Three Shelves Cabinet With Drawer And Door",
 			mesh = "multidecor_kitchen_cabinet_three_shelves.b3d",
+			inventory_image = "multidecor_kitchen_cabinet_with_door_and_drawer_inv.png",
 			bounding_boxes = cab_bboxes,
 			shelves_data = {
 				pos_upper = {x=0, y=0.3, z=0},
@@ -87,6 +92,7 @@ multidecor.register.register_garniture({
 		["two_wall_door"] = {
 			description = "Kitchen Two Shelves Wall Cabinet With Door",
 			mesh = "multidecor_kitchen_wall_cabinet_two_shelves.b3d",
+			inventory_image = "multidecor_kitchen_wall_cabinet_with_door_inv.png",
 			bounding_boxes = wall_cab_bbox,
 			shelves_data = {
 				pos = {x=0.45, y=0, z=0.4},
@@ -97,6 +103,7 @@ multidecor.register.register_garniture({
 		["two_wall_hdoor"] = {
 			description = "Kitchen Two Shelves Wall Cabinet With Half Doors",
 			mesh = "multidecor_kitchen_wall_cabinet_two_shelves.b3d",
+			inventory_image = "multidecor_kitchen_wall_cabinet_with_half_door_inv.png",
 			bounding_boxes = wall_cab_bbox,
 			shelves_data = {
 				pos_left = {x=0.425, y=0, z=0.4},
@@ -107,6 +114,7 @@ multidecor.register.register_garniture({
 		["two_wall_hgldoor"] = {
 			description = "Kitchen Two Shelves Wall Cabinet With Half Glass Doors",
 			mesh = "multidecor_kitchen_wall_cabinet_two_shelves.b3d",
+			inventory_image = "multidecor_kitchen_wall_cabinet_with_half_glass_doors_inv.png",
 			bounding_boxes = wall_cab_bbox,
 			shelves_data = {
 				pos_left = {x=0.425, y=0, z=0.4},
@@ -127,6 +135,7 @@ multidecor.register.register_garniture({
 		["sink"] = {
 			description = "Kitchen Sink",
 			mesh = "multidecor_kitchen_sink_cabinet.b3d",
+			inventory_image = "multidecor_kitchen_sink_inv.png",
 			bounding_boxes = sink_bboxes,
 			tap_pos = tap_pos,
 			shelves_data = {
@@ -253,6 +262,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker", {
 	material = "metal",
 	description = "Kitchen Cooker",
 	mesh = "multidecor_kitchen_cooker.b3d",
+	inventory_image = "multidecor_kitchen_cooker_inv.png",
 	visual_scale = 0.5,
 	tiles = {
 		"multidecor_metal_material.png",
@@ -328,6 +338,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 	material = "metal",
 	description = "Kitchen Fridge",
 	mesh = "multidecor_fridge.b3d",
+	inventory_image = "multidecor_fridge_inv.png",
 	visual_scale = 0.5,
 	tiles = {
 		"multidecor_fridge_base.png",
@@ -413,7 +424,26 @@ multidecor.register.register_furniture_unit("porcelain_plate", {
 	mesh = "multidecor_porcelain_plate.b3d",
 	visual_scale = 0.5,
 	tiles = {"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png"},
-	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, -0.35, 0.3}}
+	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, -0.4, 0.3}}
+})
+
+multidecor.register.register_furniture_unit("porcelain_plate_with_fork_and_knife", {
+	type = "decoration",
+	style = "modern",
+	material = "glass",
+	description = "Porcelain Plate With Fork And Knife",
+	mesh = "multidecor_porcelain_plate_with_fork_and_knife.b3d",
+	visual_scale = 0.5,
+	tiles = {
+		"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png",
+		"multidecor_metal_material.png",
+		"multidecor_wood.png"
+	},
+	bounding_boxes = {
+		{-0.3, -0.5, -0.3, 0.3, -0.4, 0.3},
+		{-0.45, -0.5, -0.3, -0.35, -0.45, 0.3},
+		{0.35, -0.5, -0.3, 0.45, -0.45, 0.3}
+	}
 })
 
 multidecor.register.register_furniture_unit("porcelain_cup", {
@@ -424,7 +454,7 @@ multidecor.register.register_furniture_unit("porcelain_cup", {
 	mesh = "multidecor_porcelain_cup.b3d",
 	visual_scale = 0.5,
 	tiles = {"multidecor_porcelain_material.png"},
-	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0, 0.2}}
+	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, -0.15, 0.2}}
 })
 
 multidecor.register.register_furniture_unit("glass_cup", {
@@ -436,5 +466,16 @@ multidecor.register.register_furniture_unit("glass_cup", {
 	use_texture_alpha = "blend",
 	visual_scale = 0.5,
 	tiles = {"multidecor_glass_material.png"},
-	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0, 0.2}}
+	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, -0.15, 0.2}}
+})
+
+multidecor.register.register_furniture_unit("napkins_rack", {
+	type = "decoration",
+	style = "modern",
+	material = "plastic",
+	description = "Rack for paper napkins",
+	mesh = "multidecor_napkins_rack.b3d",
+	visual_scale = 0.5,
+	tiles = {"multidecor_metal_material.png", "multidecor_paper_napkins.png"},
+	bounding_boxes = {{-0.2, -0.5, -0.1, 0.2, -0.1, 0.1}}
 })
