@@ -479,3 +479,97 @@ multidecor.register.register_furniture_unit("napkins_rack", {
 	tiles = {"multidecor_metal_material.png", "multidecor_paper_napkins.png"},
 	bounding_boxes = {{-0.2, -0.5, -0.1, 0.2, -0.1, 0.1}}
 })
+
+multidecor.register.register_furniture_unit("saucepans_set", {
+	type = "decoration",
+	style = "modern",
+	material = "metal",
+	description = "Saucepans set (put it on the cooker top)",
+	mesh = "multidecor_saucepans_set.b3d",
+	use_texture_alpha = "blend",
+	visual_scale = 0.5,
+	tiles = {
+		"multidecor_metal_material.png",
+		"multidecor_metal_material3.png",
+		"multidecor_glass_material.png",
+		"multidecor_kitchen_cooker_black_metal.png"
+	},
+	bounding_boxes = {
+		{-0.5, -0.5, 0, 0.1, -0.1, 0.5},
+		{0, -0.5, -0.3, 0.4, -0.2, 0}
+	}
+})
+
+multidecor.register.register_furniture_unit("cast_iron_pan", {
+	type = "decoration",
+	style = "modern",
+	material = "metal",
+	description = "Cast Iron Pan",
+	mesh = "multidecor_cast_iron_pan.b3d",
+	visual_scale = 0.5,
+	tiles = {
+		"multidecor_coarse_metal_material.png",
+		"multidecor_wood.png"
+	},
+	bounding_boxes = {
+		{-0.25, -0.5, -0.25, 0.25, -0.35, 0.25}
+	}
+})
+
+multidecor.register.register_furniture_unit("porcelain_saucer_with_cup", {
+	type = "decoration",
+	style = "modern",
+	material = "glass",
+	description = "Porcelain Saucer With Cup",
+	mesh = "multidecor_porcelain_saucer_with_cup.b3d",
+	visual_scale = 0.5,
+	tiles = {
+		"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png",
+	},
+	bounding_boxes = {
+		{-0.3, -0.5, -0.3, 0.3, -0.4, 0.3},
+		{-0.175, -0.4, -0.175, 0.175, -0.225, 0.175}
+	}
+})
+
+multidecor.register.register_furniture_unit("porcelain_saucer_with_tea_cup", {
+	type = "decoration",
+	style = "modern",
+	material = "glass",
+	description = "Porcelain Saucer With Tea Cup",
+	mesh = "multidecor_porcelain_saucer_with_tea_cup.b3d",
+	visual_scale = 0.5,
+	tiles = {
+		"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png",
+		"multidecor_tea.png"
+	},
+	bounding_boxes = {
+		{-0.3, -0.5, -0.3, 0.3, -0.4, 0.3},
+		{-0.175, -0.4, -0.175, 0.175, -0.225, 0.175}
+	}
+})
+
+minetest.register_abm({
+	label = "tea steam",
+	nodenames = "multidecor:porcelain_saucer_with_tea_cup",
+	interval = 2,
+	chance = 1,
+	action = function(pos)
+		minetest.add_particlespawner({
+			amount = 1,
+			time = 1,
+			minpos = {x=pos.x-0.075, y=pos.y-0.2, z=pos.z-0.075},
+			maxpos = {x=pos.x+0.075, y=pos.y-0.15, z=pos.z+0.075},
+			minvel = {x=-0.003, y=0.01, z=-0.003},
+			maxvel = {x=0.003, y=0.01, z=-0.003},
+			minacc = {x=0.0,y=-0.0,z=-0.0},
+			maxacc = {x=0.0,y=0.003,z=-0.0},
+			minexptime = 2,
+			maxexptime = 5,
+			minsize = 2,
+			maxsize = 2.4,
+			collisiondetection = false,
+			texture = "multidecor_steam.png",
+		})
+	end
+})
