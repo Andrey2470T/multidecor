@@ -3,7 +3,7 @@ multidecor.register.register_table("kitchen_modern_wooden_table", {
 	material = "wood",
 	description = "Kitchen Modern Wooden Table",
 	mesh = "multidecor_kitchen_modern_wooden_table.b3d",
-	tiles = {"multidecor_wood.png", "multidecor_wood.png^[opacity:0"},
+	tiles = {"multidecor_wood.png", "multidecor_wood.png", "multidecor_wood.png^[opacity:0"},
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}
 	},
@@ -39,7 +39,7 @@ multidecor.register.register_table("kitchen_modern_wooden_table_with_cloth", {
 	material = "wood",
 	description = "Kitchen Modern Wooden Table With Cloth",
 	mesh = "multidecor_kitchen_modern_wooden_table.b3d",
-	tiles = {"multidecor_wood.png", "multidecor_wool_material.png"},
+	tiles = {"multidecor_wood.png^[opacity:0", "multidecor_wood.png", "multidecor_wool_material.png"},
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}
 	},
