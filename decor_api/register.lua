@@ -351,8 +351,8 @@ function multidecor.register.register_garniture(def)
 	}
 
 	local door_sounds = {
-		open = "multidecor_cabinet_door_open",
-		close = "multidecor_cabinet_door_close"
+		open = "multidecor_squeaky_door_open",
+		close = "multidecor_squeaky_door_close"
 	}
 
 	local drawer_sounds = {

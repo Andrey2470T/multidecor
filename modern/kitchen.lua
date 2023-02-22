@@ -573,3 +573,30 @@ minetest.register_abm({
 		})
 	end
 })
+
+multidecor.register.register_furniture_unit("faceted_glass", {
+	type = "decoration",
+	style = "modern",
+	material = "glass",
+	description = "Faceted Glass",
+	mesh = "multidecor_faceted_glass.b3d",
+	visual_scale = 0.5,
+	tiles = {"multidecor_glass_material.png"},
+	use_texture_alpha = "blend",
+	bounding_boxes = {
+		{-0.15, -0.5, -0.15, 0.15, 0, 0.15}
+	}
+})
+
+multidecor.register.register_furniture_unit("porcelain_teapot", {
+	type = "decoration",
+	style = "modern",
+	material = "glass",
+	description = "Porcelain Teapot",
+	mesh = "multidecor_porcelain_teapot.b3d",
+	visual_scale = 0.5,
+	tiles = {"multidecor_porcelain_material.png", "multidecor_porcelain_plate_pattern.png"},
+	bounding_boxes = {
+		{-0.25, -0.5, -0.25, 0.25, -0.15, 0.25}
+	}
+})

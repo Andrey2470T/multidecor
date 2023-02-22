@@ -4,7 +4,8 @@ local frame_types = {
 	"round",
 	"embossed_quadratic",
 	"embossed_ext_quadratic",
-	"embossed_ext_quadratic2"
+	"embossed_ext_quadratic2",
+	"ext_quadratic2"
 }
 
 local materials = {"wood", "plastic"}
@@ -38,8 +39,10 @@ local images = {
 	{"dark_forest", 2, 1, 1, {1, 2, 13, 5, 4}},
 	{"elk", 1, 2, 1, {15, 7, 3, 14}},
 	{"forest", 4, 1, 1, {15, 3, 7, 14}},
+	{"fruits_vase", 1, 1, 2, {2, 6, 12, 11, 7, 8}},
 	{"jupiter_and_saturn", 2, 2, 2, {1, 3, 12, 11, 15}},
 	{"minetest_castle", 5, 1, 1, {4, 14, 8, 3, 2}},
+	{"minetest_cathedral", 7, 1, 1, {4, 14, 15, 8, 3}},
 	{"minetest_logo", 1, 2, 1, {2, 5, 14, 15, 4}},
 	{"prairie", 1, 1, 1, {15, 4, 14, 2}},
 	{"rose", 4, 1, 1, {12, 5, 11, 7}},
@@ -84,7 +87,7 @@ for _, img in ipairs(images) do
 	local ftype = frame_types[img[2]]
 	if ftype == "ext_quadratic" or ftype == "round" or ftype == "embossed_ext_quadratic" then
 		img_bbox[4] = img_bbox[4] + 1
-	elseif ftype == "embossed_ext_quadratic2" then
+	elseif ftype == "ext_quadratic2" or ftype == "embossed_ext_quadratic2" then
 		img_bbox[5] = img_bbox[5] + 1
 	end
 
