@@ -96,11 +96,12 @@ multidecor.register.register_table("dresser_with_mirror", {
 		on_construct = function(pos)
 			multidecor.shelves.set_shelves(pos)
 		end,
-		can_dig = multidecor.shelves.can_dig
+		can_dig = multidecor.shelves.default_can_dig
 	}
 },
 {
 	shelves_data = {
+		common_name = "dresser_with_mirror",
 		{
 			type = "drawer",
 			base_texture = "multidecor_aspen_wood.png",

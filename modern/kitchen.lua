@@ -139,8 +139,8 @@ multidecor.register.register_garniture({
 			bounding_boxes = sink_bboxes,
 			tap_pos = tap_pos,
 			shelves_data = {
+				invlist_type = "trash",
 				pos_trash = {x=0.45, y=0, z=0.4},
-				inv_size = {w=1, h=1},
 				side = "left"
 			},
 			callbacks = {
@@ -182,9 +182,7 @@ multidecor.register.register_garniture({
 				on_destruct = function(pos)
 					local meta = minetest.get_meta(pos)
 
-					minetest.debug("on_destruct!")
 					if meta:contains("water_stream_id") then
-						minetest.debug("contains water_stream_id")
 						minetest.delete_particlespawner(tonumber(meta:get_string("water_stream_id")))
 						minetest.sound_stop(minetest.deserialize(meta:get_string("sound_handle")))
 					end
@@ -278,11 +276,50 @@ multidecor.register.register_furniture_unit("kitchen_cooker", {
 	},
 	add_properties = {
 		shelves_data = {
+			common_name = "kitchen_cooker",
 			{
 				type = "door",
 				object = "modern:kitchen_cooker_oven_door",
 				pos = {x=0, y=-0.35, z=0.4},
-				inv_size = {w=8, h=1},
+				invlist_type = "cooker",
+				acc = 1,
+				side = "centered",
+				sounds = {
+					open = "multidecor_cabinet_door_open",
+					close = "multidecor_cabinet_door_close"
+				}
+			}
+		}
+	}
+})
+
+multidecor.register.register_furniture_unit("kitchen_cooker_activated", {
+	type = "decoration",
+	style = "modern",
+	material = "metal",
+	description = "Kitchen Cooker",
+	mesh = "multidecor_kitchen_cooker.b3d",
+	inventory_image = "multidecor_kitchen_cooker_inv.png",
+	light_source = 8,
+	visual_scale = 0.5,
+	tiles = {
+		"multidecor_metal_material.png",
+		"multidecor_kitchen_cooker_black_metal.png",
+		"multidecor_metal_material3.png",
+		"multidecor_kitchen_cooker_grid.png"
+	},
+	groups = {not_in_creative_inventory=1},
+	callbacks = {
+		can_dig = multidecor.shelves.default_can_dig
+	},
+	add_properties = {
+		shelves_data = {
+			common_name = "kitchen_cooker",
+			{
+				type = "door",
+				object = "modern:kitchen_cooker_oven_door",
+				pos = {x=0, y=-0.35, z=0.4},
+				invlist_type = "cooker",
 				acc = 1,
 				side = "centered",
 				sounds = {
@@ -356,6 +393,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 	},
 	add_properties = {
 		shelves_data = {
+			common_name = "kitchen_fridge",
 			{
 				type = "door",
 				object = "modern:kitchen_fridge_upper_door",
@@ -599,4 +637,26 @@ multidecor.register.register_furniture_unit("porcelain_teapot", {
 	bounding_boxes = {
 		{-0.25, -0.5, -0.25, 0.25, -0.15, 0.25}
 	}
+})
+
+multidecor.register.register_furniture_unit("kitchen_ceramic_tile_1", {
+	type = "decoration",
+	style = "modern",
+	material = "stone",
+	description = "Kitchen Wall Ceramic Tile",
+	visual_scale = 1.0,
+	drawtype = "nodebox",
+	tiles = {"multidecor_kitchen_ceramic_tile1.png"},
+	bounding_boxes = {{-0.5, -0.5, 0.45, 0.5, 0.5, 0.5}}
+})
+
+multidecor.register.register_furniture_unit("kitchen_ceramic_tile_2", {
+	type = "decoration",
+	style = "modern",
+	material = "stone",
+	description = "Kitchen Wall Ceramic Tile",
+	visual_scale = 1.0,
+	drawtype = "nodebox",
+	tiles = {"multidecor_kitchen_ceramic_tile2.png"},
+	bounding_boxes = {{-0.5, -0.5, 0.45, 0.5, 0.5, 0.5}}
 })

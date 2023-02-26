@@ -374,10 +374,11 @@ function multidecor.register.register_garniture(def)
 		return cabdef
 	end
 
-	local function form_shelf_data(name, type, objname, pos1, pos2, orig_angle, side)
+	local function form_shelf_data(name, type, objname, pos1, pos2, orig_angle, side, list_type)
 		return {
 			type = type,
 			object = objname,
+			invlist_type = list_type,
 			inv_size = def.components[name].shelves_data.inv_size,
 			pos = pos1,
 			pos2 = pos2,
@@ -392,6 +393,7 @@ function multidecor.register.register_garniture(def)
 	-- kitchen floor two shelves cabinet with drawers
 	local two_floor_drws = form_cab_def("two_floor_drws")
 	two_floor_drws.add_properties.shelves_data = {
+		common_name = "kitchen_cabinet_two_shelves_floor_with_drawers",
 		form_shelf_data("two_floor_drws", "drawer", objects[6], def.components.two_floor_drws.shelves_data.pos_lower),
 		form_shelf_data("two_floor_drws", "drawer", objects[6], def.components.two_floor_drws.shelves_data.pos_upper)
 	}
@@ -401,6 +403,7 @@ function multidecor.register.register_garniture(def)
 	-- kitchen floor three shelves cabinet with drawers
 	local three_floor_drws = form_cab_def("three_floor_drws")
 	three_floor_drws.add_properties.shelves_data = {
+		common_name = "kitchen_cabinet_three_shelves_floor_with_drawers",
 		form_shelf_data("three_floor_drws", "drawer", objects[7], def.components.three_floor_drws.shelves_data.pos_lower),
 		form_shelf_data("three_floor_drws", "drawer", objects[7], def.components.three_floor_drws.shelves_data.pos_middle),
 		form_shelf_data("three_floor_drws", "drawer", objects[7], def.components.three_floor_drws.shelves_data.pos_upper)
@@ -411,6 +414,7 @@ function multidecor.register.register_garniture(def)
 	-- kitchen floor two shelves cabinet with doors
 	local two_floor_doors = form_cab_def("two_floor_doors")
 	two_floor_doors.add_properties.shelves_data = {
+		common_name = "kitchen_cabinet_two_shelves_floor_with_doors",
 		form_shelf_data("two_floor_doors", "sym_doors", objects[2], def.components.two_floor_doors.shelves_data.pos_left, def.components.two_floor_doors.shelves_data.pos_right)
 	}
 
@@ -419,6 +423,7 @@ function multidecor.register.register_garniture(def)
 	-- kitchen floor three shelves cabinet with doors
 	local three_floor_doors = form_cab_def("three_floor_doors")
 	three_floor_doors.add_properties.shelves_data = {
+		common_name = "kitchen_cabinet_three_shelves_floor_with_doors",
 		form_shelf_data("three_floor_doors", "sym_doors", objects[2], def.components.three_floor_doors.shelves_data.pos_left, def.components.three_floor_doors.shelves_data.pos_right)
 	}
 
@@ -427,6 +432,7 @@ function multidecor.register.register_garniture(def)
 	-- kitchen floor three shelves cabinet with drawer and door
 	local three_floor_drw_door = form_cab_def("three_floor_drw_door")
 	three_floor_drw_door.add_properties.shelves_data = {
+		common_name = "kitchen_cabinet_three_shelves_floor_with_drawer_and_door",
 		form_shelf_data("three_floor_drw_door", "drawer", objects[7], def.components.three_floor_drw_door.shelves_data.pos_upper),
 		form_shelf_data("three_floor_drw_door", "sym_doors", objects[2], def.components.three_floor_drw_door.shelves_data.pos_left, def.components.three_floor_drw_door.shelves_data.pos_right)
 	}
@@ -436,6 +442,7 @@ function multidecor.register.register_garniture(def)
 	-- kitchen wall two shelves cabinet with door
 	local two_wall_door = form_cab_def("two_wall_door")
 	two_wall_door.add_properties.shelves_data = {
+		common_name = "kitchen_cabinet_two_shelves_wall_with_door",
 		form_shelf_data("two_wall_door", "door", objects[3], def.components.two_wall_door.shelves_data.pos, nil, nil, "left")
 	}
 
@@ -444,6 +451,7 @@ function multidecor.register.register_garniture(def)
 	-- kitchen wall two shelves cabinet with half doors
 	local two_wall_hdoor = form_cab_def("two_wall_hdoor")
 	two_wall_hdoor.add_properties.shelves_data = {
+		common_name = "kitchen_cabinet_two_shelves_wall_with_half_doors",
 		form_shelf_data("two_wall_hdoor", "sym_doors", objects[4], def.components.two_wall_hdoor.shelves_data.pos_left, def.components.two_wall_hdoor.shelves_data.pos_right)
 	}
 
@@ -452,6 +460,7 @@ function multidecor.register.register_garniture(def)
 	-- kitchen wall two shelves cabinet with half glass doors
 	local two_wall_hgldoor = form_cab_def("two_wall_hgldoor")
 	two_wall_hgldoor.add_properties.shelves_data = {
+		common_name = "kitchen_cabinet_two_shelves_wall_with_half_glass_doors",
 		form_shelf_data("two_wall_hgldoor", "sym_doors", objects[5], def.components.two_wall_hgldoor.shelves_data.pos_left, def.components.two_wall_hgldoor.shelves_data.pos_right)
 	}
 
@@ -460,6 +469,7 @@ function multidecor.register.register_garniture(def)
 	-- kitchen wall corner two shelves cabinet with half glass doors
 	local two_wall_crn_hgldoor = form_cab_def("two_wall_crn_hgldoor")
 	two_wall_crn_hgldoor.add_properties.shelves_data = {
+		common_name = "kitchen_corner_cabinet_two_shelves_wall_with_half_glass_doors",
 		form_shelf_data("two_wall_crn_hgldoor", "sym_doors", objects[5], def.components.two_wall_crn_hgldoor.shelves_data.pos_left,
 			def.components.two_wall_crn_hgldoor.shelves_data.pos_right, {x=0, y=-math.pi/4, z=0})
 	}
@@ -469,7 +479,8 @@ function multidecor.register.register_garniture(def)
 	-- kitchen sink
 	local sink = form_cab_def("sink")
 	sink.add_properties.shelves_data = {
-		form_shelf_data("sink", "door", objects[1], def.components.sink.shelves_data.pos_trash, nil, nil, "left")
+		common_name = "kitchen_sink",
+		form_shelf_data("sink", "door", objects[1], def.components.sink.shelves_data.pos_trash, nil, nil, "left", "trash")
 	}
 
 	multidecor.register.register_table("kitchen_sink", sink)

@@ -124,6 +124,7 @@ multidecor.register.register_table("modern_wooden_desk", {
 },
 {
 	shelves_data = {
+		common_name = "modern_wooden_desk",
 		{
 			type = "drawer",
 			pos = {x=-1.15, y=0.225, z=0.025},
@@ -222,6 +223,7 @@ multidecor.register.register_table("modern_bedside_table", {
 },
 {
 	shelves_data = {
+		common_name = "modern_bedside_table",
 		{
 			type = "drawer",
 			base_texture = "multidecor_pine_wood2.png",

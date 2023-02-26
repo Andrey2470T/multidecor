@@ -1,21 +1,22 @@
 --[[
 	'shelves_data' is table containing:
 	{
-		type = "drawer",
-		pos = <position> (relative),
+		type = "drawer"/"door"/"sym_doors",
+		pos = <position>							-- relative
+		pos2 = <position> (relative),				-- relative, present if type == "sym_doors"
 		object = <object_name>,
-		inventory = <formspec_string>,
-		length = <number>
-	}
-
-	or
-
-	{
-		type = "door",
-		pos = <position> (relative),
-		object = <object_name>,
-		inventory = <formspec_string>,
-		side = "left"/"right"/"centered"
+		base_texture = <texture name>,				-- applied to the object as first tile
+		invlist_type = "storage"/"trash"/"cooker",	-- default is "storage"
+		inv_size = {w=<number>, h=<number>},		-- count of slots along width (w) and height (h), present if type == "storage"
+		length = <number>,							-- max distance that drawer object is pushed out, present if type == "drawer"
+		side = "left"/"right"/"centered",			-- present if type == "door"
+		orig_angle = <rotation>,					-- relative
+		visual_size_adds = <addendums vector>,
+		acc = <number>,
+		sounds = {
+			open = "sound name",
+			close = "sound name"
+		}
 	}
 ]]
 
@@ -133,23 +134,41 @@ function multidecor.shelves.set_shelves(pos)
 	local rot_y = vector.dir_to_rotation(dir)
 
 	for i, shelf_data in ipairs(def.add_properties.shelves_data) do
-		local inv_name = multidecor.helpers.build_name_from_tmp(node.name, "inv", i)
-		local list_name = multidecor.helpers.build_name_from_tmp(node.name, "list", i)
+		local inv_name = multidecor.helpers.build_name_from_tmp(def.add_properties.shelves_data.common_name, "inv", i)
+		local list_name = multidecor.helpers.build_name_from_tmp(def.add_properties.shelves_data.common_name, "list", i)
+		local list_type = shelf_data.invlist_type or "storage"
 
 		local padding = 0.25
-		local width = shelf_data.inv_size.w > 8 and shelf_data.inv_size.w or 8
+		local list_w = list_type == "storage" and shelf_data.inv_size.w or 1
+		local list_h = list_type == "storage" and shelf_data.inv_size.h or 1
+		local width = list_w > 8 and list_w or 8
 		local fs_size = {
 			w = width+1+(width-1)*padding,
-			h = shelf_data.inv_size.h+5.5+(shelf_data.inv_size.h-1)*padding+3*padding
+			h = list_h+5.5+(list_h-1)*padding+3*padding
 		}
-		local player_list_y = shelf_data.inv_size.h+1+(shelf_data.inv_size.h-1)*padding
+		fs_size.h = shelf_data.invlist_type == "cooker" and fs_size.h + 1 or fs_size.h
+		local player_list_y = list_h+1+(list_h-1)*padding + (shelf_data.invlist_type == "cooker" and 1 or 0)
+		local list_x = shelf_data.invlist_type == "cooker" and fs_size.w/2-0.5 or 0.5
+		local list_y = shelf_data.invlist_type == "cooker" and 1 or 0.5
 
-		local fs = ("formspec_version[4]size[%f,%f]" ..
-				"list[detached:%s;%s;0.5,0.5;%f,%f;]" ..
-				"list[current_player;main;0.5,%f;8,4;]"):format(
-					fs_size.w, fs_size.h,
-					inv_name, list_name,
-					shelf_data.inv_size.w, shelf_data.inv_size.h, player_list_y)
+		local fs = [[
+			formspec_version[4]size[%f,%f]
+			list[detached:%s;%s;%f,%f;%f,%f;]
+			list[current_player;main;0.5,%f;8,4;]
+		]]
+
+		if list_type == "trash" then
+			fs = fs .. "image[0.5,0.5;1,1;multidecor_trash_icon.png;]"
+		end
+
+		if list_type == "cooker" then
+			fs = fs .. "image[0.5,1;1,1;multidecor_cooker_fire_off.png;]"
+		end
+
+		fs = fs:format(
+			fs_size.w, fs_size.h,
+			inv_name, list_name, list_x, list_y,
+			list_w, list_h, player_list_y)
 		local obj = minetest.add_entity(vector.add(pos, shelf_data.pos), shelf_data.object, minetest.serialize({fs, {name=node.name, pos=pos}, 0, i}))
 
 		local move_dist
@@ -187,6 +206,7 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 		self.end_v = data[7]
 		self.is_flip_x_scale = data[8]
 		self.rotate_x = data[9]
+		self.cook_info = data[10]
 	end
 
 	local node = minetest.get_node(self.connected_to.pos)
@@ -218,16 +238,56 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 
 	multidecor.shelves.rotate_shelf_bbox(self.object)
 
-	local inv_name = multidecor.helpers.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
+	local inv_name = multidecor.helpers.build_name_from_tmp(minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data.common_name, "inv", self.shelf_data_i)
 	minetest.create_detached_inventory(inv_name, {
 		allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
 			return count
 		end,
 		allow_put = function(inv, listname, index, stack, player)
-			return stack:get_count()
+			local c = stack:get_count()
+
+			if shelf_data.invlist_type == "cooker" then
+				local output = minetest.get_craft_result({method="cooking", width=1, items={stack}})
+
+				if not output or output.time == 0 then
+					c = 0
+				end
+			end
+			return c
 		end,
 		allow_take = function(inv, listname, index, stack, player)
 			return stack:get_count()
+		end,
+		on_put = function(inv, listname, index, stack, player)
+			if shelf_data.invlist_type == "trash" then
+				stack:clear()
+				inv:remove_item(listname, inv:get_stack(listname, 1))
+				minetest.sound_play("multidecor_trash", {to_player=player:get_player_name()})
+			elseif shelf_data.invlist_type == "cooker" then
+				local name = stack:get_name()
+
+				local output = minetest.get_craft_result({method="cooking", width=1, items=inv:get_list(listname)})
+				local total_time = output.time*stack:get_count()
+
+				local obj = open_shelves[player:get_player_name()]
+				local self = obj:get_luaentity()
+
+				local padding = 0.25
+				local list_w = 9+7*padding
+				local list_x = list_w/2-0.5
+
+				local fire_fs = "image[0.5,1;1,1;multidecor_cooker_fire_on.png]style_type[label;font=bold;font_size=*2]label[7,1.5;%s]"
+				local cook_active_fs = "image[" .. list_x .. ",1;1,1;multidecor_cooker_active_bg.png^[lowpart:%f:multidecor_cooker_active_fs.png]"
+
+				minetest.swap_node(self.connected_to.pos, {
+					name="multidecor:" .. minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data.common_name .. "_activated",
+					param2=minetest.get_node(self.connected_to.pos).param2
+				})
+
+				local sound_handle = minetest.sound_play("multidecor_hum", {object=obj, fade=1.0, max_hear_distance=10, loop=true})
+				minetest.get_meta(self.connected_to.pos):set_string("sound_handle", minetest.serialize(sound_handle))
+				self.cook_info = {output, 0, total_time, self.inv, fire_fs, cook_active_fs, stack:get_count()}
+			end
 		end
 	})
 
@@ -242,32 +302,91 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 		table.insert(inv_list, stack)
 	end
 
-	local list_name = multidecor.helpers.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i)
+	local shelves_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data
+	local list_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", self.shelf_data_i)
+	local list_type = shelf_data.invlist_type or "storage"
+	local invsize = list_type == "storage" and shelf_data.inv_size or {w=1, h=1}
 	inv:set_list(list_name, inv_list)
-	inv:set_size(list_name, shelf_data.inv_size.w*shelf_data.inv_size.h)
-	inv:set_width(list_name, shelf_data.inv_size.w)
+	inv:set_size(list_name, invsize.w*invsize.h)
+	inv:set_width(list_name, invsize.w)
 
 	inv:set_size("main", 32)
 	inv:set_width("main", 8)
 end
 
 multidecor.shelves.default_get_staticdata = function(self)
-	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.inv_list, self.start_v, self.end_v, self.is_flip_x_scale, self.rotate_x})
+	return minetest.serialize({self.inv, self.connected_to, self.dir, self.shelf_data_i, self.inv_list, self.start_v, self.end_v, self.is_flip_x_scale, self.rotate_x, self.cook_info})
 end
 
 multidecor.shelves.default_on_rightclick = function(self, clicker)
 	open_shelves[clicker:get_player_name()] = self.object
-	minetest.show_formspec(clicker:get_player_name(), multidecor.helpers.build_name_from_tmp(self.connected_to.name, "fs", self.shelf_data_i), self.inv)
+	local shelves_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data
+	minetest.show_formspec(clicker:get_player_name(), multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "fs", self.shelf_data_i), self.inv)
 
 	if self.dir == 0 then
 		multidecor.shelves.open_shelf(self.object, 1)
 	end
 end
 
-multidecor.shelves.default_drawer_on_step = function(self)
-	local node = minetest.get_node(self.connected_to.pos)
 
-	if node.name ~= self.connected_to.name then
+local function cook_step(self, dtime)
+	if not self.cook_info then
+		return
+	end
+	self.cook_info[2] = self.cook_info[2] + dtime
+	local elapsed_time = self.cook_info[2]
+
+	local percents = self.cook_info[2]/self.cook_info[3]*100
+	local i = self.cook_info[4]:find("list%[")
+	local str_perc = tostring(math.round(percents)) .. " %"
+	self.inv = self.cook_info[4]:sub(1, i-1) .. self.cook_info[6]:format(percents) .. self.cook_info[4]:sub(i) .. self.cook_info[5]:format(str_perc)
+
+	local meta = minetest.get_meta(self.connected_to.pos)
+	meta:set_string("infotext", "Cooked to: " .. str_perc)
+
+	local shelves_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data
+	local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", self.shelf_data_i)
+	local inv_list = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", self.shelf_data_i)
+	local inv = minetest.get_inventory({type="detached", name=inv_name})
+
+	local time_elapsed = self.cook_info and self.cook_info[2] >= self.cook_info[3]
+	if inv:is_empty(inv_list) or time_elapsed then
+		if time_elapsed then
+			self.cook_info[1].item:set_count(self.cook_info[7])
+			inv:set_stack(inv_list, 1, self.cook_info[1].item)
+		end
+		self.inv = self.cook_info[4]
+		self.cook_info = nil
+		meta:set_string("infotext", "")
+		local sound_handle = minetest.deserialize(minetest.get_meta(self.connected_to.pos):get_string("sound_handle"))
+		minetest.sound_stop(sound_handle)
+		minetest.swap_node(self.connected_to.pos, {
+			name="multidecor:" .. shelves_data.common_name,
+			param2=minetest.get_node(self.connected_to.pos).param2
+		})
+	end
+
+	local show_to
+
+	for pl_name, obj in pairs(open_shelves) do
+		if obj == self.object then
+			show_to = pl_name
+			break
+		end
+	end
+
+	local i, f = math.modf(elapsed_time)
+
+	if show_to and (f > 0 and f < 0.05) then
+		minetest.show_formspec(show_to, multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "fs", self.shelf_data_i), self.inv)
+	end
+end
+
+multidecor.shelves.default_drawer_on_step = function(self, dtime)
+	local node = minetest.get_node(self.connected_to.pos)
+	local data = minetest.registered_nodes[node.name].add_properties and minetest.registered_nodes[node.name].add_properties.shelves_data
+
+	if not data or not self.connected_to.name:match(data.common_name) then
 		self.object:remove()
 		return
 	end
@@ -283,58 +402,58 @@ multidecor.shelves.default_drawer_on_step = function(self)
 		self.object:set_velocity(vector.zero())
 		self.object:set_pos(target_pos)
 	end
+
+	cook_step(self, dtime)
 end
 
 multidecor.shelves.default_door_on_step = function(self, dtime)
 	local node = minetest.get_node(self.connected_to.pos)
+	local data = minetest.registered_nodes[node.name].add_properties and minetest.registered_nodes[node.name].add_properties.shelves_data
 
-	if node.name ~= self.connected_to.name then
+	if not data or not self.connected_to.name:match(data.common_name) then
 		self.object:remove()
 		return
 	end
 
 	local shelf_data = minetest.registered_nodes[node.name].add_properties.shelves_data[self.shelf_data_i]
 	multidecor.doors.smooth_rotate_step(self, dtime, shelf_data.vel or 30, shelf_data.acc or 0)
+
+	cook_step(self, dtime)
 end
 
 multidecor.shelves.default_on_receive_fields = function(player, formname, fields)
 	local is_table_inv = formname:find("%d+", -10)
 
 	if not is_table_inv then
+		minetest.debug("1")
 		return
 	end
-	minetest.debug("1")
+
 	local name = formname:sub(1, is_table_inv-2)
+	minetest.debug("formname: " .. formname)
+	minetest.debug("name: " .. name)
 	local def = minetest.registered_nodes[name]
 
 	if not def then
+		minetest.debug("2")
 		return
 	end
-	minetest.debug("2")
-	--[[local is_table = false
 
-	for n, val in pairs(def.groups) do
-		if n == "table" then
-			is_table = true
-			break
-		end
-	end
-	minetest.debug("1st: " .. tostring(not name:sub(1, name:find(":")-1) == "multidecor"))
-	minetest.debug("2nd: " .. dump(def.groups))]]
-
-	if not name:sub(1, name:find(":")-1) == "multidecor" then--or not is_table then
+	if not name:sub(1, name:find(":")-1) == "multidecor" then
+		minetest.debug("3")
 		return
 	end
-	minetest.debug("4")
+
 	local shelf = open_shelves[player:get_player_name()]
 	if fields.quit == "true" and shelf then
 		open_shelves[player:get_player_name()] = nil
-		minetest.debug("5")
+
 		local self = shelf:get_luaentity()
-		local inv_name = multidecor.helpers.build_name_from_tmp(self.connected_to.name, "inv", self.shelf_data_i)
+		local shelves_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data
+		local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", self.shelf_data_i)
 		local inv = minetest.get_inventory({type="detached", name=inv_name})
 		local shelf_data = def.add_properties.shelves_data[self.shelf_data_i]
-		local list = inv:get_list(multidecor.helpers.build_name_from_tmp(self.connected_to.name, "list", self.shelf_data_i))
+		local list = inv:get_list(multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", self.shelf_data_i))
 
 		for _, stack in ipairs(list) do
 			table.insert(self.inv_list, {name=stack:get_name(), count=stack:get_count(), wear=stack:get_wear()})
@@ -346,12 +465,12 @@ end
 
 multidecor.shelves.default_can_dig = function(pos)
 	local name = minetest.get_node(pos).name
-	local shelves_data = minetest.registered_nodes[name].add_properties.shelves_data
+	local add_props = minetest.registered_nodes[name].add_properties
 
 	local is_all_empty = true
-	for i, shelf in ipairs(shelves_data) do
-		local inv_name = multidecor.helpers.build_name_from_tmp(name, "inv", i)
-		local list_name = multidecor.helpers.build_name_from_tmp(name, "list", i)
+	for i, shelf in ipairs(add_props.shelves_data) do
+		local inv_name = multidecor.helpers.build_name_from_tmp(add_props.shelves_data.common_name, "inv", i)
+		local list_name = multidecor.helpers.build_name_from_tmp(add_props.shelves_data.common_name, "list", i)
 		local inv = minetest.get_inventory({type="detached", name=inv_name})
 
 		is_all_empty = is_all_empty and inv:is_empty(list_name)

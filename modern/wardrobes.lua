@@ -18,6 +18,7 @@ multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 },
 {
 	shelves_data = {
+		common_name = "modern_cupboard_with_glass_doors",
 		{
 			type = "sym_doors",
 			pos = {x=0.5, y=1.6625, z=0.25},

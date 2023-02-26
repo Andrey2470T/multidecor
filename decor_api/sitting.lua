@@ -74,7 +74,6 @@ function multidecor.sitting.sit_player(player, node_pos)
 	local rand_anim
 	if seat_data.model then
 		prev_pdata.model = player_api.get_animation(player)
-		minetest.debug("prev_pdata.model: " .. dump(prev_pdata.model))
 
 		local node_dir = vector.multiply(minetest.facedir_to_dir(minetest.get_node(node_pos).param2), -1)
 		local near_node = minetest.get_node(vector.add(node_pos, node_dir))

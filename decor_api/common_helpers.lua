@@ -35,5 +35,10 @@ function multidecor.helpers.upper_first_letters(s)
 end
 
 function multidecor.helpers.build_name_from_tmp(name, type, i)
-	return name .. "_" .. i .. "_" .. type
+	local res = name .. "_" .. i .. "_".. type
+
+	if not name:match("multidecor:") then
+		res = "multidecor:" .. res
+	end
+	return res
 end
