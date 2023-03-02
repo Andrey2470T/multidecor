@@ -1,5 +1,5 @@
 local function get_shelf_formspec(name, pos, w, h)
-	local listname = multidecor.helpers.build_name_from_tmp(name, "list", 1)
+	local listname = multidecor.helpers.build_name_from_tmp(name, "list", 1, pos)
 	return table.concat({
 		"formspec_version[5]",
 		"size[11,9]",
@@ -15,7 +15,7 @@ local shelf_on_construct = function(pos)
 	meta:set_string("formspec", get_shelf_formspec(name, pos, add_props.inv_size.w, add_props.inv_size.h))
 
 	local inv = minetest.get_inventory({type="node", pos=pos})
-	local list_name = multidecor.helpers.build_name_from_tmp(name, "list", 1)
+	local list_name = multidecor.helpers.build_name_from_tmp(name, "list", 1, pos)
 	inv:set_size(list_name, add_props.inv_size.w*add_props.inv_size.h)
 	inv:set_width(list_name, add_props.inv_size.w)
 
@@ -26,7 +26,7 @@ end
 local shelf_can_dig = function(pos)
 	local inv = minetest.get_inventory({type="node", pos=pos})
 
-	return inv:is_empty(multidecor.helpers.build_name_from_tmp(minetest.get_node(pos).name, "list", 1))
+	return inv:is_empty(multidecor.helpers.build_name_from_tmp(minetest.get_node(pos).name, "list", 1, pos))
 end
 
 
