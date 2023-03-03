@@ -16,11 +16,251 @@ local sink_bboxes = {
 
 local tap_pos = vector.new(0, 0.75, 0.05)
 
+local cmpnts = {
+	["two_floor_drws"] = {
+		description = "Kitchen %s Two Shelves Cabinet With Drawers",
+		mesh = "multidecor_kitchen_cabinet_two_shelves.b3d",
+		inventory_image = "multidecor_kitchen_%s_cabinet_with_two_drawers_inv.png",
+		bounding_boxes = cab_bboxes,
+		shelves_data = {
+			pos_lower = {x=0, y=-0.15, z=0},
+			pos_upper = {x=0, y=0.25, z=0},
+			inv_size = {w=8, h=2}
+		}
+	},
+	["three_floor_drws"] = {
+		description = "Kitchen %s Three Shelves Cabinet With Drawers",
+		mesh = "multidecor_kitchen_cabinet_three_shelves.b3d",
+		inventory_image = "multidecor_kitchen_%s_cabinet_with_three_drawers_inv.png",
+		bounding_boxes = cab_bboxes,
+		shelves_data = {
+			pos_lower = {x=0, y=-0.2, z=0},
+			pos_middle = {x=0, y=0.05, z=0},
+			pos_upper = {x=0, y=0.3, z=0},
+			inv_size = {w=8, h=1}
+		}
+	},
+	["two_floor_doors"] = {
+		description = "Kitchen %s Two Shelves Cabinet With Doors",
+		mesh = "multidecor_kitchen_cabinet_two_shelves.b3d",
+		inventory_image = "multidecor_kitchen_%s_cabinet_with_doors_inv.png",
+		bounding_boxes = cab_bboxes,
+		shelves_data = {
+			pos_left = {x=0.425, y=0, z=0.4},
+			pos_right = {x=-0.425, y=0, z=0.4},
+			inv_size = {w=8, h=2}
+		}
+	},
+	["three_floor_doors"] = {
+		description = "Kitchen %s Three Shelves Cabinet With Doors",
+		mesh = "multidecor_kitchen_cabinet_three_shelves.b3d",
+		inventory_image = "multidecor_kitchen_%s_cabinet_with_doors_inv.png",
+		bounding_boxes = cab_bboxes,
+		shelves_data = {
+			pos_left = {x=0.425, y=0, z=0.4},
+			pos_right = {x=-0.425, y=0, z=0.4},
+			inv_size = {w=8, h=3}
+		}
+	},
+	["three_floor_drw_door"] = {
+		description = "Kitchen %s Three Shelves Cabinet With Drawer And Door",
+		mesh = "multidecor_kitchen_cabinet_three_shelves.b3d",
+		inventory_image = "multidecor_kitchen_%s_cabinet_with_door_and_drawer_inv.png",
+		bounding_boxes = cab_bboxes,
+		shelves_data = {
+			pos_upper = {x=0, y=0.3, z=0},
+			pos_left = {x=0.425, y=0, z=0.4},
+			pos_right = {x=-0.425, y=0, z=0.4},
+			inv_size = {w=8, h=2}
+		}
+	},
+	["sink"] = {
+		description = "Kitchen %s Sink Cabinet",
+		mesh = "multidecor_kitchen_sink_cabinet.b3d",
+		inventory_image = "multidecor_kitchen_%s_sink_inv.png",
+		bounding_boxes = sink_bboxes,
+		tap_pos = tap_pos,
+		shelves_data = {
+			invlist_type = "trash",
+			pos_trash = {x=0.45, y=0, z=0.4},
+			side = "left"
+		},
+		callbacks = {
+			on_rightclick = function(pos, node, clicker)
+				local meta = minetest.get_meta(pos)
 
-multidecor.register.register_garniture({
+				if meta:contains("water_stream_id") then
+					minetest.delete_particlespawner(tonumber(meta:get_string("water_stream_id")))
+					meta:set_string("water_stream_id", "")
+
+					local sound_handle = minetest.deserialize(meta:get_string("sound_handle"))
+					minetest.sound_stop(sound_handle)
+				else
+					local dir = minetest.facedir_to_dir(node.param2)
+					local yaw = vector.dir_to_rotation(dir).y
+
+					local rot_tap_pos = table.copy(tap_pos)
+					rot_tap_pos = vector.rotate_around_axis(rot_tap_pos, vector.new(0, 1, 0), yaw)
+					local id = minetest.add_particlespawner({
+						amount = 20,
+						time = 0,
+						collisiondetection = true,
+						object_collision = true,
+						texture = "multidecor_water_drop.png",
+						minpos = pos+rot_tap_pos+vector.new(-0.05, 0, -0.05),
+						maxpos = pos+rot_tap_pos+vector.new(0.05, 0, 0.05),
+						minvel = {x=0, y=-1, z=0},
+						maxvel = {x=0, y=-1, z=0},
+						minsize = 0.8,
+						maxsize = 2
+					})
+
+					meta:set_string("water_stream_id", tonumber(id))
+
+					local sound_handle = minetest.sound_play("multidecor_tap", {pos=pos, max_hear_distance=12})
+					meta:set_string("sound_handle", minetest.serialize(sound_handle))
+				end
+			end,
+			on_destruct = function(pos)
+				local meta = minetest.get_meta(pos)
+
+				if meta:contains("water_stream_id") then
+					minetest.delete_particlespawner(tonumber(meta:get_string("water_stream_id")))
+					minetest.sound_stop(minetest.deserialize(meta:get_string("sound_handle")))
+				end
+			end
+		}
+	},
+}
+
+local garniture_def = {
 	type = "kitchen",
 	style = "modern",
 	material = "wood",
+	common_name = "kitchen_modern_%s_cabinet",
+	objs_common_name = "kitchen_cabinet",
+	tiles = {
+		"multidecor_wood.png",
+		"multidecor_%s_material.png",
+		"multidecor_metal_material.png",
+		"multidecor_sink_leakage.png",
+		"multidecor_plastic_bucket.png"
+	},
+	--obj_tiles = {"multidecor_wood.png", "multidecor_metal_material.png", "multidecor_glass_material.png"},
+	groups = {choppy=1.5},
+	modname = "modern"
+}
+
+local granite_cmpnts = table.copy(cmpnts)
+
+for name, data in pairs(granite_cmpnts) do
+	data.description = data.description:format("Granite")
+	data.inventory_image = data.inventory_image:format("granite")
+end
+
+granite_cmpnts.two_wall_door = {
+	description = "Kitchen Two Shelves Wall Cabinet With Door",
+	mesh = "multidecor_kitchen_wall_cabinet_two_shelves.b3d",
+	inventory_image = "multidecor_kitchen_wall_cabinet_with_door_inv.png",
+	bounding_boxes = wall_cab_bbox,
+	shelves_data = {
+		pos = {x=0.45, y=0, z=0.4},
+		inv_size = {w=8, h=2},
+		side = "left"
+	}
+}
+
+granite_cmpnts.two_wall_hdoor = {
+	description = "Kitchen Two Shelves Wall Cabinet With Half Doors",
+	mesh = "multidecor_kitchen_wall_cabinet_two_shelves.b3d",
+	inventory_image = "multidecor_kitchen_wall_cabinet_with_half_door_inv.png",
+	bounding_boxes = wall_cab_bbox,
+	shelves_data = {
+		pos_left = {x=0.425, y=0, z=0.4},
+		pos_right = {x=-0.425, y=0, z=0.4},
+		inv_size = {w=8, h=2}
+	}
+}
+
+granite_cmpnts.two_wall_hgldoor = {
+	description = "Kitchen Two Shelves Wall Cabinet With Half Glass Doors",
+	mesh = "multidecor_kitchen_wall_cabinet_two_shelves.b3d",
+	inventory_image = "multidecor_kitchen_wall_cabinet_with_half_glass_doors_inv.png",
+	bounding_boxes = wall_cab_bbox,
+	shelves_data = {
+		pos_left = {x=0.425, y=0, z=0.4},
+		pos_right = {x=-0.425, y=0, z=0.4},
+		inv_size = {w=8, h=2}
+	}
+}
+
+granite_cmpnts.two_wall_crn_hgldoor = {
+	description = "Kitchen Two Shelves Wall Corner Cabinet With Half Glass Doors",
+	mesh = "multidecor_kitchen_wall_corner_cabinet_two_shelves.b3d",
+	bounding_boxes = wall_cab_bbox,
+	shelves_data = {
+		pos_left = {x=1.25, y=0, z=0.65},
+		pos_right = {x=0.65, y=0, z=1.25},
+		inv_size = {w=8, h=4}
+	}
+}
+
+local granite_garniture_def = table.copy(garniture_def)
+granite_garniture_def.common_name = granite_garniture_def.common_name:format("granite")
+granite_garniture_def.tiles[2] = granite_garniture_def.tiles[2]:format("granite")
+granite_garniture_def.components = granite_cmpnts
+
+multidecor.register.register_garniture(granite_garniture_def)
+
+
+local marble_cmpnts = table.copy(cmpnts)
+
+for name, data in pairs(marble_cmpnts) do
+	data.description = data.description:format("Marble")
+	data.inventory_image = data.inventory_image:format("marble")
+end
+
+local marble_garniture_def = table.copy(garniture_def)
+marble_garniture_def.common_name = marble_garniture_def.common_name:format("marble")
+marble_garniture_def.tiles[2] = marble_garniture_def.tiles[2]:format("marble")
+marble_garniture_def.components = marble_cmpnts
+
+multidecor.register.register_garniture(marble_garniture_def)
+
+
+local objects = {
+	["floor_door"] = {type="door",mesh="multidecor_kitchen_cabinet_door.b3d",box={-0.9,-0.5,0,0,0.4,0.075}},
+	["floor_half_door"] = {type="door",mesh="multidecor_kitchen_cabinet_half_door.b3d",box={-0.45,-0.5,0,0,0.4,0.075}},
+	["wall_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_door.b3d",box={-0.9,-0.5,0,0,0.4,0.075}},
+	["wall_half_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_half_door.b3d",box={-0.45,-0.5,0,0,0.4,0.075}},
+	["wall_half_glass_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_half_glass_door.b3d",box={-0.45,-0.5,0,0,0.4,0.075}},
+	["large_drawer"] = {type="drawer",mesh="multidecor_kitchen_cabinet_two_shelves_drawer.b3d",box={-0.3,-0.2,-0.4,0.3,0.2,0.4}},
+	["small_drawer"] = {type="drawer",mesh="multidecor_kitchen_cabinet_three_shelves_drawer.b3d",box={-0.3,-0.15,-0.4,0.3,0.15,0.4}}
+}
+
+for name, props in pairs(objects) do
+	minetest.register_entity("modern:kitchen_cabinet_" .. name, {
+		visual = "mesh",
+		visual_size = {x=5, y=5, z=5},
+		mesh = props.mesh,
+		textures = {"multidecor_wood.png", "multidecor_metal_material.png", "multidecor_glass_material.png"},
+		backface_culling = false,
+		use_texture_alpha = true,
+		physical = false,
+		selectionbox = props.box,
+		on_activate = multidecor.shelves.default_on_activate,
+		on_rightclick = multidecor.shelves.default_on_rightclick,
+		on_step = props.type == "drawer" and multidecor.shelves.default_drawer_on_step or multidecor.shelves.default_door_on_step,
+		get_staticdata = multidecor.shelves.default_get_staticdata
+	})
+end
+
+--[[multidecor.register.register_garniture({
+	type = "kitchen",
+	style = "modern",
+	material = "wood",
+	common_name = "kitchen_modern_granite_cabinet",
+	objs_common_name = "kitchen_cabinet"
 	tiles = {
 		"multidecor_wood.png",
 		"multidecor_granite_material.png",
@@ -199,7 +439,7 @@ multidecor.register.register_garniture({
 		["large_drawer"] = {type="drawer",mesh="multidecor_kitchen_cabinet_two_shelves_drawer.b3d",box={-0.3,-0.2,-0.4,0.3,0.2,0.4}},
 		["small_drawer"] = {type="drawer",mesh="multidecor_kitchen_cabinet_three_shelves_drawer.b3d",box={-0.3,-0.15,-0.4,0.3,0.15,0.4}}
 	}
-})
+})]]
 
 local fans_blades = {}
 
@@ -660,3 +900,38 @@ multidecor.register.register_furniture_unit("kitchen_ceramic_tile_2", {
 	tiles = {"multidecor_kitchen_ceramic_tile2.png"},
 	bounding_boxes = {{-0.5, -0.5, 0.45, 0.5, 0.5, 0.5}}
 })
+
+multidecor.register.register_furniture_unit("kitchen_marble_tile", {
+	type = "decoration",
+	style = "modern",
+	material = "stone",
+	description = "Kitchen Wall Marble Tile",
+	visual_scale = 1.0,
+	drawtype = "nodebox",
+	tiles = {"multidecor_kitchen_marble_tile.png"},
+	bounding_boxes = {{-0.5, -0.5, 0.45, 0.5, 0.5, 0.5}}
+})
+
+multidecor.register.register_furniture_unit("kitchen_floor_white_tile", {
+	type = "decoration",
+	style = "modern",
+	material = "stone",
+	description = "Kitchen Floor White Tile",
+	visual_scale = 1.0,
+	drawtype = "nodebox",
+	tiles = {"multidecor_kitchen_floor_white_tile.png"},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, -0.45, 0.5}}
+})
+
+multidecor.register.register_furniture_unit("kitchen_floor_black_tile", {
+	type = "decoration",
+	style = "modern",
+	material = "stone",
+	description = "Kitchen Floor Black Tile",
+	visual_scale = 1.0,
+	drawtype = "nodebox",
+	tiles = {"multidecor_kitchen_floor_black_tile.png"},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, -0.45, 0.5}}
+})
+
+

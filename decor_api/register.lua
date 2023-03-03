@@ -102,7 +102,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	local f_def = {}
 
 	assert(multidecor.register.check_for_type(def.type), "The type with a name \"" .. def.type .. "\" is not registered!")
-	assert(multidecor.register.check_for_style(def.style), "The type with a name \"" .. def.style .. "\" is not registered!")
+	assert(multidecor.register.check_for_style(def.style), "The style with a name \"" .. def.style .. "\" is not registered!")
 
 	f_def.description = def.description
 	f_def.visual_scale = def.visual_scale or 0.4
@@ -327,7 +327,7 @@ end
 function multidecor.register.register_garniture(def)
 	local cmn_def = {}
 
-	assert(multidecor.register.check_for_style(def.style), "The type with a name \"" .. def.style .. "\" is not registered!")
+	assert(multidecor.register.check_for_style(def.style), "The style with a name \"" .. def.style .. "\" is not registered!")
 
 	cmn_def.style = def.style
 	cmn_def.material = def.material
@@ -336,18 +336,14 @@ function multidecor.register.register_garniture(def)
 	cmn_def.tiles = def.tiles
 	cmn_def.groups = def.groups
 
-	local function form_objname(name)
-		return ("%s:%s_%s_%s"):format(def.modname, def.style, def.type, name)
-	end
-
 	local objects = {
-		form_objname("floor_door"),
-		form_objname("floor_half_door"),
-		form_objname("wall_door"),
-		form_objname("wall_half_door"),
-		form_objname("wall_half_glass_door"),
-		form_objname("large_drawer"),
-		form_objname("small_drawer")
+		def.modname .. ":" .. def.objs_common_name .. "_floor_door",
+		def.modname .. ":" .. def.objs_common_name .. "_floor_half_door",
+		def.modname .. ":" .. def.objs_common_name .. "_wall_door",
+		def.modname .. ":" .. def.objs_common_name .. "_wall_half_door",
+		def.modname .. ":" .. def.objs_common_name .. "_wall_half_glass_door",
+		def.modname .. ":" .. def.objs_common_name .. "_large_drawer",
+		def.modname .. ":" .. def.objs_common_name .. "_small_drawer"
 	}
 
 	local door_sounds = {
@@ -391,354 +387,124 @@ function multidecor.register.register_garniture(def)
 	end
 
 	-- kitchen floor two shelves cabinet with drawers
-	local two_floor_drws = form_cab_def("two_floor_drws")
-	two_floor_drws.add_properties.shelves_data = {
-		common_name = "kitchen_cabinet_two_shelves_floor_with_drawers",
-		form_shelf_data("two_floor_drws", "drawer", objects[6], def.components.two_floor_drws.shelves_data.pos_lower),
-		form_shelf_data("two_floor_drws", "drawer", objects[6], def.components.two_floor_drws.shelves_data.pos_upper)
-	}
+	if def.components.two_floor_drws then
+		local two_floor_drws = form_cab_def("two_floor_drws")
+		local tf_drws_s = def.components.two_floor_drws.shelves_data
+		two_floor_drws.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_floor_drws",
+			form_shelf_data("two_floor_drws", "drawer", objects[6], tf_drws_s.pos_lower),
+			form_shelf_data("two_floor_drws", "drawer", objects[6], tf_drws_s.pos_upper)
+		}
 
-	multidecor.register.register_table("kitchen_cabinet_two_shelves_floor_with_drawers", two_floor_drws)
+		multidecor.register.register_table(two_floor_drws.add_properties.shelves_data.common_name, two_floor_drws)
+	end
 
 	-- kitchen floor three shelves cabinet with drawers
-	local three_floor_drws = form_cab_def("three_floor_drws")
-	three_floor_drws.add_properties.shelves_data = {
-		common_name = "kitchen_cabinet_three_shelves_floor_with_drawers",
-		form_shelf_data("three_floor_drws", "drawer", objects[7], def.components.three_floor_drws.shelves_data.pos_lower),
-		form_shelf_data("three_floor_drws", "drawer", objects[7], def.components.three_floor_drws.shelves_data.pos_middle),
-		form_shelf_data("three_floor_drws", "drawer", objects[7], def.components.three_floor_drws.shelves_data.pos_upper)
-	}
+	if def.components.three_floor_drws then
+		local three_floor_drws = form_cab_def("three_floor_drws")
+		local thf_drws_s = def.components.three_floor_drws.shelves_data
+		three_floor_drws.add_properties.shelves_data = {
+			common_name = def.common_name .. "_three_floor_drws",
+			form_shelf_data("three_floor_drws", "drawer", objects[7], thf_drws_s.pos_lower),
+			form_shelf_data("three_floor_drws", "drawer", objects[7], thf_drws_s.pos_middle),
+			form_shelf_data("three_floor_drws", "drawer", objects[7], thf_drws_s.pos_upper)
+		}
 
-	multidecor.register.register_table("kitchen_cabinet_three_shelves_floor_with_drawers", three_floor_drws)
+		multidecor.register.register_table(three_floor_drws.add_properties.shelves_data.common_name, three_floor_drws)
+	end
 
 	-- kitchen floor two shelves cabinet with doors
-	local two_floor_doors = form_cab_def("two_floor_doors")
-	two_floor_doors.add_properties.shelves_data = {
-		common_name = "kitchen_cabinet_two_shelves_floor_with_doors",
-		form_shelf_data("two_floor_doors", "sym_doors", objects[2], def.components.two_floor_doors.shelves_data.pos_left, def.components.two_floor_doors.shelves_data.pos_right)
-	}
+	if def.components.two_floor_doors then
+		local two_floor_doors = form_cab_def("two_floor_doors")
+		local tf_drs_s = def.components.two_floor_doors.shelves_data
+		two_floor_doors.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_floor_doors",
+			form_shelf_data("two_floor_doors", "sym_doors", objects[2], tf_drs_s.pos_left, tf_drs_s.pos_right)
+		}
 
-	multidecor.register.register_table("kitchen_cabinet_two_shelves_floor_with_doors", two_floor_doors)
+		multidecor.register.register_table(two_floor_doors.add_properties.shelves_data.common_name, two_floor_doors)
+	end
 
 	-- kitchen floor three shelves cabinet with doors
-	local three_floor_doors = form_cab_def("three_floor_doors")
-	three_floor_doors.add_properties.shelves_data = {
-		common_name = "kitchen_cabinet_three_shelves_floor_with_doors",
-		form_shelf_data("three_floor_doors", "sym_doors", objects[2], def.components.three_floor_doors.shelves_data.pos_left, def.components.three_floor_doors.shelves_data.pos_right)
-	}
+	if def.components.three_floor_doors then
+		local three_floor_doors = form_cab_def("three_floor_doors")
+		local thf_drs_s = def.components.three_floor_doors.shelves_data
+		three_floor_doors.add_properties.shelves_data = {
+			common_name = def.common_name .. "_three_floor_doors",
+			form_shelf_data("three_floor_doors", "sym_doors", objects[2], thf_drs_s.pos_left, thf_drs_s.pos_right)
+		}
 
-	multidecor.register.register_table("kitchen_cabinet_three_shelves_floor_with_doors", three_floor_doors)
+		multidecor.register.register_table(three_floor_doors.add_properties.shelves_data.common_name, three_floor_doors)
+	end
 
 	-- kitchen floor three shelves cabinet with drawer and door
-	local three_floor_drw_door = form_cab_def("three_floor_drw_door")
-	three_floor_drw_door.add_properties.shelves_data = {
-		common_name = "kitchen_cabinet_three_shelves_floor_with_drawer_and_door",
-		form_shelf_data("three_floor_drw_door", "drawer", objects[7], def.components.three_floor_drw_door.shelves_data.pos_upper),
-		form_shelf_data("three_floor_drw_door", "sym_doors", objects[2], def.components.three_floor_drw_door.shelves_data.pos_left, def.components.three_floor_drw_door.shelves_data.pos_right)
-	}
+	if def.components.three_floor_drw_door then
+		local three_floor_drw_door = form_cab_def("three_floor_drw_door")
+		local thf_drw_d_s = def.components.three_floor_drw_door.shelves_data
+		three_floor_drw_door.add_properties.shelves_data = {
+			common_name = def.common_name .. "_three_floor_drw_door",
+			form_shelf_data("three_floor_drw_door", "drawer", objects[7], thf_drw_d_s.pos_upper),
+			form_shelf_data("three_floor_drw_door", "sym_doors", objects[2], thf_drw_d_s.pos_left, thf_drw_d_s.pos_right)
+		}
 
-	multidecor.register.register_table("kitchen_cabinet_three_shelves_floor_with_drawer_and_door", three_floor_drw_door)
+		multidecor.register.register_table(three_floor_drw_door.add_properties.shelves_data.common_name, three_floor_drw_door)
+	end
 
 	-- kitchen wall two shelves cabinet with door
-	local two_wall_door = form_cab_def("two_wall_door")
-	two_wall_door.add_properties.shelves_data = {
-		common_name = "kitchen_cabinet_two_shelves_wall_with_door",
-		form_shelf_data("two_wall_door", "door", objects[3], def.components.two_wall_door.shelves_data.pos, nil, nil, "left")
-	}
+	if def.components.two_wall_door then
+		local two_wall_door = form_cab_def("two_wall_door")
+		two_wall_door.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_wall_door",
+			form_shelf_data("two_wall_door", "door", objects[3], def.components.two_wall_door.shelves_data.pos, nil, nil, "left")
+		}
 
-	multidecor.register.register_table("kitchen_cabinet_two_shelves_wall_with_door", two_wall_door)
+		multidecor.register.register_table(two_wall_door.add_properties.shelves_data.common_name, two_wall_door)
+	end
 
 	-- kitchen wall two shelves cabinet with half doors
-	local two_wall_hdoor = form_cab_def("two_wall_hdoor")
-	two_wall_hdoor.add_properties.shelves_data = {
-		common_name = "kitchen_cabinet_two_shelves_wall_with_half_doors",
-		form_shelf_data("two_wall_hdoor", "sym_doors", objects[4], def.components.two_wall_hdoor.shelves_data.pos_left, def.components.two_wall_hdoor.shelves_data.pos_right)
-	}
+	if def.components.two_wall_hdoor then
+		local two_wall_hdoor = form_cab_def("two_wall_hdoor")
+		local tw_hd_s = def.components.two_wall_hdoor.shelves_data
+		two_wall_hdoor.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_wall_hdoor",
+			form_shelf_data("two_wall_hdoor", "sym_doors", objects[4], tw_hd_s.pos_left, tw_hd_s.pos_right)
+		}
 
-	multidecor.register.register_table("kitchen_cabinet_two_shelves_wall_with_half_doors", two_wall_hdoor)
+		multidecor.register.register_table(two_wall_hdoor.add_properties.shelves_data.common_name, two_wall_hdoor)
+	end
 
 	-- kitchen wall two shelves cabinet with half glass doors
-	local two_wall_hgldoor = form_cab_def("two_wall_hgldoor")
-	two_wall_hgldoor.add_properties.shelves_data = {
-		common_name = "kitchen_cabinet_two_shelves_wall_with_half_glass_doors",
-		form_shelf_data("two_wall_hgldoor", "sym_doors", objects[5], def.components.two_wall_hgldoor.shelves_data.pos_left, def.components.two_wall_hgldoor.shelves_data.pos_right)
-	}
+	if def.components.two_wall_hgldoor then
+		local two_wall_hgldoor = form_cab_def("two_wall_hgldoor")
+		local tw_hgld_s = def.components.two_wall_hgldoor.shelves_data
+		two_wall_hgldoor.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_wall_hgldoor",
+			form_shelf_data("two_wall_hgldoor", "sym_doors", objects[5], tw_hgld_s.pos_left, tw_hgld_s.pos_right)
+		}
 
-	multidecor.register.register_table("kitchen_cabinet_two_shelves_wall_with_half_glass_doors", two_wall_hgldoor)
+		multidecor.register.register_table(two_wall_hgldoor.add_properties.shelves_data.common_name, two_wall_hgldoor)
+	end
 
 	-- kitchen wall corner two shelves cabinet with half glass doors
-	local two_wall_crn_hgldoor = form_cab_def("two_wall_crn_hgldoor")
-	two_wall_crn_hgldoor.add_properties.shelves_data = {
-		common_name = "kitchen_corner_cabinet_two_shelves_wall_with_half_glass_doors",
-		form_shelf_data("two_wall_crn_hgldoor", "sym_doors", objects[5], def.components.two_wall_crn_hgldoor.shelves_data.pos_left,
-			def.components.two_wall_crn_hgldoor.shelves_data.pos_right, {x=0, y=-math.pi/4, z=0})
-	}
+	if def.components.two_wall_crn_hgldoor then
+		local two_wall_crn_hgldoor = form_cab_def("two_wall_crn_hgldoor")
+		two_wall_crn_hgldoor.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_wall_crn_hgldoor",
+			form_shelf_data("two_wall_crn_hgldoor", "sym_doors", objects[5], def.components.two_wall_crn_hgldoor.shelves_data.pos_left,
+				def.components.two_wall_crn_hgldoor.shelves_data.pos_right, {x=0, y=-math.pi/4, z=0})
+		}
 
-	multidecor.register.register_table("kitchen_corner_cabinet_two_shelves_wall_with_half_glass_doors", two_wall_crn_hgldoor)
+		multidecor.register.register_table(two_wall_crn_hgldoor.add_properties.shelves_data.common_name, two_wall_crn_hgldoor)
+	end
 
 	-- kitchen sink
-	local sink = form_cab_def("sink")
-	sink.add_properties.shelves_data = {
-		common_name = "kitchen_sink",
-		form_shelf_data("sink", "door", objects[1], def.components.sink.shelves_data.pos_trash, nil, nil, "left", "trash")
-	}
-
-	multidecor.register.register_table("kitchen_sink", sink)
-
-
-
-	--[[-- kitchen floor two shelves cabinet with drawers
-	local two_floor_drws = table.copy(cmn_def)
-	two_floor_drws.description = def.components.two_floor_drws.description
-	two_floor_drws.mesh = def.components.two_floor_drws.mesh
-	two_floor_drws.bounding_boxes = def.components.two_floor_drws.bounding_boxes
-
-	local two_floors_drws_shelf = {
-		type = "drawer",
-		object = objects[6],
-		inv_size = def.components.two_floor_drws.shelves_data.inv_size,
-		sounds = drawer_sounds
-	}
-	two_floor_drws.add_properties = {shelves_data = {table.copy(two_floors_drws_shelf), table.copy(two_floors_drws_shelf)}}
-	two_floor_drws.add_properties.shelves_data[1].pos = def.components.two_floor_drws.shelves_data.pos_lower
-	two_floor_drws.add_properties.shelves_data[2].pos = def.components.two_floor_drws.shelves_data.pos_upper
-
-	multidecor.register.register_table("kitchen_cabinet_two_shelves_floor_with_drawers", two_floor_drws)
-
-	-- kitchen floor three shelves cabinet with drawers
-	local three_floor_drws = table.copy(cmn_def)
-	three_floor_drws.description = def.components.three_floor_drws.description
-	three_floor_drws.mesh = def.components.three_floor_drws.mesh
-	three_floor_drws.bounding_boxes = def.components.three_floor_drws.bounding_boxes
-
-	local three_floors_drws_shelf = {
-		type = "drawer",
-		object = objects[7],
-		inv_size = def.components.three_floor_drws.shelves_data.inv_size,
-		sounds = drawer_sounds
-	}
-	three_floor_drws.add_properties = {shelves_data = {table.copy(three_floors_drws_shelf), table.copy(three_floors_drws_shelf), table.copy(three_floors_drws_shelf)}}
-	three_floor_drws.add_properties.shelves_data[1].pos = def.components.three_floor_drws.shelves_data.pos_lower
-	three_floor_drws.add_properties.shelves_data[2].pos = def.components.three_floor_drws.shelves_data.pos_middle
-	three_floor_drws.add_properties.shelves_data[3].pos = def.components.three_floor_drws.shelves_data.pos_upper
-
-	multidecor.register.register_table("kitchen_cabinet_three_shelves_floor_with_drawers", three_floor_drws)
-
-	-- kitchen floor two shelves cabinet with doors
-	local two_floor_doors = table.copy(cmn_def)
-	two_floor_doors.description = def.components.two_floor_doors.description
-	two_floor_doors.mesh = def.components.two_floor_doors.mesh
-	two_floor_doors.bounding_boxes = def.components.two_floor_doors.bounding_boxes
-
-	local two_floors_doors_shelf = {
-		type = "sym_doors",
-		object = objects[2],
-		inv_size = def.components.two_floor_doors.shelves_data.inv_size,
-		sounds = door_sounds
-	}
-	two_floor_doors.add_properties = {shelves_data = {table.copy(two_floors_doors_shelf)}}
-	two_floor_doors.add_properties.shelves_data[1].pos = def.components.two_floor_doors.shelves_data.pos_left
-	two_floor_doors.add_properties.shelves_data[1].pos2 = def.components.two_floor_doors.shelves_data.pos_right
-
-	multidecor.register.register_table("kitchen_cabinet_two_shelves_floor_with_doors", two_floor_doors)
-
-	-- kitchen floor three shelves cabinet with doors
-	local three_floor_doors = table.copy(cmn_def)
-	three_floor_doors.description = def.components.three_floor_doors.description
-	three_floor_doors.mesh = def.components.three_floor_doors.mesh
-	three_floor_doors.bounding_boxes = def.components.three_floor_doors.bounding_boxes
-
-	local three_floors_doors_shelf = {
-		type = "sym_doors",
-		object = objects[2],
-		inv_size = def.components.three_floor_doors.shelves_data.inv_size,
-		sounds = door_sounds
-	}
-	three_floor_doors.add_properties = {shelves_data = {table.copy(three_floors_doors_shelf)}}
-	three_floor_doors.add_properties.shelves_data[1].pos = def.components.three_floor_doors.shelves_data.pos_left
-	three_floor_doors.add_properties.shelves_data[1].pos2 = def.components.three_floor_doors.shelves_data.pos_right
-
-	multidecor.register.register_table("kitchen_cabinet_three_shelves_floor_with_doors", three_floor_doors)
-
-	-- kitchen floor three shelves cabinet with drawer and door
-	local three_floor_drw_door = table.copy(cmn_def)
-	three_floor_drw_door.description = def.components.three_floor_drw_door.description
-	three_floor_drw_door.mesh = def.components.three_floor_drw_door.mesh
-	three_floor_drw_door.bounding_boxes = def.components.three_floor_drw_door.bounding_boxes
-
-	three_floor_drw_door.add_properties = {
-		shelves_data = {
-			{
-				type = "drawer",
-				object = objects[7],
-				pos = def.components.three_floor_drw_door.shelves_data.pos_upper,
-				inv_size = def.components.three_floor_drw_door.shelves_data.inv_size,
-				sounds = drawer_sounds
-			},
-			{
-				type = "sym_doors",
-				object = objects[2],
-				pos = def.components.three_floor_drw_door.shelves_data.pos_left,
-				pos2 = def.components.three_floor_drw_door.shelves_data.pos_right,
-				inv_size = def.components.three_floor_drw_door.shelves_data.inv_size,
-				sounds = door_sounds
-			}
+	if def.components.sink then
+		local sink = form_cab_def("sink")
+		sink.add_properties.shelves_data = {
+			common_name = def.common_name .. "_sink",
+			form_shelf_data("sink", "door", objects[1], def.components.sink.shelves_data.pos_trash, nil, nil, "left", "trash")
 		}
-	}
 
-	multidecor.register.register_table("kitchen_cabinet_three_shelves_floor_with_drawer_and_door", three_floor_drw_door)
-
-	-- kitchen wall two shelves cabinet with door
-	local two_wall_door = table.copy(cmn_def)
-	two_wall_door.description = def.components.two_wall_door.description
-	two_wall_door.mesh = def.components.two_wall_door.mesh
-	two_wall_door.bounding_boxes = def.components.two_wall_door.bounding_boxes
-
-	two_wall_door.add_properties = {
-		shelves_data = {
-			{
-				type = "door",
-				object = objects[3],
-				pos = def.components.two_wall_door.shelves_data.pos,
-				inv_size = def.components.two_wall_door.shelves_data.inv_size,
-				sounds = door_sounds
-			}
-		}
-	}
-
-	multidecor.register.register_table("kitchen_cabinet_two_shelves_wall_with_door", two_wall_door)
-
-	-- kitchen wall two shelves cabinet with half doors
-	local two_wall_hdoor = table.copy(cmn_def)
-	two_wall_hdoor.description = def.components.two_wall_hdoor.description
-	two_wall_hdoor.mesh = def.components.two_wall_hdoor.mesh
-	two_wall_hdoor.bounding_boxes = def.components.two_wall_hdoor.bounding_boxes
-
-	two_wall_hdoor.add_properties = {
-		shelves_data = {
-			{
-				type = "sym_doors",
-				object = objects[4],
-				pos = def.components.two_wall_hdoor.shelves_data.pos_left,
-				pos2 = def.components.two_wall_hdoor.shelves_data.pos_right,
-				inv_size = def.components.two_wall_hdoor.shelves_data.inv_size,
-				sounds = door_sounds
-			}
-		}
-	}
-
-	multidecor.register.register_table("kitchen_cabinet_two_shelves_wall_with_half_doors", two_wall_hdoor)
-
-	-- kitchen wall two shelves cabinet with half glass doors
-	local two_wall_hgldoor = table.copy(cmn_def)
-	two_wall_hgldoor.description = def.components.two_wall_hgldoor.description
-	two_wall_hgldoor.mesh = def.components.two_wall_hgldoor.mesh
-	two_wall_hgldoor.bounding_boxes = def.components.two_wall_hgldoor.bounding_boxes
-
-	two_wall_hgldoor.add_properties = {
-		shelves_data = {
-			{
-				type = "sym_doors",
-				object = objects[5],
-				pos = def.components.two_wall_hgldoor.shelves_data.pos_left,
-				pos2 = def.components.two_wall_hgldoor.shelves_data.pos_right,
-				inv_size = def.components.two_wall_hgldoor.shelves_data.inv_size,
-				sounds = door_sounds
-			}
-		}
-	}
-
-	multidecor.register.register_table("kitchen_cabinet_two_shelves_wall_with_half_glass_doors", two_wall_hgldoor)
-
-	-- kitchen wall corner two shelves cabinet with half glass doors
-	local two_wall_crn_hgldoor = table.copy(cmn_def)
-	two_wall_crn_hgldoor.description = def.components.two_wall_crn_hgldoor.description
-	two_wall_crn_hgldoor.mesh = def.components.two_wall_crn_hgldoor.mesh
-	two_wall_crn_hgldoor.bounding_boxes = def.components.two_wall_crn_hgldoor.bounding_boxes
-
-	two_wall_crn_hgldoor.add_properties = {
-		shelves_data = {
-			{
-				type = "sym_doors",
-				object = objects[5],
-				pos = def.components.two_wall_crn_hgldoor.shelves_data.pos_left,
-				pos2 = def.components.two_wall_crn_hgldoor.shelves_data.pos_right,
-				orig_angle = math.pi/4,
-				inv_size = def.components.two_wall_hgldoor.shelves_data.inv_size,
-				sounds = door_sounds
-			}
-		}
-	}
-
-	multidecor.register.register_table("kitchen_corner_cabinet_two_shelves_wall_with_half_glass_doors", two_wall_crn_hgldoor)
-
-	-- kitchen sink
-	local sink = table.copy(cmn_def)
-	sink.description = def.components.sink.description
-	sink.mesh = def.components.sink.mesh
-	sink.bounding_boxes = def.components.sink.bounding_boxes
-	sink.callbacks = {
-		on_rightclick = function(pos, node, clicker)
-			local meta = minetest.get_meta(pos)
-
-			if meta:contains("water_stream_id") then
-				minetest.delete_particlespawner(tonumber(meta:get_string("water_stream_id")))
-				meta:set_string("water_stream_id", "")
-
-				local sound_handle = minetest.deserialize(meta:get_string("sound_handle"))
-				minetest.sound_stop(sound_handle)
-			else
-				local id = minetest.add_particlespawner({
-					amount = 10,
-					time = 0,
-					collisiondetection = true,
-					object_collision = true,
-					texture = "multidecor_water_drop.png",
-					minpos = vector.add(def.components.sink.tap_pos, {x=-0.1, y=0, z=-0.1}),
-					maxpos = vector.add(def.components.sink.tap_pos, {x=0.1, y=0, z=0.1}),
-					minvel = {x=0, y=1, z=0},
-					maxvel = {x=0, y=1, z=0},
-					minsize = 0.2,
-					maxsize = 0.8
-				})
-
-				meta:set_string("water_stream_id", tonumber(id))
-
-				local sound_handle = minetest.sound_play("multidecor_tap", {max_hear_distance=12, loop=true})
-				meta:set_string("sound_handle", minetest.serialize(sound_handle))
-			end
-		end
-	}
-
-	sink.add_properties = {
-		shelves_data = {
-			{
-				type = "door",
-				object = objects[3],
-				pos = def.components.sink.shelves_data.pos,
-				inv_size = def.components.sink.shelves_data.inv_size,
-				sounds = door_sounds
-			}
-		}
-	}
-
-	multidecor.register.register_table("kitchen_sink", sink)]]
-
-
-	for obj_name, props in pairs(def.move_parts) do
-		minetest.register_entity(("%s:%s_%s_%s"):format(def.modname, def.style, def.type, obj_name), {
-			visual = "mesh",
-			visual_size = {x=5, y=5, z=5},
-			mesh = props.mesh,
-			textures = def.obj_tiles,
-			backface_culling = false,
-			use_texture_alpha = true,
-			physical = false,
-			selectionbox = props.box,
-			on_activate = multidecor.shelves.default_on_activate,
-			on_rightclick = multidecor.shelves.default_on_rightclick,
-			on_step = props.type == "drawer" and multidecor.shelves.default_drawer_on_step or multidecor.shelves.default_door_on_step,
-			get_staticdata = multidecor.shelves.default_get_staticdata
-		})
+		multidecor.register.register_table(sink.add_properties.shelves_data.common_name, sink)
 	end
 end

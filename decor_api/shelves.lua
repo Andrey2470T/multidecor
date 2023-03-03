@@ -205,7 +205,6 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 		self.cook_info = data[10]
 	end
 
-	minetest.debug("self.inv_list: " .. dump(self.inv_list))
 	local node = minetest.get_node(self.connected_to.pos)
 
 	local shelves_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data
@@ -268,6 +267,7 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 					local name = stack:get_name()
 
 					local output = minetest.get_craft_result({method="cooking", width=1, items=inv:get_list(listname)})
+					output.item = {name=output.item:get_name(), count=output.item:get_count()*stack:get_count(), wear=output.item:get_wear()}
 					local total_time = output.time*stack:get_count()
 
 					local obj = open_shelves[player:get_player_name()]
@@ -287,7 +287,8 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 
 					local sound_handle = minetest.sound_play("multidecor_hum", {object=obj, fade=1.0, max_hear_distance=10, loop=true})
 					minetest.get_meta(self.connected_to.pos):set_string("sound_handle", minetest.serialize(sound_handle))
-					self.cook_info = {output, 0, total_time, self.inv, fire_fs, cook_active_fs, stack:get_count()}
+					self.cook_info = {output, 0, total_time, self.inv, fire_fs, cook_active_fs}
+					minetest.debug("cook_info:" .. dump(self.cook_info))
 				end
 			end
 		})
@@ -330,10 +331,11 @@ end
 
 
 local function cook_step(self, dtime)
+	minetest.debug("1")
 	if not self.cook_info then
 		return
 	end
-	--minetest.debug("1")
+	minetest.debug("2")
 	self.cook_info[2] = self.cook_info[2] + dtime
 	local elapsed_time = self.cook_info[2]
 
@@ -342,7 +344,7 @@ local function cook_step(self, dtime)
 	local str_perc = tostring(math.round(percents)) .. " %"
 	self.inv = self.cook_info[4]:sub(1, i-1) .. self.cook_info[6]:format(percents) .. self.cook_info[4]:sub(i) .. self.cook_info[5]:format(str_perc)
 
-	--minetest.debug("2")
+	minetest.debug("3")
 	local meta = minetest.get_meta(self.connected_to.pos)
 	meta:set_string("infotext", "Cooked to: " .. str_perc)
 
@@ -351,14 +353,16 @@ local function cook_step(self, dtime)
 	local inv_list = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", self.shelf_data_i, self.connected_to.pos)
 	local inv = minetest.get_inventory({type="detached", name=inv_name})
 
-	--minetest.debug("3")
+	minetest.debug("4")
 	local time_elapsed = self.cook_info and self.cook_info[2] >= self.cook_info[3]
 	if inv:is_empty(inv_list) or time_elapsed then
 		if time_elapsed then
-			self.cook_info[1].item:set_count(self.cook_info[7])
-			inv:set_stack(inv_list, 1, self.cook_info[1].item)
+			local output = ItemStack(self.cook_info[1].item.name)
+			output:set_count(self.cook_info[1].item.count)
+			output:set_wear(self.cook_info[1].item.wear)
+			inv:set_stack(inv_list, 1, output)
 		end
-		--minetest.debug("4")
+		minetest.debug("5")
 		self.inv = self.cook_info[4]
 		self.cook_info = nil
 		meta:set_string("infotext", "")
@@ -368,7 +372,7 @@ local function cook_step(self, dtime)
 			name="multidecor:" .. shelves_data.common_name,
 			param2=minetest.get_node(self.connected_to.pos).param2
 		})
-		--minetest.debug("5")
+		minetest.debug("6")
 	end
 
 	local show_to
@@ -380,13 +384,13 @@ local function cook_step(self, dtime)
 		end
 	end
 
-	--minetest.debug("6")
+	minetest.debug("7")
 	local i, f = math.modf(elapsed_time)
 
 	if show_to and (f > 0 and f < 0.05) then
 		minetest.show_formspec(show_to, multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "fs", self.shelf_data_i, self.connected_to.pos), self.inv)
 	end
-	--minetest.debug("7")
+	minetest.debug("8")
 end
 
 multidecor.shelves.default_drawer_on_step = function(self, dtime)
@@ -455,7 +459,6 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 		local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", self.shelf_data_i, self.connected_to.pos)
 		local inv = minetest.get_inventory({type="detached", name=inv_name})
 		local list = inv:get_list(multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", self.shelf_data_i, self.connected_to.pos))
-		minetest.debug("list: " .. dump(list))
 
 		self.inv_list = {}
 		for _, stack in ipairs(list) do
