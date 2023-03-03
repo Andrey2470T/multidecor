@@ -175,4 +175,11 @@ multidecor.register.register_table("three_level_wooden_rack", {
 },
 {
 	inv_size = {w=8, h=3}
+},
+{
+	recipe = {
+		{"multidecor:plank", "multidecor:board", "multidecor:plank"},
+		{"multidecor:plank", "multidecor:board", "multidecor:plank"},
+		{"", "multidecor:board", ""}
+	}
 })

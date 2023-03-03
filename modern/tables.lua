@@ -65,7 +65,7 @@ multidecor.register.register_table("kitchen_modern_wooden_table_with_cloth", {
 {
 	recipe = {
 		{"", "multidecor:board", ""},
-		{"multidecor:plank", "", "multidecor:plank"},
+		{"multidecor:plank", "multidecor:wool_cloth", "multidecor:plank"},
 		{"default:stick", "default:stick", "default:stick"}
 	}
 })

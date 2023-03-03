@@ -43,8 +43,8 @@ minetest.register_ore({
     clust_scarcity = 1500,
     clust_num_ores = 4,
     clust_size = 2,
-    height_min = -31000,
-    height_max = -150
+    y_min = -31000,
+    y_max = -150
 })
 
 minetest.register_ore({
@@ -54,8 +54,8 @@ minetest.register_ore({
     clust_scarcity = 1500,
     clust_num_ores = 4,
     clust_size = 2,
-    height_min = -31000,
-    height_max = -150
+    y_min = -31000,
+    y_max = -150
 })
 
 minetest.register_craftitem(":multidecor:wolfram_lump",
@@ -122,8 +122,8 @@ minetest.register_ore({
     clust_scarcity = 900,
     clust_num_ores = 5,
     clust_size = 3,
-    height_min = -31000,
-    height_max = -125
+    y_min = -31000,
+    y_max = -125
 })
 
 minetest.register_ore({
@@ -133,8 +133,8 @@ minetest.register_ore({
     clust_scarcity = 900,
     clust_num_ores = 5,
     clust_size = 3,
-    height_min = -31000,
-    height_max = -125
+    y_min = -31000,
+    y_max = -125
 })
 
 minetest.register_craftitem(":multidecor:zinc_fragment",
@@ -235,8 +235,8 @@ minetest.register_ore({
     clust_scarcity = 700,
     clust_num_ores = 20,
     clust_size = 3,
-    height_min = -31000,
-    height_max = 15
+    y_min = -31000,
+    y_max = 15
 })
 
 minetest.register_ore({
@@ -246,6 +246,6 @@ minetest.register_ore({
     clust_scarcity = 120,
     clust_num_ores = 3,
     clust_size = 2,
-    height_min = -31000,
-    height_max = 15
+    y_min = -31000,
+    y_max = 15
 })

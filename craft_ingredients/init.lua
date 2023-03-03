@@ -91,6 +91,12 @@ minetest.register_craftitem(":multidecor:saw",
 	inventory_image = "multidecor_saw.png"
 })
 
+minetest.register_craftitem(":multidecor:wool_cloth",
+{
+	description = "Wool Cloth",
+	inventory_image = "multidecor_wool_cloth.png"
+})
+
 minetest.register_craftitem(":multidecor:metal_bar",
 {
 	description = "Metal Bar",
@@ -181,6 +187,12 @@ minetest.register_craftitem(":multidecor:brass_ingot",
 	inventory_image = "multidecor_brass_ingot.png"
 })
 
+minetest.register_craftitem(":multidecor:brass_stripe",
+{
+	description = "Brass Stripe",
+	inventory_image = "multidecor_brass_stripe.png"
+})
+
 minetest.register_craftitem(":multidecor:gear",
 {
 	description = "Gear",
@@ -250,6 +262,14 @@ minetest.register_craft(
 	type = "shapeless",
 	output = "multidecor:saw",
 	recipe = {"default:stick", "default:stick", "multidecor:steel_sheet"}
+})
+
+minetest.register_craft(
+{
+	type = "shapeless",
+	output = "multidecor:wool_cloth 7",
+	recipe = {"default:wool", "multidecor:steel_scissors"},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 minetest.register_craft(
@@ -372,6 +392,13 @@ minetest.register_craft({
 	output = "multidecor:brass_ingot",
 	recipe = "multidecor:copper_and_tin",
 	cooktime = 8
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:brass_stripe 4",
+	recipe = {"multidecor:brass_ingot", "multidecor:steel_scissors"},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 minetest.register_craft({

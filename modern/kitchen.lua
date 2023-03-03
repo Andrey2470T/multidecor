@@ -703,6 +703,13 @@ multidecor.register.register_furniture_unit("porcelain_plate", {
 	visual_scale = 0.5,
 	tiles = {"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png"},
 	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, -0.4, 0.3}}
+},
+{
+	recipe = {
+		{"default:clay_lump", "multidecor:brass_stripe", "default:clay_lump"},
+		{"", "", ""},
+		{"", "", ""}
+	}
 })
 
 multidecor.register.register_furniture_unit("porcelain_plate_with_fork_and_knife", {
@@ -722,6 +729,14 @@ multidecor.register.register_furniture_unit("porcelain_plate_with_fork_and_knife
 		{-0.45, -0.5, -0.3, -0.35, -0.45, 0.3},
 		{0.35, -0.5, -0.3, 0.45, -0.45, 0.3}
 	}
+},
+{
+	recipe = {
+		{"default:stick", "", "multidecor:steel_sheet"},
+		{"", "multidecor:porcelain_plate", "multidecor:steel_scissors"},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 multidecor.register.register_furniture_unit("porcelain_cup", {
@@ -733,6 +748,13 @@ multidecor.register.register_furniture_unit("porcelain_cup", {
 	visual_scale = 0.5,
 	tiles = {"multidecor_porcelain_material.png"},
 	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, -0.15, 0.2}}
+},
+{
+	recipe = {
+		{"default:clay_lump", "", ""},
+		{"default:clay_lump", "", ""},
+		{"" , "", ""}
+	}
 })
 
 multidecor.register.register_furniture_unit("glass_cup", {
@@ -745,6 +767,14 @@ multidecor.register.register_furniture_unit("glass_cup", {
 	visual_scale = 0.5,
 	tiles = {"multidecor_glass_material.png"},
 	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, -0.15, 0.2}}
+},
+{
+	recipe = {
+		{"xpanes:pane_flat", "", ""},
+		{"xpanes:pane_flat", "", ""},
+		{"" , "", ""}
+	},
+	count = 2
 })
 
 multidecor.register.register_furniture_unit("napkins_rack", {
@@ -756,6 +786,14 @@ multidecor.register.register_furniture_unit("napkins_rack", {
 	visual_scale = 0.5,
 	tiles = {"multidecor_metal_material.png", "multidecor_paper_napkins.png"},
 	bounding_boxes = {{-0.2, -0.5, -0.1, 0.2, -0.1, 0.1}}
+},
+{
+	recipe = {
+		{"multidecor:steel_sheet", "", ""},
+		{"wool:white", "", ""},
+		{"" , "", ""}
+	},
+	count = 3
 })
 
 multidecor.register.register_furniture_unit("saucepans_set", {
@@ -776,7 +814,25 @@ multidecor.register.register_furniture_unit("saucepans_set", {
 		{-0.5, -0.5, 0, 0.1, -0.1, 0.5},
 		{0, -0.5, -0.3, 0.4, -0.2, 0}
 	}
+},
+{
+	recipe = {
+		{"multidecor:steel_sheet", "xpanes:pane_flat", "dye:black"},
+		{"multidecor:steel_sheet", "xpanes:pane_flat", "multidecor:plastic_sheet"},
+		{"multidecor:steel_sheet" , "", ""}
+	}
 })
+
+local cast_iron_pan_recipe
+if minetest.get_modpath("technic_worldgen") then
+	cast_iron_pan_recipe = {
+		recipe = {
+			{"technic:cast_iron_ingot", "multidecor:plank", ""},
+			{"technic:cast_iron_ingot", "", ""},
+			{"", "", ""}
+		}
+	}
+end
 
 multidecor.register.register_furniture_unit("cast_iron_pan", {
 	type = "decoration",
@@ -792,7 +848,7 @@ multidecor.register.register_furniture_unit("cast_iron_pan", {
 	bounding_boxes = {
 		{-0.25, -0.5, -0.25, 0.25, -0.35, 0.25}
 	}
-})
+}, cast_iron_pan_recipe)
 
 multidecor.register.register_furniture_unit("porcelain_saucer_with_cup", {
 	type = "decoration",
@@ -808,6 +864,10 @@ multidecor.register.register_furniture_unit("porcelain_saucer_with_cup", {
 		{-0.3, -0.5, -0.3, 0.3, -0.4, 0.3},
 		{-0.175, -0.4, -0.175, 0.175, -0.225, 0.175}
 	}
+},
+{
+	type = "shapeless",
+	recipe = {"multidecor:porcelain_cup", "multidecor:porcelain_plate"}
 })
 
 multidecor.register.register_furniture_unit("porcelain_saucer_with_tea_cup", {
@@ -825,6 +885,11 @@ multidecor.register.register_furniture_unit("porcelain_saucer_with_tea_cup", {
 		{-0.3, -0.5, -0.3, 0.3, -0.4, 0.3},
 		{-0.175, -0.4, -0.175, 0.175, -0.225, 0.175}
 	}
+},
+{
+	type = "shapeless",
+	recipe = {"multidecor:porcelain_saucer_with_cup", "bucket:bucket_water", "default:grass_1"},
+	replacements = {{"bucker:bucker_water", "bucket:bucket_empty"}}
 })
 
 minetest.register_abm({
@@ -864,6 +929,12 @@ multidecor.register.register_furniture_unit("faceted_glass", {
 	bounding_boxes = {
 		{-0.15, -0.5, -0.15, 0.15, 0, 0.15}
 	}
+},
+{
+	type = "shapeless",
+	recipe = {"xpanes:pane_flat", "multidecor:hammer"},
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}},
+	count = 2
 })
 
 multidecor.register.register_furniture_unit("porcelain_teapot", {
@@ -877,6 +948,14 @@ multidecor.register.register_furniture_unit("porcelain_teapot", {
 	bounding_boxes = {
 		{-0.25, -0.5, -0.25, 0.25, -0.15, 0.25}
 	}
+},
+{
+	recipe = {
+		{"default:clay_lump", "default:clay_lump", "bucket:bucket_water"},
+		{"default:clay_lump", "default:grass_1", ""},
+		{"", "", ""}
+	},
+	replacements = {{"bucker:bucker_water", "bucket:bucket_empty"}}
 })
 
 multidecor.register.register_furniture_unit("kitchen_ceramic_tile_1", {

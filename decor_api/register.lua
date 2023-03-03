@@ -186,7 +186,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	if craft_def then
 		minetest.register_craft({
 			type = craft_def.type,
-			output = f_name,
+			output = f_name .. (craft_def.count and " " .. tostring(craft_def.count) or ""),
 			recipe = craft_def.recipe,
 			replacements = craft_def.replacements or nil
 		})

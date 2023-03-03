@@ -1,5 +1,6 @@
 local silvered_lamp_recipe
 local gold_chandelier_recipe
+local silver_candlestick_recipe
 
 if minetest.get_modpath("moreores") then
 	silvered_lamp_recipe = {
@@ -16,6 +17,14 @@ if minetest.get_modpath("moreores") then
 			{"default:gold_ingot", "xpanes:pane_flat", "multidecor:four_bulbs_set"},
 			{"moreores:silver_ingot", "multidecor:metal_chain", "multidecor:bulb"}
 		}
+	}
+
+	silver_candlestick_recipe = {
+		recipe = {
+			{"multidecor:steel_sheet", "multidecor:steel_sheet", "moreores:silver_ingot"},
+			{"multidecor:wax_candle", "", ""},
+			{"", "", ""}
+	}
 	}
 end
 
@@ -247,14 +256,7 @@ multidecor.register.register_light("silver_candlestick", {
 		{-0.25, -0.5, -0.25, 0.25, -0.4, 0.25},
 		{-0.1, -0.4, -0.1, 0.1, 0.125, 0.1}
 	},
-},
-{
-	recipe = {
-		{"multidecor:steel_sheet", "multidecor:steel_sheet", "multidecor:silver_ingot"},
-		{"multidecor:wax_candle", "", ""},
-		{"", "", ""}
-	}
-})
+}, silver_candlestick_recipe)
 
 multidecor.register.register_light("ceiling_round_lamp", {
 	style = "modern",
@@ -265,6 +267,14 @@ multidecor.register.register_light("ceiling_round_lamp", {
 	mesh = "multidecor_ceiling_round_lamp.b3d",
 	tiles = {"multidecor_ceiling_round_lamp.png"},
 	bounding_boxes = {{-0.375, 0.4, -0.375, 0.375, 0.5, 0.375}}
+},
+{
+	recipe = {
+		{"multidecor:steel_sheet", "xpanes:pane_flat", ""},
+		{"multidecor:wolfram_wire", "multidecor:steel_scissors", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 multidecor.register.register_light("ceiling_wooden_lamp", {
@@ -279,6 +289,14 @@ multidecor.register.register_light("ceiling_wooden_lamp", {
 		"multidecor_ceiling_lamp_bottom.png"
 	},
 	bounding_boxes = {{-0.375, 0.4, -0.375, 0.375, 0.5, 0.375}}
+},
+{
+	recipe = {
+		{"multidecor:jungle_plank", "xpanes:pane_flat", ""},
+		{"multidecor:wolfram_wire", "multidecor:saw", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:saw", "multidecor:saw"}}
 })
 
 multidecor.register.register_light("kitchen_chandelier", {
@@ -304,4 +322,12 @@ multidecor.register.register_light("kitchen_chandelier", {
 		name = "kitchen_chandelier_on",
 		light_level = 12
 	}
+},
+{
+	recipe = {
+		{"multidecor:jungleboard", "multidecor:jungleboard", "multidecor:metal_wire"},
+		{"multidecor:plastic_sheet", "multidecor:bulb", "multidecor:saw"},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:saw", "multidecor:saw"}}
 })
