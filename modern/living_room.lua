@@ -264,19 +264,11 @@ local floors_defs = {
 
 for name, def in pairs(floors_defs) do
 	minetest.register_node(":multidecor:" .. name, {
-		drawtype = "nodebox",
 		description = def[1],
+		visual_scale = 0.5,
 		paramtype = "light",
 		paramtype2 = "facedir",
 		tiles = {def[2]},
-		node_box = {
-		type = "fixed",
-		fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5}
-		},
-		selection_box = {
-			type = "fixed",
-			fixed = {-0.5, -0.5, -0.5, 0.5, -0.45, 0.5}
-		},
 		groups = {choppy=1.5}
 	})
 

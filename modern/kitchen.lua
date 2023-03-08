@@ -69,8 +69,8 @@ local cmpnts = {
 		bounding_boxes = cab_bboxes,
 		shelves_data = {
 			pos_upper = {x=0, y=0.3, z=0},
-			pos_left = {x=0.425, y=0, z=0.4},
-			pos_right = {x=-0.425, y=0, z=0.4},
+			pos_left = {x=0.425, y=-0.125, z=0.4},
+			pos_right = {x=-0.425, y=-0.125, z=0.4},
 			inv_size = {w=8, h=2}
 		}
 	},
@@ -789,11 +789,11 @@ multidecor.register.register_furniture_unit("napkins_rack", {
 },
 {
 	recipe = {
-		{"multidecor:steel_sheet", "", ""},
-		{"wool:white", "", ""},
+		{"multidecor:steel_sheet", "multidecor:wool_cloth", ""},
+		{"multidecor:wool_cloth", "multidecor:wool_cloth", "multidecor:wool_cloth"},
 		{"" , "", ""}
 	},
-	count = 3
+	count = 2
 })
 
 multidecor.register.register_furniture_unit("saucepans_set", {
@@ -958,59 +958,146 @@ multidecor.register.register_furniture_unit("porcelain_teapot", {
 	replacements = {{"bucker:bucker_water", "bucket:bucket_empty"}}
 })
 
-multidecor.register.register_furniture_unit("kitchen_ceramic_tile_1", {
+local tiles = {
+	["kitchen_ceramic_tile_1"] = {
+		"Kitchen Wall Ceramic Tile",
+		"multidecor_kitchen_ceramic_tile1.png",
+		{
+			{"default:clay_lump", "default:clay_lump", "dye:yellow"},
+			{"", "", ""},
+			{"", "", ""}
+		}
+	},
+	["kitchen_ceramic_tile_2"] = {
+		"Kitchen Wall Ceramic Tile",
+		"multidecor_kitchen_ceramic_tile2.png",
+		{
+			{"default:clay_lump", "default:clay_lump", "dye:brown"},
+			{"", "", ""},
+			{"", "", ""}
+		}
+	},
+	["kitchen_marble_tile"] = {
+		"Kitchen Wall Marble Tile",
+		"multidecor_kitchen_marble_tile.png",
+		{
+			{"default:clay_lump", "default:clay_lump", "dye:white"},
+			{"dye:grey", "dye:dark_grey", ""},
+			{"", "", ""}
+		}
+	},
+	["kitchen_floor_black_tile"] = {
+		"Kitchen Floor Black Tile",
+		"multidecor_kitchen_floor_black_tile.png",
+		{
+			{"default:clay_lump", "default:clay_lump", "dye:black"},
+			{"", "", ""},
+			{"", "", ""}
+		}
+	},
+	["kitchen_floor_white_tile"] = {
+		"Kitchen Floor White Tile",
+		"multidecor_kitchen_floor_white_tile.png",
+		{
+			{"default:clay_lump", "default:clay_lump", "dye:white"},
+			{"", "", ""},
+			{"", "", ""}
+		}
+	},
+}
+
+for name, def in pairs(tiles) do
+	minetest.register_node(":multidecor:" .. name, {
+		description = def[1],
+		visual_scale = 0.5,
+		paramtype = "light",
+		paramtype2 = "facedir",
+		tiles = {def[2]},
+		groups = {cracky=1.5},
+		sounds = default.node_sound_stone_defaults()
+	})
+
+	minetest.register_craft({
+		output = "multidecor:" .. name,
+		recipe = def[3]
+	})
+end
+
+
+multidecor.register.register_furniture_unit("kitchen_metallic_hanger", {
 	type = "decoration",
 	style = "modern",
-	material = "stone",
-	description = "Kitchen Wall Ceramic Tile",
-	visual_scale = 1.0,
-	drawtype = "nodebox",
-	tiles = {"multidecor_kitchen_ceramic_tile1.png"},
-	bounding_boxes = {{-0.5, -0.5, 0.45, 0.5, 0.5, 0.5}}
+	material = "metal",
+	description = "Kitchen Metallic Hanger",
+	mesh = "multidecor_kitchen_metallic_hanger.b3d",
+	visual_scale = 0.5,
+	tiles = {
+		"multidecor_metal_material3.png",
+		"multidecor_coarse_metal_material.png",
+	},
+	bounding_boxes = {
+		{-0.425, 0.175, 0.225, 0.425, 0.275, 0.3},
+		{-0.5, 0.1, 0.195, -0.425, 0.3, 0.5},
+		{0.425, 0.1, 0.195, 0.5, 0.3, 0.5}
+	}
+},
+{
+	recipe = {
+		{"technic:cast_iron_ingot", "multidecor:metal_bar", ""},
+		{"", "", ""},
+		{"", "", ""}
+	}
 })
 
-multidecor.register.register_furniture_unit("kitchen_ceramic_tile_2", {
+multidecor.register.register_furniture_unit("kitchen_metallic_hanger_with_ladle_and_board", {
 	type = "decoration",
 	style = "modern",
-	material = "stone",
-	description = "Kitchen Wall Ceramic Tile",
-	visual_scale = 1.0,
-	drawtype = "nodebox",
-	tiles = {"multidecor_kitchen_ceramic_tile2.png"},
-	bounding_boxes = {{-0.5, -0.5, 0.45, 0.5, 0.5, 0.5}}
+	material = "metal",
+	description = "Kitchen Metallic Hanger With Ladle And Board",
+	mesh = "multidecor_kitchen_metallic_hanger_with_ladle_and_board.b3d",
+	visual_scale = 0.5,
+	tiles = {
+		"multidecor_metal_material3.png",
+		"multidecor_coarse_metal_material.png",
+		"multidecor_wood.png",
+		"multidecor_metal_material.png",
+		"multidecor_kitchen_cooker_black_metal.png"
+	},
+	bounding_boxes = {
+		{-0.425, 0.175, 0.225, 0.425, 0.275, 0.3},
+		{-0.5, 0.1, 0.195, -0.425, 0.3, 0.5},
+		{0.425, 0.1, 0.195, 0.5, 0.3, 0.5}
+	}
+},
+{
+	recipe = {
+		{"technic:cast_iron_ingot", "multidecor:metal_bar", "multidecor:metal_bar"},
+		{"technic:cast_iron_ingot", "multidecor:board", ""},
+		{"", "", ""}
+	}
 })
 
-multidecor.register.register_furniture_unit("kitchen_marble_tile", {
+multidecor.register.register_furniture_unit("kitchen_organiser", {
 	type = "decoration",
 	style = "modern",
-	material = "stone",
-	description = "Kitchen Wall Marble Tile",
-	visual_scale = 1.0,
-	drawtype = "nodebox",
-	tiles = {"multidecor_kitchen_marble_tile.png"},
-	bounding_boxes = {{-0.5, -0.5, 0.45, 0.5, 0.5, 0.5}}
+	material = "plastic",
+	description = "Kitchen Cutlery Organiser",
+	mesh = "multidecor_kitchen_cutlery_organiser.b3d",
+	visual_scale = 0.5,
+	tiles = {
+		"multidecor_kitchen_cooker_black_metal.png",
+		"multidecor_metal_material.png",
+		"multidecor_metal_material4.png"
+	},
+	bounding_boxes = {
+		{-0.15, -0.5, 0, 0.15, 0.15, 0.3}
+	}
+},
+{
+	recipe = {
+		{"multidecor:steel_sheet", "multidecor:plastic_sheet", "dye:black"},
+		{"multidecor:steel_sheet", "multidecor:steel_scissors", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
-
-multidecor.register.register_furniture_unit("kitchen_floor_white_tile", {
-	type = "decoration",
-	style = "modern",
-	material = "stone",
-	description = "Kitchen Floor White Tile",
-	visual_scale = 1.0,
-	drawtype = "nodebox",
-	tiles = {"multidecor_kitchen_floor_white_tile.png"},
-	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, -0.45, 0.5}}
-})
-
-multidecor.register.register_furniture_unit("kitchen_floor_black_tile", {
-	type = "decoration",
-	style = "modern",
-	material = "stone",
-	description = "Kitchen Floor Black Tile",
-	visual_scale = 1.0,
-	drawtype = "nodebox",
-	tiles = {"multidecor_kitchen_floor_black_tile.png"},
-	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, -0.45, 0.5}}
-})
-
-

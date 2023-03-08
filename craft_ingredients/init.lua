@@ -268,7 +268,7 @@ minetest.register_craft(
 {
 	type = "shapeless",
 	output = "multidecor:wool_cloth 7",
-	recipe = {"default:wool", "multidecor:steel_scissors"},
+	recipe = {"wool:white", "multidecor:steel_scissors"},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 

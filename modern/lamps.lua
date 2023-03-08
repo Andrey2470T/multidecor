@@ -292,7 +292,7 @@ multidecor.register.register_light("ceiling_wooden_lamp", {
 },
 {
 	recipe = {
-		{"multidecor:jungle_plank", "xpanes:pane_flat", ""},
+		{"multidecor:jungleplank", "xpanes:pane_flat", ""},
 		{"multidecor:wolfram_wire", "multidecor:saw", ""},
 		{"", "", ""}
 	},

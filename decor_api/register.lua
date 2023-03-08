@@ -446,6 +446,7 @@ function multidecor.register.register_garniture(def)
 			form_shelf_data("three_floor_drw_door", "drawer", objects[7], thf_drw_d_s.pos_upper),
 			form_shelf_data("three_floor_drw_door", "sym_doors", objects[2], thf_drw_d_s.pos_left, thf_drw_d_s.pos_right)
 		}
+		three_floor_drw_door.add_properties.shelves_data[2].visual_size_adds = {x=0, y=-1.75, z=0}
 
 		multidecor.register.register_table(three_floor_drw_door.add_properties.shelves_data.common_name, three_floor_drw_door)
 	end
