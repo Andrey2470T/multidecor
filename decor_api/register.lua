@@ -367,6 +367,12 @@ function multidecor.register.register_garniture(def)
 		cabdef.callbacks.can_dig = cabdef.callbacks.can_dig or multidecor.shelves.default_can_dig
 		cabdef.add_properties = {}
 
+		minetest.register_craft({
+			output = "multidecor:" .. def.common_name .. "_" .. name,
+			recipe = def.components[name].craft,
+			replacements = {{"multidecor:hammer", "multidecor:hammer"}}
+		})
+
 		return cabdef
 	end
 

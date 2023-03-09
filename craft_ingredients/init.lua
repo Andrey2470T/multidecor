@@ -85,6 +85,24 @@ bucket.register_liquid(
 )
 
 
+minetest.register_craftitem(":multidecor:cabinet_door",
+{
+	description = "Cabinet Door",
+	inventory_image = "multidecor_cabinet_door.png"
+})
+
+minetest.register_craftitem(":multidecor:cabinet_half_door",
+{
+	description = "Cabinet Half Door",
+	inventory_image = "multidecor_cabinet_half_door.png"
+})
+
+minetest.register_craftitem(":multidecor:cabinet_half_glass_door",
+{
+	description = "Cabinet Half Glass Door",
+	inventory_image = "multidecor_cabinet_half_glass_door.png"
+})
+
 minetest.register_craftitem(":multidecor:saw",
 {
 	description = "Saw",
@@ -239,6 +257,33 @@ minetest.register_craftitem(":multidecor:copper_and_zinc",
 {
 	description = "Copper And Zinc",
 	inventory_image = "multidecor_copper_and_zinc.png"
+})
+
+minetest.register_craft({
+	output = "multidecor:cabinet_door",
+	recipe = {
+		{"multidecor:board", "multidecor:steel_sheet", "multidecor:steel_scissors"},
+		{"", "", ""},
+		{"", "", ""}
+	}
+})
+
+minetest.register_craft({
+	output = "multidecor:cabinet_half_door",
+	recipe = {
+		{"multidecor:plank", "multidecor:steel_sheet", "multidecor:steel_scissors"},
+		{"", "", ""},
+		{"", "", ""}
+	}
+})
+
+minetest.register_craft({
+	output = "multidecor:cabinet_half_glass_door",
+	recipe = {
+		{"multidecor:plank", "multidecor:steel_sheet", "multidecor:steel_scissors"},
+		{"xpanes:pane_flat", "", ""},
+		{"", "", ""}
+	}
 })
 
 minetest.register_craft(
