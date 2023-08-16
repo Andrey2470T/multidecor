@@ -144,8 +144,8 @@ multidecor.register.register_table("modern_wooden_desk", {
 			inv_size = {w=6,h=3},
 			acc = 1,
 			sounds = {
-				open = "multidecor_cabinet_door_open",
-				close = "multidecor_cabinet_door_close"
+				open = "multidecor_squeaky_door_open",
+				close = "multidecor_squeaky_door_close"
 			}
 		}
 	}

@@ -11,6 +11,16 @@ local function get_formatted_time_str(hours, minutes, seconds)
 	return ("Current time: %d:%d"):format(hours, minutes)
 end
 
+local function return_book_form(pos)
+	local meta = minetest.get_meta(pos)
+	local text = meta:get_string("text")
+	
+	local formstr = "formspec_version[5]size[8,9]" ..
+		"textarea[1,1;6,6;book_textarea;;" .. text .."]button[3,7.5;2,1;book_save;Save]"
+		
+	return formstr
+end
+
 multidecor.register.register_furniture_unit("modern_floor_clock", {
 	type = "decoration",
 	style = "modern",
@@ -131,7 +141,12 @@ multidecor.register.register_furniture_unit("book", {
 		"multidecor_book_envelope.png^[multiply:blue^multidecor_book_pattern.png",
 		"multidecor_book.png"
 	},
-	bounding_boxes = {{-0.2, -0.5, -0.3, 0.2, -0.35, 0.3}}
+	bounding_boxes = {{-0.2, -0.5, -0.3, 0.2, -0.35, 0.3}},
+	callbacks = {
+		on_punch = function(pos, node, puncher, pointed_thing)
+			minetest.swap_node(pos, {name="multidecor:book_open", param1=node.param1, param2=node.param2})
+		end
+	}
 },
 {
 	recipe = {
@@ -140,6 +155,49 @@ multidecor.register.register_furniture_unit("book", {
 		{"default:paper", "default:paper", "default:paper"}
 	}
 })
+
+multidecor.register.register_furniture_unit("book_open", {
+	type = "decoration",
+	style = "modern",
+	material = "wood",
+	visual_scale = 0.5,
+	description = "Book",
+	mesh = "multidecor_book_open.b3d",
+	tiles = {
+		"multidecor_book_envelope.png^[multiply:blue^multidecor_book_pattern.png",
+		"multidecor_book.png",
+		"multidecor_book2.png"
+	},
+	groups = {not_in_creative_inventory=1},
+	drop = "multidecor:book",
+	bounding_boxes = {{-0.5, -0.5, -0.3, 0.5, -0.35, 0.3}},
+	callbacks = {
+		on_punch = function(pos, node, puncher, pointed_thing)
+			minetest.swap_node(pos, {name="multidecor:book", param1=node.param1, param2=node.param2})
+		end,
+		on_rightclick = function(pos, node, clicker)
+			clicker:get_meta():set_string("open_book_at", vector.to_string(pos))
+			minetest.show_formspec(clicker:get_player_name(), "multidecor:book_form", return_book_form(pos))
+		end
+	}
+})
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	if formname ~= "multidecor:book_form" then
+		return
+	end
+	
+	if fields.book_save then
+		local player_meta = player:get_meta()
+		local pos = vector.from_string(player_meta:get_string("open_book_at"))
+		
+		if pos then
+			minetest.get_meta(pos):set_string("text", fields.book_textarea)
+		end
+		
+		player_meta:set_string("open_book_at", "")
+	end
+end)
 
 multidecor.register.register_furniture_unit("books_stack", {
 	type = "decoration",
@@ -318,14 +376,19 @@ local on_rightclick_flowerpot_with_flower = function(pos, node, clicker, itemsta
 	local is_flowers_mod_i, is_flowers_mod_i2 = itemname:find("flowers:")
 	if is_flowers_mod_i and minetest.get_item_group(itemname, "flower") == 1 then
 		local flower = itemname:sub(is_flowers_mod_i2+1)
-		minetest.set_node(pos, {name=node.name:gsub(current_flower, flower), param2=node.param2})
+		
+		if flower ~= current_flower then
+			minetest.set_node(pos, {name=node.name:gsub(current_flower, flower), param2=node.param2})
 
-		itemstack:take_item()
+			itemstack:take_item()
+			
+			clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
+		end
 	else
 		minetest.set_node(pos, {name=node.name:gsub("_with_flower_" .. current_flower, ""), param2=node.param2})
+		
+		clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
 	end
-
-	clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
 
 	return itemstack
 end

@@ -27,8 +27,8 @@ multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 			inv_size = {w=8,h=6},
 			acc = 1,
 			sounds = {
-				open = "multidecor_cabinet_door_open",
-				close = "multidecor_cabinet_door_close"
+				open = "multidecor_squeaky_door_open",
+				close = "multidecor_squeaky_door_close"
 			}
 		},
 		{
@@ -39,8 +39,8 @@ multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 			inv_size = {w=8,h=6},
 			acc = 1,
 			sounds = {
-				open = "multidecor_cabinet_door_open",
-				close = "multidecor_cabinet_door_close"
+				open = "multidecor_squeaky_door_open",
+				close = "multidecor_squeaky_door_close"
 			}
 		}
 	}
