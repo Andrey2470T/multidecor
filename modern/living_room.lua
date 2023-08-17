@@ -7,18 +7,29 @@ local function get_current_time()
 	return hour, minute
 end
 
-local function get_formatted_time_str(hours, minutes, seconds)
+local function get_formatted_time_str(hours, minutes)
 	return ("Current time: %d:%d"):format(hours, minutes)
 end
 
 local function return_book_form(pos)
 	local meta = minetest.get_meta(pos)
 	local text = meta:get_string("text")
-	
+
 	local formstr = "formspec_version[5]size[8,9]" ..
 		"textarea[1,1;6,6;book_textarea;;" .. text .."]button[3,7.5;2,1;book_save;Save]"
-		
+
 	return formstr
+end
+
+local function book_save_meta_after_dig(pos, oldnode, oldmeta, drops)
+	if oldmeta.text then
+		local stackmeta = drops[1]:get_meta()
+		
+		local base_desc = "Book" .. (oldmeta.text ~= "" and " (written)" or "")
+		
+		stackmeta:set_string("description", multidecor.register.build_description(oldnode.name, base_desc))
+		stackmeta:set_string("text", oldmeta.text)
+	end
 end
 
 multidecor.register.register_furniture_unit("modern_floor_clock", {
@@ -105,7 +116,7 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 		end,
 		on_timer = function(pos, elapsed)
 			local hours, minutes, seconds = get_current_time()
-			minetest.get_meta(pos):set_string("infotext", get_formatted_time_str(hours, minutes, seconds))
+			minetest.get_meta(pos):set_string("infotext", get_formatted_time_str(hours, minutes))
 
 			return true
 		end
@@ -145,6 +156,12 @@ multidecor.register.register_furniture_unit("book", {
 	callbacks = {
 		on_punch = function(pos, node, puncher, pointed_thing)
 			minetest.swap_node(pos, {name="multidecor:book_open", param1=node.param1, param2=node.param2})
+		end,
+		preserve_metadata = book_save_meta_after_dig,
+		after_place_node = function(pos, placer, itemstack)
+			local text = itemstack:get_meta():get_string("text")
+			
+			minetest.get_meta(pos):set_string("text", text)
 		end
 	}
 },
@@ -178,7 +195,8 @@ multidecor.register.register_furniture_unit("book_open", {
 		on_rightclick = function(pos, node, clicker)
 			clicker:get_meta():set_string("open_book_at", vector.to_string(pos))
 			minetest.show_formspec(clicker:get_player_name(), "multidecor:book_form", return_book_form(pos))
-		end
+		end,
+		preserve_metadata = book_save_meta_after_dig
 	}
 })
 
@@ -186,16 +204,19 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= "multidecor:book_form" then
 		return
 	end
-	
+
+	local player_meta = player:get_meta()
+
+	if fields.quit then
+		player_meta:set_string("open_book_at", "")
+	end
+
 	if fields.book_save then
-		local player_meta = player:get_meta()
 		local pos = vector.from_string(player_meta:get_string("open_book_at"))
-		
+
 		if pos then
 			minetest.get_meta(pos):set_string("text", fields.book_textarea)
 		end
-		
-		player_meta:set_string("open_book_at", "")
 	end
 end)
 
@@ -270,7 +291,7 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 			meta:set_int("nodetime_elapsed", elapsed)
 
 			local hours, minutes, seconds = get_current_time()
-            meta:set_string("infotext", get_formatted_time_str(hours, minutes, seconds))
+            meta:set_string("infotext", get_formatted_time_str(hours, minutes))
 
 			if elapsed % 8 == 0 then
                 local handle = minetest.sound_play("multidecor_clock_ticking", {pos=pos, fade=1.0, max_hear_distance=10})
@@ -376,17 +397,17 @@ local on_rightclick_flowerpot_with_flower = function(pos, node, clicker, itemsta
 	local is_flowers_mod_i, is_flowers_mod_i2 = itemname:find("flowers:")
 	if is_flowers_mod_i and minetest.get_item_group(itemname, "flower") == 1 then
 		local flower = itemname:sub(is_flowers_mod_i2+1)
-		
+
 		if flower ~= current_flower then
 			minetest.set_node(pos, {name=node.name:gsub(current_flower, flower), param2=node.param2})
 
 			itemstack:take_item()
-			
+
 			clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
 		end
 	else
 		minetest.set_node(pos, {name=node.name:gsub("_with_flower_" .. current_flower, ""), param2=node.param2})
-		
+
 		clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
 	end
 
