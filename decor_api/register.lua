@@ -38,10 +38,21 @@ function multidecor.register.register_type(type_name)
 	table.insert(multidecor.register.supported_types, type_name)
 end
 
--- Checks whether type with 'type_name' name is registered
-function multidecor.register.check_for_type(type_name)
-	for _, type in ipairs(multidecor.register.supported_types) do
-		if type == type_name then
+-- Checks whether the given 'name' is in the category with 'category_id' (whether it is registered there).
+-- 'category_id': '0' - types, '1' - styles, '2' - materials
+function multidecor.register.category_contains(name, category_id)
+	local lookup_t
+	
+	if category_id == 0 then
+		lookup_t = multidecor.register.supported_types
+	elseif category_id == 1 then
+		lookup_t = multidecor.register.supported_styles
+	elseif category_id == 2 then
+		lookup_t = multidecor.register.supported_materials
+	end
+	
+	for _, cat_name in ipairs(lookup_t) do
+		if cat_name == name then
 			return true
 		end
 	end
@@ -49,15 +60,37 @@ function multidecor.register.check_for_type(type_name)
 	return false
 end
 
--- Checks whether style with 'style_name' name is registered
-function multidecor.register.check_for_style(style_name)
-	for _, style in ipairs(multidecor.register.supported_styles) do
-		if style == style_name then
-			return true
+-- Returns the name from category with 'category_id' for the node with 'name' name.
+-- 'category_id': '0' - types, '1' - styles, '2' - materials
+function multidecor.register.get_name_from_category(name, category_id)
+	local def = minetest.registered_nodes[name]
+	
+	local ret_cat = ""
+	
+	local lookup_t
+	
+	if category_id == 0 then
+		lookup_t = multidecor.register.supported_types
+	elseif category_id == 1 then
+		lookup_t = multidecor.register.supported_styles
+	elseif category_id == 2 then
+		lookup_t = multidecor.register.supported_materials
+	end
+	
+	for _, cat in ipairs(lookup_t) do
+		if def.groups[cat] then
+			ret_cat = cat
 		end
 	end
+	
+	return ret_cat
+end
 
-	return false
+function multidecor.register.build_description(name, base_desc)
+	local style = multidecor.register.get_name_from_category(name, 1)
+	local material = multidecor.register.get_name_from_category(name, 2)
+	
+	return base_desc .. "\nStyle: " .. style .. (material ~= "" and "\nMaterial: " .. material or "")
 end
 
 --[[def:
@@ -101,8 +134,8 @@ end
 function multidecor.register.register_furniture_unit(name, def, craft_def)
 	local f_def = {}
 
-	assert(multidecor.register.check_for_type(def.type), "The type with a name \"" .. def.type .. "\" is not registered!")
-	assert(multidecor.register.check_for_style(def.style), "The style with a name \"" .. def.style .. "\" is not registered!")
+	assert(multidecor.register.category_contains(def.type, 0), "The type with a name \"" .. def.type .. "\" is not registered!")
+	assert(multidecor.register.category_contains(def.style, 1), "The style with a name \"" .. def.style .. "\" is not registered!")
 
 	f_def.description = def.description
 	f_def.visual_scale = def.visual_scale or 0.4
@@ -139,7 +172,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	elseif def.material == "plastic" then
 		f_def.groups.snappy = 1.5
 	end
-
+	
 	f_def.description = f_def.description .. "\nStyle: " .. def.style .. (def.material and "\nMaterial: " .. def.material or "")
 	if def.bounding_boxes then
 		if f_def.drawtype == "nodebox" then
@@ -327,7 +360,7 @@ end
 function multidecor.register.register_garniture(def)
 	local cmn_def = {}
 
-	assert(multidecor.register.check_for_style(def.style), "The style with a name \"" .. def.style .. "\" is not registered!")
+	assert(multidecor.register.category_contains(def.style, 1), "The style with a name \"" .. def.style .. "\" is not registered!")
 
 	cmn_def.style = def.style
 	cmn_def.material = def.material

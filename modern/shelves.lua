@@ -1,18 +1,8 @@
-local function get_shelf_formspec(name, pos, w, h)
-	local listname = multidecor.helpers.build_name_from_tmp(name, "list", 1, pos)
-	return table.concat({
-		"formspec_version[5]",
-		"size[11,9]",
-		("list[nodemeta:%f,%f,%f;%s;0.5,0.5;%u,%u;]"):format(pos.x, pos.y, pos.z, listname, w, h),
-		"list[current_player;main;0.5,3.5;8,4;]"
-	}, "")
-end
-
 local shelf_on_construct = function(pos)
 	local meta = minetest.get_meta(pos)
 	local name = minetest.get_node(pos).name
 	local add_props = minetest.registered_nodes[name].add_properties
-	meta:set_string("formspec", get_shelf_formspec(name, pos, add_props.inv_size.w, add_props.inv_size.h))
+	meta:set_string("formspec", multidecor.shelves.build_formspec(pos, name, add_props, 1, false))
 
 	local inv = minetest.get_inventory({type="node", pos=pos})
 	local list_name = multidecor.helpers.build_name_from_tmp(name, "list", 1, pos)

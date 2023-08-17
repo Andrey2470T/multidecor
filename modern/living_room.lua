@@ -263,7 +263,6 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 		on_construct = function(pos)
 			local meta = minetest.get_meta(pos)
 			meta:set_string("is_activated", "false")
-            meta:set_int("nodetime_elapsed", -1)
 		end,
 		on_rightclick = function(pos)
 			local meta = minetest.get_meta(pos)
@@ -271,9 +270,11 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 			if meta:get_string("is_activated") == "false" then
                 meta:set_string("is_activated", "true")
                 minetest.get_node_timer(pos):start(1)
+                
+				local handle = minetest.sound_play("multidecor_clock_ticking", {pos=pos, fade=1.0, max_hear_distance=10, loop=true})
+				meta:set_string("sound_handle", minetest.serialize(handle))
 			else
                 meta:set_string("is_activated", "false")
-                meta:set_int("nodetime_elapsed", -1)
                 minetest.get_node_timer(pos):stop()
 
                 local handle = minetest.deserialize(meta:get_string("sound_handle"))
@@ -286,17 +287,8 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 		on_timer = function(pos)
 			local meta = minetest.get_meta(pos)
 
-			local elapsed = meta:get_int("nodetime_elapsed")
-			elapsed = elapsed + 1
-			meta:set_int("nodetime_elapsed", elapsed)
-
 			local hours, minutes, seconds = get_current_time()
             meta:set_string("infotext", get_formatted_time_str(hours, minutes))
-
-			if elapsed % 8 == 0 then
-                local handle = minetest.sound_play("multidecor_clock_ticking", {pos=pos, fade=1.0, max_hear_distance=10})
-                meta:set_string("sound_handle", minetest.serialize(handle))
-			end
 
 			return true
 		end,

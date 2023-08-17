@@ -147,7 +147,7 @@ local cmpnts = {
 
 					meta:set_string("water_stream_id", tonumber(id))
 
-					local sound_handle = minetest.sound_play("multidecor_tap", {pos=pos, max_hear_distance=12})
+					local sound_handle = minetest.sound_play("multidecor_tap", {pos=pos, fade=1.0, max_hear_distance=12, loop=true})
 					meta:set_string("sound_handle", minetest.serialize(sound_handle))
 				end
 			end,

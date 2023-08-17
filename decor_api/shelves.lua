@@ -77,6 +77,50 @@ function multidecor.shelves.rotate_shelf_bbox(obj)
 	})
 end
 
+-- Builds formspec string for the shelf with 'shelf_num' number. The inventory can be detached and node.
+function multidecor.shelves.build_formspec(pos, common_name, data, shelf_num, detached)
+	if detached == nil then
+		detached = true
+	end
+
+	local inv_name = multidecor.helpers.build_name_from_tmp(common_name, "inv", shelf_num, pos)
+	local list_name = multidecor.helpers.build_name_from_tmp(common_name, "list", shelf_num, pos)
+	local list_type = data.invlist_type or "storage"
+
+	local padding = 0.25
+	local list_w = list_type == "storage" and data.inv_size.w or 1
+	local list_h = list_type == "storage" and data.inv_size.h or 1
+	local width = list_w > 8 and list_w or 8
+	local fs_size = {
+		w = width+1+(width-1)*padding,
+		h = list_h+5.5+(list_h-1)*padding+3*padding
+	}
+	fs_size.h = list_type == "cooker" and fs_size.h + 1 or fs_size.h
+	local player_list_y = list_h+1+(list_h-1)*padding + (list_type == "cooker" and 1 or 0)
+	local list_x = list_type == "cooker" and fs_size.w/2-0.5 or 0.5
+	local list_y = list_type == "cooker" and 1 or 0.5
+
+	local fs =
+		("formspec_version[4]size[%f,%f]"):format(fs_size.w, fs_size.h) ..
+		("list[current_player;main;0.5,%f;8,4;]"):format(player_list_y)
+	
+	if detached then
+		fs = fs .. ("list[detached:%s;%s;%f,%f;%f,%f;]"):format(inv_name, list_name, list_x, list_y, list_w, list_h)
+	else
+		fs = fs .. ("list[nodemeta:%f,%f,%f;%s;0.5,0.5;%u,%u;]"):format(pos.x, pos.y, pos.z, list_name, list_w, list_h)
+	end
+
+	if list_type == "trash" then
+		fs = fs .. "image[0.5,0.5;1,1;multidecor_trash_icon.png;]"
+	end
+
+	if list_type == "cooker" then
+		fs = fs .. "image[0.5,1;1,1;multidecor_cooker_fire_off.png;]"
+	end
+		
+	return fs
+end
+
 -- Animates opening or closing the shelf 'obj'. The action directly depends on 'dir_sign' value ('1' is open, '-1' is close)
 function multidecor.shelves.open_shelf(obj, dir_sign)
 	local self = obj:get_luaentity()
@@ -130,41 +174,13 @@ function multidecor.shelves.set_shelves(pos)
 	end
 
 	for i, shelf_data in ipairs(def.add_properties.shelves_data) do
-		local inv_name = multidecor.helpers.build_name_from_tmp(def.add_properties.shelves_data.common_name, "inv", i, pos)
-		local list_name = multidecor.helpers.build_name_from_tmp(def.add_properties.shelves_data.common_name, "list", i, pos)
-		local list_type = shelf_data.invlist_type or "storage"
-
-		local padding = 0.25
-		local list_w = list_type == "storage" and shelf_data.inv_size.w or 1
-		local list_h = list_type == "storage" and shelf_data.inv_size.h or 1
-		local width = list_w > 8 and list_w or 8
-		local fs_size = {
-			w = width+1+(width-1)*padding,
-			h = list_h+5.5+(list_h-1)*padding+3*padding
-		}
-		fs_size.h = shelf_data.invlist_type == "cooker" and fs_size.h + 1 or fs_size.h
-		local player_list_y = list_h+1+(list_h-1)*padding + (shelf_data.invlist_type == "cooker" and 1 or 0)
-		local list_x = shelf_data.invlist_type == "cooker" and fs_size.w/2-0.5 or 0.5
-		local list_y = shelf_data.invlist_type == "cooker" and 1 or 0.5
-
-		local fs = [[
-			formspec_version[4]size[%f,%f]
-			list[detached:%s;%s;%f,%f;%f,%f;]
-			list[current_player;main;0.5,%f;8,4;]
-		]]
-
-		if list_type == "trash" then
-			fs = fs .. "image[0.5,0.5;1,1;multidecor_trash_icon.png;]"
-		end
-
-		if list_type == "cooker" then
-			fs = fs .. "image[0.5,1;1,1;multidecor_cooker_fire_off.png;]"
-		end
-
-		fs = fs:format(
-			fs_size.w, fs_size.h,
-			inv_name, list_name, list_x, list_y,
-			list_w, list_h, player_list_y)
+		local fs = multidecor.shelves.build_formspec(
+			pos,
+			def.add_properties.shelves_data.common_name,
+			shelf_data,
+			i
+		)
+		
 		local obj = minetest.add_entity(vector.add(pos, shelf_data.pos), shelf_data.object, minetest.serialize({fs, {name=node.name, pos=pos}, 0, i}))
 
 		local move_dist
