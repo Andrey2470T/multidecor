@@ -24,9 +24,9 @@ end
 local function book_save_meta_after_dig(pos, oldnode, oldmeta, drops)
 	if oldmeta.text then
 		local stackmeta = drops[1]:get_meta()
-		
+
 		local base_desc = "Book" .. (oldmeta.text ~= "" and " (written)" or "")
-		
+
 		stackmeta:set_string("description", multidecor.register.build_description(oldnode.name, base_desc))
 		stackmeta:set_string("text", oldmeta.text)
 	end
@@ -160,7 +160,7 @@ multidecor.register.register_furniture_unit("book", {
 		preserve_metadata = book_save_meta_after_dig,
 		after_place_node = function(pos, placer, itemstack)
 			local text = itemstack:get_meta():get_string("text")
-			
+
 			minetest.get_meta(pos):set_string("text", text)
 		end
 	}
@@ -216,6 +216,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		if pos then
 			minetest.get_meta(pos):set_string("text", fields.book_textarea)
+			minetest.sound_play("multidecor_book_writing", {gain=1.0, pitch=1.0, to_player=player:get_player_name()})
 		end
 	end
 end)
@@ -270,7 +271,7 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 			if meta:get_string("is_activated") == "false" then
                 meta:set_string("is_activated", "true")
                 minetest.get_node_timer(pos):start(1)
-                
+
 				local handle = minetest.sound_play("multidecor_clock_ticking", {pos=pos, fade=1.0, max_hear_distance=10, loop=true})
 				meta:set_string("sound_handle", minetest.serialize(handle))
 			else

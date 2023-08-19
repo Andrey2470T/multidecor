@@ -42,7 +42,7 @@ end
 -- 'category_id': '0' - types, '1' - styles, '2' - materials
 function multidecor.register.category_contains(name, category_id)
 	local lookup_t
-	
+
 	if category_id == 0 then
 		lookup_t = multidecor.register.supported_types
 	elseif category_id == 1 then
@@ -50,7 +50,7 @@ function multidecor.register.category_contains(name, category_id)
 	elseif category_id == 2 then
 		lookup_t = multidecor.register.supported_materials
 	end
-	
+
 	for _, cat_name in ipairs(lookup_t) do
 		if cat_name == name then
 			return true
@@ -64,11 +64,11 @@ end
 -- 'category_id': '0' - types, '1' - styles, '2' - materials
 function multidecor.register.get_name_from_category(name, category_id)
 	local def = minetest.registered_nodes[name]
-	
+
 	local ret_cat = ""
-	
+
 	local lookup_t
-	
+
 	if category_id == 0 then
 		lookup_t = multidecor.register.supported_types
 	elseif category_id == 1 then
@@ -76,20 +76,20 @@ function multidecor.register.get_name_from_category(name, category_id)
 	elseif category_id == 2 then
 		lookup_t = multidecor.register.supported_materials
 	end
-	
+
 	for _, cat in ipairs(lookup_t) do
 		if def.groups[cat] then
 			ret_cat = cat
 		end
 	end
-	
+
 	return ret_cat
 end
 
 function multidecor.register.build_description(name, base_desc)
 	local style = multidecor.register.get_name_from_category(name, 1)
 	local material = multidecor.register.get_name_from_category(name, 2)
-	
+
 	return base_desc .. "\nStyle: " .. style .. (material ~= "" and "\nMaterial: " .. material or "")
 end
 
@@ -137,7 +137,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	assert(multidecor.register.category_contains(def.type, 0), "The type with a name \"" .. def.type .. "\" is not registered!")
 	assert(multidecor.register.category_contains(def.style, 1), "The style with a name \"" .. def.style .. "\" is not registered!")
 
-	f_def.description = def.description
+	f_def.description = multidecor.S(def.description)
 	f_def.visual_scale = def.visual_scale or 0.4
 	f_def.wield_scale = def.wield_scale or {x=0.5, y=0.5, z=0.5}
 	f_def.drawtype = def.drawtype or "mesh"
@@ -172,7 +172,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	elseif def.material == "plastic" then
 		f_def.groups.snappy = 1.5
 	end
-	
+
 	f_def.description = f_def.description .. "\nStyle: " .. def.style .. (def.material and "\nMaterial: " .. def.material or "")
 	if def.bounding_boxes then
 		if f_def.drawtype == "nodebox" then

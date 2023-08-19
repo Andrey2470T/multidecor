@@ -1,5 +1,7 @@
 multidecor = {}
 
+multidecor.S = minetest.get_translator("decor_api")
+
 local modpath = minetest.get_modpath("decor_api")
 
 dofile(modpath .. "/common_helpers.lua")
