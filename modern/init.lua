@@ -1,5 +1,6 @@
 local modpath = minetest.get_modpath("modern")
 
+dofile(modpath .. "/bathroom.lua")
 dofile(modpath .. "/bedroom.lua")
 dofile(modpath .. "/chairs.lua")
 dofile(modpath .. "/doors.lua")

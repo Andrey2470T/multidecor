@@ -13,10 +13,10 @@ multidecor.sitting = {}
 
 
 function multidecor.sitting.attach_player_to_node(attacher, seat_data)
+	attacher:set_physics_override({speed=0, jump=0})
 	attacher:set_pos(seat_data.pos)
 	attacher:set_look_vertical(seat_data.rot.x)
 	attacher:set_look_horizontal(seat_data.rot.y)
-	attacher:set_physics_override({speed=0, jump=0})
 
 	if seat_data.model then
 		player_api.set_model(attacher, seat_data.model)
@@ -126,3 +126,23 @@ function multidecor.sitting.standup_player(player, node_pos)
 
 	return true
 end
+
+multidecor.sitting.standard_model = "multidecor_character_sitting.b3d"
+
+player_api.register_model(multidecor.sitting.standard_model, {
+	animations = {
+		sit1 = {
+			x = 4,
+			y = 84
+		},
+		sit2 = {
+			x = 0,
+			y = 1
+		},
+		sit3 = {
+			x = 2,
+			y = 3,
+			is_near_block_required = true
+		}
+	}
+})
