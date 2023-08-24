@@ -11,7 +11,8 @@ multidecor.register.supported_types = {
 	"bed",
 	"light",
 	"hedge",
-	"decoration"
+	"decoration",
+	"curtain"
 }
 
 -- Default furniture styles

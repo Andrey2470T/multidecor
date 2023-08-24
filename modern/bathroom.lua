@@ -51,14 +51,14 @@ for _, tile in ipairs(ceramic_tiles) do
 		groups = {cracky=1.5},
 		sounds = default.node_sound_stone_defaults()
 	})
-	
+
 	local bathtub_with_shields_def = table.copy(bathtub_def)
 	bathtub_with_shields_def[1].description = "Bathtub With " .. upper_tile .. " Shields"
 	bathtub_with_shields_def[1].mesh = "multidecor_bathtub_with_shields.b3d"
 	table.insert(bathtub_with_shields_def[1].tiles, tex_name)
-	
+
 	multidecor.register.register_seat("bathtub_with_shields_" .. tile, bathtub_with_shields_def[1], bathtub_with_shields_def[2])
-	
+
 	multidecor.register.register_table("bathroom_washbasin_" .. tile, {
 		style = "modern",
 		material = "stone",
@@ -100,7 +100,7 @@ for _, tile in ipairs(ceramic_tiles) do
 			}
 		}
 	})
-	
+
 	multidecor.register.register_table("bathroom_wall_cabinet_" .. tile, {
 		style = "modern",
 		material = "wood",
@@ -136,7 +136,7 @@ for _, tile in ipairs(ceramic_tiles) do
 			}
 		}
 	})
-	
+
 	multidecor.register.register_table("bathroom_wall_set_with_mirror_" .. tile, {
 		style = "modern",
 		material = "wood",
@@ -224,6 +224,63 @@ multidecor.register.register_furniture_unit("toilet", {
 		{-0.35, -0.5, -0.4, 0.35, -0.1, 0.5},
 		{-0.35, -0.1, 0.4, 0.35, 0.5, 0.5}
 	}
+})
+
+multidecor.register.register_curtain("bathroom_curtain", {
+	style = "modern",
+	material = "plastic",
+	visual_scale = 0.5,
+	bounding_boxes = {
+		{-0.5, -0.5, -0.1, 0.5, 0.5, 0.1}
+	}
+},
+{
+	common_name = "bathroom_curtain",
+	curtains_data = {
+		sound = "multidecor_curtain_sliding",
+		curtain_with_rings = {
+			name = "bathroom_curtain_with_rings",
+			description = "Bathroom Curtain With Rings",
+			mesh = "multidecor_curtain_with_rings.b3d",
+			tiles = {"multidecor_cloth.png", "multidecor_metal_material.png"}
+		},
+		curtain = {
+			name = "bathroom_curtain",
+			description = "Bathroom Curtain",
+			mesh = "multidecor_curtain.b3d",
+			tiles = {"multidecor_cloth.png"}
+		}
+	}
+})
+
+multidecor.register.register_table("plastic_quadratic_cornice", {
+	style = "modern",
+	material = "plastic",
+	visual_scale = 0.5,
+	description = "Plastic Quadratic Cornice",
+	mesh = "multidecor_quadratic_cornice.b3d",
+	tiles = {"multidecor_plastic_material.png"},
+	groups = {hanger=1},
+	bounding_boxes = {
+		{-0.5, -0.45, -0.1, 0.5, -0.25, 0.1}
+	},
+	callbacks = {
+		on_construct = function(pos)
+			multidecor.connecting.update_adjacent_nodes_connection(pos, "directional")
+		end,
+		after_dig_node = function(pos, old_node)
+			multidecor.connecting.update_adjacent_nodes_connection(pos, "directional", true, old_node)
+		end
+	}
+},
+{
+	common_name = "plastic_quadratic_cornice",
+	connect_parts = {
+		["left_side"] = "multidecor_quadratic_cornice_1.b3d",
+		["right_side"] = "multidecor_quadratic_cornice_2.b3d",
+		["middle"] = "multidecor_quadratic_cornice_3.b3d",
+		["corner"] = "multidecor_quadratic_cornice_4.b3d"
+	},
 })
 
 multidecor.register.register_furniture_unit("bathroom_tap_with_cap_flap", {
