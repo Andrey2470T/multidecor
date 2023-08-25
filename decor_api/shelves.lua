@@ -490,7 +490,9 @@ multidecor.shelves.default_can_dig = function(pos)
 		local list_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", i, pos)
 		local inv = minetest.get_inventory({type="detached", name=inv_name})
 
-		is_all_empty = is_all_empty and inv:is_empty(list_name)
+		if inv then
+			is_all_empty = is_all_empty and inv:is_empty(list_name)
+		end
 	end
 
 	return is_all_empty

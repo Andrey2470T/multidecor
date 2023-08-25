@@ -32,6 +32,14 @@ local function book_save_meta_after_dig(pos, oldnode, oldmeta, drops)
 	end
 end
 
+local tile_bboxes = {
+	type = "wallmounted",
+	wall_top = {-0.5, 0.4, -0.5, 0.5, 0.5, 0.5},
+	wall_bottom = {-0.5, -0.5, -0.5, 0.5, -0.4, 0.5},
+	wall_side = {-0.5, -0.5, -0.5, -0.4, 0.5, 0.5}
+		
+}
+
 multidecor.register.register_furniture_unit("modern_floor_clock", {
 	type = "decoration",
 	style = "modern",
@@ -335,19 +343,48 @@ local floors_defs = {
 }
 
 for name, def in pairs(floors_defs) do
-	minetest.register_node(":multidecor:" .. name, {
-		description = def[1],
+	local tile_name = "multidecor:" .. name .. "_tile"
+	minetest.register_node(":" .. tile_name, {
+		description = def[1] .. " Tile",
+		drawtype = "nodebox",
+		visual_scale = 1.0,
+		paramtype = "light",
+		paramtype2 = "wallmounted",
+		tiles = {def[2]},
+		groups = {cracky=1.5},
+		node_box = tile_bboxes,
+		selection_box = tile_bboxes,
+		sounds = default.node_sound_wood_defaults()
+	})
+	
+	minetest.register_craft({
+		type = "shapeless",
+		output = tile_name,
+		recipe = def[3]
+	})
+	
+	local block_name = "multidecor:" .. name .. "_block"
+	minetest.register_node(":" .. block_name, {
+		description = def[1] .. " Block",
 		visual_scale = 0.5,
 		paramtype = "light",
 		paramtype2 = "facedir",
 		tiles = {def[2]},
-		groups = {choppy=1.5}
+		groups = {choppy=1.5},
+		sounds = default.node_sound_wood_defaults()
 	})
 
 	minetest.register_craft({
 		type = "shapeless",
-		output = "multidecor:" .. name,
-		recipe = def[3]
+		output = block_name,
+		recipe = {
+			tile_name,
+			tile_name,
+			tile_name,
+			tile_name,
+			tile_name,
+			tile_name
+		}
 	})
 end
 

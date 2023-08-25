@@ -12,6 +12,21 @@ function multidecor.helpers.get_dir(pos)
 	return dir
 end
 
+-- Rotates 'rel_pos' vertically relative to 'pos' of some node according to its facedir 
+function multidecor.helpers.rotate_to_node_dir(pos, rel_pos)
+	local dir = multidecor.helpers.get_dir(pos)
+	
+	if dir.x == 0 and dir.z == 0 then
+		return vector.zero()
+	end
+	
+	local rot_y = vector.dir_to_rotation(dir).y
+	
+	local new_rel_pos = vector.rotate_around_axis(rel_pos, vector.new(0, 1, 0), rot_y)
+	
+	return new_rel_pos
+end
+
 function multidecor.helpers.clamp(s, e, v)
 	local start_v = s
 	local end_v = e

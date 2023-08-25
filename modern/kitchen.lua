@@ -14,7 +14,15 @@ local sink_bboxes = {
 	{-0.5, 0.4, -0.5, 0.5, 0.5, -0.425}
 }
 
-local tap_pos = vector.new(0, 0.75, 0.05)
+local tile_bboxes = {
+	type = "wallmounted",
+	wall_top = {-0.5, 0.4, -0.5, 0.5, 0.5, 0.5},
+	wall_bottom = {-0.5, -0.5, -0.5, 0.5, -0.4, 0.5},
+	wall_side = {-0.5, -0.5, -0.5, -0.4, 0.5, 0.5}
+		
+}
+
+local tap_pos = vector.new(0, 0.75, -0.05)
 
 local cmpnts = {
 	["two_floor_drws"] = {
@@ -116,48 +124,15 @@ local cmpnts = {
 			{"multidecor:steel_sheet", "multidecor:hammer", "default:%s"}
 		},
 		callbacks = {
-			on_rightclick = function(pos, node, clicker)
-				local meta = minetest.get_meta(pos)
-
-				if meta:contains("water_stream_id") then
-					minetest.delete_particlespawner(tonumber(meta:get_string("water_stream_id")))
-					meta:set_string("water_stream_id", "")
-
-					local sound_handle = minetest.deserialize(meta:get_string("sound_handle"))
-					minetest.sound_stop(sound_handle)
-				else
-					local dir = minetest.facedir_to_dir(node.param2)
-					local yaw = vector.dir_to_rotation(dir).y
-
-					local rot_tap_pos = table.copy(tap_pos)
-					rot_tap_pos = vector.rotate_around_axis(rot_tap_pos, vector.new(0, 1, 0), yaw)
-					local id = minetest.add_particlespawner({
-						amount = 20,
-						time = 0,
-						collisiondetection = true,
-						object_collision = true,
-						texture = "multidecor_water_drop.png",
-						minpos = pos+rot_tap_pos+vector.new(-0.05, 0, -0.05),
-						maxpos = pos+rot_tap_pos+vector.new(0.05, 0, 0.05),
-						minvel = {x=0, y=-1, z=0},
-						maxvel = {x=0, y=-1, z=0},
-						minsize = 0.8,
-						maxsize = 2
-					})
-
-					meta:set_string("water_stream_id", tonumber(id))
-
-					local sound_handle = minetest.sound_play("multidecor_tap", {pos=pos, fade=1.0, max_hear_distance=12, loop=true})
-					meta:set_string("sound_handle", minetest.serialize(sound_handle))
-				end
+			on_construct = function(pos)
+				multidecor.shelves.set_shelves(pos)
+				multidecor.tap.register_water_stream(pos, tap_pos, 30, 2, "multidecor_tap", false)
+			end,
+			on_rightclick = function(pos)
+				multidecor.tap.toggle(pos)
 			end,
 			on_destruct = function(pos)
-				local meta = minetest.get_meta(pos)
-
-				if meta:contains("water_stream_id") then
-					minetest.delete_particlespawner(tonumber(meta:get_string("water_stream_id")))
-					minetest.sound_stop(minetest.deserialize(meta:get_string("sound_handle")))
-				end
+				multidecor.tap.off(pos)
 			end
 		}
 	},
@@ -917,8 +892,28 @@ local tiles = {
 }
 
 for name, def in pairs(tiles) do
-	minetest.register_node(":multidecor:" .. name, {
+	local tile_name = "multidecor:" .. name
+	minetest.register_node(":" .. tile_name, {
 		description = def[1],
+		drawtype = "nodebox",
+		visual_scale = 1.0,
+		paramtype = "light",
+		paramtype2 = "wallmounted",
+		tiles = {def[2]},
+		groups = {cracky=1.5},
+		node_box = tile_bboxes,
+		selection_box = tile_bboxes,
+		sounds = default.node_sound_stone_defaults()
+	})
+	
+	minetest.register_craft({
+		output = tile_name,
+		recipe = def[3]
+	})
+	
+	local block_name = "multidecor:" .. name .. "s_block"
+	minetest.register_node(":" .. block_name, {
+		description = def[1] .. "s Block",
 		visual_scale = 0.5,
 		paramtype = "light",
 		paramtype2 = "facedir",
@@ -928,8 +923,16 @@ for name, def in pairs(tiles) do
 	})
 
 	minetest.register_craft({
-		output = "multidecor:" .. name,
-		recipe = def[3]
+		type = "shapeless",
+		output = block_name,
+		recipe = {
+			tile_name,
+			tile_name,
+			tile_name,
+			tile_name,
+			tile_name,
+			tile_name
+		}
 	})
 end
 

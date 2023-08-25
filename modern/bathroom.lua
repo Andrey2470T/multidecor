@@ -10,6 +10,7 @@ local bathtub_def = {{
 		"multidecor_bathroom_leakage.png",
 		"multidecor_coarse_metal_material.png"
 	},
+	groups = {sink=1},
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 1.5, -0.1, 0.5},
 		{-0.5, -0.1, -0.35, -0.35, 0.5, 0.35},
@@ -38,12 +39,35 @@ local ceramic_tiles = {
 	"green_mosaic"
 }
 
+local tile_bboxes = {
+	type = "wallmounted",
+	wall_top = {-0.5, 0.4, -0.5, 0.5, 0.5, 0.5},
+	wall_bottom = {-0.5, -0.5, -0.5, 0.5, -0.4, 0.5},
+	wall_side = {-0.5, -0.5, -0.5, -0.4, 0.5, 0.5}
+		
+}
+
 for _, tile in ipairs(ceramic_tiles) do
-	local name = "bathroom_ceramic_" .. tile .. "_tile"
-	local tex_name = "multidecor_" .. name .. ".png"
+	local tile_name = "multidecor:bathroom_ceramic_" .. tile .. "_tile"
+	local tex_name = "multidecor_bathroom_ceramic_" .. tile .. "_tile.png"
 	local upper_tile = multidecor.helpers.upper_first_letters(tile)
-	minetest.register_node(":multidecor:" .. name, {
+	
+	minetest.register_node(":" .. tile_name, {
 		description = "Bathroom Ceramic " .. upper_tile .. " Tile",
+		drawtype = "nodebox",
+		visual_scale = 1.0,
+		paramtype = "light",
+		paramtype2 = "wallmounted",
+		tiles = {tex_name},
+		groups = {cracky=1.5},
+		node_box = tile_bboxes,
+		selection_box = tile_bboxes,
+		sounds = default.node_sound_stone_defaults()
+	})
+	
+	local block_name = "multidecor:bathroom_ceramic_" .. tile .. "_tiles_block"
+	minetest.register_node(":" .. block_name, {
+		description = "Bathroom Ceramic " .. upper_tile .. " Tiles Block",
 		visual_scale = 0.5,
 		paramtype = "light",
 		paramtype2 = "facedir",
@@ -72,14 +96,27 @@ for _, tile in ipairs(ceramic_tiles) do
 			"multidecor_bathroom_leakage.png",
 			tex_name,
 		},
+		groups = {sink=1},
 		bounding_boxes = {
-			{-0.5, -0.5, -0.25, 0.5, 0.5, 0.5}
+			{-0.375, -0.5, -0.075, 0.375, 0.25, 0.5},
+			{-0.5, 0.25, -0.4, -0.4, 0.5, 0.5}, 		-- left
+			{0.4, 0.25, -0.4, 0.5, 0.5, 0.5},			-- right
+			{-0.4, 0.25, -0.4, 0.4, 0.5, -0.2},			-- front
+			{-0.4, 0.25, 0.3, 0.4, 0.5, 0.5}			-- back
 		},
 		callbacks = {
 			on_construct = function(pos)
 				multidecor.shelves.set_shelves(pos)
+				
+				multidecor.tap.register_water_stream(pos, {x=0.0, y=0.65, z=-0.1}, 30, 2, "multidecor_tap", false)
 			end,
-			can_dig = multidecor.shelves.default_can_dig
+			can_dig = multidecor.shelves.default_can_dig,
+			on_rightclick = function(pos)
+				multidecor.tap.toggle(pos)
+			end,
+			on_destruct = function(pos)
+				multidecor.tap.off(pos)
+			end
 		}
 	},
 	{
@@ -199,6 +236,7 @@ multidecor.register.register_furniture_unit("bathroom_sink", {
 	visual_scale = 0.5,
 	description = "Bathroom Sink",
 	mesh = "multidecor_bathroom_sink.b3d",
+	groups = {sink=1},
 	tiles = {
 		"multidecor_marble_material.png",
 		"multidecor_metal_material.png",
@@ -291,7 +329,29 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_cap_flap", {
 	description = "Bathroom Tap With Cap Flap",
 	mesh = "multidecor_bathroom_tap_with_cap_flap.b3d",
 	tiles = {"multidecor_metal_material.png"},
-	bounding_boxes = {{-0.4, -0.2, 0.0, 0.4, 0.2, 0.5}}
+	bounding_boxes = {{-0.4, -0.2, 0.0, 0.4, 0.2, 0.5}},
+	callbacks = {
+		on_construct = function(pos)
+			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.2, z=0.0}, 30, 2, "multidecor_tap", true)
+			
+			minetest.get_node_timer(pos):start(1)
+		end,
+		on_rightclick = function(pos)
+			multidecor.tap.toggle(pos)
+		end,
+		on_destruct = function(pos)
+			multidecor.tap.off(pos)
+		end,
+		on_timer = function(pos, elapsed)
+			local down_node = minetest.get_node({x=pos.x, y=pos.y-1, z=pos.z})
+			
+			if multidecor.tap.is_on(pos) and minetest.get_item_group(down_node.name, "sink") ~= 1 then
+				multidecor.tap.off(pos)
+			end
+			
+			return true
+		end
+	}
 })
 
 multidecor.register.register_furniture_unit("bathroom_tap_with_side_flaps", {
@@ -302,7 +362,29 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_side_flaps", {
 	description = "Bathroom Tap With Side Flaps",
 	mesh = "multidecor_bathroom_tap_with_side_flaps.b3d",
 	tiles = {"multidecor_metal_material.png"},
-	bounding_boxes = {{-0.4, -0.2, 0.0, 0.4, 0.2, 0.5}}
+	bounding_boxes = {{-0.4, -0.2, 0.0, 0.4, 0.2, 0.5}},
+	callbacks = {
+		on_construct = function(pos)
+			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.3, z=0.0}, 30, 2, "multidecor_tap", true)
+			
+			minetest.get_node_timer(pos):start(1)
+		end,
+		on_rightclick = function(pos)
+			multidecor.tap.toggle(pos)
+		end,
+		on_destruct = function(pos)
+			multidecor.tap.off(pos)
+		end,
+		on_timer = function(pos, elapsed)
+			local down_node = minetest.get_node({x=pos.x, y=pos.y-1, z=pos.z})
+			
+			if multidecor.tap.is_on(pos) and minetest.get_item_group(down_node.name, "sink") ~= 1 then
+				multidecor.tap.off(pos)
+			end
+			
+			return true
+		end
+	}
 })
 
 multidecor.register.register_furniture_unit("bathroom_mirror", {
