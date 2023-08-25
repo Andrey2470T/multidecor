@@ -96,8 +96,11 @@ function multidecor.sitting.sit_player(player, node_pos)
 	player:get_meta():set_string("previous_player_data", minetest.serialize(prev_pdata))
 
 	local dir_rot = vector.dir_to_rotation(minetest.facedir_to_dir(node.param2))
+	local rot_seat_pos = vector.rotate_around_axis(
+		multidecor.helpers.rotate_to_node_dir(node_pos, seat_data.pos), vector.new(0, 1, 0), math.pi)
+	
 	multidecor.sitting.attach_player_to_node(player, {
-		pos = vector.add(node_pos, seat_data.pos),
+		pos = vector.add(node_pos, rot_seat_pos),
 		rot = vector.add(dir_rot, seat_data.rot),
 		model = seat_data.model,
 		anim = rand_anim
@@ -146,3 +149,19 @@ player_api.register_model(multidecor.sitting.standard_model, {
 		}
 	}
 })
+
+multidecor.sitting.default_on_construct = function(pos)
+	minetest.get_meta(pos):set_string("is_busy", "")
+end
+
+multidecor.sitting.default_on_destruct = function(pos)
+	multidecor.sitting.standup_player(minetest.get_player_by_name(minetest.get_meta(pos):get_string("is_busy")), pos)
+end
+
+multidecor.sitting.default_on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+	local bool = multidecor.sitting.sit_player(clicker, pos)
+
+	if not bool then
+		multidecor.sitting.standup_player(clicker, pos)
+	end
+end
