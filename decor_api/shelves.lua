@@ -45,7 +45,7 @@ function multidecor.shelves.rotate_shelf(pos, obj, is_drawer, side, move_dist, o
 		self.end_v = vector.add(pos, vector.add(rel_obj_pos, vector.multiply(dir, move_dist)))
 	else
 		local rot = vector.dir_to_rotation(dir)
-		if side == "centered" then
+		if side == "down" or side == "up" then
 			self.rotate_x = true
 			self.start_v = rot.x
 			self.end_v = rot.x+move_dist
@@ -103,7 +103,7 @@ function multidecor.shelves.build_formspec(pos, common_name, data, shelf_num, de
 	local fs =
 		("formspec_version[4]size[%f,%f]"):format(fs_size.w, fs_size.h) ..
 		("list[current_player;main;0.5,%f;8,4;]"):format(player_list_y)
-	
+
 	if detached then
 		fs = fs .. ("list[detached:%s;%s;%f,%f;%f,%f;]"):format(inv_name, list_name, list_x, list_y, list_w, list_h)
 	else
@@ -117,7 +117,7 @@ function multidecor.shelves.build_formspec(pos, common_name, data, shelf_num, de
 	if list_type == "cooker" then
 		fs = fs .. "image[0.5,1;1,1;multidecor_cooker_fire_off.png;]"
 	end
-		
+
 	return fs
 end
 
@@ -180,7 +180,7 @@ function multidecor.shelves.set_shelves(pos)
 			shelf_data,
 			i
 		)
-		
+
 		local obj = minetest.add_entity(vector.add(pos, shelf_data.pos), shelf_data.object, minetest.serialize({fs, {name=node.name, pos=pos}, 0, i}))
 
 		local move_dist
@@ -188,7 +188,7 @@ function multidecor.shelves.set_shelves(pos)
 		if shelf_data.type == "drawer" then
 			move_dist = 2/3*shelf_data.length
 		elseif shelf_data.type == "door" then
-			move_dist = (shelf_data.side == "left" or shelf_data.side == "centered") and -math.pi/2 or math.pi/2
+			move_dist = (shelf_data.side == "left" or shelf_data.side == "down") and -math.pi/2 or math.pi/2
 		elseif shelf_data.type == "sym_doors" then
 			move_dist = -math.pi/2
 		end

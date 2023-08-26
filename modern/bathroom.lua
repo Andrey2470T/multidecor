@@ -44,14 +44,14 @@ local tile_bboxes = {
 	wall_top = {-0.5, 0.4, -0.5, 0.5, 0.5, 0.5},
 	wall_bottom = {-0.5, -0.5, -0.5, 0.5, -0.4, 0.5},
 	wall_side = {-0.5, -0.5, -0.5, -0.4, 0.5, 0.5}
-		
+
 }
 
 for _, tile in ipairs(ceramic_tiles) do
 	local tile_name = "multidecor:bathroom_ceramic_" .. tile .. "_tile"
 	local tex_name = "multidecor_bathroom_ceramic_" .. tile .. "_tile.png"
 	local upper_tile = multidecor.helpers.upper_first_letters(tile)
-	
+
 	minetest.register_node(":" .. tile_name, {
 		description = "Bathroom Ceramic " .. upper_tile .. " Tile",
 		drawtype = "nodebox",
@@ -64,7 +64,7 @@ for _, tile in ipairs(ceramic_tiles) do
 		selection_box = tile_bboxes,
 		sounds = default.node_sound_stone_defaults()
 	})
-	
+
 	local block_name = "multidecor:bathroom_ceramic_" .. tile .. "_tiles_block"
 	minetest.register_node(":" .. block_name, {
 		description = "Bathroom Ceramic " .. upper_tile .. " Tiles Block",
@@ -108,8 +108,8 @@ for _, tile in ipairs(ceramic_tiles) do
 		callbacks = {
 			on_construct = function(pos)
 				multidecor.shelves.set_shelves(pos)
-				
-				multidecor.tap.register_water_stream(pos, {x=0.0, y=0.65, z=-0.1}, 30, 2, "multidecor_tap", false)
+
+				multidecor.tap.register_water_stream(pos, {x=0.0, y=0.65, z=-0.1}, {x=0.0, y=0.65, z=-0.1}, 30, 2, {x=0, y=-1, z=0}, "multidecor_tap", false)
 			end,
 			can_dig = multidecor.shelves.default_can_dig,
 			on_rightclick = function(pos)
@@ -278,7 +278,7 @@ multidecor.register.register_seat("toilet", {
 			local dir = multidecor.helpers.get_dir(pos)
 			local rel_pos_min = multidecor.helpers.rotate_to_node_dir(pos, vector.new(-0.125, -0.2, 0.05))
 			local rel_pos_max = multidecor.helpers.rotate_to_node_dir(pos, vector.new(0.125, -0.2, -0.175))
-			
+
 			minetest.add_particlespawner({
 				amount = 40,
 				time = 0.1,
@@ -297,7 +297,7 @@ multidecor.register.register_seat("toilet", {
 				minsize = 0.8,
 				maxsize = 1.5
 			})
-			
+
 			minetest.sound_play("multidecor_toilet_flush", {gain=1.0, pitch=1.0, pos=pos, max_hear_distance=15})
 		end
 	}
@@ -380,25 +380,13 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_cap_flap", {
 	bounding_boxes = {{-0.3, -0.1, 0.0, 0.3, 0.2, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
-			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.2, z=0.0}, 30, 2, "multidecor_tap", true)
-			
+			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.2, z=0.0}, {x=0.0, y=-0.2, z=0.0}, 30, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
+
 			minetest.get_node_timer(pos):start(1)
 		end,
-		on_rightclick = function(pos)
-			multidecor.tap.toggle(pos)
-		end,
-		on_destruct = function(pos)
-			multidecor.tap.off(pos)
-		end,
-		on_timer = function(pos, elapsed)
-			local down_node = minetest.get_node({x=pos.x, y=pos.y-1, z=pos.z})
-			
-			if multidecor.tap.is_on(pos) and minetest.get_item_group(down_node.name, "sink") ~= 1 then
-				multidecor.tap.off(pos)
-			end
-			
-			return true
-		end
+		on_rightclick = multidecor.tap.default_on_rightclick,
+		on_destruct = multidecor.tap.default_on_destruct,
+		on_timer = multidecor.tap.default_on_timer
 	}
 })
 
@@ -413,25 +401,56 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_side_flaps", {
 	bounding_boxes = {{-0.3, -0.2, 0.0, 0.3, 0.1, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
-			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.3, z=0.0}, 30, 2, "multidecor_tap", true)
-			
+			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.3, z=0.0}, {x=0.0, y=-0.3, z=0.0}, 30, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
+
 			minetest.get_node_timer(pos):start(1)
 		end,
-		on_rightclick = function(pos)
-			multidecor.tap.toggle(pos)
+		on_rightclick = multidecor.tap.default_on_rightclick,
+		on_destruct = multidecor.tap.default_on_destruct,
+		on_timer = multidecor.tap.default_on_timer
+	}
+})
+
+multidecor.register.register_furniture_unit("shower_head", {
+	type = "decoration",
+	style = "modern",
+	material = "metal",
+	visual_scale = 0.5,
+	description = "Shower Head",
+	mesh = "multidecor_shower_head.b3d",
+	tiles = {"multidecor_metal_material5.png", "multidecor_shower_head.png"},
+	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0.35, 0.5}},
+	callbacks = {
+		on_construct = function(pos)
+			multidecor.tap.register_water_stream(pos, {x=-0.15, y=0.05, z=-0.1}, {x=0.15, y=0.2, z=-0.1}, 40, 2,
+				vector.rotate_around_axis(vector.new(0, 1, 0), vector.new(1, 0, 0), -math.pi/3), "multidecor_tap", true)
+
+			minetest.get_node_timer(pos):start(1)
 		end,
-		on_destruct = function(pos)
-			multidecor.tap.off(pos)
+		on_rightclick = multidecor.tap.default_on_rightclick,
+		on_destruct = multidecor.tap.default_on_destruct,
+		on_timer = multidecor.tap.default_on_timer
+	}
+})
+
+multidecor.register.register_furniture_unit("crooked_shower_head", {
+	type = "decoration",
+	style = "modern",
+	material = "metal",
+	visual_scale = 0.5,
+	description = "Crooked Shower Head",
+	mesh = "multidecor_crooked_shower_head.b3d",
+	tiles = {"multidecor_coarse_metal_material.png", "multidecor_crooked_shower_head.png"},
+	bounding_boxes = {{-0.2, -0.3, -0.3, 0.2, 0.3, 0.5}},
+	callbacks = {
+		on_construct = function(pos)
+			multidecor.tap.register_water_stream(pos, {x=-0.25, y=-0.4, z=-0.25}, {x=0.25, y=-0.4, z=0.25}, 40, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
+
+			minetest.get_node_timer(pos):start(1)
 		end,
-		on_timer = function(pos, elapsed)
-			local down_node = minetest.get_node({x=pos.x, y=pos.y-1, z=pos.z})
-			
-			if multidecor.tap.is_on(pos) and minetest.get_item_group(down_node.name, "sink") ~= 1 then
-				multidecor.tap.off(pos)
-			end
-			
-			return true
-		end
+		on_rightclick = multidecor.tap.default_on_rightclick,
+		on_destruct = multidecor.tap.default_on_destruct,
+		on_timer = multidecor.tap.default_on_timer
 	}
 })
 
@@ -446,6 +465,51 @@ multidecor.register.register_furniture_unit("bathroom_mirror", {
 	bounding_boxes = {{-0.4, -0.5, 0.4, 0.4, 0.5, 0.5}}
 })
 
+multidecor.register.register_furniture_unit("toilet_paper_reel", {
+	type = "decoration",
+	style = "modern",
+	material = "plastic",
+	visual_scale = 0.5,
+	description = "Toilet Paper Reel",
+	mesh = "multidecor_toilet_paper_reel.b3d",
+	tiles = {"multidecor_metal_material5.png", "multidecor_wool_material.png"},
+	bounding_boxes = {{-0.3, -0.2, 0.0, 0.3, 0.2, 0.5}}
+})
+
+multidecor.register.register_furniture_unit("underwear_tank", {
+	type = "decoration",
+	style = "modern",
+	material = "plastic",
+	description = "Underwear Tank",
+	mesh = "multidecor_underwear_tank.b3d",
+	visual_scale = 0.5,
+	tiles = {"multidecor_shred.png"},
+	bounding_boxes = {{-0.4, -0.5, -0.3, 0.4, 0.35, 0.3}},
+	callbacks = {
+		on_construct = function(pos)
+			multidecor.shelves.set_shelves(pos)
+		end,
+		can_dig = multidecor.shelves.default_can_dig
+	},
+	add_properties = {
+		shelves_data = {
+			common_name = "underwear_tank",
+			{
+				type = "door",
+				object = "modern:underwear_tank_cover",
+				pos = {x=0, y=0.375, z=-0.3},
+				acc = 1,
+				inv_size = {w=5,h=4},
+				side = "up",
+				sounds = {
+					open = "multidecor_cabinet_door_open",
+					close = "multidecor_cabinet_door_close"
+				}
+			}
+		}
+	}
+})
+
 
 minetest.register_entity("modern:bathroom_washbasin_door", {
 	visual = "mesh",
@@ -455,7 +519,7 @@ minetest.register_entity("modern:bathroom_washbasin_door", {
 	use_texture_alpha = true,
 	physical = false,
 	backface_culling = false,
-	selectionbox = {-0.5, -0.53, 0, 0, 0.53, 0.075},
+	selectionbox = {-0.35, -0.3, -0.05, 0.0, 0.3, 0.0},
 	static_save = true,
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
@@ -471,7 +535,7 @@ minetest.register_entity("modern:bathroom_wall_cabinet_door", {
 	use_texture_alpha = true,
 	physical = false,
 	backface_culling = false,
-	selectionbox = {-0.5, -0.53, 0, 0, 0.53, 0.075},
+	selectionbox = {-0.5, -0.53, 0.0, 0, 0.53, 0.05},
 	static_save = true,
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
@@ -487,7 +551,22 @@ minetest.register_entity("modern:bathroom_wall_set_with_mirror_door", {
 	use_texture_alpha = true,
 	physical = false,
 	backface_culling = false,
-	selectionbox = {-0.5, -0.8, 0, 0, 0.7, 0.075},
+	selectionbox = {-0.35, -0.8, 0, 0, 0.7, 0.075},
+	static_save = true,
+	on_activate = multidecor.shelves.default_on_activate,
+	on_rightclick = multidecor.shelves.default_on_rightclick,
+	on_step = multidecor.shelves.default_door_on_step,
+	get_staticdata = multidecor.shelves.default_get_staticdata
+})
+
+minetest.register_entity("modern:underwear_tank_cover", {
+	visual = "mesh",
+	visual_size = {x=5, y=5, z=5},
+	mesh = "multidecor_underwear_tank_cover.b3d",
+	textures = {"multidecor_shred.png", "multidecor_metal_material.png"},
+	physical = false,
+	backface_culling = false,
+	selectionbox = {-0.4, 0.0, 0.05, 0.4, 0.15, 0.55},
 	static_save = true,
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,

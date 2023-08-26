@@ -94,6 +94,30 @@ multidecor.register.register_door("wooden_door", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
+multidecor.register.register_door("bathroom_door", {
+	style = "modern",
+	material = "wood",
+	visual_scale = 0.5,
+	description = "Bathroom Door",
+	mesh = "multidecor_bathroom_door.b3d",
+	tiles = {
+		"multidecor_white_pine_wood.png",
+		"multidecor_pine_wood2.png"
+	},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.35}}
+},
+{
+	door = {
+		mesh_open = "multidecor_bathroom_door_open.b3d",
+		mesh_activated = "multidecor_bathroom_door_activated.b3d",
+		vel = 100, -- degrees per sec
+		sounds = {
+			open = "multidecor_wooden_door_open",
+			close = "multidecor_wooden_door_close"
+		}
+	}
+})
+
 multidecor.register.register_door("pine_glass_door", {
 	style = "modern",
 	material = "wood",

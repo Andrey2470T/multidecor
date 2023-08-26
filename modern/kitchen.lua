@@ -19,7 +19,7 @@ local tile_bboxes = {
 	wall_top = {-0.5, 0.4, -0.5, 0.5, 0.5, 0.5},
 	wall_bottom = {-0.5, -0.5, -0.5, 0.5, -0.4, 0.5},
 	wall_side = {-0.5, -0.5, -0.5, -0.4, 0.5, 0.5}
-		
+
 }
 
 local tap_pos = vector.new(0, 0.75, -0.05)
@@ -126,7 +126,7 @@ local cmpnts = {
 		callbacks = {
 			on_construct = function(pos)
 				multidecor.shelves.set_shelves(pos)
-				multidecor.tap.register_water_stream(pos, tap_pos, 30, 2, "multidecor_tap", false)
+				multidecor.tap.register_water_stream(pos, tap_pos, tap_pos, 30, 2, {x=0, y=-1, z=0}, "multidecor_tap", false)
 			end,
 			on_rightclick = function(pos)
 				multidecor.tap.toggle(pos)
@@ -387,7 +387,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker", {
 				pos = {x=0, y=-0.35, z=0.4},
 				invlist_type = "cooker",
 				acc = 1,
-				side = "centered",
+				side = "down",
 				sounds = {
 					open = "multidecor_cabinet_door_open",
 					close = "multidecor_cabinet_door_close"
@@ -905,12 +905,12 @@ for name, def in pairs(tiles) do
 		selection_box = tile_bboxes,
 		sounds = default.node_sound_stone_defaults()
 	})
-	
+
 	minetest.register_craft({
 		output = tile_name,
 		recipe = def[3]
 	})
-	
+
 	local block_name = "multidecor:" .. name .. "s_block"
 	minetest.register_node(":" .. block_name, {
 		description = def[1] .. "s Block",
