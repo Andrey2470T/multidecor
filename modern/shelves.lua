@@ -1,30 +1,9 @@
-local shelf_on_construct = function(pos)
-	local meta = minetest.get_meta(pos)
-	local name = minetest.get_node(pos).name
-	local add_props = minetest.registered_nodes[name].add_properties
-	meta:set_string("formspec", multidecor.shelves.build_formspec(pos, name, add_props, 1, false))
-
-	local inv = minetest.get_inventory({type="node", pos=pos})
-	local list_name = multidecor.helpers.build_name_from_tmp(name, "list", 1, pos)
-	inv:set_size(list_name, add_props.inv_size.w*add_props.inv_size.h)
-	inv:set_width(list_name, add_props.inv_size.w)
-
-	inv:set_size("main", 8*4)
-	inv:set_width("main", 8)
-end
-
-local shelf_can_dig = function(pos)
-	local inv = minetest.get_inventory({type="node", pos=pos})
-
-	return inv:is_empty(multidecor.helpers.build_name_from_tmp(minetest.get_node(pos).name, "list", 1, pos))
-end
-
-
 for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 	wood_n = wood_n .. (wood_n ~= "" and wood_n ~= "jungle" and "_" or "")
 	local tex = "multidecor_" .. wood_n .. (wood_n == "jungle" and "_" or "") .. "wood.png^[sheet:2x2:0,0"
 
-	multidecor.register.register_table("modern_wooden_" .. wood_n .. "closed_shelf", {
+	local closed_shelf_name = "modern_wooden_" .. wood_n .. "closed_shelf"
+	multidecor.register.register_table(closed_shelf_name, {
 		style = "modern",
 		material = "wood",
 		drawtype = "nodebox",
@@ -38,12 +17,19 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 			{-0.5, 0.4, -0.5, 0.5, 0.5, 0.5}			-- Top side
 		},
 		callbacks = {
-			on_construct = shelf_on_construct,
-			can_dig = shelf_can_dig
+			on_construct = multidecor.shelves.default_on_construct,
+			on_rightclick = multidecor.shelves.default_on_node_rightclick,
+			can_dig = multidecor.shelves.default_can_dig,
+			on_receive_fields = multidecor.shelves.default_on_receive_fields
 		}
 	},
 	{
-		inv_size = {w=7, h=2}
+		shelves_data = {
+			common_name = closed_shelf_name,
+			{
+				inv_size = {w=7, h=2}
+			}
+		}
 	},
 	{
 		recipe = {
@@ -53,7 +39,8 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		}
 	})
 
-	multidecor.register.register_table("modern_wooden_" .. wood_n .. "closed_shelf_with_back", {
+	local closed_shelf_with_back_name = "modern_wooden_" .. wood_n .. "closed_shelf_with_back"
+	multidecor.register.register_table(closed_shelf_with_back_name, {
 		style = "modern",
 		material = "wood",
 		drawtype = "nodebox",
@@ -68,12 +55,19 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 			{-0.4, -0.4, 0.4, 0.4, 0.4, 0.5}			-- Back side
 		},
 		callbacks = {
-			on_construct = shelf_on_construct,
-			can_dig = shelf_can_dig
+			on_construct = multidecor.shelves.default_on_construct,
+			on_rightclick = multidecor.shelves.default_on_node_rightclick,
+			can_dig = multidecor.shelves.default_can_dig,
+			on_receive_fields = multidecor.shelves.default_on_receive_fields
 		}
 	},
 	{
-		inv_size = {w=7, h=2}
+		shelves_data = {
+			common_name = closed_shelf_with_back_name,
+			{
+				inv_size = {w=7, h=2}
+			}
+		}
 	},
 	{
 		recipe = {
@@ -159,12 +153,19 @@ multidecor.register.register_table("three_level_wooden_rack", {
 	mesh = "multidecor_three_level_wooden_rack.b3d",
 	tiles = {"multidecor_wood.png"},
 	callbacks = {
-		on_construct = shelf_on_construct,
-		can_dig = shelf_can_dig
+		on_construct = multidecor.shelves.default_on_construct,
+		on_rightclick = multidecor.shelves.default_on_node_rightclick,
+		can_dig = multidecor.shelves.default_can_dig,
+		on_receive_fields = multidecor.shelves.default_on_receive_fields
 	}
 },
 {
-	inv_size = {w=8, h=3}
+	shelves_data = {
+		common_name = "three_level_wooden_rack",
+		{
+			inv_size = {w=8, h=3}
+		}
+	}
 },
 {
 	recipe = {
