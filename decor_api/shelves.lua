@@ -182,7 +182,7 @@ multidecor.shelves.build_share_formspec = function(members)
 	
 	fs = fs .. table.concat({
 		"scroll_container_end[]",
-		"field[1,5.5;5,0.5;share_add_field;Enter name of member to add to the group;]",
+		"field[1,5.5;5,0.5;share_add_field;Enter name of player to add to the group;]",
 		"button[6,5.5;1,0.5;share_add_button;Add]"
 	})
 	

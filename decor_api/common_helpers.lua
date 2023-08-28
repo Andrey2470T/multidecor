@@ -59,3 +59,9 @@ function multidecor.helpers.build_name_from_tmp(name, type, i, pos)
 
 	return res
 end
+
+function table.copy_to(t1, t2)
+	for _, val in ipairs(t1) do
+		table.insert(t2, val)
+	end
+end

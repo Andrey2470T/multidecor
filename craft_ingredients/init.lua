@@ -259,6 +259,18 @@ minetest.register_craftitem(":multidecor:copper_and_zinc",
 	inventory_image = "multidecor_copper_and_zinc.png"
 })
 
+minetest.register_craftitem(":multidecor:marble_sheet",
+{
+	description = "Marble Sheet",
+	inventory_image = "multidecor_marble_sheet.png"
+})
+
+minetest.register_craftitem(":multidecor:syphon",
+{
+	description = "Syphon",
+	inventory_image = "multidecor_syphon.png"
+})
+
 minetest.register_craft({
 	output = "multidecor:cabinet_door",
 	recipe = {
@@ -502,6 +514,24 @@ minetest.register_craft({
 		{"multidecor:metal_wire", "multidecor:metal_wire", "multidecor:metal_wire"},
 		{"multidecor:metal_wire", "multidecor:metal_wire", "multidecor:metal_wire"},
 		{"multidecor:metal_wire", "multidecor:metal_wire", "multidecor:metal_wire"}
+	}
+})
+
+minetest.register_craft({
+	output = "multidecor:marble_sheet 5",
+	recipe = {
+		{"default:sandstone", "default:silver_sandstone", "default:coal_lump"},
+		{"", "", ""},
+		{"", "", ""}
+	}
+})
+
+minetest.register_craft({
+	output = "multidecor:syphon",
+	recipe = {
+		{"multidecor:steel_sheet", "multidecor:metal_bar", "multidecor:steel_scissors"},
+		{"", "", ""},
+		{"", "", ""}
 	}
 })
 

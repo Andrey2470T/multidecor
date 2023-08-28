@@ -263,7 +263,7 @@ multidecor.register.register_light("ceiling_round_lamp", {
 	material = "glass",
 	description = "Ceiling Round Lamp",
 	visual_scale = 0.5,
-	light_source = 8,
+	light_source = 12,
 	mesh = "multidecor_ceiling_round_lamp.b3d",
 	tiles = {"multidecor_ceiling_round_lamp.png"},
 	bounding_boxes = {{-0.375, 0.4, -0.375, 0.375, 0.5, 0.375}}
@@ -282,7 +282,7 @@ multidecor.register.register_light("ceiling_wooden_lamp", {
 	material = "glass",
 	description = "Ceiling Wooden Lamp",
 	visual_scale = 0.5,
-	light_source = 8,
+	light_source = 12,
 	mesh = "multidecor_ceiling_wooden_lamp.b3d",
 	tiles = {
 		"multidecor_jungle_wood.png",

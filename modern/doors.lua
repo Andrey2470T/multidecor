@@ -116,6 +116,14 @@ multidecor.register.register_door("bathroom_door", {
 			close = "multidecor_wooden_door_close"
 		}
 	}
+},
+{
+	recipe = {
+		{"multidecor:pine_board", "multidecor:pine_plank", "multidecor:pine_plank"},
+		{"multidecor:pine_board", "dye:white", "multidecor:saw"},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:saw", "multidecor:saw"}}
 })
 
 multidecor.register.register_door("pine_glass_door", {

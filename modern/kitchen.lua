@@ -121,7 +121,7 @@ local cmpnts = {
 		craft = {
 			{"multidecor:board", "multidecor:board", "multidecor:board"},
 			{"multidecor:board", "multidecor:cabinet_door", "multidecor:steel_sheet"},
-			{"multidecor:steel_sheet", "multidecor:hammer", "default:%s"}
+			{"multidecor:syphon", "multidecor:hammer", "default:%s"}
 		},
 		callbacks = {
 			on_construct = function(pos)

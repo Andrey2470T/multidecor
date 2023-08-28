@@ -28,15 +28,23 @@ local bathtub_def = {{
 	}
 }}
 
-multidecor.register.register_seat("bathtub", bathtub_def[1], bathtub_def[2])
+multidecor.register.register_seat("bathtub", bathtub_def[1], bathtub_def[2],
+{
+	recipe = {
+		{"multidecor:marble_sheet", "multidecor:marble_sheet", "multidecor:steel_sheet"},
+		{"multidecor:marble_sheet", "multidecor:marble_sheet", "multidecor:steel_sheet"},
+		{"multidecor:marble_sheet", "multidecor:hammer", ""}
+	},
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
+})
 
 local ceramic_tiles = {
-	"darkceladon",
-	"darksea",
-	"light",
-	"sand",
-	"red",
-	"green_mosaic"
+	{"darkceladon", {"dye:dark_green"}},
+	{"darksea", {"dye:blue"}},
+	{"light", {"dye:white", "dye:yellow"}},
+	{"sand", {"dye:yellow", "dye:grey"}},
+	{"red", {"dye:red"}},
+	{"green_mosaic", {"dye:green"}}
 }
 
 local tile_bboxes = {
@@ -48,9 +56,9 @@ local tile_bboxes = {
 }
 
 for _, tile in ipairs(ceramic_tiles) do
-	local tile_name = "multidecor:bathroom_ceramic_" .. tile .. "_tile"
-	local tex_name = "multidecor_bathroom_ceramic_" .. tile .. "_tile.png"
-	local upper_tile = multidecor.helpers.upper_first_letters(tile)
+	local tile_name = "multidecor:bathroom_ceramic_" .. tile[1] .. "_tile"
+	local tex_name = "multidecor_bathroom_ceramic_" .. tile[1] .. "_tile.png"
+	local upper_tile = multidecor.helpers.upper_first_letters(tile[1])
 
 	minetest.register_node(":" .. tile_name, {
 		description = "Bathroom Ceramic " .. upper_tile .. " Tile",
@@ -64,8 +72,17 @@ for _, tile in ipairs(ceramic_tiles) do
 		selection_box = tile_bboxes,
 		sounds = default.node_sound_stone_defaults()
 	})
+	
+	local recipe = {"default:clay_lump", "default:clay_lump"}
+	table.copy_to(tile[2], recipe)
+	
+	minetest.register_craft({
+		type = "shapeless",
+		output = tile_name,
+		recipe = recipe
+	})
 
-	local block_name = "multidecor:bathroom_ceramic_" .. tile .. "_tiles_block"
+	local block_name = "multidecor:bathroom_ceramic_" .. tile[1] .. "_tiles_block"
 	minetest.register_node(":" .. block_name, {
 		description = "Bathroom Ceramic " .. upper_tile .. " Tiles Block",
 		visual_scale = 0.5,
@@ -75,21 +92,34 @@ for _, tile in ipairs(ceramic_tiles) do
 		groups = {cracky=1.5},
 		sounds = default.node_sound_stone_defaults()
 	})
+	
+	minetest.register_craft({
+		type = "shapeless",
+		output = block_name,
+		recipe = {tile_name, tile_name, tile_name, tile_name, tile_name, tile_name}
+	})
 
 	local bathtub_with_shields_def = table.copy(bathtub_def)
 	bathtub_with_shields_def[1].description = "Bathtub With " .. upper_tile .. " Shields"
 	bathtub_with_shields_def[1].mesh = "multidecor_bathtub_with_shields.b3d"
 	table.insert(bathtub_with_shields_def[1].tiles, tex_name)
 
-	multidecor.register.register_seat("bathtub_with_shields_" .. tile, bathtub_with_shields_def[1], bathtub_with_shields_def[2])
+	multidecor.register.register_seat("bathtub_with_shields_" .. tile[1], 
+		bathtub_with_shields_def[1],
+		bathtub_with_shields_def[2],
+		{
+			type = "shapeless",
+			recipe = {"multidecor:bathtub", tile_name, tile_name}
+		}
+	)
 
-	multidecor.register.register_table("bathroom_washbasin_" .. tile, {
+	multidecor.register.register_table("bathroom_washbasin_" .. tile[1], {
 		style = "modern",
 		material = "stone",
 		description = "Bathroom Washbasin With " .. upper_tile .. " Doors",
 		mesh = "multidecor_bathroom_washbasin.b3d",
 		visual_scale = 0.5,
-		inventory_image = "multidecor_bathroom_" .. tile .. "_washbasin_inv.png",
+		inventory_image = "multidecor_bathroom_" .. tile[1] .. "_washbasin_inv.png",
 		tiles = {
 			"multidecor_marble_material.png",
 			"multidecor_metal_material.png",
@@ -122,7 +152,7 @@ for _, tile in ipairs(ceramic_tiles) do
 	},
 	{
 		shelves_data = {
-			common_name = "bathroom_washbasin_" .. tile,
+			common_name = "bathroom_washbasin_" .. tile[1],
 			{
 				type = "sym_doors",
 				pos = {x=0.35, y=-0.2, z=0.08},
@@ -137,16 +167,20 @@ for _, tile in ipairs(ceramic_tiles) do
 				}
 			}
 		}
+	},
+	{
+		type = "shapeless",
+		recipe = {"multidecor:bathroom_sink", tile_name, tile_name, tile_name, "multidecor:steel_sheet"}
 	})
 
-	multidecor.register.register_table("bathroom_wall_cabinet_" .. tile, {
+	multidecor.register.register_table("bathroom_wall_cabinet_" .. tile[1], {
 		style = "modern",
 		material = "wood",
 		description = "Bathroom Wall Cabinet With " .. upper_tile .. " Doors",
 		mesh = "multidecor_bathroom_wall_cabinet.b3d",
 		visual_scale = 0.5,
 		tiles = {"multidecor_white_pine_wood.png"},
-		inventory_image = "multidecor_bathroom_" .. tile .. "_wall_cabinet_inv.png",
+		inventory_image = "multidecor_bathroom_" .. tile[1] .. "_wall_cabinet_inv.png",
 		bounding_boxes = {
 			{-0.5, -0.5, -0.1, 0.5, 0.5, 0.5}
 		},
@@ -159,7 +193,7 @@ for _, tile in ipairs(ceramic_tiles) do
 	},
 	{
 		shelves_data = {
-			common_name = "bathroom_wall_cabinet_" .. tile,
+			common_name = "bathroom_wall_cabinet_" .. tile[1],
 			{
 				type = "sym_doors",
 				pos = {x=0.5, y=0, z=0.1},
@@ -174,9 +208,17 @@ for _, tile in ipairs(ceramic_tiles) do
 				}
 			}
 		}
+	},
+	{
+		recipe = {
+			{"multidecor:pine_board", "multidecor:pine_board", "multidecor:pine_board"},
+			{tile_name, "dye:white", "multidecor:steel_sheet"},
+			{"multidecor:saw", "", ""}
+		},
+		replacements = {{"multidecor:saw", "multidecor:saw"}}
 	})
 
-	multidecor.register.register_table("bathroom_wall_set_with_mirror_" .. tile, {
+	multidecor.register.register_table("bathroom_wall_set_with_mirror_" .. tile[1], {
 		style = "modern",
 		material = "wood",
 		visual_scale = 0.5,
@@ -190,7 +232,7 @@ for _, tile in ipairs(ceramic_tiles) do
 			"multidecor_bathroom_set.png",
 			"multidecor_shred.png"
 		},
-		inventory_image = "multidecor_bathroom_" .. tile .. "_wall_set_with_mirror_inv.png",
+		inventory_image = "multidecor_bathroom_" .. tile[1] .. "_wall_set_with_mirror_inv.png",
 		bounding_boxes = {{-0.5, -1.0, -0.125, 0.5, 0.5, 0.5}},
 		callbacks = {
 			on_construct = function(pos)
@@ -201,7 +243,7 @@ for _, tile in ipairs(ceramic_tiles) do
 	},
 	{
 		shelves_data = {
-			common_name = "bathroom_wall_set_with_mirror_" .. tile,
+			common_name = "bathroom_wall_set_with_mirror_" .. tile[1],
 			{
 				type = "door",
 				pos = {x=0.5, y=-0.25, z=0.05},
@@ -216,6 +258,14 @@ for _, tile in ipairs(ceramic_tiles) do
 				}
 			}
 		}
+	},
+	{
+		recipe = {
+			{"multidecor:pine_board", "multidecor:pine_board", "xpanes:pane_flat"},
+			{"multidecor:pine_plank", tile_name, "multidecor:plastic_sheet"},
+			{"multidecor:steel_sheet", "multidecor:saw", ""}
+		},
+		replacements = {{"multidecor:saw", "multidecor:saw"}}
 	})
 end
 
@@ -230,6 +280,12 @@ multidecor.register.register_furniture_unit("bathroom_fluffy_rug", {
 		"multidecor_fluff_material.png"
 	},
 	bounding_boxes = {{-0.45, -0.5, -0.3, 0.45, -0.4, 0.3}}
+},
+{
+	type = "shapeless",
+	recipe = {"multidecor:wool_cloth", "multidecor:wool_cloth", "multidecor:steel_scissors"},
+	count = 2,
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 multidecor.register.register_furniture_unit("bathroom_sink", {
@@ -253,6 +309,14 @@ multidecor.register.register_furniture_unit("bathroom_sink", {
 		{-0.4, 0.25, -0.4, 0.4, 0.5, -0.3},			-- front
 		{-0.4, 0.25, 0.4, 0.3, 0.5, 0.5}			-- back
 	}
+},
+{
+	recipe = {
+		{"multidecor:marble_sheet", "multidecor:marble_sheet", "multidecor:steel_sheet"},
+		{"multidecor:syphon", "multidecor:marble_sheet", "multidecor:hammer"},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
 
 multidecor.register.register_seat("toilet", {
@@ -309,6 +373,14 @@ multidecor.register.register_seat("toilet", {
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1"}
 	}
+},
+{
+	recipe = {
+		{"multidecor:marble_sheet", "multidecor:marble_sheet", "bucket:bucket_water"},
+		{"multidecor:marble_sheet", "multidecor:metal_bar", "multidecor:hammer"},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 }
 )
 
@@ -328,13 +400,29 @@ multidecor.register.register_curtain("bathroom_curtain", {
 			name = "bathroom_curtain_with_rings",
 			description = "Bathroom Curtain With Rings",
 			mesh = "multidecor_curtain_with_rings.b3d",
-			tiles = {"multidecor_cloth.png", "multidecor_metal_material.png"}
+			tiles = {"multidecor_cloth.png", "multidecor_metal_material.png"},
+			craft = {
+				recipe = {
+					{"multidecor:wool_cloth", "multidecor:metal_bar", "multidecor:steel_scissors"},
+					{"", "", ""},
+					{"", "", ""}
+				},
+				replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+			}
 		},
 		curtain = {
 			name = "bathroom_curtain",
 			description = "Bathroom Curtain",
 			mesh = "multidecor_curtain.b3d",
-			tiles = {"multidecor_cloth.png"}
+			tiles = {"multidecor_cloth.png"},
+			craft = {
+				recipe = {
+					{"multidecor:wool_cloth", "multidecor:steel_scissors", ""},
+					{"", "", ""},
+					{"", "", ""}
+				},
+				replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+			}
 		}
 	}
 })
@@ -367,6 +455,13 @@ multidecor.register.register_table("plastic_quadratic_cornice", {
 		["middle"] = "multidecor_quadratic_cornice_3.b3d",
 		["corner"] = "multidecor_quadratic_cornice_4.b3d"
 	},
+},
+{
+	recipe = {
+		{"multidecor:plastic_sheet", "multidecor:steel_scissors"}
+	},
+	count = 5,
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 multidecor.register.register_furniture_unit("bathroom_tap_with_cap_flap", {
@@ -388,6 +483,13 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_cap_flap", {
 		on_destruct = multidecor.tap.default_on_destruct,
 		on_timer = multidecor.tap.default_on_timer
 	}
+},
+{
+	recipe = {
+		{"multidecor:steel_sheet", "multidecor:metal_bar", "multidecor:steel_sheet"},
+		{"", "", ""},
+		{"", "", ""}
+	}
 })
 
 multidecor.register.register_furniture_unit("bathroom_tap_with_side_flaps", {
@@ -408,6 +510,13 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_side_flaps", {
 		on_rightclick = multidecor.tap.default_on_rightclick,
 		on_destruct = multidecor.tap.default_on_destruct,
 		on_timer = multidecor.tap.default_on_timer
+	}
+},
+{
+	recipe = {
+		{"multidecor:steel_sheet", "multidecor:metal_bar", "multidecor:metal_bar"},
+		{"", "", ""},
+		{"", "", ""}
 	}
 })
 
@@ -431,7 +540,25 @@ multidecor.register.register_furniture_unit("shower_head", {
 		on_destruct = multidecor.tap.default_on_destruct,
 		on_timer = multidecor.tap.default_on_timer
 	}
+},
+{
+	recipe = {
+		{"multidecor:metal_bar", "multidecor:plastic_sheet", ""},
+		{"", "", ""},
+		{"", "", ""}
+	}
 })
+
+local crooked_shower_head_recipe
+if minetest.get_modpath("technic_worldgen") then
+	crooked_shower_head_recipe = {
+		recipe = {
+			{"technic:cast_iron_ingot", "technic:cast_iron_ingot", "multidecor:plastic_sheet"},
+			{"technic:cast_iron_ingot", "", ""},
+			{"", "", ""}
+		}
+	}
+end
 
 multidecor.register.register_furniture_unit("crooked_shower_head", {
 	type = "decoration",
@@ -452,7 +579,8 @@ multidecor.register.register_furniture_unit("crooked_shower_head", {
 		on_destruct = multidecor.tap.default_on_destruct,
 		on_timer = multidecor.tap.default_on_timer
 	}
-})
+},
+crooked_shower_head_recipe)
 
 multidecor.register.register_furniture_unit("bathroom_mirror", {
 	type = "decoration",
@@ -463,6 +591,12 @@ multidecor.register.register_furniture_unit("bathroom_mirror", {
 	mesh = "multidecor_bathroom_mirror.b3d",
 	tiles = {"multidecor_gloss.png"},
 	bounding_boxes = {{-0.4, -0.5, 0.4, 0.4, 0.5, 0.5}}
+},
+{
+	type = "shapeless",
+	recipe = {"stairs:slab_glass", "multidecor:hammer"},
+	count = 2,
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
 
 multidecor.register.register_furniture_unit("toilet_paper_reel", {
@@ -474,7 +608,15 @@ multidecor.register.register_furniture_unit("toilet_paper_reel", {
 	mesh = "multidecor_toilet_paper_reel.b3d",
 	tiles = {"multidecor_metal_material5.png", "multidecor_wool_material.png"},
 	bounding_boxes = {{-0.3, -0.2, 0.0, 0.3, 0.2, 0.5}}
-})
+},
+{
+	recipe = {
+		{"default:paper", "default:paper", "default:paper"},
+		{"multidecor:metal_bar", "", ""},
+		{"", "", ""}
+	}
+}
+)
 
 multidecor.register.register_furniture_unit("underwear_tank", {
 	type = "decoration",
@@ -508,6 +650,13 @@ multidecor.register.register_furniture_unit("underwear_tank", {
 			}
 		}
 	}
+},
+{
+	recipe = {
+		{"multidecor:wool_cloth", "multidecor:wool_cloth", "dye:yellow"},
+		{"multidecor:wool_cloth", "multidecor:plastic_sheet", "dye:cyan"},
+		{"", "", ""}
+	}
 })
 
 
@@ -515,7 +664,7 @@ minetest.register_entity("modern:bathroom_washbasin_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_bathroom_washbasin_door.b3d",
-	textures = {"multidecor_" .. ceramic_tiles[1] .. ".png", "multidecor_metal_material.png"},
+	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
 	use_texture_alpha = true,
 	physical = false,
 	backface_culling = false,
@@ -531,7 +680,7 @@ minetest.register_entity("modern:bathroom_wall_cabinet_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_bathroom_wall_cabinet_door.b3d",
-	textures = {"multidecor_" .. ceramic_tiles[1] .. ".png", "multidecor_metal_material.png"},
+	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
 	use_texture_alpha = true,
 	physical = false,
 	backface_culling = false,
@@ -547,7 +696,7 @@ minetest.register_entity("modern:bathroom_wall_set_with_mirror_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_bathroom_wall_set_with_mirror_door.b3d",
-	textures = {"multidecor_" .. ceramic_tiles[1] .. ".png", "multidecor_metal_material.png"},
+	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
 	use_texture_alpha = true,
 	physical = false,
 	backface_culling = false,
