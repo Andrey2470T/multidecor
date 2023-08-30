@@ -616,10 +616,13 @@ multidecor.shelves.default_drawer_on_step = function(self, dtime)
 		return
 	end
 
+	local shift = vector.subtract(self.end_v, self.start_v)
+	local cur_shift = vector.subtract(self.object:get_pos(), self.start_v)
+	local shift_len = vector.length(shift)
+	local cur_shift_len = vector.length(cur_shift)
 	local target_pos = self.dir == 1 and self.end_v or self.start_v
-	local dist = vector.distance(self.object:get_pos(), target_pos)
-
-	if dist <= 0.05 then
+	
+	if cur_shift_len >= shift_len or cur_shift_len ~= 0 and vector.angle(shift, cur_shift) ~= 0 then
 		self.dir = 0
 		self.object:set_velocity(vector.zero())
 		self.object:set_pos(target_pos)
