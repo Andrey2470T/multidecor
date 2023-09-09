@@ -11,7 +11,7 @@ multidecor.register.register_seat("kitchen_modern_wooden_chair", {
 },
 {
 	seat_data = {
-		pos = {x=0.0, y=0.35, z=0.0},
+		pos = {x=0.0, y=0.3, z=0.0},
 		rot = {x=0, y=0, z=0},
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1"}
@@ -65,7 +65,7 @@ multidecor.register.register_seat("soft_modern_jungle_chair", {
 },
 {
 	seat_data = {
-		pos = {x=0.0, y=0.3, z=0.0},
+		pos = {x=0.0, y=0.2, z=0.0},
 		rot = {x=0, y=0, z=0},
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1"}
@@ -118,7 +118,7 @@ multidecor.register.register_seat("round_modern_metallic_stool", {
 },
 {
 	seat_data = {
-		pos = {x=0.0, y=0.4, z=0.0},
+		pos = {x=0.0, y=0.3, z=0.0},
 		rot = {x=0, y=0, z=0},
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1"}
@@ -149,7 +149,7 @@ multidecor.register.register_seat("armchair_with_wooden_legs", {
 },
 {
 	seat_data = {
-		pos = {x=0.0, y=0.2, z=0.0},
+		pos = {x=0.0, y=0.1, z=0.0},
 		rot = {x=0, y=0, z=0},
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1", "sit2", "sit3"}
@@ -194,7 +194,7 @@ multidecor.register.register_seat("sofa", {
 		["corner"] = "multidecor_modern_sofa_4.b3d"
 	},
 	seat_data = {
-		pos = {x=0.0, y=0.1, z=0.0},
+		pos = {x=0.0, y=-0.1, z=0.0},
 		rot = {x=0, y=0, z=0},
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1", "sit2", "sit3"}

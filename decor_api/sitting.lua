@@ -10,13 +10,18 @@
 	}
 ]]
 multidecor.sitting = {}
+multidecor.sitting.players_seats_objs = {}
 
 
 function multidecor.sitting.attach_player_to_node(attacher, seat_data)
+	
+	local seat = minetest.add_entity(seat_data.pos, "decor_api:seat_entity", "")
+	seat:set_rotation(seat_data.rot)
+	multidecor.sitting.players_seats_objs[attacher:get_player_name()] = seat
+
 	attacher:set_physics_override({speed=0, jump=0})
-	attacher:set_pos(seat_data.pos)
-	attacher:set_look_vertical(seat_data.rot.x)
-	attacher:set_look_horizontal(seat_data.rot.y)
+
+	attacher:set_attach(seat, "", {x=0, y=0, z=0}, {x=0, y=0, z=0}, true)
 
 	if seat_data.model then
 		player_api.set_model(attacher, seat_data.model)
@@ -27,6 +32,13 @@ end
 function multidecor.sitting.detach_player_from_node(detacher, prev_pdata)
 	if not prev_pdata then
 		return
+	end
+
+	local seat = multidecor.sitting.players_seats_objs[detacher:get_player_name()]
+
+	if seat then
+		detacher:set_detach()
+		seat:remove()
 	end
 
 	detacher:set_physics_override(prev_pdata.physics)
@@ -95,16 +107,17 @@ function multidecor.sitting.sit_player(player, node_pos)
 
 	player:get_meta():set_string("previous_player_data", minetest.serialize(prev_pdata))
 
-	local dir_rot = vector.dir_to_rotation(minetest.facedir_to_dir(node.param2))
-	local rot_seat_pos = vector.rotate_around_axis(
-		multidecor.helpers.rotate_to_node_dir(node_pos, seat_data.pos), vector.new(0, 1, 0), math.pi)
-	
-	multidecor.sitting.attach_player_to_node(player, {
-		pos = vector.add(node_pos, rot_seat_pos),
-		rot = vector.add(dir_rot, seat_data.rot),
+	local dir_rot = vector.dir_to_rotation(multidecor.helpers.get_dir(node_pos))
+	local rot_seat_pos = vector.rotate_around_axis(multidecor.helpers.rotate_to_node_dir(node_pos, seat_data.pos), vector.new(0, 1, 0), math.pi)
+
+	local data = {
+		pos = node_pos+rot_seat_pos,
+		rot = dir_rot+seat_data.rot,
 		model = seat_data.model,
 		anim = rand_anim
-	})
+	}
+
+	multidecor.sitting.attach_player_to_node(player, data)
 
 	minetest.get_meta(node_pos):set_string("is_busy", playername)
 
@@ -165,3 +178,18 @@ multidecor.sitting.default_on_rightclick = function(pos, node, clicker, itemstac
 		multidecor.sitting.standup_player(clicker, pos)
 	end
 end
+
+minetest.register_entity("decor_api:seat_entity", {
+	visual = "cube",
+	textures = {
+		"multidecor_transparency.png",
+		"multidecor_transparency.png",
+		"multidecor_transparency.png",
+		"multidecor_transparency.png",
+		"multidecor_transparency.png",
+		"multidecor_transparency.png"
+	},
+	use_texture_alpha = true,
+	physical = false,
+	pointable = false
+})

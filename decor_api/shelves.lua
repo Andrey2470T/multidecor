@@ -124,9 +124,9 @@ function multidecor.shelves.build_main_formspec(pos, common_name, data, shelf_nu
 	if show_lock_btns then
 		local lock_img_name = locked and "multidecor_unlock_icon.png" or "multidecor_lock_icon.png"
 		local lock_name = locked and "unlock_button" or "lock_button"
-		local lock_tooltip = locked and "Unlock Shelf\n(do it accessible by everyone)" or 
+		local lock_tooltip = locked and "Unlock Shelf\n(do it accessible by everyone)" or
 			"Lock Shelf\n(do it accessible only by you and everyone from the share group)"
-			
+
 		fs = fs .. ("image_button[%f,0.5;1,1;%s;%s;]"):format(fs_size.w-padding, lock_img_name, lock_name) ..
 			("tooltip[%s;%s]"):format(lock_name, lock_tooltip)
 
@@ -141,17 +141,15 @@ end
 
 multidecor.shelves.build_share_formspec = function(members)
 	local steps_c
-	
+
 	if #members <= 3 then
-		minetest.debug("members count is less than 3")
 		steps_c = 0
 	else
-		minetest.debug("members count is more than 3")
 		steps_c = math.ceil((#members-3)+(#members-2)*0.25)
 	end
-	
+
 	steps_c = steps_c / 0.1
-	
+
 	local fs = table.concat({
 		"formspec_version[4]size[8,6.5]",
 		"image_button[7.25,0.25;0.5,0.5;multidecor_remove_icon.png;share_close_button;]",
@@ -160,46 +158,45 @@ multidecor.shelves.build_share_formspec = function(members)
 		"scrollbar[7.3,1;0.2,4;vertical;share_scrlbar;]",
 		"scroll_container[0.25,1;7,4;share_scrlbar;vertical]"
 	})
-	
+
 	local cur_h = 0.25
 	for _, member in ipairs(members) do
 		local player = minetest.get_player_by_name(member)
-		
+
 		local member_img = ""
 		if player then
 			member_img = player:get_properties().textures[1] .. "^[sheet:8x4:1,1"
-			minetest.debug("member_img: " .. member_img)
 		end
-		
+
 		fs = fs .. table.concat({
 			("image[0.25,%f;1,1;%s;]"):format(cur_h, member_img),
 			("label[2.25,%f;%s]"):format(cur_h+0.25, member),
 			("image_button[5.75,%f;0.5,0.5;multidecor_remove_icon.png;share_remove_%s;]"):format(cur_h, member)
 		})
-		
+
 		cur_h = cur_h + 1.25
 	end
-	
+
 	fs = fs .. table.concat({
 		"scroll_container_end[]",
 		"field[1,5.5;5,0.5;share_add_field;Enter name of player to add to the group;]",
 		"button[6,5.5;1,0.5;share_add_button;Add]"
 	})
-	
+
 	return fs
 end
 
 multidecor.shelves.build_infotext = function(lock_info)
 	local infotext = ""
-	
+
 	if lock_info then
 		infotext = "Owned by " .. lock_info.owner .. "\nShare group:\n"
-		
+
 		for _, member in ipairs(lock_info.share) do
 			infotext = infotext .. "\t" .. member .. "\n"
 		end
 	end
-	
+
 	return infotext
 end
 
@@ -326,11 +323,11 @@ end
 multidecor.shelves.show_lock_buttons = function(lock_info, playername)
 	local show = true
 	local has_access = multidecor.shelves.has_access(lock_info, playername)
-	
+
 	if has_access and lock_info and lock_info.owner ~= playername then
 		show = false
 	end
-	
+
 	return show
 end
 
@@ -378,7 +375,7 @@ multidecor.shelves.create_detached_inventory = function(pos, shelf_i, shelves_da
 
 					local meta = minetest.get_meta(pos)
 					local cook_data = {output, 0, total_time, 0}
-					
+
 					if obj then
 						local self = obj:get_luaentity()
 						self.cook_info = cook_data
@@ -516,13 +513,13 @@ end
 
 local function cook_step(pos, shelf_i, lock_info, dtime, obj)
 	local cook_info
-	
+
 	if obj then
 		cook_info = obj:get_luaentity().cook_info
 	else
 		cook_info = minetest.deserialize(minetest.get_meta(pos):get_string("cook_info"))
 	end
-	
+
 	if not cook_info then
 		return
 	end
@@ -543,16 +540,15 @@ local function cook_step(pos, shelf_i, lock_info, dtime, obj)
 	local time_elapsed = cook_info[2] >= cook_info[3]
 	local is_empty = inv:is_empty(inv_list)
 	if is_empty or time_elapsed then
-		minetest.debug("list empty")
 		if time_elapsed then
 			local output = ItemStack(cook_info[1].item.name)
 			output:set_count(cook_info[1].item.count)
 			output:set_wear(cook_info[1].item.wear)
 			inv:set_stack(inv_list, 1, output)
 		end
-		
+
 		cook_info[4] = 0
-		
+
 		if obj then
 			obj:get_luaentity().cook_info = nil
 		else
@@ -621,7 +617,7 @@ multidecor.shelves.default_drawer_on_step = function(self, dtime)
 	local shift_len = vector.length(shift)
 	local cur_shift_len = vector.length(cur_shift)
 	local target_pos = self.dir == 1 and self.end_v or self.start_v
-	
+
 	if cur_shift_len >= shift_len or cur_shift_len ~= 0 and vector.angle(shift, cur_shift) ~= 0 then
 		self.dir = 0
 		self.object:set_velocity(vector.zero())
@@ -654,14 +650,13 @@ multidecor.shelves.default_on_construct = function(pos)
 	meta:set_string("connected_to", minetest.serialize({pos=pos,name=node.name}))
 	meta:set_string("inv_list", minetest.serialize({}))
 	local shelves_data = minetest.registered_nodes[node.name].add_properties.shelves_data
-	minetest.debug("shelves_data: " .. dump(shelves_data))
-	
+
 	multidecor.shelves.create_detached_inventory(pos, 1, shelves_data)
 end
 
 multidecor.shelves.default_on_node_rightclick = function(pos, node, clicker)
 	local playername = clicker:get_player_name()
-	
+
 	local meta = minetest.get_meta(pos)
 	local lock_info = minetest.deserialize(meta:get_string("lock_info"))
 	local has = multidecor.shelves.has_access(lock_info, playername)
@@ -694,12 +689,12 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 
 	local playername = player:get_player_name()
 	local connected_to, shelf_i, lock_info, cook_info
-	
+
 	local shelf = open_shelves[playername]
-		
+
 	if shelf then
 		local self = shelf:get_luaentity()
-		
+
 		if not self then return end
 		connected_to = self.connected_to
 		shelf_i = self.shelf_data_i
@@ -707,22 +702,22 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 		cook_info = self.cook_info
 	else
 		shelf = vector.from_string(player:get_meta():get_string("open_shelf"))
-		
+
 		if not shelf then return end
-		
+
 		local meta = minetest.get_meta(shelf)
 		connected_to = minetest.deserialize(meta:get_string("connected_to"))
 		shelf_i = 1
 		lock_info = minetest.deserialize(meta:get_string("lock_info"))
 		cook_info = minetest.deserialize(meta:get_string("cook_info"))
 	end
-	
+
 	local shelves_data = minetest.registered_nodes[connected_to.name].add_properties.shelves_data
 	if fields.quit == "true" then
 		local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", shelf_i, connected_to.pos)
 		local inv = minetest.get_inventory({type="detached", name=inv_name})
 		local list = inv:get_list(multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", shelf_i, connected_to.pos))
-		
+
 		open_shelves[playername] = nil
 
 		local inv_list = {}
@@ -739,12 +734,12 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 			player:get_meta():set_string("open_shelf", "")
 			minetest.get_meta(shelf):set_string("inv_list", minetest.serialize(inv_list))
 		end
-		
+
 		return true
 	end
 
 	local fs_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "fs", shelf_i, connected_to.pos)
-	
+
 	if fields.lock_button or fields.unlock_button then
 		local new_fs = multidecor.shelves.build_main_formspec(
 			connected_to.pos,
@@ -755,7 +750,7 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 			true,
 			cook_info and cook_info[4] or 0.0
 		)
-		
+
 		if fields.lock_button then
 			lock_info = {
 				owner = playername,
@@ -764,7 +759,7 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 		else
 			lock_info = nil
 		end
-		
+
 		local infotext = multidecor.shelves.build_infotext(lock_info)
 		if type(shelf) == "userdata" then
 			local self = shelf:get_luaentity()
@@ -777,18 +772,18 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 		end
 
 		minetest.show_formspec(playername, fs_name, new_fs)
-		
+
 		return true
 	end
-	
+
 	if fields.share_button then
 		local new_fs = multidecor.shelves.build_share_formspec(lock_info.share)
-		
+
 		minetest.show_formspec(playername, fs_name, new_fs)
-		
+
 		return true
 	end
-	
+
 	if fields.share_close_button then
 		local new_fs = multidecor.shelves.build_main_formspec(
 			connected_to.pos,
@@ -799,15 +794,15 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 			true,
 			cook_info and cook_info[4] or 0.0
 		)
-		
+
 		minetest.show_formspec(playername, fs_name, new_fs)
-		
+
 		return true
 	end
-	
+
 	if fields.share_add_button then
 		table.insert(lock_info.share, fields.share_add_field)
-		
+
 		local infotext = multidecor.shelves.build_infotext(lock_info)
 		if type(shelf) == "userdata" then
 			local self = shelf:get_luaentity()
@@ -817,18 +812,18 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 			meta:set_string("infotext", infotext)
 			meta:set_string("lock_info", minetest.serialize(lock_info))
 		end
-		
+
 		local new_fs = multidecor.shelves.build_share_formspec(lock_info.share)
-		
+
 		minetest.show_formspec(playername, fs_name, new_fs)
-		
+
 		return true
 	end
-	
+
 	for i, member in ipairs(lock_info.share) do
 		if fields["share_remove_" .. member] then
 			table.remove(lock_info.share, i)
-			
+
 			local infotext = multidecor.shelves.build_infotext(lock_info)
 			if type(shelf) == "userdata" then
 				local self = shelf:get_luaentity()
@@ -838,11 +833,11 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 				meta:set_string("infotext", infotext)
 				meta:set_string("lock_info", minetest.serialize(lock_info))
 			end
-		
+
 			local new_fs = multidecor.shelves.build_share_formspec(lock_info.share)
-		
+
 			minetest.show_formspec(playername, fs_name, new_fs)
-		
+
 			return true
 		end
 	end

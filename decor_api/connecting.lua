@@ -90,7 +90,13 @@ function multidecor.connecting.replace_node_to(pos, disconnect, cmn_name)
 	minetest.set_node(pos, {name="multidecor:" .. add_props.common_name .. target_node, param2=param2})
 end
 
-function multidecor.connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_name)
+-- Replaces the current sofa part at 'pos' position depending on the adjacent sofas parts.
+-- 'pos' - position of the replacing sofa.
+-- 'dir' - the face direction that the placed/destructed sofa part has.
+-- 'side' - "left"/"right".
+-- 'disconnect' - sofas should be disconnected or connected?
+-- 'cmn_name' - common name.
+function multidecor.connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_name, is_corner)
 	local node = minetest.get_node(pos)
 	local def = minetest.registered_nodes[node.name]
 	local add_props = def.add_properties
@@ -104,82 +110,114 @@ function multidecor.connecting.directional_replace_node_to(pos, dir, side, disco
 	if add_props.common_name ~= cmn_name then
 		return
 	end
-
-	local left_dir
-	local right_dir
+	
+	local parts = add_props.connect_parts
 
 	local dir_rot = math.deg(vector.dir_to_rotation(dir).y)
-	local dir_rot2 = math.deg(vector.dir_to_rotation(multidecor.helpers.get_dir(pos)).y)
-
-	local is_left_corner
-	local is_right_corner
-
-	if disconnect then
-		is_left_corner = add_props.connect_parts.corner == def.mesh and side == "right" and
-				math.abs(dir_rot-90) == math.abs(dir_rot2)
-		is_right_corner = add_props.connect_parts.corner == def.mesh and side == "left" and
-				dir_rot == dir_rot2
-
-		if is_left_corner then
-			dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, -math.pi/2)
-		elseif is_right_corner then
-			dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi/2)
-		end
-	else
-		is_left_corner = add_props.connect_parts.left_side == def.mesh and side == "right" and
-				math.abs(dir_rot-90) == math.abs(dir_rot2)
-		is_right_corner = add_props.connect_parts.right_side == def.mesh and side == "left" and
-				math.abs(dir_rot+90) == math.abs(dir_rot2)
-
-		if is_left_corner then
-			right_dir = dir
-		elseif is_right_corner then
-			left_dir = dir
-		end
+	local cur_dir = multidecor.helpers.get_dir(pos)
+	local dir_rot2 = math.deg(vector.dir_to_rotation(cur_dir).y)
+	
+	if dir_rot == 180 and dir_rot2 == -90 then
+		dir_rot2 = 270
 	end
+	
+	-- The left and right adjacent sofa parts should have the same face dir to be connected/disconnected, but there are six exceptions below
+	local is_right_side = not disconnect and parts.right_side == def.mesh and side == "left" and
+		math.abs(dir_rot+90) == math.abs(dir_rot2)
 
-	left_dir = left_dir or vector.rotate_around_axis(dir, {x=0, y=1, z=0}, -math.pi/2)
-	right_dir = right_dir or vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi/2)
+	local is_left_side = not disconnect and parts.left_side == def.mesh and side == "right" and
+		math.abs(dir_rot-90) == math.abs(dir_rot2)
 
-	local left_pos = pos+left_dir
-	local right_pos = pos+right_dir
+	local is_left_corner = disconnect and parts.corner == def.mesh and side == "right" and
+		math.abs(dir_rot-90) == math.abs(dir_rot2)
 
-	local target_node = ""
+	local is_right_corner = disconnect and parts.corner == def.mesh and side == "left" and
+		math.abs(dir_rot) == math.abs(dir_rot2)
+		
+	local is_corner_1 = is_corner and (parts.middle == def.mesh or parts.left_side == def.mesh) and side == "left" and
+		math.abs(dir_rot+90) == math.abs(dir_rot2)
+		
+	local is_corner_2 = is_corner and (parts.middle == def.mesh or parts.right_side == def.mesh) and side == "right" and
+		math.abs(dir_rot) == math.abs(dir_rot2)
+
+	if dir_rot ~= dir_rot2 and not is_right_side and not is_left_side and 
+		not is_left_corner and not is_right_corner and not is_corner_1 and not is_corner_2 then return end
+
+	local target_part
 	local rel_rot = 0
+	local t_dir = dir
 
-	if multidecor.connecting.are_nodes_identical(left_pos, pos) then
-		if is_left_corner then
-			target_node = "corner"
-			rel_rot = -math.pi/2
-		else
-			target_node = "right_side"
+	if dir_rot ~= dir_rot2 or is_right_corner then
+		local adj_pos = pos + dir
+		local is_adj_node_identical = multidecor.connecting.are_nodes_identical(adj_pos, pos)
+
+		if is_adj_node_identical then
+			if is_left_corner then
+				target_part = "_left_side"
+				rel_rot = -math.pi/2
+			elseif is_right_corner then
+				target_part = "_right_side"
+				rel_rot = math.pi/2
+			elseif is_left_side then
+				target_part = "_corner"
+				rel_rot = -math.pi/2
+			elseif is_right_side then
+				target_part = "_corner"
+				rel_rot = 0
+			end
 		end
 	end
 
-	if multidecor.connecting.are_nodes_identical(right_pos, pos) then
-		if is_right_corner then
-			target_node = "corner"
-		elseif target_node == "" then
-			target_node = "left_side"
-		elseif target_node == "right_side" then
-			target_node = "middle"
+	-- true if the adjacent sofa parts are co-directional yet
+	if not target_part then
+		target_part = ""
+		rel_rot = 0
+		t_dir = cur_dir
+		local left_pos = pos + vector.rotate_around_axis(cur_dir, vector.new(0, 1, 0), -math.pi/2)
+		local right_pos = pos + vector.rotate_around_axis(cur_dir, vector.new(0, 1, 0), math.pi/2)
+
+		local is_left_node_identical = multidecor.connecting.are_nodes_identical(left_pos, pos)
+		local is_right_node_identical = multidecor.connecting.are_nodes_identical(right_pos, pos)
+
+		if is_left_node_identical then
+			local is_left_node_codir = multidecor.connecting.are_nodes_codirectional(left_pos, pos)
+			local left_node_def = minetest.registered_nodes[minetest.get_node(left_pos).name]
+			local is_left_node_corner = left_node_def.add_properties.connect_parts.corner == left_node_def.mesh
+
+			if is_left_node_codir or is_left_node_corner then
+				target_part = "_right_side"
+			end
+		end
+
+		if is_right_node_identical then
+			local is_right_node_codir = multidecor.connecting.are_nodes_codirectional(right_pos, pos)
+			local right_node_def = minetest.registered_nodes[minetest.get_node(right_pos).name]
+			local is_right_node_corner = right_node_def.add_properties.connect_parts.corner == right_node_def.mesh
+
+			if is_right_node_codir or is_right_node_corner then
+				if target_part ~= "" then
+					target_part = "_middle"
+				else
+					target_part = "_left_side"
+				end
+			end
 		end
 	end
 
-	target_node = target_node ~= "" and "_" .. target_node or ""
-
-	if not disconnect and target_node == "" then
+	if not disconnect and target_part == "" then
 		return
 	end
-	local param2 = minetest.dir_to_facedir(vector.rotate_around_axis(dir, {x=0, y=1, z=0}, rel_rot)*-1)
-	minetest.set_node(pos, {name="multidecor:" .. add_props.common_name .. target_node, param2=param2})
+
+	local rot_dir = vector.rotate_around_axis(t_dir, vector.new(0, 1, 0), rel_rot)
+	local param2 = minetest.dir_to_facedir(rot_dir*-1)
+	minetest.set_node(pos, {name="multidecor:" .. add_props.common_name .. target_part, param2=param2})
 end
 
 -- Connects or disconnects adjacent nodes around 'pos' position.
 -- If the identical table node was set at 'pos' as surrounding, connect them. On destroying it, disconnect.
--- *type* can be "horizontal", "vertical", "pair", "sofa"
+-- 'type' - "horizontal", "vertical", "pair", "sofa"
 function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_node)
-	local node = minetest.get_node(pos)
+	local node = disconnect and old_node or minetest.get_node(pos)
 
 	if not disconnect then
 		local add_props = minetest.registered_nodes[node.name].add_properties
@@ -199,7 +237,7 @@ function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disco
 			pos + vector.new(0, 0, -1)
 		}
 
-		local cmn_name = minetest.registered_nodes[disconnect and old_node.name or node.name].add_properties.common_name
+		local cmn_name = minetest.registered_nodes[node.name].add_properties.common_name
 		for _, s in ipairs(shifts) do
 			multidecor.connecting.replace_node_to(s, disconnect, cmn_name)
 		end
@@ -238,6 +276,7 @@ function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disco
 			minetest.set_node(right, {name="multidecor:" .. add_props.common_name, param2=minetest.dir_to_facedir(dir)})
 		end
 	elseif type == "directional" then
+		local def = minetest.registered_nodes[node.name]
 		local dir
 
 		if disconnect then
@@ -246,15 +285,24 @@ function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disco
 			dir = multidecor.helpers.get_dir(pos)
 		end
 
-		local left = pos+vector.rotate_around_axis(dir, {x=0, y=1, z=0}, -math.pi/2)
+		local left_shift = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, -math.pi/2)
+		--local left_dir = dir
+		--local right_dir = dir
+		local corner = false
+		if disconnect and def.add_properties.connect_parts.corner == def.mesh then
+			left_shift = dir
+			corner = true
+			--left_dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi/2)
+		end
+		local left = pos+left_shift
 		local right = pos+vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi/2)
 
-		local cmn_name = minetest.registered_nodes[disconnect and old_node.name or node.name].add_properties.common_name
-		multidecor.connecting.directional_replace_node_to(left, dir, "left", disconnect, cmn_name)
-		multidecor.connecting.directional_replace_node_to(right, dir, "right", disconnect, cmn_name)
+		local cmn_name = def.add_properties.common_name
+		multidecor.connecting.directional_replace_node_to(left, dir, "left", disconnect, cmn_name, corner)
+		multidecor.connecting.directional_replace_node_to(right, dir, "right", disconnect, cmn_name, corner)
 
 		if not disconnect then
-			multidecor.connecting.directional_replace_node_to(pos, dir, nil, nil, cmn_name)
+			multidecor.connecting.directional_replace_node_to(pos, dir, nil, nil, cmn_name, corner)
 		end
 	end
 end

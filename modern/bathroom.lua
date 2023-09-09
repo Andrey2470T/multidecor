@@ -21,8 +21,8 @@ local bathtub_def = {{
 },
 {
 	seat_data = {
-		pos = {x=0.8, y=0.2, z=0.0},
-		rot = {x=0, y=0, z=0},
+		pos = {x=1.0, y=0.1, z=0.0},
+		rot = {x=0, y=-math.pi/2, z=0},
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1", "sit2"}
 	}
