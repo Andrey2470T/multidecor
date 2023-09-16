@@ -673,7 +673,8 @@ minetest.register_entity("modern:bathroom_washbasin_door", {
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
 	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata
+	get_staticdata = multidecor.shelves.default_get_staticdata,
+	on_deactivate = multidecor.shelves.default_on_deactivate
 })
 
 minetest.register_entity("modern:bathroom_wall_cabinet_door", {
@@ -689,7 +690,8 @@ minetest.register_entity("modern:bathroom_wall_cabinet_door", {
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
 	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata
+	get_staticdata = multidecor.shelves.default_get_staticdata,
+	on_deactivate = multidecor.shelves.default_on_deactivate
 })
 
 minetest.register_entity("modern:bathroom_wall_set_with_mirror_door", {
@@ -705,7 +707,8 @@ minetest.register_entity("modern:bathroom_wall_set_with_mirror_door", {
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
 	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata
+	get_staticdata = multidecor.shelves.default_get_staticdata,
+	on_deactivate = multidecor.shelves.default_on_deactivate
 })
 
 minetest.register_entity("modern:underwear_tank_cover", {
@@ -720,5 +723,6 @@ minetest.register_entity("modern:underwear_tank_cover", {
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
 	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata
+	get_staticdata = multidecor.shelves.default_get_staticdata,
+	on_deactivate = multidecor.shelves.default_on_deactivate
 })

@@ -66,7 +66,8 @@ minetest.register_entity("modern:wardrobe_wooden_glass_door", {
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
 	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata
+	get_staticdata = multidecor.shelves.default_get_staticdata,
+	on_deactivate = multidecor.shelves.default_on_deactivate
 })
 
 minetest.register_entity("modern:wardrobe_wooden_door", {
@@ -81,5 +82,6 @@ minetest.register_entity("modern:wardrobe_wooden_door", {
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
 	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata
+	get_staticdata = multidecor.shelves.default_get_staticdata,
+	on_deactivate = multidecor.shelves.default_on_deactivate
 })

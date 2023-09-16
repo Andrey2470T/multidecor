@@ -20,7 +20,8 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 			on_construct = multidecor.shelves.default_on_construct,
 			on_rightclick = multidecor.shelves.default_on_node_rightclick,
 			can_dig = multidecor.shelves.default_can_dig,
-			on_receive_fields = multidecor.shelves.default_on_receive_fields
+			on_receive_fields = multidecor.shelves.default_on_receive_fields,
+			on_destruct = multidecor.shelves.default_on_destruct
 		}
 	},
 	{
@@ -58,7 +59,8 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 			on_construct = multidecor.shelves.default_on_construct,
 			on_rightclick = multidecor.shelves.default_on_node_rightclick,
 			can_dig = multidecor.shelves.default_can_dig,
-			on_receive_fields = multidecor.shelves.default_on_receive_fields
+			on_receive_fields = multidecor.shelves.default_on_receive_fields,
+			on_destruct = multidecor.shelves.default_on_destruct
 		}
 	},
 	{
@@ -156,7 +158,8 @@ multidecor.register.register_table("three_level_wooden_rack", {
 		on_construct = multidecor.shelves.default_on_construct,
 		on_rightclick = multidecor.shelves.default_on_node_rightclick,
 		can_dig = multidecor.shelves.default_can_dig,
-		on_receive_fields = multidecor.shelves.default_on_receive_fields
+		on_receive_fields = multidecor.shelves.default_on_receive_fields,
+		on_destruct = multidecor.shelves.default_on_destruct
 	}
 },
 {

@@ -293,7 +293,8 @@ for name, props in pairs(objects) do
 		on_activate = multidecor.shelves.default_on_activate,
 		on_rightclick = multidecor.shelves.default_on_rightclick,
 		on_step = props.type == "drawer" and multidecor.shelves.default_drawer_on_step or multidecor.shelves.default_door_on_step,
-		get_staticdata = multidecor.shelves.default_get_staticdata
+		get_staticdata = multidecor.shelves.default_get_staticdata,
+		on_deactivate = multidecor.shelves.default_on_deactivate
 	})
 end
 
@@ -455,7 +456,8 @@ minetest.register_entity("modern:kitchen_cooker_oven_door", {
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
 	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata
+	get_staticdata = multidecor.shelves.default_get_staticdata,
+	on_deactivate = multidecor.shelves.default_on_deactivate
 })
 
 multidecor.register.register_light("kitchen_hood", {
@@ -560,7 +562,8 @@ minetest.register_entity("modern:kitchen_fridge_upper_door", {
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
 	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata
+	get_staticdata = multidecor.shelves.default_get_staticdata,
+	on_deactivate = multidecor.shelves.default_on_deactivate
 })
 
 minetest.register_entity("modern:kitchen_fridge_lower_door", {
@@ -576,7 +579,8 @@ minetest.register_entity("modern:kitchen_fridge_lower_door", {
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
 	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata
+	get_staticdata = multidecor.shelves.default_get_staticdata,
+	on_deactivate = multidecor.shelves.default_on_deactivate
 })
 
 multidecor.register.register_furniture_unit("porcelain_plate", {
@@ -1120,5 +1124,6 @@ minetest.register_entity("modern:microwave_door", {
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
 	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata
+	get_staticdata = multidecor.shelves.default_get_staticdata,
+	on_deactivate = multidecor.shelves.default_on_deactivate
 })

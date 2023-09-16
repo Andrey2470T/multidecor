@@ -642,6 +642,17 @@ multidecor.shelves.default_door_on_step = function(self, dtime)
 	cook_step(self.connected_to.pos, self.shelf_data_i, self.lock_info, dtime, self.object)
 end
 
+multidecor.shelves.default_on_deactivate = function(self, removal)
+	if not removal then return end
+	
+	local shelves_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data
+	
+	local inv_name = multidecor.helpers.build_name_from_tmp(
+		shelves_data.common_name, "inv", 
+		self.shelf_data_i, self.connected_to.pos)
+	minetest.remove_detached_inventory(inv_name)
+end
+
 
 -- Callbacks for nodes having one shelf (without doors, drawers)
 multidecor.shelves.default_on_construct = function(pos)
@@ -652,6 +663,17 @@ multidecor.shelves.default_on_construct = function(pos)
 	local shelves_data = minetest.registered_nodes[node.name].add_properties.shelves_data
 
 	multidecor.shelves.create_detached_inventory(pos, 1, shelves_data)
+end
+
+multidecor.shelves.default_on_destruct = function(pos)
+	local meta = minetest.get_meta(pos)
+	local connected_to = minetest.deserialize(meta:get_string("connected_to"))
+	local shelves_data = minetest.registered_nodes[connected_to.name].add_properties.shelves_data
+	
+	local inv_name = multidecor.helpers.build_name_from_tmp(
+		shelves_data.common_name, "inv",1, pos)
+	minetest.remove_detached_inventory(inv_name)
+	
 end
 
 multidecor.shelves.default_on_node_rightclick = function(pos, node, clicker)

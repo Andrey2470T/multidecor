@@ -201,5 +201,6 @@ minetest.register_entity("modern:wooden_drawer_with_round_handle", {
 	on_activate = multidecor.shelves.default_on_activate,
 	on_rightclick = multidecor.shelves.default_on_rightclick,
 	on_step = multidecor.shelves.default_drawer_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata
+	get_staticdata = multidecor.shelves.default_get_staticdata,
+	on_deactivate = multidecor.shelves.default_on_deactivate
 })
