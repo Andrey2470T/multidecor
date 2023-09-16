@@ -404,12 +404,16 @@ local flowers = {
 local on_rightclick_flowerpot = function(pos, node, clicker, itemstack)
 	local itemname = itemstack:get_name()
 
-	local is_flowers_mod_i, is_flowers_mod_i2 = itemname:find("flowers:")
-	if not is_flowers_mod_i or minetest.get_item_group(itemname, "flower") == 0 then
+	local is_flowers_mod_i = itemname:find(":")
+	
+	if not is_flowers_mod_i then return end
+	
+	local modname = itemname:sub(1, is_flowers_mod_i-1)
+	local flower = itemname:sub(is_flowers_mod_i+1)
+	 
+	if modname ~= "flowers" or minetest.get_item_group(itemname, "flower") == 0 or table.indexof(flowers, flower) == -1 then
 		return
 	end
-
-	local flower = itemname:sub(is_flowers_mod_i2+1)
 
 	minetest.set_node(pos, {name=node.name .. "_with_flower_" .. flower, param2=node.param2})
 
@@ -424,10 +428,16 @@ local on_rightclick_flowerpot_with_flower = function(pos, node, clicker, itemsta
 
 	local itemname = itemstack:get_name()
 
-	local is_flowers_mod_i, is_flowers_mod_i2 = itemname:find("flowers:")
-	if is_flowers_mod_i and minetest.get_item_group(itemname, "flower") == 1 then
-		local flower = itemname:sub(is_flowers_mod_i2+1)
-
+	local is_flowers_mod_i = itemname:find(":")
+	
+	local modname, flower
+	
+	if is_flowers_mod_i then
+		modname = itemname:sub(1, is_flowers_mod_i-1)
+		flower = itemname:sub(is_flowers_mod_i+1)
+	end
+	
+	if modname == "flowers" and minetest.get_item_group(itemname, "flower") == 1 and table.indexof(flowers, flower) ~= -1 then
 		if flower ~= current_flower then
 			minetest.set_node(pos, {name=node.name:gsub(current_flower, flower), param2=node.param2})
 
@@ -438,7 +448,9 @@ local on_rightclick_flowerpot_with_flower = function(pos, node, clicker, itemsta
 	else
 		minetest.set_node(pos, {name=node.name:gsub("_with_flower_" .. current_flower, ""), param2=node.param2})
 
-		clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
+		minetest.after(0, function()
+			clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
+		end)
 	end
 
 	return itemstack
