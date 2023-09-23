@@ -44,7 +44,12 @@ local ceramic_tiles = {
 	{"light", {"dye:white", "dye:yellow"}},
 	{"sand", {"dye:yellow", "dye:grey"}},
 	{"red", {"dye:red"}},
-	{"green_mosaic", {"dye:green"}}
+	{"green_mosaic", {"dye:green"}},
+	{"brown_flowers", {"dye:brown", "dye:orange"}},
+	{"brown_dandelion", {"dye:brown", "dye:orange", "dye:orange"}},
+	{"darkceladon_marble", {"dye:dark_green", "dye:cyan"}},
+	{"darksea_marble", {"dye:blue", "dye:cyan"}},
+	{"marble", {}}
 }
 
 local tile_bboxes = {
@@ -72,10 +77,10 @@ for _, tile in ipairs(ceramic_tiles) do
 		selection_box = tile_bboxes,
 		sounds = default.node_sound_stone_defaults()
 	})
-	
+
 	local recipe = {"default:clay_lump", "default:clay_lump"}
 	table.copy_to(tile[2], recipe)
-	
+
 	minetest.register_craft({
 		type = "shapeless",
 		output = tile_name,
@@ -92,11 +97,35 @@ for _, tile in ipairs(ceramic_tiles) do
 		groups = {cracky=1.5},
 		sounds = default.node_sound_stone_defaults()
 	})
-	
+
 	minetest.register_craft({
 		type = "shapeless",
 		output = block_name,
 		recipe = {tile_name, tile_name, tile_name, tile_name, tile_name, tile_name}
+	})
+end
+
+local bathroom_styles = {1, 2, 3, 4, 5, 6}
+
+for _, style in ipairs(bathroom_styles) do
+	local style_name = ceramic_tiles[style][1]
+	local craft = ceramic_tiles[style][2]
+	local tex_name = "multidecor_bathroom_" .. style_name .. "_material.png"
+	local upper_tile = multidecor.helpers.upper_first_letters(style_name)
+
+	local panel_name = "multidecor:bathroom_wooden_" .. style_name .. "_panel"
+	minetest.register_craftitem(":" .. panel_name, {
+		description = "Bathroom Wooden " .. upper_tile .. " Panel",
+		inventory_image = tex_name
+	})
+
+	local panel_craft = {"multidecor:pine_board"}
+	table.copy_to(craft, panel_craft)
+
+	minetest.register_craft({
+		type = "shapeless",
+		output = panel_name,
+		recipe = panel_craft
 	})
 
 	local bathtub_with_shields_def = table.copy(bathtub_def)
@@ -104,22 +133,22 @@ for _, tile in ipairs(ceramic_tiles) do
 	bathtub_with_shields_def[1].mesh = "multidecor_bathtub_with_shields.b3d"
 	table.insert(bathtub_with_shields_def[1].tiles, tex_name)
 
-	multidecor.register.register_seat("bathtub_with_shields_" .. tile[1], 
+	multidecor.register.register_seat("bathtub_with_shields_" .. style_name,
 		bathtub_with_shields_def[1],
 		bathtub_with_shields_def[2],
 		{
 			type = "shapeless",
-			recipe = {"multidecor:bathtub", tile_name, tile_name}
+			recipe = {"multidecor:bathtub", panel_name, panel_name}
 		}
 	)
 
-	multidecor.register.register_table("bathroom_washbasin_" .. tile[1], {
+	multidecor.register.register_table("bathroom_washbasin_" .. style_name, {
 		style = "modern",
 		material = "stone",
 		description = "Bathroom Washbasin With " .. upper_tile .. " Doors",
 		mesh = "multidecor_bathroom_washbasin.b3d",
 		visual_scale = 0.5,
-		inventory_image = "multidecor_bathroom_" .. tile[1] .. "_washbasin_inv.png",
+		inventory_image = "multidecor_bathroom_" .. style_name .. "_washbasin_inv.png",
 		tiles = {
 			"multidecor_marble_material.png",
 			"multidecor_metal_material.png",
@@ -152,7 +181,7 @@ for _, tile in ipairs(ceramic_tiles) do
 	},
 	{
 		shelves_data = {
-			common_name = "bathroom_washbasin_" .. tile[1],
+			common_name = "bathroom_washbasin_" .. style_name,
 			{
 				type = "sym_doors",
 				pos = {x=0.35, y=-0.2, z=0.08},
@@ -169,18 +198,22 @@ for _, tile in ipairs(ceramic_tiles) do
 		}
 	},
 	{
-		type = "shapeless",
-		recipe = {"multidecor:bathroom_sink", tile_name, tile_name, tile_name, "multidecor:steel_sheet"}
+		recipe = {
+			{"multidecor:bathroom_sink", "multidecor:steel_sheet", "multidecor:syphon"},
+			{panel_name, panel_name, panel_name},
+			{"multidecor:saw", "", ""}
+		},
+		replacements = {{"multidecor:saw", "multidecor:saw"}}
 	})
 
-	multidecor.register.register_table("bathroom_wall_cabinet_" .. tile[1], {
+	multidecor.register.register_table("bathroom_wall_cabinet_" .. style_name, {
 		style = "modern",
 		material = "wood",
 		description = "Bathroom Wall Cabinet With " .. upper_tile .. " Doors",
 		mesh = "multidecor_bathroom_wall_cabinet.b3d",
 		visual_scale = 0.5,
 		tiles = {"multidecor_white_pine_wood.png"},
-		inventory_image = "multidecor_bathroom_" .. tile[1] .. "_wall_cabinet_inv.png",
+		inventory_image = "multidecor_bathroom_" .. style_name .. "_wall_cabinet_inv.png",
 		bounding_boxes = {
 			{-0.5, -0.5, -0.1, 0.5, 0.5, 0.5}
 		},
@@ -193,7 +226,7 @@ for _, tile in ipairs(ceramic_tiles) do
 	},
 	{
 		shelves_data = {
-			common_name = "bathroom_wall_cabinet_" .. tile[1],
+			common_name = "bathroom_wall_cabinet_" .. style_name,
 			{
 				type = "sym_doors",
 				pos = {x=0.5, y=0, z=0.1},
@@ -212,13 +245,13 @@ for _, tile in ipairs(ceramic_tiles) do
 	{
 		recipe = {
 			{"multidecor:pine_board", "multidecor:pine_board", "multidecor:pine_board"},
-			{tile_name, "dye:white", "multidecor:steel_sheet"},
-			{"multidecor:saw", "", ""}
+			{"multidecor:pine_board", "dye:white", "multidecor:steel_sheet"},
+			{panel_name, "multidecor:saw", ""}
 		},
 		replacements = {{"multidecor:saw", "multidecor:saw"}}
 	})
 
-	multidecor.register.register_table("bathroom_wall_set_with_mirror_" .. tile[1], {
+	multidecor.register.register_table("bathroom_wall_set_with_mirror_" .. style_name, {
 		style = "modern",
 		material = "wood",
 		visual_scale = 0.5,
@@ -232,7 +265,7 @@ for _, tile in ipairs(ceramic_tiles) do
 			"multidecor_bathroom_set.png",
 			"multidecor_shred.png"
 		},
-		inventory_image = "multidecor_bathroom_" .. tile[1] .. "_wall_set_with_mirror_inv.png",
+		inventory_image = "multidecor_bathroom_" .. style_name .. "_wall_set_with_mirror_inv.png",
 		bounding_boxes = {{-0.5, -1.0, -0.125, 0.5, 0.5, 0.5}},
 		callbacks = {
 			on_construct = function(pos)
@@ -243,7 +276,7 @@ for _, tile in ipairs(ceramic_tiles) do
 	},
 	{
 		shelves_data = {
-			common_name = "bathroom_wall_set_with_mirror_" .. tile[1],
+			common_name = "bathroom_wall_set_with_mirror_" .. style_name,
 			{
 				type = "door",
 				pos = {x=0.5, y=-0.25, z=0.05},
@@ -262,7 +295,7 @@ for _, tile in ipairs(ceramic_tiles) do
 	{
 		recipe = {
 			{"multidecor:pine_board", "multidecor:pine_board", "xpanes:pane_flat"},
-			{"multidecor:pine_plank", tile_name, "multidecor:plastic_sheet"},
+			{"multidecor:pine_plank", panel_name, "multidecor:plastic_sheet"},
 			{"multidecor:steel_sheet", "multidecor:saw", ""}
 		},
 		replacements = {{"multidecor:saw", "multidecor:saw"}}
