@@ -640,7 +640,7 @@ multidecor.register.register_furniture_unit("toilet_paper_reel", {
 	description = "Toilet Paper Reel",
 	mesh = "multidecor_toilet_paper_reel.b3d",
 	tiles = {"multidecor_metal_material5.png", "multidecor_wool_material.png"},
-	bounding_boxes = {{-0.3, -0.2, 0.0, 0.3, 0.2, 0.5}}
+	bounding_boxes = {{-0.3, 0, 0.1, 0.3, 0.35, 0.5}}
 },
 {
 	recipe = {
@@ -672,7 +672,7 @@ multidecor.register.register_furniture_unit("underwear_tank", {
 			{
 				type = "door",
 				object = "modern:underwear_tank_cover",
-				pos = {x=0, y=0.375, z=-0.3},
+				pos = {x=0, y=0.225, z=-0.3},
 				acc = 1,
 				inv_size = {w=5,h=4},
 				side = "up",

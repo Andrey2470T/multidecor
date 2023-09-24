@@ -816,7 +816,7 @@ multidecor.register.register_furniture_unit("faceted_glass", {
 	tiles = {"multidecor_glass_material.png"},
 	use_texture_alpha = "blend",
 	bounding_boxes = {
-		{-0.15, -0.5, -0.15, 0.15, 0, 0.15}
+		{-0.15, -0.5, -0.15, 0.15, -0.1, 0.15}
 	}
 },
 {

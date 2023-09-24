@@ -139,7 +139,7 @@ function multidecor.shelves.build_main_formspec(pos, common_name, data, shelf_nu
 	return fs
 end
 
-multidecor.shelves.build_share_formspec = function(members)
+function multidecor.shelves.build_share_formspec(members)
 	local steps_c
 
 	if #members <= 3 then
@@ -186,7 +186,7 @@ multidecor.shelves.build_share_formspec = function(members)
 	return fs
 end
 
-multidecor.shelves.build_infotext = function(lock_info)
+function multidecor.shelves.build_infotext(lock_info)
 	local infotext = ""
 
 	if lock_info then
@@ -198,6 +198,19 @@ multidecor.shelves.build_infotext = function(lock_info)
 	end
 
 	return infotext
+end
+
+function multidecor.shelves.get_opposite_symdoor(self, shelf)
+	if shelf.type ~= "sym_doors" then return end
+
+	local tpos = self.is_flip_x_scale and shelf.pos or shelf.pos2
+	tpos = self.connected_to.pos + multidecor.helpers.rotate_to_node_dir(self.connected_to.pos, tpos)
+
+	local tobj = minetest.get_objects_inside_radius(tpos, 0.05)[1]
+
+	if not tobj then return end
+
+	return tobj:get_luaentity()
 end
 
 -- Animates opening or closing the shelf 'obj'. The action directly depends on 'dir_sign' value ('1' is open, '-1' is close)
@@ -220,19 +233,11 @@ function multidecor.shelves.open_shelf(obj, dir_sign)
 	if shelf.type == "drawer" then
 		-- Will pull out the drawer at the distance equal to 2/3 its length
 		obj:set_velocity(vector.multiply(dir*dir_sign, 0.6))
-	end
+	elseif shelf.type == "sym_doors" then
+		local self2 = multidecor.shelves.get_opposite_symdoor(self, shelf)
 
-	if shelf.type == "sym_doors" then
-		local tpos = self.is_flip_x_scale and shelf.pos or shelf.pos2
-		tpos = self.connected_to.pos + vector.rotate_around_axis(tpos, {x=0, y=1, z=0}, vector.dir_to_rotation(dir).y)
-		local obj2 = minetest.get_objects_inside_radius(tpos, 0.05)[1]
-
-		if obj2 then
-			local self2 = obj2:get_luaentity()
-
-			if self2 and self.name == self2.name then
-				self2.dir = dir_sign
-			end
+		if self2 and self.name == self2.name then
+			self2.dir = dir_sign
 		end
 	end
 
@@ -379,6 +384,12 @@ multidecor.shelves.create_detached_inventory = function(pos, shelf_i, shelves_da
 					if obj then
 						local self = obj:get_luaentity()
 						self.cook_info = cook_data
+
+						local self2 = multidecor.shelves.get_opposite_symdoor(self, shelf_data)
+
+						if self2 then
+							self2.cook_info = cook_data
+						end
 					else
 						meta:set_string("cook_info", minetest.serialize(cook_data))
 					end
@@ -644,11 +655,11 @@ end
 
 multidecor.shelves.default_on_deactivate = function(self, removal)
 	if not removal then return end
-	
+
 	local shelves_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data
-	
+
 	local inv_name = multidecor.helpers.build_name_from_tmp(
-		shelves_data.common_name, "inv", 
+		shelves_data.common_name, "inv",
 		self.shelf_data_i, self.connected_to.pos)
 	minetest.remove_detached_inventory(inv_name)
 end
@@ -669,11 +680,11 @@ multidecor.shelves.default_on_destruct = function(pos)
 	local meta = minetest.get_meta(pos)
 	local connected_to = minetest.deserialize(meta:get_string("connected_to"))
 	local shelves_data = minetest.registered_nodes[connected_to.name].add_properties.shelves_data
-	
+
 	local inv_name = multidecor.helpers.build_name_from_tmp(
 		shelves_data.common_name, "inv",1, pos)
 	minetest.remove_detached_inventory(inv_name)
-	
+
 end
 
 multidecor.shelves.default_on_node_rightclick = function(pos, node, clicker)
@@ -751,6 +762,12 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 			open_shelves[playername] = nil
 			local self = shelf:get_luaentity()
 			self.inv_list = inv_list
+
+			local self2 = multidecor.shelves.get_opposite_symdoor(self, shelves_data[shelf_i])
+
+			if self2 then
+				self2.inv_list = inv_list
+			end
 			multidecor.shelves.open_shelf(shelf, -1)
 		else
 			player:get_meta():set_string("open_shelf", "")
@@ -787,6 +804,13 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 			local self = shelf:get_luaentity()
 			self.lock_info = lock_info
 			shelf:set_properties({infotext=infotext})
+
+			local self2 = multidecor.shelves.get_opposite_symdoor(self, shelves_data[shelf_i])
+
+			if self2 then
+				self2.lock_info = lock_info
+				self2.object:set_properties({infotext=infotext})
+			end
 		else
 			local meta = minetest.get_meta(shelf)
 			meta:set_string("infotext", infotext)
@@ -829,6 +853,13 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 		if type(shelf) == "userdata" then
 			local self = shelf:get_luaentity()
 			shelf:set_properties({infotext=infotext})
+
+			local self2 = multidecor.shelves.get_opposite_symdoor(self, shelves_data[shelf_i])
+
+			if self2 then
+				self2.lock_info = lock_info
+				self2.object:set_properties({infotext=infotext})
+			end
 		else
 			local meta = minetest.get_meta(shelf)
 			meta:set_string("infotext", infotext)
@@ -850,6 +881,13 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 			if type(shelf) == "userdata" then
 				local self = shelf:get_luaentity()
 				shelf:set_properties({infotext=infotext})
+
+				local self2 = multidecor.shelves.get_opposite_symdoor(self, shelves_data[shelf_i])
+
+				if self2 then
+					self2.lock_info = lock_info
+					self2.object:set_properties({infotext=infotext})
+				end
 			else
 				local meta = minetest.get_meta(shelf)
 				meta:set_string("infotext", infotext)
