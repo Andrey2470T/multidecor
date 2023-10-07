@@ -60,13 +60,62 @@ multidecor.register.register_door("dark_rusty_gate", {
 	recipe = {"multidecor:high_dark_rusty_gate", "multidecor:high_dark_rusty_gate"}
 })
 
+local woods = {
+	{name="wooden", texture="wood"},
+	{name="pine", texture="pine_wood"},
+	{name="dark_pine", texture="pine_wood2"},
+	{name="white_pine", texture="white_pine_wood"}
+}
+
+for _, wood in ipairs(woods) do
+	multidecor.register.register_furniture_unit(wood.name .. "_doorjamb", {
+		type = "decoration",
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		description = multidecor.helpers.upper_first_letters(wood.name) .. "Doorjamb",
+		mesh = "multidecor_wooden_doorjamb.b3d",
+		tiles = {"multidecor_" .. wood.texture .. ".png"},
+		bounding_boxes = {
+			{-0.725, -0.5, 0.4, -0.5, 1.725, 0.5},-- left
+			{0.725, -0.5, 0.4, 0.5, 1.725, 0.5},-- right
+			{-0.5, 1.5, 0.4, 0.5, 1.725, 0.5}
+		}
+	})
+
+	multidecor.register.register_furniture_unit(wood.name .. "_plinth", {
+		type = "decoration",
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		description = multidecor.helpers.upper_first_letters(wood.name) .. "Plinth",
+		mesh = "multidecor_wooden_plinth.b3d",
+		tiles = {"multidecor_" .. wood.texture .. ".png"},
+		bounding_boxes = {{-0.5, -0.5, 0.4, 0.5, -0.2, 0.5}}
+	})
+
+	multidecor.register.register_furniture_unit(wood.name .. "_corner_plinth", {
+		type = "decoration",
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		description = multidecor.helpers.upper_first_letters(wood.name) .. "Corner Plinth",
+		mesh = "multidecor_wooden_corner_plinth.b3d",
+		tiles = {"multidecor_" .. wood.texture .. ".png"},
+		bounding_boxes = {
+			{-0.5, -0.5, 0.4, 0.5, -0.2, 0.5},
+			{0.4, -0.5, -0.5, 0.5, -0.2, 0.4}
+		}
+	})
+end
+
 multidecor.register.register_door("wooden_door", {
 	style = "modern",
 	material = "wood",
 	description = "Wooden Door",
 	mesh = "multidecor_modern_wooden_door.b3d",
 	tiles = {
-		"multidecor_modern_wooden_door_base.png",
+		"multidecor_modern_wooden_door_base2.png",
 		"multidecor_jungle_wood.png"
 	},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.35}}
@@ -122,13 +171,39 @@ multidecor.register.register_door("bathroom_door", {
 	replacements = {{"multidecor:saw", "multidecor:saw"}}
 })
 
+multidecor.register.register_door("white_pine_glass_door", {
+	style = "modern",
+	material = "wood",
+	visual_scale = 0.5,
+	description = "White Pine Glass Door",
+	mesh = "multidecor_white_pine_glass_door.b3d",
+	tiles = {
+		"multidecor_white_pine_wood.png",
+		"multidecor_gold_material.png",
+		"multidecor_glass_material.png"
+	},
+	use_texture_alpha = "blend",
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.35}}
+},
+{
+	door = {
+		mesh_open = "multidecor_white_pine_glass_door_open.b3d",
+		mesh_activated = "multidecor_white_pine_glass_door_activated.b3d",
+		vel = 100, -- degrees per sec
+		sounds = {
+			open = "multidecor_wooden_door_open",
+			close = "multidecor_wooden_door_close"
+		}
+	}
+})
+
 multidecor.register.register_door("pine_glass_door", {
 	style = "modern",
 	material = "wood",
 	description = "Pine Glass Door",
 	mesh = "multidecor_pine_glass_door.b3d",
 	tiles = {
-		"multidecor_pine_glass_door_base.png",
+		"multidecor_pine_glass_door_base2.png",
 		"multidecor_metal_material.png",
 		"multidecor_glass_material.png"
 	},
@@ -153,6 +228,56 @@ multidecor.register.register_door("pine_glass_door", {
 		{"multidecor:steel_sheet", "multidecor:steel_scissors", ""}
 	},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+multidecor.register.register_door("pine_door", {
+	style = "modern",
+	material = "wood",
+	visual_scale = 0.5,
+	description = "Pine Door",
+	mesh = "multidecor_pine_door.b3d",
+	tiles = {
+		"multidecor_pine_door.png",
+		"multidecor_metal_material.png"
+	},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
+},
+{
+	door = {
+		mesh_open = "multidecor_pine_door_open.b3d",
+		mesh_activated = "multidecor_pine_door_activated.b3d",
+		vel = 100, -- degrees per sec
+		sounds = {
+			open = "multidecor_wooden_door_open",
+			close = "multidecor_wooden_door_close"
+		}
+	}
+})
+
+multidecor.register.register_door("dark_pine_glass_door", {
+	style = "modern",
+	material = "wood",
+	visual_scale = 0.5,
+	description = "Dark Pine Glass Door",
+	mesh = "multidecor_dark_pine_glass_door.b3d",
+	tiles = {
+		"multidecor_dark_pine_door_base.png",
+		"multidecor_metal_material.png",
+		"multidecor_glass_material.png"
+	},
+	use_texture_alpha = "blend",
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
+},
+{
+	door = {
+		mesh_open = "multidecor_dark_pine_glass_door_open.b3d",
+		mesh_activated = "multidecor_dark_pine_glass_door_activated.b3d",
+		vel = 100, -- degrees per sec
+		sounds = {
+			open = "multidecor_wooden_door_open",
+			close = "multidecor_wooden_door_close"
+		}
+	}
 })
 
 multidecor.register.register_door("technical_door", {
