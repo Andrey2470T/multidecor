@@ -38,7 +38,7 @@ local cmpnts = {
 		craft = {
 			{"multidecor:board", "multidecor:board", "multidecor:board"},
 			{"multidecor:board", "multidecor:drawer", "multidecor:drawer"},
-			{"multidecor:hammer", "default:%s", ""}
+			{"multidecor:hammer", "", ""}
 		}
 	},
 	["three_floor_drws"] = {
@@ -55,7 +55,7 @@ local cmpnts = {
 		craft = {
 			{"multidecor:board", "multidecor:board", "multidecor:board"},
 			{"multidecor:board", "multidecor:drawer", "multidecor:drawer"},
-			{"multidecor:drawer", "multidecor:hammer", "default:%s"}
+			{"multidecor:drawer", "multidecor:hammer", ""}
 		}
 	},
 	["two_floor_doors"] = {
@@ -71,7 +71,7 @@ local cmpnts = {
 		craft = {
 			{"multidecor:board", "multidecor:board", "multidecor:board"},
 			{"multidecor:board", "multidecor:cabinet_half_door", "multidecor:cabinet_half_door"},
-			{"multidecor:hammer", "default:%s", ""}
+			{"multidecor:hammer", "", ""}
 		}
 	},
 	["three_floor_doors"] = {
@@ -87,7 +87,7 @@ local cmpnts = {
 		craft = {
 			{"multidecor:board", "multidecor:board", "multidecor:board"},
 			{"multidecor:board", "multidecor:board", "multidecor:cabinet_half_door"},
-			{"multidecor:cabinet_half_door", "multidecor:hammer", "default:%s"}
+			{"multidecor:cabinet_half_door", "multidecor:hammer", ""}
 		}
 	},
 	["three_floor_drw_door"] = {
@@ -104,7 +104,7 @@ local cmpnts = {
 		craft = {
 			{"multidecor:board", "multidecor:board", "multidecor:board"},
 			{"multidecor:board", "multidecor:cabinet_door", ""},
-			{"multidecor:drawer", "multidecor:hammer", "default:%s"}
+			{"multidecor:drawer", "multidecor:hammer", ""}
 		}
 	},
 	["sink"] = {
@@ -121,7 +121,7 @@ local cmpnts = {
 		craft = {
 			{"multidecor:board", "multidecor:board", "multidecor:board"},
 			{"multidecor:board", "multidecor:cabinet_door", "multidecor:steel_sheet"},
-			{"multidecor:syphon", "multidecor:hammer", "default:%s"}
+			{"multidecor:syphon", "multidecor:hammer", ""}
 		},
 		callbacks = {
 			on_construct = function(pos)
@@ -165,12 +165,12 @@ end
 
 
 --Since there`s no granite material yet, it is replaced temporarily to the default stone
-granite_cmpnts.two_floor_drws.craft[3][2] = granite_cmpnts.two_floor_drws.craft[3][2]:format("stone")
-granite_cmpnts.three_floor_drws.craft[3][3] = granite_cmpnts.three_floor_drws.craft[3][3]:format("stone")
-granite_cmpnts.two_floor_doors.craft[3][2] = granite_cmpnts.two_floor_doors.craft[3][2]:format("stone")
-granite_cmpnts.three_floor_doors.craft[3][3] = granite_cmpnts.three_floor_doors.craft[3][3]:format("stone")
-granite_cmpnts.three_floor_drw_door.craft[3][3] = granite_cmpnts.three_floor_drw_door.craft[3][3]:format("stone")
-granite_cmpnts.sink.craft[3][3] = granite_cmpnts.sink.craft[3][3]:format("stone")
+granite_cmpnts.two_floor_drws.craft[3][2] = "stairs:slab_stone"
+granite_cmpnts.three_floor_drws.craft[3][3] = "stairs:slab_stone"
+granite_cmpnts.two_floor_doors.craft[3][2] = "stairs:slab_stone"
+granite_cmpnts.three_floor_doors.craft[3][3] = "stairs:slab_stone"
+granite_cmpnts.three_floor_drw_door.craft[3][3] = "stairs:slab_stone"
+granite_cmpnts.sink.craft[3][3] = "stairs:slab_stone"
 
 granite_cmpnts.two_wall_door = {
 	description = "Kitchen Two Shelves Wall Cabinet With Door",
@@ -255,12 +255,12 @@ for name, data in pairs(marble_cmpnts) do
 end
 
 --Since there`s no marble material yet, it is replaced temporarily to the default silver sandstone
-marble_cmpnts.two_floor_drws.craft[3][2] = marble_cmpnts.two_floor_drws.craft[3][2]:format("silver_sandstone")
-marble_cmpnts.three_floor_drws.craft[3][3] = marble_cmpnts.three_floor_drws.craft[3][3]:format("silver_sandstone")
-marble_cmpnts.two_floor_doors.craft[3][2] = marble_cmpnts.two_floor_doors.craft[3][2]:format("silver_sandstone")
-marble_cmpnts.three_floor_doors.craft[3][3] = marble_cmpnts.three_floor_doors.craft[3][3]:format("silver_sandstone")
-marble_cmpnts.three_floor_drw_door.craft[3][3] = marble_cmpnts.three_floor_drw_door.craft[3][3]:format("silver_sandstone")
-marble_cmpnts.sink.craft[3][3] = marble_cmpnts.sink.craft[3][3]:format("silver_sandstone")
+marble_cmpnts.two_floor_drws.craft[3][2] = "multidecor:marble_sheet"
+marble_cmpnts.three_floor_drws.craft[3][3] = "multidecor:marble_sheet"
+marble_cmpnts.two_floor_doors.craft[3][2] = "multidecor:marble_sheet"
+marble_cmpnts.three_floor_doors.craft[3][3] = "multidecor:marble_sheet"
+marble_cmpnts.three_floor_drw_door.craft[3][3] = "multidecor:marble_sheet"
+marble_cmpnts.sink.craft[3][3] = "multidecor:marble_sheet"
 
 local marble_garniture_def = table.copy(garniture_def)
 marble_garniture_def.common_name = marble_garniture_def.common_name:format("marble")
