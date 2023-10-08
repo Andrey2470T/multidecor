@@ -126,7 +126,7 @@ local cmpnts = {
 		callbacks = {
 			on_construct = function(pos)
 				multidecor.shelves.set_shelves(pos)
-				multidecor.tap.register_water_stream(pos, tap_pos, tap_pos, 30, 2, {x=0, y=-1, z=0}, "multidecor_tap", false)
+				multidecor.tap.register_water_stream(pos, tap_pos, tap_pos, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", false)
 			end,
 			on_rightclick = function(pos)
 				multidecor.tap.toggle(pos)

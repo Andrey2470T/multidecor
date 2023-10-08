@@ -352,6 +352,85 @@ multidecor.register.register_furniture_unit("bathroom_sink", {
 	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
 
+multidecor.register.register_furniture_unit("bathroom_shower_base", {
+	type = "decoration",
+	style = "modern",
+	material = "stone",
+	visual_scale = 0.5,
+	description = "Bathroom Shower Base",
+	mesh = "multidecor_shower_base.b3d",
+	groups = {sink=1},
+	tiles = {
+		"multidecor_marble_material.png",
+		"multidecor_metal_material.png",
+		"multidecor_shower_base.png",
+		"multidecor_bathroom_leakage.png"
+	},
+	bounding_boxes = {
+		{-0.5, -0.5, -0.5, 0.5, -0.4, 0.5},
+		{-0.5, -0.4, -0.5, -0.425, -0.3, 0.5},
+		{0.425, -0.4, -0.5, 0.5, -0.3, 0.5},
+		{-0.425, -0.4, 0.425, 0.425, -0.3, 0.5},
+		{-0.425, -0.4, -0.5, 0.425, -0.3, -0.425}
+	}
+},
+{
+	recipe = {
+		{"multidecor:marble_sheet", "multidecor:steel_sheet", "multidecor:hammer"},
+		{"multidecor:marble_sheet", "", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
+})
+
+multidecor.register.register_furniture_unit("bathroom_slatted_ceiling", {
+	type = "decoration",
+	style = "modern",
+	material = "plastic",
+	visual_scale = 0.5,
+	description = "Bathroom Slatted Ceiling",
+	mesh = "multidecor_slatted_ceiling.b3d",
+	groups = {sink=1},
+	tiles = {"multidecor_bathroom_slatted_ceiling.png"},
+	bounding_boxes = {{-0.5, 0.35, -0.5, 0.5, 0.5, 0.5}}
+},
+{
+	recipe = {
+		{"multidecor:plastic_sheet", "", ""},
+		{"multidecor:plastic_sheet", "multidecor:steel_scissors", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+multidecor.register.register_furniture_unit("bathroom_slatted_ceiling_with_lamp", {
+	type = "decoration",
+	style = "modern",
+	material = "plastic",
+	visual_scale = 0.5,
+	light_source = 12,
+	description = "Bathroom Slatted Ceiling With Lamp",
+	mesh = "multidecor_slatted_ceiling_with_lamp.b3d",
+	groups = {sink=1},
+	tiles = {
+		"multidecor_bathroom_slatted_ceiling.png",
+		"multidecor_metal_material.png",
+		"multidecor_ceiling_lamp_bottom.png"
+	},
+	bounding_boxes = {
+		{-0.5, 0.35, -0.5, 0.5, 0.5, 0.5},
+		{-0.25, 0.25, -0.25, 0.25, 0.35, 0.25}
+	}
+},
+{
+	recipe = {
+		{"multidecor:plastic_sheet", "multidecor:bulb", "multidecor:steel_sheet"},
+		{"multidecor:plastic_sheet", "multidecor:steel_scissors", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
 multidecor.register.register_seat("toilet", {
 	style = "modern",
 	material = "stone",
@@ -508,7 +587,7 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_cap_flap", {
 	bounding_boxes = {{-0.3, -0.1, 0.0, 0.3, 0.2, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
-			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.2, z=0.0}, {x=0.0, y=-0.2, z=0.0}, 30, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
+			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.15, z=0.0}, {x=0.0, y=-0.15, z=0.0}, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
 
 			minetest.get_node_timer(pos):start(1)
 		end,
@@ -536,7 +615,7 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_side_flaps", {
 	bounding_boxes = {{-0.3, -0.2, 0.0, 0.3, 0.1, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
-			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.3, z=0.0}, {x=0.0, y=-0.3, z=0.0}, 30, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
+			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.275, z=-0.025}, {x=0.0, y=-0.275, z=-0.025}, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
 
 			minetest.get_node_timer(pos):start(1)
 		end,
@@ -564,7 +643,7 @@ multidecor.register.register_furniture_unit("shower_head", {
 	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0.35, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
-			multidecor.tap.register_water_stream(pos, {x=-0.15, y=0.05, z=-0.1}, {x=0.15, y=0.2, z=-0.1}, 40, 2,
+			multidecor.tap.register_water_stream(pos, {x=-0.15, y=0.05, z=0.0}, {x=0.15, y=0.2, z=0.0}, 150, 2,
 				vector.rotate_around_axis(vector.new(0, 1, 0), vector.new(1, 0, 0), -math.pi/3), "multidecor_tap", true)
 
 			minetest.get_node_timer(pos):start(1)
@@ -604,7 +683,7 @@ multidecor.register.register_furniture_unit("crooked_shower_head", {
 	bounding_boxes = {{-0.2, -0.3, -0.3, 0.2, 0.3, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
-			multidecor.tap.register_water_stream(pos, {x=-0.25, y=-0.4, z=-0.25}, {x=0.25, y=-0.4, z=0.25}, 40, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
+			multidecor.tap.register_water_stream(pos, {x=-0.25, y=-0.35, z=-0.25}, {x=0.25, y=-0.35, z=0.25}, 250, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
 
 			minetest.get_node_timer(pos):start(1)
 		end,
