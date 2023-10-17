@@ -196,6 +196,8 @@ local function default_entity_door_on_activate(self, staticdata)
 			selectionbox = self.bbox
 		})
 	end
+
+	self.object:set_armor_groups({immortal=1})
 end
 
 local function default_entity_door_on_step(self, dtime)

@@ -68,12 +68,13 @@ local woods = {
 }
 
 for _, wood in ipairs(woods) do
+	local upper_name = multidecor.helpers.upper_first_letters(wood.name)
 	multidecor.register.register_furniture_unit(wood.name .. "_doorjamb", {
 		type = "decoration",
 		style = "modern",
 		material = "wood",
 		visual_scale = 0.5,
-		description = multidecor.helpers.upper_first_letters(wood.name) .. "Doorjamb",
+		description = upper_name .. "Doorjamb",
 		mesh = "multidecor_wooden_doorjamb.b3d",
 		tiles = {"multidecor_" .. wood.texture .. ".png"},
 		bounding_boxes = {
@@ -88,7 +89,7 @@ for _, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		visual_scale = 0.5,
-		description = multidecor.helpers.upper_first_letters(wood.name) .. "Plinth",
+		description = upper_name .. "Plinth",
 		mesh = "multidecor_wooden_plinth.b3d",
 		tiles = {"multidecor_" .. wood.texture .. ".png"},
 		bounding_boxes = {{-0.5, -0.5, 0.4, 0.5, -0.2, 0.5}}
@@ -99,12 +100,82 @@ for _, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		visual_scale = 0.5,
-		description = multidecor.helpers.upper_first_letters(wood.name) .. "Corner Plinth",
+		description = upper_name .. "Corner Plinth",
 		mesh = "multidecor_wooden_corner_plinth.b3d",
 		tiles = {"multidecor_" .. wood.texture .. ".png"},
 		bounding_boxes = {
 			{-0.5, -0.5, 0.4, 0.5, -0.2, 0.5},
 			{0.4, -0.5, -0.5, 0.5, -0.2, 0.4}
+		}
+	})
+
+	multidecor.register.register_furniture_unit(wood.name .. "_window_segment", {
+		type = "decoration",
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		description = upper_name .. "Window Segment",
+		mesh = "multidecor_window_segment.b3d",
+		tiles = {
+			"multidecor_" .. wood.texture .. ".png",
+			"multidecor_glass_material.png"
+		},
+		use_texture_alpha = "blend",
+		bounding_boxes = {{-0.5, -0.5, -0.06, 0.5, 0.5, 0.06}}
+	})
+
+	multidecor.register.register_furniture_unit(wood.name .. "_window_segment_with_thick_slats", {
+		type = "decoration",
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		description = upper_name .. "Window Segment With Thick Slats",
+		mesh = "multidecor_window_segment_with_thick_slats.b3d",
+		tiles = {
+			"multidecor_" .. wood.texture .. ".png",
+			"multidecor_glass_material.png"
+		},
+		use_texture_alpha = "blend",
+		bounding_boxes = {{-0.5, -0.5, -0.06, 0.5, 0.5, 0.06}}
+	})
+
+	multidecor.register.register_furniture_unit(wood.name .. "_window_segment_with_thin_slats", {
+		type = "decoration",
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		description = upper_name .. "Window Segment With Thin Slats",
+		mesh = "multidecor_window_segment_with_thin_slats.b3d",
+		tiles = {
+			"multidecor_" .. wood.texture .. ".png",
+			"multidecor_glass_material.png"
+		},
+		use_texture_alpha = "blend",
+		bounding_boxes = {{-0.5, -0.5, -0.06, 0.5, 0.5, 0.06}}
+	})
+
+	multidecor.register.register_door(wood.name .. "_window_door", {
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		description = upper_name .. "Window Door",
+		mesh = "multidecor_window_door.b3d",
+		tiles = {
+			"multidecor_" .. wood.texture .. ".png",
+			"multidecor_glass_material.png"
+		},
+		use_texture_alpha = "blend",
+		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.38}}
+	},
+	{
+		door = {
+			mesh_open = "multidecor_window_door_open.b3d",
+			mesh_activated = "multidecor_window_door_activated.b3d",
+			vel = 100, -- degrees per sec
+			sounds = {
+				open = "multidecor_wooden_door_open",
+				close = "multidecor_wooden_door_close"
+			}
 		}
 	})
 end
