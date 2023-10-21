@@ -124,6 +124,38 @@ for _, wood in ipairs(woods) do
 		bounding_boxes = {{-0.5, -0.5, -0.06, 0.5, 0.5, 0.06}}
 	})
 
+	multidecor.register.register_table(wood.name .. "_window_segment_connectable", {
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		description = upper_name .. "Window Segment (Connectable)",
+		mesh = "multidecor_window_segment.b3d",
+		tiles = {
+			"multidecor_" .. wood.texture .. ".png",
+			"multidecor_glass_material.png"
+		},
+		use_texture_alpha = "blend",
+		bounding_boxes = {{-0.5, -0.06, -0.5, 0.5, 0.06, 0.5}},
+		callbacks = {
+			on_construct = function(pos)
+				multidecor.connecting.update_adjacent_nodes_connection(pos, "vertical")
+			end,
+			after_dig_node = function(pos, oldnode)
+				multidecor.connecting.update_adjacent_nodes_connection(pos, "vertical", true, oldnode)
+			end
+		}
+	},
+	{
+		common_name = wood.name .. "_window_segment_connectable",
+		connect_parts = {
+			["edge"] = "multidecor_window_segment_1.b3d",
+			["corner"] = "multidecor_window_segment_2.b3d",
+			["middle"] = "multidecor_window_segment_5.b3d",
+			["edge_middle"] = "multidecor_window_segment_3.b3d",
+			["off_edge"] = "multidecor_window_segment_4.b3d"
+		}
+	})
+
 	multidecor.register.register_furniture_unit(wood.name .. "_window_segment_with_thick_slats", {
 		type = "decoration",
 		style = "modern",
@@ -171,6 +203,31 @@ for _, wood in ipairs(woods) do
 		door = {
 			mesh_open = "multidecor_window_door_open.b3d",
 			mesh_activated = "multidecor_window_door_activated.b3d",
+			vel = 100, -- degrees per sec
+			sounds = {
+				open = "multidecor_wooden_door_open",
+				close = "multidecor_wooden_door_close"
+			}
+		}
+	})
+
+	multidecor.register.register_door(wood.name .. "_window_door_with_thin_slats", {
+		style = "modern",
+		material = "wood",
+		visual_scale = 0.5,
+		description = upper_name .. "Window Door With Thin Slats",
+		mesh = "multidecor_window_door_with_thin_slats.b3d",
+		tiles = {
+			"multidecor_" .. wood.texture .. ".png",
+			"multidecor_glass_material.png"
+		},
+		use_texture_alpha = "blend",
+		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.38}}
+	},
+	{
+		door = {
+			mesh_open = "multidecor_window_door_with_thin_slats_open.b3d",
+			mesh_activated = "multidecor_window_door_with_thin_slats_activated.b3d",
 			vel = 100, -- degrees per sec
 			sounds = {
 				open = "multidecor_wooden_door_open",
