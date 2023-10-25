@@ -14,7 +14,7 @@ multidecor.sitting.players_seats_objs = {}
 
 
 function multidecor.sitting.attach_player_to_node(attacher, seat_data)
-	
+
 	local seat = minetest.add_entity(seat_data.pos, "decor_api:seat_entity", "")
 	seat:set_rotation(seat_data.rot)
 	multidecor.sitting.players_seats_objs[attacher:get_player_name()] = seat
@@ -78,6 +78,7 @@ function multidecor.sitting.sit_player(player, node_pos)
 	local physics = player:get_physics_override()
 
 	local prev_pdata = {
+		attached_to = node_pos,
 		physics = {speed = physics.speed, jump = physics.jump}
 	}
 	local node = minetest.get_node(node_pos)
@@ -104,6 +105,8 @@ function multidecor.sitting.sit_player(player, node_pos)
 
 		rand_anim = seat_data.anims[math.random(1, #seat_data.anims)]
 	end
+
+	local player_meta = player:get_meta()
 
 	player:get_meta():set_string("previous_player_data", minetest.serialize(prev_pdata))
 
@@ -191,5 +194,14 @@ minetest.register_entity("decor_api:seat_entity", {
 	},
 	use_texture_alpha = true,
 	physical = false,
-	pointable = false
+	pointable = false,
+	static_save = true
 })
+
+minetest.register_on_leaveplayer(function(player)
+	local prev_pdata = minetest.deserialize(player:get_meta():get_string("previous_player_data"))
+
+	if prev_pdata then
+		multidecor.sitting.standup_player(player, prev_pdata.attached_to)
+	end
+end)
