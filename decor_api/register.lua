@@ -139,7 +139,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	assert(multidecor.register.category_contains(def.style, 1), "The style with a name \"" .. def.style .. "\" is not registered!")
 
 	f_def.description = multidecor.S(def.description)
-	f_def.visual_scale = def.visual_scale or 0.4
+	f_def.visual_scale = def.visual_scale or 0.5
 	f_def.wield_scale = def.wield_scale or {x=0.5, y=0.5, z=0.5}
 	f_def.drawtype = def.drawtype or "mesh"
 	f_def.paramtype = "light"
@@ -167,11 +167,17 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	end
 
 	if def.material == "wood" then
-		f_def.groups.choppy = 1.5
-	elseif def.material == "glass" or def.material == "metal" or def.material == "stone" then
+		f_def.groups.choppy = 2
+	elseif def.material == "glass" then
+		f_def.groups.cracky = 2.5
+	elseif def.material == "metal" or def.material == "stone" then
 		f_def.groups.cracky = 1.5
 	elseif def.material == "plastic" then
-		f_def.groups.snappy = 1.5
+		f_def.groups.snappy = 3
+	end
+
+	if def.material ~= "metal" and def.material ~= "stone" then
+		f_def.groups.oddly_breakable_by_hand = 1
 	end
 
 	f_def.description = f_def.description .. "\nStyle: " .. def.style .. (def.material and "\nMaterial: " .. def.material or "")

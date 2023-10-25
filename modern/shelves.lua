@@ -82,7 +82,6 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 	multidecor.register.register_table("modern_wooden_" .. wood_n .. "wall_shelf", {
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		paramtype2 = "wallmounted",
 		description = "Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf",
 		mesh = "multidecor_wall_shelf.obj",
@@ -101,7 +100,6 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 	multidecor.register.register_table("modern_corner_wooden_" .. wood_n .. "wall_shelf", {
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		paramtype2 = "wallmounted",
 		description = "Modern Corner Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf",
 		mesh = "multidecor_corner_wall_shelf.b3d",
@@ -122,7 +120,6 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 	multidecor.register.register_table("modern_wooden_" .. wood_n .. "wall_shelf_with_books", {
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		paramtype2 = "wallmounted",
 		description = "Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf With Books",
 		mesh = "multidecor_wall_shelf_with_books.b3d",
@@ -150,7 +147,6 @@ end
 multidecor.register.register_table("three_level_wooden_rack", {
 	style = "modern",
 	material = "wood",
-	visual_scale = 0.5,
 	description =  "Three Level Wooden Rack",
 	mesh = "multidecor_three_level_wooden_rack.b3d",
 	tiles = {"multidecor_wood.png"},

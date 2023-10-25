@@ -111,7 +111,6 @@ for _, img in ipairs(images) do
 		type = "decoration",
 		style = "modern",
 		material = mat,
-		visual_scale = 0.5,
 		description = multidecor.helpers.upper_first_letters(name),
 		mesh = "multidecor_" .. mesh .. ".b3d",
 		tiles = {base_tile, "multidecor_image_" .. img[1] .. ".png"},

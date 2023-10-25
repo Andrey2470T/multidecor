@@ -307,7 +307,6 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 	material = "plastic",
 	description = "Ceiling Fan",
 	mesh = "multidecor_ceiling_fan.b3d",
-	visual_scale = 0.5,
 	tiles = {"multidecor_ceiling_fan.png"},
 	inventory_image = "multidecor_ceiling_fan_inv.png",
 	bounding_boxes = {{-0.2, 0, -0.2, 0.2, 0.5, 0.2}},
@@ -366,7 +365,6 @@ multidecor.register.register_furniture_unit("kitchen_cooker", {
 	description = "Kitchen Cooker",
 	mesh = "multidecor_kitchen_cooker.b3d",
 	inventory_image = "multidecor_kitchen_cooker_inv.png",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_metal_material.png",
 		"multidecor_kitchen_cooker_black_metal.png",
@@ -413,7 +411,6 @@ multidecor.register.register_furniture_unit("kitchen_cooker_activated", {
 	mesh = "multidecor_kitchen_cooker.b3d",
 	inventory_image = "multidecor_kitchen_cooker_inv.png",
 	light_source = 8,
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_metal_material.png",
 		"multidecor_kitchen_cooker_black_metal.png",
@@ -465,7 +462,6 @@ multidecor.register.register_light("kitchen_hood", {
 	material = "metal",
 	description = "Kitchen Hood",
 	mesh = "multidecor_kitchen_hood.b3d",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_kitchen_hood_body.png",
 		"multidecor_kitchen_hood_net.png"
@@ -496,7 +492,6 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 	description = "Kitchen Fridge",
 	mesh = "multidecor_fridge.b3d",
 	inventory_image = "multidecor_fridge_inv.png",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_fridge_base.png",
 		"multidecor_fridge_interior.png",
@@ -589,7 +584,6 @@ multidecor.register.register_furniture_unit("porcelain_plate", {
 	material = "glass",
 	description = "Porcelain Plate",
 	mesh = "multidecor_porcelain_plate.b3d",
-	visual_scale = 0.5,
 	tiles = {"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png"},
 	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, -0.4, 0.3}}
 },
@@ -607,7 +601,6 @@ multidecor.register.register_furniture_unit("porcelain_plate_with_fork_and_knife
 	material = "glass",
 	description = "Porcelain Plate With Fork And Knife",
 	mesh = "multidecor_porcelain_plate_with_fork_and_knife.b3d",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png",
 		"multidecor_metal_material.png",
@@ -634,7 +627,6 @@ multidecor.register.register_furniture_unit("porcelain_cup", {
 	material = "glass",
 	description = "Porcelain Cup",
 	mesh = "multidecor_porcelain_cup.b3d",
-	visual_scale = 0.5,
 	tiles = {"multidecor_porcelain_material.png"},
 	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, -0.15, 0.2}}
 },
@@ -653,7 +645,6 @@ multidecor.register.register_furniture_unit("glass_cup", {
 	description = "Glass Cup",
 	mesh = "multidecor_porcelain_cup.b3d",
 	use_texture_alpha = "blend",
-	visual_scale = 0.5,
 	tiles = {"multidecor_glass_material.png"},
 	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, -0.15, 0.2}}
 },
@@ -672,7 +663,6 @@ multidecor.register.register_furniture_unit("napkins_rack", {
 	material = "plastic",
 	description = "Rack for paper napkins",
 	mesh = "multidecor_napkins_rack.b3d",
-	visual_scale = 0.5,
 	tiles = {"multidecor_metal_material.png", "multidecor_paper_napkins.png"},
 	bounding_boxes = {{-0.2, -0.5, -0.1, 0.2, -0.1, 0.1}}
 },
@@ -692,7 +682,6 @@ multidecor.register.register_furniture_unit("saucepans_set", {
 	description = "Saucepans set (put it on the cooker top)",
 	mesh = "multidecor_saucepans_set.b3d",
 	use_texture_alpha = "blend",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_metal_material.png",
 		"multidecor_metal_material3.png",
@@ -729,7 +718,6 @@ multidecor.register.register_furniture_unit("cast_iron_pan", {
 	material = "metal",
 	description = "Cast Iron Pan",
 	mesh = "multidecor_cast_iron_pan.b3d",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_coarse_metal_material.png",
 		"multidecor_wood.png"
@@ -745,7 +733,6 @@ multidecor.register.register_furniture_unit("porcelain_saucer_with_cup", {
 	material = "glass",
 	description = "Porcelain Saucer With Cup",
 	mesh = "multidecor_porcelain_saucer_with_cup.b3d",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png",
 	},
@@ -765,7 +752,6 @@ multidecor.register.register_furniture_unit("porcelain_saucer_with_tea_cup", {
 	material = "glass",
 	description = "Porcelain Saucer With Tea Cup",
 	mesh = "multidecor_porcelain_saucer_with_tea_cup.b3d",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png",
 		"multidecor_tea.png"
@@ -812,7 +798,6 @@ multidecor.register.register_furniture_unit("faceted_glass", {
 	material = "glass",
 	description = "Faceted Glass",
 	mesh = "multidecor_faceted_glass.b3d",
-	visual_scale = 0.5,
 	tiles = {"multidecor_glass_material.png"},
 	use_texture_alpha = "blend",
 	bounding_boxes = {
@@ -832,7 +817,6 @@ multidecor.register.register_furniture_unit("porcelain_teapot", {
 	material = "glass",
 	description = "Porcelain Teapot",
 	mesh = "multidecor_porcelain_teapot.b3d",
-	visual_scale = 0.5,
 	tiles = {"multidecor_porcelain_material.png", "multidecor_porcelain_plate_pattern.png"},
 	bounding_boxes = {
 		{-0.25, -0.5, -0.25, 0.25, -0.15, 0.25}
@@ -947,7 +931,6 @@ multidecor.register.register_furniture_unit("kitchen_metallic_hanger", {
 	material = "metal",
 	description = "Kitchen Metallic Hanger",
 	mesh = "multidecor_kitchen_metallic_hanger.b3d",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_metal_material3.png",
 		"multidecor_coarse_metal_material.png",
@@ -972,7 +955,6 @@ multidecor.register.register_furniture_unit("kitchen_metallic_hanger_with_ladle_
 	material = "metal",
 	description = "Kitchen Metallic Hanger With Ladle And Board",
 	mesh = "multidecor_kitchen_metallic_hanger_with_ladle_and_board.b3d",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_metal_material3.png",
 		"multidecor_coarse_metal_material.png",
@@ -1000,7 +982,6 @@ multidecor.register.register_furniture_unit("kitchen_organiser", {
 	material = "plastic",
 	description = "Kitchen Cutlery Organiser",
 	mesh = "multidecor_kitchen_cutlery_organiser.b3d",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_kitchen_cooker_black_metal.png",
 		"multidecor_metal_material.png",
@@ -1025,8 +1006,6 @@ multidecor.register.register_furniture_unit("microwave", {
 	material = "plastic",
 	description = "Microwave",
 	mesh = "multidecor_microwave.b3d",
-	--inventory_image = "multidecor_fridge_inv.png",
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_plastic_material.png",
 		"multidecor_microwave_interior.png",
@@ -1074,9 +1053,7 @@ multidecor.register.register_furniture_unit("microwave_activated", {
 	material = "plastic",
 	description = "Microwave",
 	mesh = "multidecor_microwave.b3d",
-	--inventory_image = "multidecor_fridge_inv.png",
 	light_source = 8,
-	visual_scale = 0.5,
 	tiles = {
 		"multidecor_plastic_material.png",
 		"multidecor_microwave_interior.png",

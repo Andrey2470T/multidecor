@@ -1,7 +1,6 @@
 multidecor.register.register_hedge("dark_rusty_fence", {
 	style = "modern",
 	material = "metal",
-	visual_scale = 0.5,
 	description = "Dark Rusty Fence",
 	mesh = "multidecor_dark_rusty_fence.b3d",
 	tiles = {
@@ -37,7 +36,6 @@ multidecor.register.register_hedge("dark_rusty_fence", {
 multidecor.register.register_hedge("high_dark_rusty_fence", {
 	style = "modern",
 	material = "metal",
-	visual_scale = 0.5,
 	description = "High Dark Rusty Fence",
 	mesh = "multidecor_high_dark_rusty_fence.b3d",
 	tiles = {
@@ -66,7 +64,6 @@ multidecor.register.register_furniture_unit("slatted_wooden_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	visual_scale = 0.5,
 	description = "Slatted Wooden Fence",
 	use_texture_alpha = "blend",
 	mesh = "multidecor_slatted_wooden_fence.b3d",
@@ -86,7 +83,6 @@ multidecor.register.register_furniture_unit("high_slatted_wooden_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	visual_scale = 0.5,
 	description = "High Slatted Wooden Fence",
 	use_texture_alpha = "blend",
 	mesh = "multidecor_high_slatted_wooden_fence.b3d",
@@ -102,7 +98,6 @@ multidecor.register.register_furniture_unit("corrugated_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	visual_scale = 0.5,
 	description = "Corrugated Fence",
 	mesh = "multidecor_corrugated_fence.b3d",
 	tiles = {"multidecor_plastic_material.png^[multiply:darkgreen"},
@@ -121,7 +116,6 @@ multidecor.register.register_furniture_unit("high_corrugated_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	visual_scale = 0.5,
 	description = "High Corrugated Fence",
 	mesh = "multidecor_high_corrugated_fence.b3d",
 	tiles = {"multidecor_plastic_material.png^[multiply:darkgreen"},

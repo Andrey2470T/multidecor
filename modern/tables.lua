@@ -2,6 +2,7 @@ multidecor.register.register_table("kitchen_modern_wooden_table", {
 	style = "modern",
 	material = "wood",
 	description = "Kitchen Modern Wooden Table",
+	visual_scale = 0.4,
 	mesh = "multidecor_kitchen_modern_wooden_table.b3d",
 	tiles = {"multidecor_wood.png", "multidecor_wood.png", "multidecor_wood.png^[opacity:0"},
 	bounding_boxes = {
@@ -38,6 +39,7 @@ multidecor.register.register_table("kitchen_modern_wooden_table_with_cloth", {
 	style = "modern",
 	material = "wood",
 	description = "Kitchen Modern Wooden Table With Cloth",
+	visual_scale = 0.4,
 	mesh = "multidecor_kitchen_modern_wooden_table.b3d",
 	tiles = {"multidecor_wood.png^[opacity:0", "multidecor_wood.png", "multidecor_wool_material.png"},
 	bounding_boxes = {
@@ -74,6 +76,7 @@ multidecor.register.register_table("round_modern_metallic_table", {
 	style = "modern",
 	material = "metal",
 	description = "Round Modern Metallic Table",
+	visual_scale = 0.4,
 	mesh = "multidecor_round_metallic_table.b3d",
 	tiles = {"multidecor_metal_material.png", "multidecor_aspen_wood.png"},
 	bounding_boxes = {
@@ -92,6 +95,7 @@ multidecor.register.register_table("round_modern_wooden_table", {
 	style = "modern",
 	material = "wood",
 	description = "Round Modern Wooden Table",
+	visual_scale = 0.4,
 	mesh = "multidecor_round_wooden_table.obj",
 	tiles = {"multidecor_jungle_wood.png"},
 	bounding_boxes = {
@@ -110,6 +114,7 @@ multidecor.register.register_table("modern_wooden_desk", {
 	style = "modern",
 	material = "wood",
 	description = "Modern Wooden Desk",
+	visual_scale = 0.4,
 	mesh = "multidecor_wooden_desk.obj",
 	tiles = {"multidecor_jungle_wood.png"},
 	bounding_boxes = {
@@ -192,6 +197,7 @@ multidecor.register.register_table("modern_wooden_table_with_metallic_legs", {
 	style = "modern",
 	material = "metal",
 	description = "Modern Wooden Table With Metallic Legs",
+	visual_scale = 0.4,
 	mesh = "multidecor_wooden_table_with_metallic_legs.b3d",
 	tiles = {"multidecor_aspen_wood.png", "multidecor_metal_material.png"},
 	bounding_boxes = {
@@ -210,7 +216,6 @@ multidecor.register.register_table("modern_bedside_table", {
 	style = "modern",
 	material = "wood",
 	description = "Modern Bedside Table",
-	visual_scale = 0.5,
 	mesh = "multidecor_bedside_table.b3d",
 	tiles = {"multidecor_pine_wood2.png", "multidecor_hardboard.png"},
 	bounding_boxes = {

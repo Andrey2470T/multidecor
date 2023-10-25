@@ -37,14 +37,13 @@ local tile_bboxes = {
 	wall_top = {-0.5, 0.4, -0.5, 0.5, 0.5, 0.5},
 	wall_bottom = {-0.5, -0.5, -0.5, 0.5, -0.4, 0.5},
 	wall_side = {-0.5, -0.5, -0.5, -0.4, 0.5, 0.5}
-		
+
 }
 
 multidecor.register.register_furniture_unit("modern_floor_clock", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	visual_scale = 0.5,
 	description = "Floor Clock",
 	inventory_image = "multidecor_floor_clock_inv.png",
 	use_texture_alpha = "blend",
@@ -153,7 +152,6 @@ multidecor.register.register_furniture_unit("book", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	visual_scale = 0.5,
 	description = "Book",
 	mesh = "multidecor_book.b3d",
 	tiles = {
@@ -185,7 +183,6 @@ multidecor.register.register_furniture_unit("book_open", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	visual_scale = 0.5,
 	description = "Book",
 	mesh = "multidecor_book_open.b3d",
 	tiles = {
@@ -233,7 +230,6 @@ multidecor.register.register_furniture_unit("books_stack", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	visual_scale = 0.5,
 	description = "Books Stack",
 	mesh = "multidecor_books_stack.b3d",
 	tiles = {
@@ -257,7 +253,6 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 	type = "decoration",
 	style = "modern",
 	material = "plastic",
-	visual_scale = 0.5,
 	description = "Alarm Clock",
 	mesh = "multidecor_alarm_clock.b3d",
 	tiles = {
@@ -356,13 +351,13 @@ for name, def in pairs(floors_defs) do
 		selection_box = tile_bboxes,
 		sounds = default.node_sound_wood_defaults()
 	})
-	
+
 	minetest.register_craft({
 		type = "shapeless",
 		output = tile_name,
 		recipe = def[3]
 	})
-	
+
 	local block_name = "multidecor:" .. name .. "_block"
 	minetest.register_node(":" .. block_name, {
 		description = def[1] .. " Block",
@@ -405,12 +400,12 @@ local on_rightclick_flowerpot = function(pos, node, clicker, itemstack)
 	local itemname = itemstack:get_name()
 
 	local is_flowers_mod_i = itemname:find(":")
-	
+
 	if not is_flowers_mod_i then return end
-	
+
 	local modname = itemname:sub(1, is_flowers_mod_i-1)
 	local flower = itemname:sub(is_flowers_mod_i+1)
-	 
+
 	if modname ~= "flowers" or minetest.get_item_group(itemname, "flower") == 0 or table.indexof(flowers, flower) == -1 then
 		return
 	end
@@ -429,14 +424,14 @@ local on_rightclick_flowerpot_with_flower = function(pos, node, clicker, itemsta
 	local itemname = itemstack:get_name()
 
 	local is_flowers_mod_i = itemname:find(":")
-	
+
 	local modname, flower
-	
+
 	if is_flowers_mod_i then
 		modname = itemname:sub(1, is_flowers_mod_i-1)
 		flower = itemname:sub(is_flowers_mod_i+1)
 	end
-	
+
 	if modname == "flowers" and minetest.get_item_group(itemname, "flower") == 1 and table.indexof(flowers, flower) ~= -1 then
 		if flower ~= current_flower then
 			minetest.set_node(pos, {name=node.name:gsub(current_flower, flower), param2=node.param2})
@@ -565,7 +560,6 @@ multidecor.register.register_furniture_unit("white_plastic_flowerpot", {
 	type = "decoration",
 	style = "modern",
 	material = "plastic",
-	visual_scale = 0.5,
 	description = "White Plastic Flowerpot",
 	mesh = "multidecor_white_plastic_flowerpot.b3d",
 	tiles = {

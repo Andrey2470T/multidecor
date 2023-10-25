@@ -1,7 +1,6 @@
 multidecor.register.register_door("high_dark_rusty_gate", {
 	style = "modern",
 	material = "metal",
-	visual_scale = 0.5,
 	description = "High Dark Rusty Gate",
 	mesh = "multidecor_high_dark_rusty_gate.b3d",
 	tiles = {
@@ -35,7 +34,6 @@ multidecor.register.register_door("high_dark_rusty_gate", {
 multidecor.register.register_door("dark_rusty_gate", {
 	style = "modern",
 	material = "metal",
-	visual_scale = 0.5,
 	description = "Dark Rusty Gate",
 	mesh = "multidecor_dark_rusty_gate.b3d",
 	tiles = {
@@ -65,7 +63,6 @@ multidecor.register.register_door("dark_rusty_gate", {
 multidecor.register.register_door("wooden_door", {
 	style = "modern",
 	material = "wood",
-	visual_scale = 0.5,
 	description = "Wooden Door",
 	mesh = "multidecor_modern_wooden_door.b3d",
 	tiles = {
@@ -97,7 +94,6 @@ multidecor.register.register_door("wooden_door", {
 multidecor.register.register_door("bathroom_door", {
 	style = "modern",
 	material = "wood",
-	visual_scale = 0.5,
 	description = "Bathroom Door",
 	mesh = "multidecor_bathroom_door.b3d",
 	tiles = {
@@ -129,7 +125,6 @@ multidecor.register.register_door("bathroom_door", {
 multidecor.register.register_door("pine_glass_door", {
 	style = "modern",
 	material = "wood",
-	visual_scale = 0.5,
 	description = "Pine Glass Door",
 	mesh = "multidecor_pine_glass_door.b3d",
 	tiles = {
@@ -163,7 +158,6 @@ multidecor.register.register_door("pine_glass_door", {
 multidecor.register.register_door("technical_door", {
 	style = "modern",
 	material = "metal",
-	visual_scale = 0.5,
 	description = "Technical Door",
 	mesh = "multidecor_technical_door.b3d",
 	use_texture_alpha = "blend",

@@ -2,6 +2,7 @@ multidecor.register.register_seat("kitchen_modern_wooden_chair", {
 	style = "modern",
 	material = "wood",
 	description = "Kitchen Modern Wooden Chair",
+	visual_scale = 0.4,
 	mesh = "multidecor_kitchen_modern_wooden_chair.b3d",
 	tiles = {"multidecor_wood.png"},
 	bounding_boxes = {
@@ -29,6 +30,7 @@ multidecor.register.register_seat("soft_kitchen_modern_wooden_chair", {
 	style = "modern",
 	material = "wood",
 	description = "Soft Kitchen Modern Wooden Chair",
+	visual_scale = 0.4,
 	mesh = "multidecor_soft_kitchen_modern_wooden_chair.b3d",
 	tiles = {"multidecor_wood.png", "multidecor_wool_material.png"},
 	bounding_boxes = {
@@ -56,6 +58,7 @@ multidecor.register.register_seat("soft_modern_jungle_chair", {
 	style = "modern",
 	material = "wood",
 	description = "Soft Modern Jungle Chair",
+	visual_scale = 0.4,
 	mesh = "multidecor_soft_modern_jungle_chair.b3d",
 	tiles = {"multidecor_jungle_wood.png", "multidecor_wool_material.png"},
 	bounding_boxes = {
@@ -83,6 +86,7 @@ multidecor.register.register_seat("soft_round_modern_metallic_chair", {
 	style = "modern",
 	material = "metal",
 	description = "Soft Round Modern Metallic Chair",
+	visual_scale = 0.4,
 	mesh = "multidecor_round_soft_metallic_chair.b3d",
 	tiles = {"multidecor_wool_material.png", "multidecor_metal_material.png"},
 	bounding_boxes = {
@@ -110,6 +114,7 @@ multidecor.register.register_seat("round_modern_metallic_stool", {
 	style = "modern",
 	material = "metal",
 	description = "Round Modern Jungle Stool",
+	visual_scale = 0.4,
 	mesh = "multidecor_modern_round_metallic_stool.b3d",
 	tiles = {"multidecor_wool_material.png", "multidecor_metal_material.png"},
 	bounding_boxes = {
@@ -137,7 +142,6 @@ multidecor.register.register_seat("armchair_with_wooden_legs", {
 	material = "wood",
 	description = "Armchair with wooden legs",
 	inventory_image = "multidecor_armchair_with_wooden_legs_inv.png",
-	visual_scale = 0.5,
 	mesh = "multidecor_armchair_with_wooden_legs.b3d",
 	tiles = {"multidecor_pine_wood2.png", "multidecor_wool_material.png", "multidecor_wool_material.png"},
 	bounding_boxes = {
@@ -167,7 +171,6 @@ multidecor.register.register_seat("sofa", {
 	style = "modern",
 	material = "plastic",
 	description = "Sofa",
-	visual_scale = 0.5,
 	mesh = "multidecor_modern_sofa.b3d",
 	tiles = {"multidecor_modern_sofa.png", "multidecor_cloth.png"},
 	bounding_boxes = {
