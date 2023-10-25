@@ -737,8 +737,8 @@ multidecor.register.register_furniture_unit("underwear_tank", {
 				inv_size = {w=5,h=4},
 				side = "up",
 				sounds = {
-					open = "multidecor_cabinet_door_open",
-					close = "multidecor_cabinet_door_close"
+					open = "multidecor_plastic_open",
+					close = "multidecor_plastic_close"
 				}
 			}
 		}

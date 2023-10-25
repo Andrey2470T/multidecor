@@ -6,13 +6,13 @@ multidecor.register.register_seat("kitchen_modern_wooden_chair", {
 	mesh = "multidecor_kitchen_modern_wooden_chair.b3d",
 	tiles = {"multidecor_wood.png"},
 	bounding_boxes = {
-		{-0.36, -0.5, -0.36, 0.36, 0.3, 0.26},
-		{-0.36, -0.5, 0.26, 0.36, 1.3, 0.36}
+		{-0.29, -0.5, -0.29, 0.29, 0.145, 0.21},
+		{-0.29, -0.5, 0.21, 0.29, 0.9375, 0.285}
 	}
 },
 {
 	seat_data = {
-		pos = {x=0.0, y=0.3, z=0.0},
+		pos = {x=0.0, y=0.15, z=0.0},
 		rot = {x=0, y=0, z=0},
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1"}
@@ -34,13 +34,14 @@ multidecor.register.register_seat("soft_kitchen_modern_wooden_chair", {
 	mesh = "multidecor_soft_kitchen_modern_wooden_chair.b3d",
 	tiles = {"multidecor_wood.png", "multidecor_wool_material.png"},
 	bounding_boxes = {
-		{-0.36, -0.5, -0.36, 0.36, 0.35, 0.26},
-		{-0.36, -0.5, 0.26, 0.36, 1.3, 0.36}
+		{-0.29, -0.5, -0.29, 0.29, 0.145, 0.21},
+		{-0.29, -0.5, 0.21, 0.29, 0.9375, 0.285},
+		{-0.32, 0.145, -0.32, 0.32, 0.23, 0.21}
 	}
 },
 {
 	seat_data = {
-		pos = {x=0.0, y=0.4, z=0.0},
+		pos = {x=0.0, y=0.225, z=0.0},
 		rot = {x=0, y=0, z=0},
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1"}
@@ -62,13 +63,13 @@ multidecor.register.register_seat("soft_modern_jungle_chair", {
 	mesh = "multidecor_soft_modern_jungle_chair.b3d",
 	tiles = {"multidecor_jungle_wood.png", "multidecor_wool_material.png"},
 	bounding_boxes = {
-		{-0.35, -0.5, -0.35, 0.35, 0.25, 0.25},
-		{-0.35, -0.5, 0.25, 0.35, 1.2, 0.35}
+		{-0.27, -0.5, -0.27, 0.27, 0.13, 0.225},
+		{-0.27, -0.5, 0.225, 0.27, 0.825, 0.3}
 	}
 },
 {
 	seat_data = {
-		pos = {x=0.0, y=0.2, z=0.0},
+		pos = {x=0.0, y=0.1, z=0.0},
 		rot = {x=0, y=0, z=0},
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1"}
@@ -90,13 +91,13 @@ multidecor.register.register_seat("soft_round_modern_metallic_chair", {
 	mesh = "multidecor_round_soft_metallic_chair.b3d",
 	tiles = {"multidecor_wool_material.png", "multidecor_metal_material.png"},
 	bounding_boxes = {
-		{-0.5, -0.5, -0.5, 0.5, 0.25, 0.25},
-		{-0.5, -0.5, 0.25, 0.5, 0.95, 0.5}
+		{-0.5, -0.5, -0.4, 0.5, 0.25, 0.2},
+		{-0.5, -0.5, 0.2, 0.5, 0.8, 0.325}
 	}
 },
 {
 	seat_data = {
-		pos = {x=0.0, y=0.3, z=0.0},
+		pos = {x=0.0, y=0.2, z=0.0},
 		rot = {x=0, y=0, z=0},
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1"}
@@ -118,12 +119,12 @@ multidecor.register.register_seat("round_modern_metallic_stool", {
 	mesh = "multidecor_modern_round_metallic_stool.b3d",
 	tiles = {"multidecor_wool_material.png", "multidecor_metal_material.png"},
 	bounding_boxes = {
-		{-0.4, -0.5, -0.4, 0.4, 0.35, 0.4}
+		{-0.3, -0.5, -0.3, 0.3, 0.175, 0.3}
 	}
 },
 {
 	seat_data = {
-		pos = {x=0.0, y=0.3, z=0.0},
+		pos = {x=0.0, y=0.15, z=0.0},
 		rot = {x=0, y=0, z=0},
 		model = multidecor.sitting.standard_model,
 		anims = {"sit1"}
