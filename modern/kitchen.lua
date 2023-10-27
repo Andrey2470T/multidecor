@@ -298,9 +298,6 @@ for name, props in pairs(objects) do
 	})
 end
 
-
-local fans_blades = {}
-
 multidecor.register.register_furniture_unit("ceiling_fan", {
 	type = "decoration",
 	style = "modern",
@@ -312,15 +309,8 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 	bounding_boxes = {{-0.2, 0, -0.2, 0.2, 0.5, 0.2}},
 	callbacks = {
 		on_construct = function(pos)
-			local blades = minetest.add_entity(pos, "modern:ceiling_fan_blades", vector.to_string(pos))
-		end,
-		on_destruct = function(pos)
-			local strpos = vector.to_string(pos)
-
-			if fans_blades[strpos] then
-				fans_blades[strpos]:remove()
-				fans_blades[strpos] = nil
-			end
+			local node = minetest.get_node(pos)
+			minetest.add_entity(pos, "modern:ceiling_fan_blades", minetest.serialize({pos=pos, name=node.name}))
 		end
 	}
 },
@@ -345,16 +335,43 @@ minetest.register_entity("modern:ceiling_fan_blades", {
 		self.object:set_armor_groups({immortal=1})
 
 		if staticdata ~= "" then
-			self.attached_to = staticdata
+			-- The code below is for backwards compatibility with versions < 1.2.5
+			local attach = vector.from_string(staticdata)
 
-			if not fans_blades[self.attached_to] then
-				fans_blades[self.attached_to] = self.object
-				self.object:set_animation({x=1, y=40})
+			if attach then
+				self.object:remove()
+				minetest.set_node(attach, minetest.get_node(attach))
+				return
 			end
+			-- end
+
+			self.attached_to = minetest.deserialize(staticdata)
+
+			if self.attached_to.sound then
+				minetest.sound_stop(self.attached_to.sound)
+			end
+
+			self.attached_to.sound = minetest.sound_play("multidecor_fan_noise", {object=self.object, fade=1.0, max_hear_distance=15, loop=true})
+		end
+
+		self.object:set_animation({x=1, y=40})
+	end,
+	on_step = function(self, dtime)
+		if not self.attached_to then
+			self.object:remove()
+			return
+		end
+
+		local cur_node = minetest.get_node(self.attached_to.pos)
+
+		if cur_node.name ~= self.attached_to.name then
+			self.object:remove()
+			minetest.sound_stop(self.attached_to.sound)
+			return
 		end
 	end,
 	get_staticdata = function(self)
-		return self.attached_to
+		return minetest.serialize(self.attached_to)
 	end
 })
 

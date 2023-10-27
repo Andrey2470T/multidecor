@@ -437,7 +437,12 @@ end
 multidecor.shelves.default_on_activate = function(self, staticdata)
 	if staticdata ~= "" then
 		local data = minetest.deserialize(staticdata)
-		--self.inv = data[1]
+
+		-- The code below is for backwards compatibility with versions < 1.2.5
+		if type(data[1]) == "string" then
+			table.remove(data[1])
+		end
+		--end
 		self.connected_to = data[1]
 		self.dir = data[2]
 		self.shelf_data_i = data[3]
