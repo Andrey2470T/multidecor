@@ -439,20 +439,21 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 		local data = minetest.deserialize(staticdata)
 
 		-- The code below is for backwards compatibility with versions < 1.2.5
+		local ind_incr = 0
 		if type(data[1]) == "string" then
-			table.remove(data[1])
+			ind_incr = 1
 		end
 		--end
-		self.connected_to = data[1]
-		self.dir = data[2]
-		self.shelf_data_i = data[3]
-		self.inv_list = data[4] or {}
-		self.start_v = data[5]
-		self.end_v = data[6]
-		self.is_flip_x_scale = data[7]
-		self.rotate_x = data[8]
-		self.cook_info = data[9]
-		self.lock_info = data[10]		-- table containing name of the owner locked the shelf and share group members
+		self.connected_to = data[1+ind_incr]
+		self.dir = data[2+ind_incr]
+		self.shelf_data_i = data[3+ind_incr]
+		self.inv_list = data[4+ind_incr] or {}
+		self.start_v = data[5+ind_incr]
+		self.end_v = data[6+ind_incr]
+		self.is_flip_x_scale = data[7+ind_incr]
+		self.rotate_x = data[8+ind_incr]
+		self.cook_info = data[9+ind_incr]
+		self.lock_info = data[10+ind_incr]		-- table containing name of the owner locked the shelf and share group members
 	end
 
 	local node = minetest.get_node(self.connected_to.pos)
@@ -684,6 +685,8 @@ end
 multidecor.shelves.default_on_destruct = function(pos)
 	local meta = minetest.get_meta(pos)
 	local connected_to = minetest.deserialize(meta:get_string("connected_to"))
+
+	if not connected_to then return end
 	local shelves_data = minetest.registered_nodes[connected_to.name].add_properties.shelves_data
 
 	local inv_name = multidecor.helpers.build_name_from_tmp(
@@ -701,8 +704,14 @@ multidecor.shelves.default_on_node_rightclick = function(pos, node, clicker)
 
 	if not has then return end
 
-	clicker:get_meta():set_string("open_shelf", vector.to_string(pos))
 	local connected_to = minetest.deserialize(meta:get_string("connected_to"))
+
+	if not connected_to then
+		minetest.set_node(pos, minetest.get_node(pos))
+		return
+	end
+	clicker:get_meta():set_string("open_shelf", vector.to_string(pos))
+
 	local cook_info = minetest.deserialize(meta:get_string("cook_info"))
 	local shelves_data = minetest.registered_nodes[connected_to.name].add_properties.shelves_data
 

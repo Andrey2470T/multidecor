@@ -106,6 +106,11 @@ minetest.register_entity("modern:floor_clock_balance_wheel", {
 		else
 			self.attached_to = minetest.deserialize(staticdata)
 
+			if not self.attached_to then
+				self.object:remove()
+				return
+			end
+
 			if minetest.get_meta(self.attached_to.pos):get_string("is_activated") == "true" then
 				self.object:set_animation({x=1, y=40}, 40.0, 0.0, true)
 

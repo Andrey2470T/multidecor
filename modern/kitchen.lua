@@ -347,6 +347,11 @@ minetest.register_entity("modern:ceiling_fan_blades", {
 
 			self.attached_to = minetest.deserialize(staticdata)
 
+			if not attach and not self.attached_to then
+				self.object:remove()
+				return
+			end
+
 			if self.attached_to.sound then
 				minetest.sound_stop(self.attached_to.sound)
 			end
@@ -354,7 +359,7 @@ minetest.register_entity("modern:ceiling_fan_blades", {
 			self.attached_to.sound = minetest.sound_play("multidecor_fan_noise", {object=self.object, fade=1.0, max_hear_distance=15, loop=true})
 		end
 
-		self.object:set_animation({x=1, y=40})
+		self.object:set_animation({x=1, y=40}, 30)
 	end,
 	on_step = function(self, dtime)
 		if not self.attached_to then
