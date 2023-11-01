@@ -1,6 +1,6 @@
 multidecor.tap = {}
 
-function multidecor.tap.register_water_stream(pos, spawn_min_pos, spawn_max_pos, amount, velocity, direction, sound, check_for_sink)
+--[[function multidecor.tap.register_water_stream(pos, spawn_min_pos, spawn_max_pos, amount, velocity, direction, sound, check_for_sink)
 	local meta = minetest.get_meta(pos)
 
 	meta:set_string("water_stream_info", minetest.serialize({
@@ -12,7 +12,7 @@ function multidecor.tap.register_water_stream(pos, spawn_min_pos, spawn_max_pos,
 		water_sound = sound,
 		check_for_sink = check_for_sink
 	}))
-end
+end]]
 
 function multidecor.tap.is_on(pos)
 	return minetest.get_meta(pos):get_string("water_stream_id") ~= ""
@@ -25,7 +25,7 @@ function multidecor.tap.on(pos)
 	if id ~= "" then return end
 
 
-	local water_info = minetest.deserialize(meta:get_string("water_stream_info"))
+	local water_info = minetest.registered_nodes[minetest.get_node(pos).name].add_properties.tap_data
 
 	if water_info.check_for_sink then
 		local down_node = minetest.get_node({x=pos.x, y=pos.y-1, z=pos.z})
@@ -36,12 +36,12 @@ function multidecor.tap.on(pos)
 		end
 	end
 
-	local rot_water_min_pos = multidecor.helpers.rotate_to_node_dir(pos, water_info.water_min_pos)
-	local rot_water_max_pos = multidecor.helpers.rotate_to_node_dir(pos, water_info.water_max_pos)
-	local rot_water_dir = multidecor.helpers.rotate_to_node_dir(pos, water_info.water_direction)
+	local rot_water_min_pos = multidecor.helpers.rotate_to_node_dir(pos, water_info.min_pos)
+	local rot_water_max_pos = multidecor.helpers.rotate_to_node_dir(pos, water_info.max_pos)
+	local rot_water_dir = multidecor.helpers.rotate_to_node_dir(pos, water_info.direction)
 
 	local id = minetest.add_particlespawner({
-		amount = water_info.water_amount,
+		amount = water_info.amount,
 		time = 0,
 		collisiondetection = true,
 		object_collision = true,
@@ -49,8 +49,8 @@ function multidecor.tap.on(pos)
 		texture = "multidecor_water_drop.png",
 		minpos = pos+rot_water_min_pos+vector.new(-0.05, 0, -0.05),
 		maxpos = pos+rot_water_max_pos+vector.new(0.05, 0, 0.05),
-		minvel = rot_water_dir*water_info.water_velocity,
-		maxvel = rot_water_dir*water_info.water_velocity,
+		minvel = rot_water_dir*water_info.velocity,
+		maxvel = rot_water_dir*water_info.velocity,
 		minacc = vector.new(0, -9.8, 0),
 		maxacc = vector.new(0, -9.8, 0),
 		minsize = 0.8,
@@ -59,7 +59,7 @@ function multidecor.tap.on(pos)
 
 	meta:set_string("water_stream_id", tostring(id))
 
-	local sound_handle = minetest.sound_play(water_info.water_sound, {pos=pos, fade=1.0, max_hear_distance=12, loop=true})
+	local sound_handle = minetest.sound_play(water_info.sound, {pos=pos, fade=1.0, max_hear_distance=12, loop=true})
 	meta:set_string("sound_handle", minetest.serialize(sound_handle))
 end
 

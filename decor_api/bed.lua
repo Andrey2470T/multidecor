@@ -1,4 +1,4 @@
-local default_on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+local default_bed_on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 	local add_props = minetest.registered_nodes[node.name].add_properties
 
 	if not add_props then
@@ -36,7 +36,13 @@ local default_on_rightclick = function(pos, node, clicker, itemstack, pointed_th
 	return itemstack
 end
 
-local default_can_dig = function(pos)
+local default_bed_after_place = function(pos, placer, itemstack)
+	local leftover = multidecor.placement.check_for_placement(pos, placer)
+
+	return leftover
+end
+
+local default_bed_can_dig = function(pos)
 	local add_props = minetest.registered_nodes[minetest.get_node(pos).name].add_properties
 
 	if not add_props then
@@ -69,14 +75,16 @@ function multidecor.register.register_bed(name, base_def, add_def, craft_def)
 	if def.callbacks then
 		def.callbacks.after_destruct = nil
 		def.callbacks.after_dig_node = nil
-		def.callbacks.on_rightclick = def.callbacks.on_rightclick or default_on_rightclick
+		def.callbacks.after_place_node = def.callbacks.after_place_node or default_bed_after_place
+		def.callbacks.on_rightclick = def.callbacks.on_rightclick or default_bed_on_rightclick
 		def.callbacks.on_destruct = def.callbacks.on_destruct or mtg_bed_def.on_destruct
-		def.callbacks.can_dig = def.callbacks.can_dig or default_can_dig
+		def.callbacks.can_dig = def.callbacks.can_dig or default_bed_can_dig
 	else
 		def.callbacks = {
+			after_place_node = default_bed_after_place,
 			on_rightclick = default_on_rightclick,
 			on_destruct = mtg_bed_def.on_destruct,
-			can_dig = default_can_dig
+			can_dig = default_bed_can_dig
 		}
 	end
 

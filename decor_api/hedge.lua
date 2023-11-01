@@ -2,6 +2,12 @@ local function default_on_construct_dir(pos)
 	multidecor.connecting.update_adjacent_nodes_connection(pos, "directional")
 end
 
+local function default_hedge_after_place(pos, placer, itemstack)
+	local leftover = multidecor.placement.check_for_placement(pos, placer)
+
+	return leftover
+end
+
 local function default_after_destruct_dir(pos, oldnode)
 	multidecor.connecting.update_adjacent_nodes_connection(pos, "directional", true, oldnode)
 end
@@ -29,23 +35,15 @@ function multidecor.register.register_hedge(name, base_def, add_def, craft_def)
 		end
 	end
 
-	if def.callbacks then
-		if add_def.connect_parts then
-			def.callbacks.after_dig_node = def.callbacks.after_dig_node or default_after_destruct_dir
+	def.callbacks = def.callbacks or {}
 
-			def.callbacks.on_construct = def.callbacks.on_construct or default_on_construct_dir
-		elseif add_def.double then
-			def.callbacks.on_construct = def.callbacks.on_construct or default_on_construct_pair
-		end
-	else
-		def.callbacks = {}
+	def.callbacks.after_place_node = def.callbacks.after_place_node or default_hedge_after_place
 
-		if add_def.connect_parts then
-			def.callbacks.after_dig_node = default_after_destruct_dir
-			def.callbacks.on_construct = default_on_construct_dir
-		elseif add_def.double then
-			def.callbacks.on_construct = default_on_construct_pair
-		end
+	if add_def.connect_parts then
+		def.callbacks.on_construct = def.callbacks.on_construct or default_on_construct_dir
+		def.callbacks.after_dig_node = def.callbacks.after_dig_node or default_after_destruct_dir
+	elseif add_def.double then
+		def.callbacks.on_construct = def.callbacks.on_construct or default_on_construct_pair
 	end
 
 	multidecor.register.register_furniture_unit(name, def, craft_def)

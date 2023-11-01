@@ -33,7 +33,7 @@ local silver_chain_bbox = {
 	fixed = {-0.1, -0.5, -0.1, 0.1, 0.5, 0.1}
 }
 
-local silver_chain_on_construct = function(pos)
+local silver_chain_after_place_node = function(pos)
 	local up_node = minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z})
 	local up_def = minetest.registered_nodes[up_node.name]
 
@@ -44,11 +44,16 @@ local silver_chain_on_construct = function(pos)
 	end
 end
 
-local silver_chandelier_on_construct = function(pos)
+local silver_chandelier_after_place_node = function(pos, placer)
 	local up_node = minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z})
 
 	if minetest.get_item_group(up_node.name, "multidecor_silver_chain") == 0 then
+		local put_item = ItemStack(minetest.get_node(pos).name)
 		minetest.remove_node(pos)
+
+		placer:get_inventory():add_item("main", put_item)
+
+		return put_item
 	end
 end
 
@@ -64,7 +69,7 @@ minetest.register_node(":multidecor:silver_chain", {
 	sounds = default.node_sound_metal_defaults(),
 	collision_box = silver_chain_bbox,
     selection_box = silver_chain_bbox,
-	on_construct = silver_chain_on_construct
+	after_place_node = silver_chain_after_place_node
 })
 
 minetest.register_node(":multidecor:silver_chain_tip", {
@@ -164,7 +169,7 @@ multidecor.register.register_light("gold_chandelier_with_glass_candles_off", {
 		{-0.5, -0.5, -0.5, 0.5, 0, 0.5}
 	},
 	callbacks = {
-		on_construct = silver_chandelier_on_construct
+		after_place_node = silver_chandelier_after_place_node
 	}
 },
 {

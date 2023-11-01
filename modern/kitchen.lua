@@ -118,6 +118,15 @@ local cmpnts = {
 			pos_trash = {x=0.45, y=0, z=0.4},
 			side = "left"
 		},
+		tap_data = {
+			min_pos = tap_pos,
+			max_pos = tap_pos,
+			amount = 80,
+			velocity = 2,
+			direction = {x=0, y=-1, z=0},
+			sound = "multidecor_tap",
+			check_for_sink = false
+		},
 		craft = {
 			{"multidecor:board", "multidecor:board", "multidecor:board"},
 			{"multidecor:board", "multidecor:cabinet_door", "multidecor:steel_sheet"},
@@ -126,14 +135,10 @@ local cmpnts = {
 		callbacks = {
 			on_construct = function(pos)
 				multidecor.shelves.set_shelves(pos)
-				multidecor.tap.register_water_stream(pos, tap_pos, tap_pos, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", false)
+				--multidecor.tap.register_water_stream(pos, tap_pos, tap_pos, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", false)
 			end,
-			on_rightclick = function(pos)
-				multidecor.tap.toggle(pos)
-			end,
-			on_destruct = function(pos)
-				multidecor.tap.off(pos)
-			end
+			on_rightclick = multidecor.tap.default_on_rightclick,
+			on_destruct = multidecor.tap.default_on_destruct
 		}
 	},
 }

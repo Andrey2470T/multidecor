@@ -150,6 +150,12 @@ function multidecor.doors.convert_from_entity(obj)
 	minetest.set_node(pos, {name=name, param2=param2})
 end
 
+local function default_door_after_place(pos, placer, itemstack)
+	local leftover = multidecor.placement.check_for_placement(pos, placer)
+
+	return leftover
+end
+
 local function default_door_on_rightclick(pos)
 	local door_data = minetest.registered_nodes[minetest.get_node(pos).name].add_properties.door
 
@@ -227,11 +233,10 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 
 	c_def.add_properties.door.mode = "closed"
 
-	if c_def.callbacks then
-		c_def.callbacks.on_rightclick = c_def.callbacks.on_rightclick or default_door_on_rightclick
-	else
-		c_def.callbacks = {on_rightclick = default_door_on_rightclick}
-	end
+	c_def.callbacks = c_def.callbacks or {}
+
+	c_def.callbacks.after_place_node = c_def.callbacks.after_place_node or default_door_after_place
+	c_def.callbacks.on_rightclick = c_def.callbacks.on_rightclick or default_door_on_rightclick
 
 	multidecor.register.register_furniture_unit(name, c_def, craft_def)
 

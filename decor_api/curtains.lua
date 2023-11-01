@@ -146,7 +146,7 @@ function multidecor.curtains.move_curtains(pos, dir)
 	return res
 end
 
-function multidecor.curtains.default_after_place(pos)
+function multidecor.curtains.default_after_place(pos, placer)
 	local name = minetest.get_node(pos).name
 
 	local val = multidecor.curtains.can_place(pos, name)
@@ -155,6 +155,10 @@ function multidecor.curtains.default_after_place(pos)
 		minetest.remove_node(pos)
 		return true
 	end
+
+	local leftover = multidecor.check_for_placement(pos, placer)
+
+	return leftover
 end
 
 function multidecor.curtains.default_after_dig(pos, oldnode, oldmeta, digger)

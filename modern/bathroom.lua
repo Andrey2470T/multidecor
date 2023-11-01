@@ -166,15 +166,11 @@ for _, style in ipairs(bathroom_styles) do
 			on_construct = function(pos)
 				multidecor.shelves.set_shelves(pos)
 
-				multidecor.tap.register_water_stream(pos, {x=0.0, y=0.65, z=-0.1}, {x=0.0, y=0.65, z=-0.1}, 30, 2, {x=0, y=-1, z=0}, "multidecor_tap", false)
+				--multidecor.tap.register_water_stream(pos, {x=0.0, y=0.65, z=-0.1}, {x=0.0, y=0.65, z=-0.1}, 30, 2, {x=0, y=-1, z=0}, "multidecor_tap", false)
 			end,
 			can_dig = multidecor.shelves.default_can_dig,
-			on_rightclick = function(pos)
-				multidecor.tap.toggle(pos)
-			end,
-			on_destruct = function(pos)
-				multidecor.tap.off(pos)
-			end
+			on_rightclick = multidecor.tap.default_on_rightclick,
+			on_destruct = multidecor.tap.default_on_destruct
 		}
 	},
 	{
@@ -193,6 +189,15 @@ for _, style in ipairs(bathroom_styles) do
 					close = "multidecor_squeaky_door_close"
 				}
 			}
+		},
+		tap_data = {
+			min_pos = {x=0.0, y=0.65, z=-0.1},
+			max_pos = {x=0.0, y=0.65, z=-0.1},
+			amount = 30,
+			velocity = 2,
+			direction = {x=0, y=-1, z=0},
+			sound = "multidecor_tap",
+			check_for_sink = false
 		}
 	},
 	{
@@ -574,13 +579,24 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_cap_flap", {
 	bounding_boxes = {{-0.3, -0.1, 0.0, 0.3, 0.2, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
-			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.15, z=0.0}, {x=0.0, y=-0.15, z=0.0}, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
+			--multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.15, z=0.0}, {x=0.0, y=-0.15, z=0.0}, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
 
 			minetest.get_node_timer(pos):start(1)
 		end,
 		on_rightclick = multidecor.tap.default_on_rightclick,
 		on_destruct = multidecor.tap.default_on_destruct,
 		on_timer = multidecor.tap.default_on_timer
+	},
+	add_properties = {
+		tap_data = {
+			min_pos = {x=0.0, y=-0.15, z=0.0},
+			max_pos = {x=0.0, y=-0.15, z=0.0},
+			amount = 80,
+			velocity = 2,
+			direction = {x=0, y=-1, z=0},
+			sound = "multidecor_tap",
+			check_for_sink = true
+		}
 	}
 },
 {
@@ -601,13 +617,24 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_side_flaps", {
 	bounding_boxes = {{-0.3, -0.2, 0.0, 0.3, 0.1, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
-			multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.275, z=-0.025}, {x=0.0, y=-0.275, z=-0.025}, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
+			--multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.275, z=-0.025}, {x=0.0, y=-0.275, z=-0.025}, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
 
 			minetest.get_node_timer(pos):start(1)
 		end,
 		on_rightclick = multidecor.tap.default_on_rightclick,
 		on_destruct = multidecor.tap.default_on_destruct,
 		on_timer = multidecor.tap.default_on_timer
+	},
+	add_properties = {
+		tap_data = {
+			min_pos = {x=0.0, y=-0.275, z=-0.025},
+			max_pos = {x=0.0, y=-0.275, z=-0.025},
+			amount = 80,
+			velocity = 2,
+			direction = {x=0, y=-1, z=0},
+			sound = "multidecor_tap",
+			check_for_sink = true
+		}
 	}
 },
 {
@@ -628,14 +655,25 @@ multidecor.register.register_furniture_unit("shower_head", {
 	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0.35, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
-			multidecor.tap.register_water_stream(pos, {x=-0.15, y=0.05, z=0.0}, {x=0.15, y=0.2, z=0.0}, 150, 2,
-				vector.rotate_around_axis(vector.new(0, 1, 0), vector.new(1, 0, 0), -math.pi/3), "multidecor_tap", true)
+			--multidecor.tap.register_water_stream(pos, {x=-0.15, y=0.05, z=0.0}, {x=0.15, y=0.2, z=0.0}, 150, 2,
+			--	vector.rotate_around_axis(vector.new(0, 1, 0), vector.new(1, 0, 0), -math.pi/3), "multidecor_tap", true)
 
 			minetest.get_node_timer(pos):start(1)
 		end,
 		on_rightclick = multidecor.tap.default_on_rightclick,
 		on_destruct = multidecor.tap.default_on_destruct,
 		on_timer = multidecor.tap.default_on_timer
+	},
+	add_properties = {
+		tap_data = {
+			min_pos = {x=-0.15, y=0.05, z=0.0},
+			max_pos = {x=0.15, y=0.2, z=0.0},
+			amount = 150,
+			velocity = 2,
+			direction = vector.rotate_around_axis(vector.new(0, 1, 0), vector.new(1, 0, 0), -math.pi/3),
+			sound = "multidecor_tap",
+			check_for_sink = true
+		}
 	}
 },
 {
@@ -667,13 +705,24 @@ multidecor.register.register_furniture_unit("crooked_shower_head", {
 	bounding_boxes = {{-0.2, -0.3, -0.3, 0.2, 0.3, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
-			multidecor.tap.register_water_stream(pos, {x=-0.25, y=-0.35, z=-0.25}, {x=0.25, y=-0.35, z=0.25}, 250, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
+			--multidecor.tap.register_water_stream(pos, {x=-0.25, y=-0.35, z=-0.25}, {x=0.25, y=-0.35, z=0.25}, 250, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
 
 			minetest.get_node_timer(pos):start(1)
 		end,
 		on_rightclick = multidecor.tap.default_on_rightclick,
 		on_destruct = multidecor.tap.default_on_destruct,
 		on_timer = multidecor.tap.default_on_timer
+	},
+	add_properties = {
+		tap_data = {
+			min_pos = {x=-0.25, y=-0.35, z=-0.25},
+			max_pos = {x=0.25, y=-0.35, z=0.25},
+			amount = 250,
+			velocity = 2,
+			direction = {x=0, y=-1, z=0},
+			sound = "multidecor_tap",
+			check_for_sink = true
+		}
 	}
 },
 crooked_shower_head_recipe)

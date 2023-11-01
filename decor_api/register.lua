@@ -551,6 +551,7 @@ function multidecor.register.register_garniture(def)
 			common_name = def.common_name .. "_sink",
 			form_shelf_data("sink", "door", objects[1], def.components.sink.shelves_data.pos_trash, nil, nil, "left", "trash")
 		}
+		sink.add_properties.tap_data = def.components.sink.tap_data
 
 		multidecor.register.register_table(sink.add_properties.shelves_data.common_name, sink)
 	end

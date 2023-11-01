@@ -166,6 +166,12 @@ player_api.register_model(multidecor.sitting.standard_model, {
 	}
 })
 
+multidecor.sitting.default_after_place = function(pos, placer, itemstack)
+	local leftover = multidecor.placement.check_for_placement(pos, placer)
+
+	return leftover
+end
+
 multidecor.sitting.default_on_construct = function(pos)
 	minetest.get_meta(pos):set_string("is_busy", "")
 end
