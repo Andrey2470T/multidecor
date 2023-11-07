@@ -3,7 +3,6 @@ minetest.register_node(":multidecor:wolfram_ore", {
     tiles = {"default_stone.png^multidecor_wolfram_mineral.png"},
     is_ground_content = true,
     paramtype = "light",
-    light_source = 2,
     drop = {
 		max_items = 3,
 		items = {
@@ -22,7 +21,6 @@ minetest.register_node(":multidecor:desert_wolfram_ore", {
     tiles = {"default_desert_stone.png^multidecor_wolfram_mineral.png"},
     is_ground_content = true,
     paramtype = "light",
-    light_source = 2,
     drop = {
 		max_items = 3,
 		items = {
@@ -40,22 +38,22 @@ minetest.register_ore({
     ore_type = "scatter",
     ore = "multidecor:wolfram_ore",
     wherein = "default:stone",
-    clust_scarcity = 1500,
-    clust_num_ores = 4,
+    clust_scarcity = 2200,
+    clust_num_ores = 5,
     clust_size = 2,
     y_min = -31000,
-    y_max = -150
+    y_max = -400
 })
 
 minetest.register_ore({
     ore_type = "scatter",
     ore = "multidecor:desert_wolfram_ore",
     wherein = "default:desert_stone",
-    clust_scarcity = 1500,
-    clust_num_ores = 4,
+    clust_scarcity = 2200,
+    clust_num_ores = 5,
     clust_size = 2,
     y_min = -31000,
-    y_max = -150
+    y_max = -400
 })
 
 minetest.register_craftitem(":multidecor:wolfram_lump",
@@ -82,7 +80,6 @@ minetest.register_node(":multidecor:zinc_ore", {
     tiles = {"default_stone.png^multidecor_zinc_mineral.png"},
     is_ground_content = true,
     paramtype = "light",
-    light_source = 6,
     drop = {
 		max_items = 5,
 		items = {
@@ -101,7 +98,6 @@ minetest.register_node(":multidecor:desert_zinc_ore", {
     tiles = {"default_desert_stone.png^multidecor_zinc_mineral.png"},
     is_ground_content = true,
     paramtype = "light",
-    light_source = 6,
     drop = {
 		max_items = 5,
 		items = {
@@ -119,22 +115,22 @@ minetest.register_ore({
     ore_type = "scatter",
     ore = "multidecor:zinc_ore",
     wherein = "default:stone",
-    clust_scarcity = 900,
-    clust_num_ores = 5,
-    clust_size = 3,
+    clust_scarcity = 1500,
+    clust_num_ores = 7,
+    clust_size = 5,
     y_min = -31000,
-    y_max = -125
+    y_max = -200
 })
 
 minetest.register_ore({
     ore_type = "scatter",
     ore = "multidecor:desert_zinc_ore",
     wherein = "default:desert_stone",
-    clust_scarcity = 900,
-    clust_num_ores = 5,
-    clust_size = 3,
+    clust_scarcity = 1500,
+    clust_num_ores = 7,
+    clust_size = 5,
     y_min = -31000,
-    y_max = -125
+    y_max = -200
 })
 
 minetest.register_craftitem(":multidecor:zinc_fragment",
@@ -232,20 +228,20 @@ minetest.register_ore({
     ore_type = "scatter",
     ore = "multidecor:consolidated_oil",
     wherein = {"default:stone", "default:desert_stone"},
-    clust_scarcity = 700,
+    clust_scarcity = 1200,
     clust_num_ores = 20,
     clust_size = 3,
     y_min = -31000,
-    y_max = 15
+    y_max = -100
 })
 
 minetest.register_ore({
     ore_type = "blob",
     ore = "multidecor:oil_source",
     wherein = "multidecor:consolidated_oil",
-    clust_scarcity = 120,
+    clust_scarcity = 1500,
     clust_num_ores = 3,
     clust_size = 2,
     y_min = -31000,
-    y_max = 15
+    y_max = -30
 })

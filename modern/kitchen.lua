@@ -398,6 +398,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker", {
 		"multidecor_metal_material3.png",
 		"multidecor_kitchen_cooker_grid.png"
 	},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
 			multidecor.shelves.set_shelves(pos)
@@ -444,6 +445,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker_activated", {
 		"multidecor_metal_material3.png",
 		"multidecor_kitchen_cooker_grid.png"
 	},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}},
 	groups = {not_in_creative_inventory=1},
 	callbacks = {
 		can_dig = multidecor.shelves.default_can_dig

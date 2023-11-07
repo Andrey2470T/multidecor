@@ -94,6 +94,12 @@ function multidecor.register.build_description(name, base_desc)
 	return base_desc .. "\nStyle: " .. style .. (material ~= "" and "\nMaterial: " .. material or "")
 end
 
+function multidecor.register.after_place_node(pos, placer, itemstack)
+	local leftover = multidecor.placement.check_for_placement(pos, placer)
+
+	return leftover
+end
+
 --[[def:
 	{
 		type = <seat, shelf, bed, table, >
@@ -216,6 +222,19 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	f_def.callbacks = def.callbacks or {}
 	for cb_name, f in pairs(f_def.callbacks) do
 		f_def[cb_name] = f
+	end
+
+	if f_def.after_place_node then
+		local prev_after_place = f_def.after_place_node
+		local function after_place(pos, placer, itemstack)
+			prev_after_place(pos, placer, itemstack)
+
+			return multidecor.register.after_place_node(pos, placer)
+		end
+
+		f_def.after_place_node = after_place
+	else
+		f_def.after_place_node = multidecor.register.after_place_node
 	end
 
 	f_def.add_properties = def.add_properties or {}

@@ -150,6 +150,7 @@ multidecor.register.register_table("three_level_wooden_rack", {
 	description =  "Three Level Wooden Rack",
 	mesh = "multidecor_three_level_wooden_rack.b3d",
 	tiles = {"multidecor_wood.png"},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}},
 	callbacks = {
 		on_construct = multidecor.shelves.default_on_construct,
 		on_rightclick = multidecor.shelves.default_on_node_rightclick,

@@ -68,7 +68,8 @@ function multidecor.placement.calc_place_space_size(bboxes)
 
 	for i, coord in ipairs(max_bbox) do
 		local int, frac = math.modf(coord)
-		max_bbox[i] = math.abs(frac) > 0.5 and math.ceil(math.abs(coord)) or math.floor(math.abs(coord))
+		local sgn = math.sign(coord)
+		max_bbox[i] = math.abs(frac) > 0.5 and sgn*math.ceil(math.abs(coord)) or sgn*math.floor(math.abs(coord))
 	end
 
 	return max_bbox
@@ -93,8 +94,12 @@ function multidecor.placement.check_for_placement(pos, placer)
 	local max_bbox = multidecor.placement.calc_place_space_size(bboxes)
 
 	local rot_bbox = {}
-	rot_bbox.min = multidecor.helpers.rotate_to_node_dir(pos, vector.new(max_bbox[1], max_bbox[2], max_bbox[3]))
-	rot_bbox.max = multidecor.helpers.rotate_to_node_dir(pos, vector.new(max_bbox[4], max_bbox[5], max_bbox[6]))
+	rot_bbox.min = multidecor.helpers.rotate_to_node_dir(pos,
+		vector.rotate_around_axis(vector.new(max_bbox[1], max_bbox[2], max_bbox[3]), vector.new(0, 1, 0), math.pi)
+	)
+	rot_bbox.max = multidecor.helpers.rotate_to_node_dir(pos,
+		vector.rotate_around_axis(vector.new(max_bbox[4], max_bbox[5], max_bbox[6]), vector.new(0, 1, 0), math.pi)
+	)
 
 	max_bbox = multidecor.placement.box_repair({
 		rot_bbox.min.x, rot_bbox.min.y, rot_bbox.min.z,

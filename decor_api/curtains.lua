@@ -155,10 +155,6 @@ function multidecor.curtains.default_after_place(pos, placer)
 		minetest.remove_node(pos)
 		return true
 	end
-
-	local leftover = multidecor.check_for_placement(pos, placer)
-
-	return leftover
 end
 
 function multidecor.curtains.default_after_dig(pos, oldnode, oldmeta, digger)
