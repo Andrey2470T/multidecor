@@ -71,7 +71,7 @@ for _, tile in ipairs(ceramic_tiles) do
 		paramtype = "light",
 		paramtype2 = "wallmounted",
 		tiles = {tex_name},
-		groups = {cracky=1.5},
+		groups = {cracky=3.5},
 		node_box = tile_bboxes,
 		selection_box = tile_bboxes,
 		sounds = default.node_sound_stone_defaults()
@@ -93,7 +93,7 @@ for _, tile in ipairs(ceramic_tiles) do
 		paramtype = "light",
 		paramtype2 = "facedir",
 		tiles = {tex_name},
-		groups = {cracky=1.5},
+		groups = {cracky=2.5},
 		sounds = default.node_sound_stone_defaults()
 	})
 

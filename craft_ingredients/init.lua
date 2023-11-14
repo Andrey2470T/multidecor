@@ -389,9 +389,8 @@ if minetest.get_modpath("moreores") then
 	minetest.register_craft(
 	{
 		type = "shapeless",
-		output = "multidecor:silver_chain 3",
-		recipe = {"multidecor:metal_bar", "moreores:silver_ingot", "multidecor:steel_scissors"},
-		replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+		output = "multidecor:silver_chain",
+		recipe = {"multidecor:metal_chain", "moreores:silver_ingot"}
 	})
 
 	minetest.register_craft({
@@ -435,7 +434,7 @@ minetest.register_craft({
 minetest.register_craft({
 	type = "shapeless",
 	output = "multidecor:metal_chain",
-	recipe = {"multidecor:metal_wire", "multidecor:metal_wire"}
+	recipe = {"multidecor:metal_wire", "multidecor:metal_wire", "multidecor:metal_wire"}
 })
 
 minetest.register_craft({

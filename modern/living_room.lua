@@ -359,7 +359,7 @@ for name, def in pairs(floors_defs) do
 		paramtype = "light",
 		paramtype2 = "wallmounted",
 		tiles = {def[2]},
-		groups = {cracky=1.5},
+		groups = {snappy=3.5, oddly_breakable_by_hand=1},
 		node_box = tile_bboxes,
 		selection_box = tile_bboxes,
 		sounds = default.node_sound_wood_defaults()
@@ -378,7 +378,7 @@ for name, def in pairs(floors_defs) do
 		paramtype = "light",
 		paramtype2 = "facedir",
 		tiles = {def[2]},
-		groups = {choppy=1.5},
+		groups = {snappy=2.5, oddly_breakable_by_hand=1},
 		sounds = default.node_sound_wood_defaults()
 	})
 

@@ -917,7 +917,7 @@ for name, def in pairs(tiles) do
 		paramtype = "light",
 		paramtype2 = "wallmounted",
 		tiles = {def[2]},
-		groups = {cracky=1.5},
+		groups = {cracky=3.5},
 		node_box = tile_bboxes,
 		selection_box = tile_bboxes,
 		sounds = default.node_sound_stone_defaults()
@@ -935,7 +935,7 @@ for name, def in pairs(tiles) do
 		paramtype = "light",
 		paramtype2 = "facedir",
 		tiles = {def[2]},
-		groups = {cracky=1.5},
+		groups = {cracky=2.5},
 		sounds = default.node_sound_stone_defaults()
 	})
 
