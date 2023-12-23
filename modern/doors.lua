@@ -121,7 +121,7 @@ for _, wood in ipairs(woods) do
 			"multidecor_glass_material.png"
 		},
 		use_texture_alpha = "blend",
-		bounding_boxes = {{-0.5, -0.5, -0.06, 0.5, 0.5, 0.06}}
+		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.38}}
 	})
 
 	multidecor.register.register_table(wood.name .. "_window_segment_connectable", {
@@ -135,7 +135,7 @@ for _, wood in ipairs(woods) do
 			"multidecor_glass_material.png"
 		},
 		use_texture_alpha = "blend",
-		bounding_boxes = {{-0.5, -0.06, -0.5, 0.5, 0.06, 0.5}},
+		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.38}},
 		callbacks = {
 			on_construct = function(pos)
 				multidecor.connecting.update_adjacent_nodes_connection(pos, "vertical")
@@ -168,7 +168,7 @@ for _, wood in ipairs(woods) do
 			"multidecor_glass_material.png"
 		},
 		use_texture_alpha = "blend",
-		bounding_boxes = {{-0.5, -0.5, -0.06, 0.5, 0.5, 0.06}}
+		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.38}}
 	})
 
 	multidecor.register.register_furniture_unit(wood.name .. "_window_segment_with_thin_slats", {
@@ -183,7 +183,7 @@ for _, wood in ipairs(woods) do
 			"multidecor_glass_material.png"
 		},
 		use_texture_alpha = "blend",
-		bounding_boxes = {{-0.5, -0.5, -0.06, 0.5, 0.5, 0.06}}
+		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.38}}
 	})
 
 	multidecor.register.register_door(wood.name .. "_window_door", {
