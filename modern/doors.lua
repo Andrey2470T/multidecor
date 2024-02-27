@@ -73,7 +73,6 @@ for _, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		description = upper_name .. "Doorjamb",
 		mesh = "multidecor_wooden_doorjamb.b3d",
 		tiles = {"multidecor_" .. wood.texture .. ".png"},
@@ -88,7 +87,6 @@ for _, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		description = upper_name .. "Plinth",
 		mesh = "multidecor_wooden_plinth.b3d",
 		tiles = {"multidecor_" .. wood.texture .. ".png"},
@@ -99,7 +97,6 @@ for _, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		description = upper_name .. "Corner Plinth",
 		mesh = "multidecor_wooden_corner_plinth.b3d",
 		tiles = {"multidecor_" .. wood.texture .. ".png"},
@@ -113,7 +110,6 @@ for _, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		description = upper_name .. "Window Segment",
 		mesh = "multidecor_window_segment.b3d",
 		tiles = {
@@ -127,7 +123,6 @@ for _, wood in ipairs(woods) do
 	multidecor.register.register_table(wood.name .. "_window_segment_connectable", {
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		description = upper_name .. "Window Segment (Connectable)",
 		mesh = "multidecor_window_segment.b3d",
 		tiles = {
@@ -160,7 +155,6 @@ for _, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		description = upper_name .. "Window Segment With Thick Slats",
 		mesh = "multidecor_window_segment_with_thick_slats.b3d",
 		tiles = {
@@ -175,7 +169,6 @@ for _, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		description = upper_name .. "Window Segment With Thin Slats",
 		mesh = "multidecor_window_segment_with_thin_slats.b3d",
 		tiles = {
@@ -189,7 +182,6 @@ for _, wood in ipairs(woods) do
 	multidecor.register.register_door(wood.name .. "_window_door", {
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		description = upper_name .. "Window Door",
 		mesh = "multidecor_window_door.b3d",
 		tiles = {
@@ -214,7 +206,6 @@ for _, wood in ipairs(woods) do
 	multidecor.register.register_door(wood.name .. "_window_door_with_thin_slats", {
 		style = "modern",
 		material = "wood",
-		visual_scale = 0.5,
 		description = upper_name .. "Window Door With Thin Slats",
 		mesh = "multidecor_window_door_with_thin_slats.b3d",
 		tiles = {

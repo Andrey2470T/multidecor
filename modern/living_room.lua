@@ -1,16 +1,3 @@
-local function get_current_time()
-	local timeofday = minetest.get_timeofday()
-	local time = math.floor(timeofday * 1440)
-	local minute = time % 60
-	local hour = (time - minute) / 60
-
-	return hour, minute
-end
-
-local function get_formatted_time_str(hours, minutes)
-	return ("Current time: %d:%d"):format(hours, minutes)
-end
-
 local function return_book_form(pos)
 	local meta = minetest.get_meta(pos)
 	local text = meta:get_string("text")
@@ -56,26 +43,21 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 	},
 	bounding_boxes = {{-0.4, -0.5, -0.3, 0.4, 2, 0.4}},
 	callbacks = {
-		on_construct = function(pos)
-			local node = minetest.get_node(pos)
-			local wheel = minetest.add_entity(pos, "modern:floor_clock_balance_wheel", minetest.serialize({pos=pos, name=node.name}))
-
-			local dir = multidecor.helpers.get_dir(pos)
-			local y_rot = vector.dir_to_rotation(dir).y
-
-			wheel:set_rotation({x=0, y=y_rot, z=0})
-
-			minetest.get_meta(pos):set_string("is_activated", "false")
-		end,
-		on_rightclick = function(pos, node, clicker)
-			local meta = minetest.get_meta(pos)
-
-			if meta:get_string("is_activated") == "false" then
-				meta:set_string("is_activated", "true")
-			else
-				meta:set_string("is_activated", "false")
-			end
-		end
+		on_construct = multidecor.clock.default_on_construct,
+		on_rightclick = multidecor.clock.default_on_rightclick
+	},
+	add_properties = {
+		time_params = {
+			object = "modern:floor_clock_balance_wheel",
+			animation = {
+				range = {x=1, y=40},
+				speed = 40.0
+			},
+			sound = {
+				name = "multidecor_clock_chime",
+				max_hear_distance = 18
+			}
+		}
 	}
 },
 {
@@ -95,70 +77,9 @@ minetest.register_entity("modern:floor_clock_balance_wheel", {
 	mesh = "multidecor_floor_clock_balance_wheel.b3d",
 	textures = {"multidecor_gold_material.png"},
 	static_save = true,
-	on_activate = function(self, staticdata)
-		-- The code below is for backwards compatibility with versions < 1.2.5
-		if staticdata == "" then
-			local pos = self.object:get_pos()
-			self.object:remove()
-			minetest.set_node(pos, minetest.get_node(pos))
-			return
-		-- end
-		else
-			self.attached_to = minetest.deserialize(staticdata)
-
-			if not self.attached_to then
-				self.object:remove()
-				return
-			end
-
-			if minetest.get_meta(self.attached_to.pos):get_string("is_activated") == "true" then
-				self.object:set_animation({x=1, y=40}, 40.0, 0.0, true)
-
-				if self.attached_to.sound then
-					minetest.sound_stop(self.attached_to.sound)
-				end
-
-				self.attached_to.sound = minetest.sound_play("multidecor_clock_chime", {object=wheel, fade=1.0, max_hear_distance=10, loop=true})
-			end
-		end
-	end,
-	on_step = function(self, dtime)
-		if not self.attached_to then
-			self.object:remove()
-			return
-		end
-
-		local cur_node = minetest.get_node(self.attached_to.pos)
-
-		if cur_node.name ~= self.attached_to.name then
-			self.object:remove()
-			return
-		end
-
-		local cur_meta = minetest.get_meta(self.attached_to.pos)
-
-		if cur_meta:get_string("is_activated") == "true" then
-			if not self.attached_to.active then
-				self.attached_to.active = true
-				self.object:set_animation({x=1, y=40}, 40.0, 0.0, true)
-				self.attached_to.sound = minetest.sound_play("multidecor_clock_chime", {object=wheel, fade=1.0, max_hear_distance=10, loop=true})
-			end
-
-			local hours, minutes, seconds = get_current_time()
-			cur_meta:set_string("infotext", get_formatted_time_str(hours, minutes))
-		elseif cur_meta:get_string("is_activated") == "false" then
-			if self.attached_to.active then
-				self.attached_to.active = false
-				self.object:set_animation({x=1, y=1}, 0.0)
-
-				minetest.sound_stop(self.attached_to.sound)
-				self.attached_to.sound = nil
-			end
-		end
-	end,
-	get_staticdata = function(self)
-		return minetest.serialize(self.attached_to)
-	end
+	on_activate = multidecor.clock.default_on_activate,
+	on_step = multidecor.clock.default_on_step,
+	get_staticdata = multidecor.clock.default_get_staticdata
 })
 
 multidecor.register.register_furniture_unit("book", {
@@ -277,45 +198,17 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 	use_texture_alpha = "blend",
 	bounding_boxes = {{-0.25, -0.5, -0.175, 0.25, 0.1, 0.175}},
 	callbacks = {
-		on_construct = function(pos)
-			local meta = minetest.get_meta(pos)
-			meta:set_string("is_activated", "false")
-		end,
-		on_rightclick = function(pos)
-			local meta = minetest.get_meta(pos)
-
-			if meta:get_string("is_activated") == "false" then
-                meta:set_string("is_activated", "true")
-                minetest.get_node_timer(pos):start(1)
-
-				local handle = minetest.sound_play("multidecor_clock_ticking", {pos=pos, fade=1.0, max_hear_distance=10, loop=true})
-				meta:set_string("sound_handle", minetest.serialize(handle))
-			else
-                meta:set_string("is_activated", "false")
-                minetest.get_node_timer(pos):stop()
-
-                local handle = minetest.deserialize(meta:get_string("sound_handle"))
-
-                if handle then
-					minetest.sound_stop(handle)
-                end
-			end
-		end,
-		on_timer = function(pos)
-			local meta = minetest.get_meta(pos)
-
-			local hours, minutes, seconds = get_current_time()
-            meta:set_string("infotext", get_formatted_time_str(hours, minutes))
-
-			return true
-		end,
-		after_dig_node = function(pos, oldnode, oldmeta)
-			local handle = minetest.deserialize(oldmeta.fields.sound_handle)
-
-			if handle then
-				minetest.sound_stop(handle)
-			end
-		end
+		on_construct = multidecor.clock.default_on_construct,
+		on_rightclick = multidecor.clock.default_on_rightclick,
+	},
+	add_properties = {
+		time_params = {
+			object = "modern:alarm_clock_dummy_wheel",
+			sound = {
+				name = "multidecor_clock_ticking",
+				max_hear_distance = 12
+			}
+		}
 	}
 },
 {
@@ -325,6 +218,19 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 		{"multidecor:spring", "multidecor:gear", "multidecor:steel_scissors"}
 	},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+minetest.register_entity("modern:alarm_clock_dummy_wheel", {
+	visual = "mesh",
+	visual_size = {x=5, y=5, z=5},
+	mesh = "multidecor_alarm_clock.b3d",
+	is_visible = false,
+	physical = false,
+	pointable = false,
+	static_save = true,
+	on_activate = multidecor.clock.default_on_activate,
+	on_step = multidecor.clock.default_on_step,
+	get_staticdata = multidecor.clock.default_get_staticdata
 })
 
 local floors_defs = {

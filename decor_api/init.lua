@@ -7,6 +7,9 @@ local modpath = minetest.get_modpath("decor_api")
 dofile(modpath .. "/common_helpers.lua")
 dofile(modpath .. "/connecting.lua")
 dofile(modpath .. "/register.lua")
+
+
+dofile(modpath .. "/clock.lua")
 dofile(modpath .. "/curtains.lua")
 dofile(modpath .. "/door.lua")
 dofile(modpath .. "/bed.lua")

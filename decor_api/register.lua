@@ -160,6 +160,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	end
 
 	f_def.tiles = def.tiles
+	f_def.overlay_tiles = def.overlay_tiles
 	f_def.inventory_image = def.inventory_image
 	f_def.wield_image = def.wield_image
 
