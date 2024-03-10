@@ -83,6 +83,10 @@ function multidecor.placement.check_for_placement(pos, placer)
 		return
 	end
 
+	if def.prevent_placement_check then
+		return
+	end
+
 	local bboxes
 
 	if def.drawtype == "nodebox" then

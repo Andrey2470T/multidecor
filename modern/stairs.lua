@@ -5,31 +5,39 @@ local stair_ledged_bboxes = {
 
 local sstair_bboxes = {
 	{-0.5, -0.5, -0.5, 0.5, 0, 0.5},
-	{-0.5, 0, 0.25, -0.25, 0.5, 0.5},
-	{-0.25, 0, 0, 0, 0.5, 0.5},
-	{0, 0, -0.25, 0.25, 0.5, 0.5},
-	{0.25, 0, -0.5, 0.5, 0.5, 0.5}
+	{-0.5, 0, 0, 0.25, 0.5, 0.5}
 }
 
 local sstair_plank_bboxes = {
-	{-0.45, -0.085, -0.5, 0.5, 0, -0.25}, -- stairs
-	{-0.25, -0.085, -0.25, 0.5, 0, 0},
-	{0, 0.415, 0, 0.5, 0.5, 0.5},
+	{-0.5, -0.085, -0.5, 0.45, 0, -0.25}, -- stairs
+	{-0.5, -0.085, -0.25, 0.25, 0, 0},
+	{-0.5, 0.415, 0, 0, 0.5, 0.5},
 
-	{0.45, -0.5, -0.55, 0.55, 0.5, -0.45} -- pillar
+	{-0.55, -0.5, -0.55, -0.45, 0.5, -0.45} -- pillar
 }
 
 local sstair_plank_bboxes_wban = {
-	{-0.6, -0.49, -0.5, -0.45, 1.85, 0}, -- banister
-	{-0.5, -0.49, 0, -0.25, 1.85, 0.25},
-	{-0.25, -0.49, 0.25, 0, 1.85, 0.5},
-	{0, -0.49, 0.45, 0.5, 1.85, 0.6},
+	{0.45, -0.49, -0.5, 0.6, 1.85, 0}, -- banister
+	{0.25, -0.49, 0, 0.5, 1.85, 0.25},
+	{0, -0.49, 0.25, 0.25, 1.85, 0.5},
+	{-0.5, -0.49, 0.45, 0, 1.85, 0.6},
 
-	{-0.45, -0.085, -0.5, 0.5, 0, -0.25}, -- stairs
-	{-0.25, -0.085, -0.25, 0.5, 0, 0},
-	{0, 0.415, 0, 0.5, 0.5, 0.5},
+	{-0.5, -0.085, -0.5, 0.45, 0, -0.25}, -- stairs
+	{-0.5, -0.085, -0.25, 0.25, 0, 0},
+	{-0.5, 0.415, 0, 0, 0.5, 0.5},
 
-	{0.45, -0.5, -0.55, 0.55, 0.5, -0.45} -- pillar
+	{-0.55, -0.5, -0.55, -0.45, 0.5, -0.45} -- pillar
+}
+
+local banister_bboxes = {
+	{0.45, -0.5, -0.5, 0.55, 0.5, 0.5}
+}
+
+local spiral_banister_bboxes = {
+	{0.45, -1.0, -0.5, 0.6, 0.8, 0}, -- banister
+	{0.25, -1.0, 0, 0.5, 0.8, 0.25},
+	{0, -0.5, 0.25, 0.25, 0.8, 0.5},
+	{-0.5, -0.5, 0.45, 0, 0.8, 0.6}
 }
 
 local stairs_data = {
@@ -115,15 +123,18 @@ minetest.register_node(":multidecor:granite_block", {
 
 local spiral_stairs_data = {
 	{name="metal", tex={"multidecor_coarse_metal_material.png", "multidecor_coarse_metal_material.png"}},
-	{name="sequoia", tex={"ethereal_redwood_wood.png", "ethereal_redwood_wood.png"}},
 	{name="plastic", tex={"multidecor_plastic_material.png", "multidecor_gold_material.png"}}
 }
+
+if minetest.get_modpath("ethereal") then
+	table.insert(spiral_stairs_data, {name="sequoia", tex={"ethereal_redwood_wood.png", "ethereal_redwood_wood.png"}})
+end
 
 
 for _, sstair in ipairs(spiral_stairs_data) do
 	local upper_name = multidecor.helpers.upper_first_letters(sstair.name)
 
-	multidecor.register.register_furniture_unit("spiral_" .. sstair.name .. "plank_stair_segment", {
+	multidecor.register.register_furniture_unit("spiral_" .. sstair.name .. "_plank_stair_segment", {
 		type = "decoration",
 		style = "modern",
 		material = sstair.name == "sequoia" and "wood" or sstair.name,
@@ -133,7 +144,7 @@ for _, sstair in ipairs(spiral_stairs_data) do
 		bounding_boxes = sstair_plank_bboxes
 	})
 
-	multidecor.register.register_furniture_unit("spiral_" .. sstair.name .. "plank_stair_segment_with_banister", {
+	multidecor.register.register_furniture_unit("spiral_" .. sstair.name .. "_plank_stair_segment_with_banister", {
 		type = "decoration",
 		style = "modern",
 		material = sstair.name == "sequoia" and "wood" or sstair.name,
@@ -141,5 +152,38 @@ for _, sstair in ipairs(spiral_stairs_data) do
 		mesh = "multidecor_spiral_plank_stair_segment_with_banister.b3d",
 		tiles = sstair.tex,
 		bounding_boxes = sstair_plank_bboxes_wban
+	})
+
+	multidecor.register.register_furniture_unit("spiral_" .. sstair.name .. "_banister", {
+		type = "decoration",
+		style = "modern",
+		material = sstair.name == "sequoia" and "wood" or sstair.name,
+		description = "Spiral " .. upper_name .. " Banister",
+		mesh = "multidecor_spiral_banister.b3d",
+		tiles = sstair.tex,
+		bounding_boxes = spiral_banister_bboxes,
+		prevent_placement_check = true
+	})
+
+	multidecor.register.register_furniture_unit(sstair.name .. "_banister", {
+		type = "decoration",
+		style = "modern",
+		material = sstair.name == "sequoia" and "wood" or sstair.name,
+		description = upper_name .. " Banister",
+		mesh = "multidecor_banister.b3d",
+		tiles = sstair.tex,
+		bounding_boxes = banister_bboxes,
+		prevent_placement_check = true
+	})
+
+	multidecor.register.register_furniture_unit(sstair.name .. "_banister_raised", {
+		type = "decoration",
+		style = "modern",
+		material = sstair.name == "sequoia" and "wood" or sstair.name,
+		description = upper_name .. " Banister Raised",
+		mesh = "multidecor_banister_raised.b3d",
+		tiles = sstair.tex,
+		bounding_boxes = banister_bboxes,
+		prevent_placement_check = true
 	})
 end

@@ -219,6 +219,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 		end
 	end
 
+	f_def.prevent_placement_check = def.prevent_placement_check
 
 	f_def.callbacks = def.callbacks or {}
 	for cb_name, f in pairs(f_def.callbacks) do
