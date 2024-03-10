@@ -1,15 +1,41 @@
-local stairs_data = {
-	{name="stone", tex="multidecor_stone_material.png"},
-	{name="marble", tex="multidecor_marble_material.png"},
-	{name="granite", tex="multidecor_granite_material.png"}
+local stair_ledged_bboxes = {
+	{-0.5, -0.5, -0.5, 0.5, 0, 0.5},
+	{-0.5, 0, 0, 0.5, 0.5, 0.5}
 }
 
-local stair_bboxes = {
+local sstair_bboxes = {
 	{-0.5, -0.5, -0.5, 0.5, 0, 0.5},
 	{-0.5, 0, 0.25, -0.25, 0.5, 0.5},
 	{-0.25, 0, 0, 0, 0.5, 0.5},
 	{0, 0, -0.25, 0.25, 0.5, 0.5},
 	{0.25, 0, -0.5, 0.5, 0.5, 0.5}
+}
+
+local sstair_plank_bboxes = {
+	{-0.45, -0.085, -0.5, 0.5, 0, -0.25}, -- stairs
+	{-0.25, -0.085, -0.25, 0.5, 0, 0},
+	{0, 0.415, 0, 0.5, 0.5, 0.5},
+
+	{0.45, -0.5, -0.55, 0.55, 0.5, -0.45} -- pillar
+}
+
+local sstair_plank_bboxes_wban = {
+	{-0.6, -0.49, -0.5, -0.45, 1.85, 0}, -- banister
+	{-0.5, -0.49, 0, -0.25, 1.85, 0.25},
+	{-0.25, -0.49, 0.25, 0, 1.85, 0.5},
+	{0, -0.49, 0.45, 0.5, 1.85, 0.6},
+
+	{-0.45, -0.085, -0.5, 0.5, 0, -0.25}, -- stairs
+	{-0.25, -0.085, -0.25, 0.5, 0, 0},
+	{0, 0.415, 0, 0.5, 0.5, 0.5},
+
+	{0.45, -0.5, -0.55, 0.55, 0.5, -0.45} -- pillar
+}
+
+local stairs_data = {
+	{name="stone", tex="multidecor_stone_material.png"},
+	{name="marble", tex="multidecor_marble_material.png"},
+	{name="granite", tex="multidecor_granite_material.png"}
 }
 
 for _, stair in ipairs(stairs_data) do
@@ -30,21 +56,16 @@ for _, stair in ipairs(stairs_data) do
 		type = "decoration",
 		style = "modern",
 		material = "stone",
-		visual_scale = 0.5,
 		description = upper_name .. " Ledged Stair Segment",
 		mesh = "multidecor_ledged_stair_segment.b3d",
 		tiles = {stair.tex},
-		bounding_boxes = {
-			{-0.5, -0.5, -0.5, 0.5, 0, 0.5},
-			{-0.5, 0, 0, 0.5, 0.5, 0.5}
-		}
+		bounding_boxes = stair_ledged_bboxes
 	})
 
 	multidecor.register.register_furniture_unit("spiral_" .. stair.name .. "_stair_base", {
 		type = "decoration",
 		style = "modern",
 		material = "stone",
-		visual_scale = 0.5,
 		description = "Spiral " .. upper_name .. " Stair Base",
 		mesh = "multidecor_spiral_stair_base.b3d",
 		tiles = {stair.tex},
@@ -55,22 +76,20 @@ for _, stair in ipairs(stairs_data) do
 		type = "decoration",
 		style = "modern",
 		material = "stone",
-		visual_scale = 0.5,
 		description = "Spiral " .. upper_name .. " Stair Segment",
 		mesh = "multidecor_spiral_stair_segment.b3d",
 		tiles = {stair.tex},
-		bounding_boxes = stair_bboxes
+		bounding_boxes = sstair_bboxes
 	})
 
 	multidecor.register.register_furniture_unit("spiral_" .. stair.name .. "_ledged_stair_segment", {
 		type = "decoration",
 		style = "modern",
 		material = "stone",
-		visual_scale = 0.5,
 		description = "Spiral " .. upper_name .. " Ledged Stair Segment",
 		mesh = "multidecor_spiral_ledged_stair_segment.b3d",
 		tiles = {stair.tex},
-		bounding_boxes = stair_bboxes
+		bounding_boxes = sstair_bboxes
 	})
 end
 
@@ -93,3 +112,34 @@ minetest.register_node(":multidecor:granite_block", {
 	groups = {cracky=3},
 	sounds = default.node_sound_stone_defaults()
 })
+
+local spiral_stairs_data = {
+	{name="metal", tex={"multidecor_coarse_metal_material.png", "multidecor_coarse_metal_material.png"}},
+	{name="sequoia", tex={"ethereal_redwood_wood.png", "ethereal_redwood_wood.png"}},
+	{name="plastic", tex={"multidecor_plastic_material.png", "multidecor_gold_material.png"}}
+}
+
+
+for _, sstair in ipairs(spiral_stairs_data) do
+	local upper_name = multidecor.helpers.upper_first_letters(sstair.name)
+
+	multidecor.register.register_furniture_unit("spiral_" .. sstair.name .. "plank_stair_segment", {
+		type = "decoration",
+		style = "modern",
+		material = sstair.name == "sequoia" and "wood" or sstair.name,
+		description = "Spiral " .. upper_name .. "Plank Stair Segment",
+		mesh = "multidecor_spiral_plank_stair_segment.b3d",
+		tiles = sstair.tex,
+		bounding_boxes = sstair_plank_bboxes
+	})
+
+	multidecor.register.register_furniture_unit("spiral_" .. sstair.name .. "plank_stair_segment_with_banister", {
+		type = "decoration",
+		style = "modern",
+		material = sstair.name == "sequoia" and "wood" or sstair.name,
+		description = "Spiral " .. upper_name .. "Plank Stair Segment With Banister",
+		mesh = "multidecor_spiral_plank_stair_segment_with_banister.b3d",
+		tiles = sstair.tex,
+		bounding_boxes = sstair_plank_bboxes_wban
+	})
+end
