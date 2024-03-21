@@ -5,6 +5,7 @@ multidecor.register = {}
 
 -- Default furniture types
 multidecor.register.supported_types = {
+	"banister",
 	"seat",
 	"table",
 	"shelf",
@@ -95,7 +96,7 @@ function multidecor.register.build_description(name, base_desc)
 end
 
 function multidecor.register.after_place_node(pos, placer, itemstack)
-	local leftover = multidecor.placement.check_for_placement(pos, placer)
+	local leftover = multidecor.placement.check_for_placement(pos, placer, itemstack)
 
 	return leftover
 end
@@ -229,9 +230,9 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	if f_def.after_place_node then
 		local prev_after_place = f_def.after_place_node
 		local function after_place(pos, placer, itemstack)
-			prev_after_place(pos, placer, itemstack)
+			local itemstack = prev_after_place(pos, placer, itemstack)
 
-			return multidecor.register.after_place_node(pos, placer)
+			return multidecor.register.after_place_node(pos, placer, itemstack)
 		end
 
 		f_def.after_place_node = after_place

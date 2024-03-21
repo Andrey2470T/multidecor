@@ -9,6 +9,7 @@ dofile(modpath .. "/connecting.lua")
 dofile(modpath .. "/register.lua")
 
 
+dofile(modpath .. "/banister.lua")
 dofile(modpath .. "/clock.lua")
 dofile(modpath .. "/curtains.lua")
 dofile(modpath .. "/door.lua")
