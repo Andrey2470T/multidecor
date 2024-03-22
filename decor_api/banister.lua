@@ -9,13 +9,9 @@ function multidecor.banister.check_for_foot_node(pos)
 	return stair == 1, spiral == 1
 end
 
-local function ndef(pos)
-	return minetest.registered_nodes[minetest.get_node(pos).name]
-end
-
 function multidecor.banister.check_for_free_space(pos, invert_second_cond)
-	local node_def = ndef(pos)
-	local down_node_def = ndef({x=pos.x, y=pos.y-1, z=pos.z})
+	local node_def = hlpfuncs.ndef(pos)
+	local down_node_def = hlpfuncs.ndef({x=pos.x, y=pos.y-1, z=pos.z})
 
 	local second_cond = down_node_def.drawtype == "airlike" or
 		not down_node_def.walkable
@@ -24,10 +20,6 @@ function multidecor.banister.check_for_free_space(pos, invert_second_cond)
 		second_cond = not second_cond
 	end
 	return node_def.drawtype == "airlike" and second_cond
-end
-
-local function rotate_vert(dir, sign)
-	return vector.rotate_around_axis(dir, vector.new(0, 1, 0), sign*math.pi/2)
 end
 
 function multidecor.banister.place_banister(pos, common_name, itemstack)
@@ -61,8 +53,8 @@ function multidecor.banister.place_banister(pos, common_name, itemstack)
 			local res1 = multidecor.banister.check_for_free_space(bpos)
 
 			if res1 then
-				local fwd_dir = rotate_vert(dir_to_pos, -1)
-				local bwd_dir = rotate_vert(dir_to_pos, 1)
+				local fwd_dir = hlpfuncs.rot(dir_to_pos, -math.pi/2)
+				local bwd_dir = hlpfuncs.rot(dir_to_pos, math.pi/2)
 				local res2 = multidecor.banister.check_for_free_space(bpos + fwd_dir, true)
 				local res3 = multidecor.banister.check_for_free_space(bpos + bwd_dir, true)
 
@@ -70,7 +62,7 @@ function multidecor.banister.place_banister(pos, common_name, itemstack)
 				local cname = name
 
 				if res2 then
-					param2 = minetest.dir_to_facedir(rotate_vert(fwd_dir, 1))
+					param2 = minetest.dir_to_facedir(hlpfuncs.rot(fwd_dir, math.pi/2))
 					cname = cname .. "_corner"
 				elseif res3 then
 					param2 = minetest.dir_to_facedir(fwd_dir)
@@ -89,11 +81,11 @@ function multidecor.banister.place_banister(pos, common_name, itemstack)
 		check_and_set_banister(pos, {x=0, y=0, z=1}, "forward")
 		check_and_set_banister(pos, {x=0, y=0, z=-1}, "backward")
 	elseif shape == "raised" then
-		local dir = multidecor.helpers.get_dir({x=pos.x, y=pos.y-1, z=pos.z})*-1
+		local dir = hlpfuncs.get_dir({x=pos.x, y=pos.y-1, z=pos.z})*-1
 		local dir_to_param2 = minetest.dir_to_facedir(dir)
 
-		local left_pos = pos + rotate_vert(dir, 1)
-		local right_pos = pos + rotate_vert(dir, -1)
+		local left_pos = pos + hlpfuncs.rot(dir, math.pi/2)
+		local right_pos = pos + hlpfuncs.rot(dir, -math.pi/2)
 
 		if multidecor.banister.check_for_free_space(left_pos) then
 			minetest.set_node(left_pos, {name=name.."_left", param2=dir_to_param2})
@@ -104,23 +96,8 @@ function multidecor.banister.place_banister(pos, common_name, itemstack)
 			minetest.set_node(right_pos, {name=name.."_right", param2=dir_to_param2})
 			itemstack:take_item()
 		end
-		--[[local left_node_def = ndef(left_pos)
-		local right_node_def = ndef(right_pos)
-
-		local down_left_node_def = ndef({x=left_pos.x, y=left_pos.y-1, z=left_pos.z})
-		local down_right_node_def = ndef({x=right_pos.x, y=right_pos.y-1, z=right_pos.z})
-
-		if left_node_def.drawtype == "airlike" and (down_left_node_def.drawtype == "airlike" or not down_left_node_def.walkable) then
-			minetest.set_node(left_pos, {name=name.."_left", param2=dir_to_param2})
-			itemstack:take_item()
-		end
-
-		if right_node_def.drawtype == "airlike" and (down_right_node_def.drawtype == "airlike" or not down_right_node_def.walkable) then
-			minetest.set_node(right_pos, {name=name.."_right", param2=dir_to_param2})
-			itemstack:take_item()
-		end]]
 	elseif shape == "spiral" then
-		local dir = multidecor.helpers.get_dir({x=pos.x, y=pos.y-1, z=pos.z})*-1
+		local dir = hlpfuncs.get_dir({x=pos.x, y=pos.y-1, z=pos.z})*-1
 		local dir_to_param2 = minetest.dir_to_facedir(dir)
 		minetest.set_node(pos, {name=name, param2=dir_to_param2})
 		itemstack:take_item()
@@ -130,7 +107,7 @@ function multidecor.banister.place_banister(pos, common_name, itemstack)
 end
 
 function multidecor.banister.default_after_place_node(pos, placer, itemstack)
-	local add_properties = ndef(pos).add_properties
+	local add_properties = hlpfuncs.ndef(pos).add_properties
 
 	return multidecor.banister.place_banister(pos, add_properties.common_name, itemstack)
 end
@@ -142,39 +119,34 @@ function multidecor.register.register_banister(name, base_def, add_def, craft_de
 	def.paramtype2 = "facedir"
 
 	-- additional properties
-	if add_def then
-		if add_def.recipe then
-			craft_def = add_def
-		else
-			def.add_properties = add_def
-		end
+	if not add_def or not add_def.banister_shapes then
+		return
 	end
 
+	def.add_properties = add_def
 	def.callbacks = def.callbacks or {}
-
 	def.callbacks.after_place_node = def.callbacks.after_place_node or multidecor.banister.default_after_place_node
 
 	multidecor.register.register_furniture_unit(name, def, craft_def)
 
-	if def.add_properties and def.add_properties.banister_shapes then
-		local banister_shapes = def.add_properties.banister_shapes
+	local banister_shapes = def.add_properties.banister_shapes
 
-		local bshape_def = table.copy(def)
-		bshape_def.groups = bshape_def.groups or {}
-		bshape_def.groups.not_in_creative_inventory = 1
+	local bshape_def = table.copy(def)
+	bshape_def.groups = bshape_def.groups or {}
+	bshape_def.groups.not_in_creative_inventory = 1
+	bshape_def.drop = "multidecor:" .. name
 
-		bshape_def.callbacks.after_place_node = nil
+	bshape_def.callbacks.after_place_node = nil
 
-		local function register_banister_shape(shape)
-			local shape_def = table.copy(bshape_def)
-			shape_def.mesh = banister_shapes[shape].mesh
-			shape_def.bounding_boxes = banister_shapes[shape].bboxes
-			multidecor.register.register_furniture_unit(name .. "_" .. shape, shape_def)
-		end
-
-		register_banister_shape("raised_left")
-		register_banister_shape("raised_right")
-		register_banister_shape("spiral")
-		register_banister_shape("corner")
+	local function register_banister_shape(shape)
+		local shape_def = table.copy(bshape_def)
+		shape_def.mesh = banister_shapes[shape].mesh
+		shape_def.bounding_boxes = banister_shapes[shape].bboxes
+		multidecor.register.register_furniture_unit(name .. "_" .. shape, shape_def)
 	end
+
+	register_banister_shape("raised_left")
+	register_banister_shape("raised_right")
+	register_banister_shape("spiral")
+	register_banister_shape("corner")
 end

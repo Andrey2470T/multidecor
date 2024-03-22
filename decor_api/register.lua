@@ -6,6 +6,7 @@ multidecor.register = {}
 -- Default furniture types
 multidecor.register.supported_types = {
 	"banister",
+	"door",
 	"seat",
 	"table",
 	"shelf",

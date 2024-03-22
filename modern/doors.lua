@@ -12,7 +12,9 @@ multidecor.register.register_door("high_dark_rusty_gate", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
 {
+	common_name = "high_dark_rusty_fence",
 	door = {
+		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_high_dark_rusty_gate_open.b3d",
 		mesh_activated = "multidecor_high_dark_rusty_gate_activated.b3d",
 		vel = 90, -- degrees per sec
@@ -45,7 +47,9 @@ multidecor.register.register_door("dark_rusty_gate", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.4}}
 },
 {
+	common_name = "dark_rusty_gate",
 	door = {
+		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_dark_rusty_gate_open.b3d",
 		mesh_activated = "multidecor_dark_rusty_gate_activated.b3d",
 		vel = 90, -- degrees per sec
@@ -271,7 +275,9 @@ multidecor.register.register_door("bathroom_door", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.35}}
 },
 {
+	common_name = "bathroom_door",
 	door = {
+		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_bathroom_door_open.b3d",
 		mesh_activated = "multidecor_bathroom_door_activated.b3d",
 		vel = 100, -- degrees per sec
@@ -305,7 +311,9 @@ multidecor.register.register_door("white_pine_glass_door", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.35}}
 },
 {
+	common_name = "white_pine_glass_door",
 	door = {
+		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_white_pine_glass_door_open.b3d",
 		mesh_activated = "multidecor_white_pine_glass_door_activated.b3d",
 		vel = 100, -- degrees per sec
@@ -330,7 +338,9 @@ multidecor.register.register_door("pine_glass_door", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
 {
+	common_name = "pine_glass_door",
 	door = {
+		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_pine_glass_door_open.b3d",
 		mesh_activated = "multidecor_pine_glass_door_activated.b3d",
 		vel = 100, -- degrees per sec
@@ -362,7 +372,9 @@ multidecor.register.register_door("pine_door", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
 {
+	common_name = "pine_door",
 	door = {
+		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_pine_door_open.b3d",
 		mesh_activated = "multidecor_pine_door_activated.b3d",
 		vel = 100, -- degrees per sec
@@ -388,7 +400,9 @@ multidecor.register.register_door("dark_pine_glass_door", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
 {
+	common_name = "dark_pine_glass_door",
 	door = {
+		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_dark_pine_glass_door_open.b3d",
 		mesh_activated = "multidecor_dark_pine_glass_door_activated.b3d",
 		vel = 100, -- degrees per sec

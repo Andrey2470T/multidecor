@@ -167,16 +167,6 @@ for _, sstair in ipairs(spiral_stairs_data) do
 		bounding_boxes = sstair_plank_bboxes_wban
 	})
 
-	--[[multidecor.register.register_banister("spiral_" .. sstair.name .. "_banister", {
-		style = "modern",
-		material = sstair.name == "sequoia" and "wood" or sstair.name,
-		description = "Spiral " .. upper_name .. " Banister",
-		mesh = "multidecor_spiral_banister.b3d",
-		tiles = sstair.tex,
-		bounding_boxes = spiral_banister_bboxes,
-		prevent_placement_check = true
-	})]]
-
 	local banister_common_name = sstair.name .. "_banister"
 	multidecor.register.register_banister(banister_common_name, {
 		style = "modern",
@@ -196,15 +186,4 @@ for _, sstair in ipairs(spiral_stairs_data) do
 			["corner"] = {mesh="multidecor_banister_corner.b3d", bboxes=corner_banister_bboxes}
 		}
 	})
-
-	--[[multidecor.register.register_banister(sstair.name .. "_banister_raised", {
-		type = "decoration",
-		style = "modern",
-		material = sstair.name == "sequoia" and "wood" or sstair.name,
-		description = upper_name .. " Banister Raised",
-		mesh = "multidecor_banister_raised.b3d",
-		tiles = sstair.tex,
-		bounding_boxes = banister_bboxes,
-		prevent_placement_check = true
-	})]]
 end
