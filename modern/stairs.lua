@@ -8,6 +8,11 @@ local sstair_bboxes = {
 	{-0.5, 0, 0, 0.25, 0.5, 0.5}
 }
 
+local stair_plank_bboxes = {
+	{-0.5, -0.085, -0.5, 0.5, 0, 0},
+	{-0.5, 0.415, 0, 0.5, 0.5, 0.5}
+}
+
 local sstair_plank_bboxes = {
 	{-0.5, -0.085, -0.5, 0.45, 0, -0.25}, -- stairs
 	{-0.5, -0.085, -0.25, 0.25, 0, 0},
@@ -145,6 +150,17 @@ end
 
 for _, sstair in ipairs(spiral_stairs_data) do
 	local upper_name = multidecor.helpers.upper_first_letters(sstair.name)
+
+	multidecor.register.register_furniture_unit(sstair.name .. "_plank_stair_segment", {
+		type = "decoration",
+		style = "modern",
+		material = sstair.name == "sequoia" and "wood" or sstair.name,
+		description = upper_name .. "Plank Stair Segment",
+		mesh = "multidecor_plank_stair_segment.b3d",
+		tiles = sstair.tex,
+		groups = {stair=1},
+		bounding_boxes = stair_plank_bboxes
+	})
 
 	multidecor.register.register_furniture_unit("spiral_" .. sstair.name .. "_plank_stair_segment", {
 		type = "decoration",

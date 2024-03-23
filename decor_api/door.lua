@@ -92,6 +92,9 @@ function multidecor.doors.convert_to_entity(pos)
 	local node = minetest.get_node(pos)
 	local dir = hlpfuncs.get_dir(pos)
 
+	local meta = minetest.get_meta(pos)
+
+
 	local is_mir_cpart = minetest.get_meta(pos):get_string("mirrored_counterpart") == "true"
 	minetest.remove_node(pos)
 
@@ -171,15 +174,32 @@ function multidecor.doors.convert_from_entity(obj)
 
 	minetest.set_node(pos, {name=name, param2=param2})
 
+	local meta = minetest.get_meta(pos)
 	if is_mir_cpart then
-		minetest.get_meta(pos):set_string("mirrored_counterpart", "true")
+		meta:set_string("mirrored_counterpart", "true")
+	end
+
+	if self.owner then
+		meta:set_string("owner", self.owner)
+		meta:set_string("infotext", "Owned by " .. self.owner)
 	end
 end
 
-function multidecor.doors.default_node_on_rightclick(pos)
+function multidecor.doors.default_node_on_rightclick(pos, node, clicker)
 	local door_data = hlpfuncs.ndef(pos).add_properties.door
 
+	local owner = minetest.get_meta(pos):get_string("owner")
+
+	if door_data.has_lock then
+		local playername = clicker:get_player_name()
+		if owner ~= playername then
+			minetest.chat_send_player(playername, "This door has locked!")
+			return
+		end
+	end
+
 	local obj = multidecor.doors.convert_to_entity(pos)
+
 	local self = obj:get_luaentity()
 	local dir_sign = 0
 	if door_data.mode == "closed" then
@@ -190,35 +210,49 @@ function multidecor.doors.default_node_on_rightclick(pos)
 		self.action = "close"
 	end
 
+	if door_data.has_lock then
+		self.owner = owner
+	end
+
 	multidecor.doors.smooth_rotate(obj, dir_sign)
 end
 
-function multidecor.doors.default_after_place_node(pos)
+function multidecor.doors.default_after_place_node(pos, placer)
 	local nodedef = hlpfuncs.ndef(pos)
 
-	if not nodedef.add_properties.door.has_mirrored_counterpart then
-		return
+	if nodedef.add_properties.door.has_mirrored_counterpart then
+		local dir = hlpfuncs.get_dir(pos)
+
+		local to_left = hlpfuncs.rot(dir, -math.pi/2)
+		local left_nodedef = hlpfuncs.ndef(pos + to_left)
+		local left_dir = hlpfuncs.get_dir(pos + to_left)
+
+		if left_nodedef.add_properties and left_nodedef.add_properties.common_name ==
+			nodedef.add_properties.common_name and vector.equals(dir, left_dir) then
+
+			local open_door_name = nodedef.add_properties.common_name .. "_open"
+			local open_door_param2 = minetest.dir_to_facedir(dir)
+
+			minetest.set_node(pos, {name="multidecor:" .. open_door_name, param2=open_door_param2})
+
+			minetest.get_meta(pos):set_string("mirrored_counterpart", "true")
+		end
 	end
 
-	local dir = hlpfuncs.get_dir(pos)
-
-	local to_left = hlpfuncs.rot(dir, -math.pi/2)
-	local left_nodedef = hlpfuncs.ndef(pos + to_left)
-	local left_dir = hlpfuncs.get_dir(pos + to_left)
-
-	if left_nodedef.add_properties and left_nodedef.add_properties.common_name ==
-		nodedef.add_properties.common_name and vector.equals(dir, left_dir) then
-
-		local open_door_name = nodedef.add_properties.common_name .. "_open"
-		local open_door_param2 = minetest.dir_to_facedir(dir)
-
-		minetest.set_node(pos, {name="multidecor:" .. open_door_name, param2=open_door_param2})
-
-		minetest.get_meta(pos):set_string("mirrored_counterpart", "true")
+	if nodedef.add_properties.door.has_lock then
+		local meta = minetest.get_meta(pos)
+		local playername = placer:get_player_name()
+		meta:set_string("owner", playername)
+		meta:set_string("infotext", "Owned by " .. playername)
 	end
 end
 
-function multidecor.doors.default_entity_on_rightclick(self)
+function multidecor.doors.default_entity_on_rightclick(self, clicker)
+	if self.owner and self.owner ~= clicker:get_player_name() then
+		minetest.chat_send_player("This door has locked!")
+		return
+	end
+
 	local dir_sign = 0
 	if self.action == "open" then
 		dir_sign = -1
@@ -240,6 +274,7 @@ function multidecor.doors.default_entity_on_activate(self, staticdata)
 		self.end_v = data[4]
 		self.action = data[5]
 		self.mirrored_counterpart = data[6]
+		self.owner = data[7]
 	end
 
 	if self.bbox then
@@ -264,7 +299,7 @@ end
 
 function multidecor.doors.default_entity_get_staticdata(self)
 	return minetest.serialize({self.dir, self.bbox,
-		self.start_v, self.end_v, self.action, self.mirrored_counterpart})
+		self.start_v, self.end_v, self.action, self.mirrored_counterpart, self.owner})
 end
 
 function multidecor.register.register_door(name, base_def, add_def, craft_def)

@@ -12,9 +12,7 @@ multidecor.register.register_door("high_dark_rusty_gate", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
 {
-	common_name = "high_dark_rusty_fence",
 	door = {
-		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_high_dark_rusty_gate_open.b3d",
 		mesh_activated = "multidecor_high_dark_rusty_gate_activated.b3d",
 		vel = 90, -- degrees per sec
@@ -47,9 +45,7 @@ multidecor.register.register_door("dark_rusty_gate", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.4}}
 },
 {
-	common_name = "dark_rusty_gate",
 	door = {
-		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_dark_rusty_gate_open.b3d",
 		mesh_activated = "multidecor_dark_rusty_gate_activated.b3d",
 		vel = 90, -- degrees per sec
@@ -65,21 +61,65 @@ multidecor.register.register_door("dark_rusty_gate", {
 })
 
 local woods = {
-	{name="wooden", texture="wood"},
-	{name="pine", texture="pine_wood"},
-	{name="dark_pine", texture="pine_wood2"},
-	{name="white_pine", texture="white_pine_wood"}
+	{name="wooden", texture="multidecor_wood"},
+	{name="pine", texture="multidecor_pine_wood"},
+	{name="dark_pine", texture="multidecor_pine_wood2"},
+	{name="white_pine", texture="multidecor_white_pine_wood"}
 }
 
-for _, wood in ipairs(woods) do
+local doors_hands_texs = {
+	"multidecor_metal_material",
+	"multidecor_copper_material",
+	"multidecor_brass_material",
+	"multidecor_gold_material",
+	"multidecor_gold_material"
+}
+
+if minetest.get_modpath("ethereal") then
+	table.insert(woods, {name="sequoia", texture="ethereal_redwood_wood"})
+end
+
+for i, wood in ipairs(woods) do
 	local upper_name = multidecor.helpers.upper_first_letters(wood.name)
+
+	local base_texture = wood.texture .. ".png"
+
+	if wood.name == "sequoia" then
+		base_texture = base_texture .. "^[transform1"
+	end
+
+	multidecor.register.register_door("simple_" .. wood.name .. "_door", {
+		style = "modern",
+		material = "wood",
+		description = "Simple " .. upper_name .. " Door",
+		mesh = "multidecor_modern_wooden_door.b3d",
+		tiles = {
+			base_texture,
+			doors_hands_texs[i] .. ".png"
+		},
+		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.35}}
+	},
+	{
+		common_name = "simple_" .. wood.name .. "_door",
+		door = {
+			has_mirrored_counterpart = true,
+			mesh_open = "multidecor_modern_wooden_door_open.b3d",
+			mesh_activated = "multidecor_modern_wooden_door_activated.b3d",
+			vel = 100, -- degrees per sec
+			sounds = {
+				open = "multidecor_wooden_door_open",
+				close = "multidecor_wooden_door_close"
+			}
+		}
+	})
+
 	multidecor.register.register_furniture_unit(wood.name .. "_doorjamb", {
 		type = "decoration",
 		style = "modern",
 		material = "wood",
 		description = upper_name .. "Doorjamb",
 		mesh = "multidecor_wooden_doorjamb.b3d",
-		tiles = {"multidecor_" .. wood.texture .. ".png"},
+		tiles = {base_texture},
 		bounding_boxes = {
 			{-0.725, -0.5, 0.4, -0.5, 1.725, 0.5},-- left
 			{0.725, -0.5, 0.4, 0.5, 1.725, 0.5},-- right
@@ -93,7 +133,7 @@ for _, wood in ipairs(woods) do
 		material = "wood",
 		description = upper_name .. "Plinth",
 		mesh = "multidecor_wooden_plinth.b3d",
-		tiles = {"multidecor_" .. wood.texture .. ".png"},
+		tiles = {base_texture},
 		bounding_boxes = {{-0.5, -0.5, 0.4, 0.5, -0.2, 0.5}}
 	})
 
@@ -103,7 +143,7 @@ for _, wood in ipairs(woods) do
 		material = "wood",
 		description = upper_name .. "Corner Plinth",
 		mesh = "multidecor_wooden_corner_plinth.b3d",
-		tiles = {"multidecor_" .. wood.texture .. ".png"},
+		tiles = {base_texture},
 		bounding_boxes = {
 			{-0.5, -0.5, 0.4, 0.5, -0.2, 0.5},
 			{0.4, -0.5, -0.5, 0.5, -0.2, 0.4}
@@ -117,7 +157,7 @@ for _, wood in ipairs(woods) do
 		description = upper_name .. "Window Segment",
 		mesh = "multidecor_window_segment.b3d",
 		tiles = {
-			"multidecor_" .. wood.texture .. ".png",
+			base_texture,
 			"multidecor_glass_material.png"
 		},
 		use_texture_alpha = "blend",
@@ -130,7 +170,7 @@ for _, wood in ipairs(woods) do
 		description = upper_name .. "Window Segment (Connectable)",
 		mesh = "multidecor_window_segment.b3d",
 		tiles = {
-			"multidecor_" .. wood.texture .. ".png",
+			base_texture,
 			"multidecor_glass_material.png"
 		},
 		use_texture_alpha = "blend",
@@ -162,7 +202,7 @@ for _, wood in ipairs(woods) do
 		description = upper_name .. "Window Segment With Thick Slats",
 		mesh = "multidecor_window_segment_with_thick_slats.b3d",
 		tiles = {
-			"multidecor_" .. wood.texture .. ".png",
+			base_texture,
 			"multidecor_glass_material.png"
 		},
 		use_texture_alpha = "blend",
@@ -176,7 +216,7 @@ for _, wood in ipairs(woods) do
 		description = upper_name .. "Window Segment With Thin Slats",
 		mesh = "multidecor_window_segment_with_thin_slats.b3d",
 		tiles = {
-			"multidecor_" .. wood.texture .. ".png",
+			base_texture,
 			"multidecor_glass_material.png"
 		},
 		use_texture_alpha = "blend",
@@ -189,7 +229,7 @@ for _, wood in ipairs(woods) do
 		description = upper_name .. "Window Door",
 		mesh = "multidecor_window_door.b3d",
 		tiles = {
-			"multidecor_" .. wood.texture .. ".png",
+			base_texture,
 			"multidecor_glass_material.png"
 		},
 		use_texture_alpha = "blend",
@@ -213,7 +253,7 @@ for _, wood in ipairs(woods) do
 		description = upper_name .. "Window Door With Thin Slats",
 		mesh = "multidecor_window_door_with_thin_slats.b3d",
 		tiles = {
-			"multidecor_" .. wood.texture .. ".png",
+			base_texture,
 			"multidecor_glass_material.png"
 		},
 		use_texture_alpha = "blend",
@@ -232,10 +272,10 @@ for _, wood in ipairs(woods) do
 	})
 end
 
-multidecor.register.register_door("wooden_door", {
+multidecor.register.register_door("patterned_wooden_door", {
 	style = "modern",
 	material = "wood",
-	description = "Wooden Door",
+	description = "Patterned Wooden Door",
 	mesh = "multidecor_modern_wooden_door.b3d",
 	tiles = {
 		"multidecor_modern_wooden_door_base2.png",
@@ -244,7 +284,9 @@ multidecor.register.register_door("wooden_door", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.35}}
 },
 {
+	common_name = "patterned_wooden_door",
 	door = {
+		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_modern_wooden_door_open.b3d",
 		mesh_activated = "multidecor_modern_wooden_door_activated.b3d",
 		vel = 100, -- degrees per sec
@@ -324,10 +366,10 @@ multidecor.register.register_door("white_pine_glass_door", {
 	}
 })
 
-multidecor.register.register_door("pine_glass_door", {
+multidecor.register.register_door("patterned_pine_glass_door", {
 	style = "modern",
 	material = "wood",
-	description = "Pine Glass Door",
+	description = "Patterned Pine Glass Door",
 	mesh = "multidecor_pine_glass_door.b3d",
 	tiles = {
 		"multidecor_pine_glass_door_base2.png",
@@ -359,11 +401,11 @@ multidecor.register.register_door("pine_glass_door", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-multidecor.register.register_door("pine_door", {
+multidecor.register.register_door("patterned_pine_door", {
 	style = "modern",
 	material = "wood",
 	visual_scale = 0.5,
-	description = "Pine Door",
+	description = "Patterned Pine Door",
 	mesh = "multidecor_pine_door.b3d",
 	tiles = {
 		"multidecor_pine_door.png",
@@ -413,10 +455,10 @@ multidecor.register.register_door("dark_pine_glass_door", {
 	}
 })
 
-multidecor.register.register_door("technical_door", {
+multidecor.register.register_door("technical_locked_door", {
 	style = "modern",
 	material = "metal",
-	description = "Technical Door",
+	description = "Technical Locked Door",
 	mesh = "multidecor_technical_door.b3d",
 	use_texture_alpha = "blend",
 	tiles = {
@@ -428,6 +470,7 @@ multidecor.register.register_door("technical_door", {
 },
 {
 	door = {
+		has_lock = true,
 		mesh_open = "multidecor_technical_door_open.b3d",
 		mesh_activated = "multidecor_technical_door_activated.b3d",
 		vel = 80, -- degrees per sec
@@ -444,3 +487,67 @@ multidecor.register.register_door("technical_door", {
 		{"multidecor:steel_sheet", "multidecor:steel_sheet", ""}
 	}
 })
+
+multidecor.register.register_door("metallic_locked_door", {
+	style = "modern",
+	material = "metal",
+	description = "Metallic Locked Door",
+	mesh = "multidecor_door_with_lock.b3d",
+	use_texture_alpha = "blend",
+	tiles = {
+		"multidecor_coarse_metal_material.png",
+		"multidecor_metal_material3.png",
+		"multidecor_glass_material.png"
+	},
+	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
+},
+{
+	door = {
+		has_lock = true,
+		mesh_open = "multidecor_door_with_lock_open.b3d",
+		mesh_activated = "multidecor_door_with_lock_activated.b3d",
+		vel = 80, -- degrees per sec
+		sounds = {
+			open = "multidecor_metallic_door_open",
+			close = "multidecor_metallic_door_close"
+		}
+	}
+})
+
+if minetest.get_modpath("ethereal") then
+	multidecor.register.register_door("sequoia_locked_door", {
+		style = "modern",
+		material = "metal",
+		description = "Sequoia Locked Door",
+		mesh = "multidecor_door_with_lock.b3d",
+		use_texture_alpha = "blend",
+		tiles = {
+			"ethereal_redwood_wood.png^[transform1",
+			"multidecor_metal_material3.png",
+			"multidecor_glass_material.png"
+		},
+		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
+	},
+	{
+		door = {
+			has_lock = true,
+			mesh_open = "multidecor_door_with_lock_open.b3d",
+			mesh_activated = "multidecor_door_with_lock_activated.b3d",
+			vel = 80, -- degrees per sec
+			sounds = {
+				open = "multidecor_metallic_door_open",
+				close = "multidecor_metallic_door_close"
+			}
+		}
+	})
+end
+
+minetest.register_alias("multidecor:wooden_door", "multidecor:patterned_wooden_door")
+minetest.register_alias("multidecor:pine_glass_door", "multidecor:patterned_pine_glass_door")
+minetest.register_alias("multidecor:pine_door", "multidecor:patterned_pine_door")
+minetest.register_alias("multidecor:technical_door", "multidecor:technical_locked_door")
+
+minetest.register_alias("multidecor:wooden_door_open", "multidecor:patterned_wooden_door_open")
+minetest.register_alias("multidecor:pine_glass_door_open", "multidecor:patterned_pine_glass_door_open")
+minetest.register_alias("multidecor:pine_door_open", "multidecor:patterned_pine_door_open")
+minetest.register_alias("multidecor:technical_door_open", "multidecor:technical_locked_door_open")
