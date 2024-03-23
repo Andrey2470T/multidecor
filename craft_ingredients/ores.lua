@@ -71,7 +71,7 @@ minetest.register_craftitem(":multidecor:wolfram_ingot",
 minetest.register_craft({
 	type = "cooking",
 	output = "multidecor:wolfram_ingot",
-	recipe = "multidecor:wolfram_lump",
+	recipe = "multidecor:wolfram_ore",
 	cooktime = 8
 })
 
