@@ -72,7 +72,7 @@ function multidecor.clock.start(wheel, time_params)
 	if time_params.sound then
 		local sound_def = {
 			object=self.object,
-			gain = 1.0,
+			gain=time_params.sound.gain or 1.0,
 			max_hear_distance=time_params.sound.max_hear_distance,
 			loop=true
 		}
