@@ -39,6 +39,26 @@ function multidecor.helpers.rotate_to_node_dir(pos, rel_pos)
 	return new_rel_pos
 end
 
+-- Returns rotated 'bbox' bounding box (collision or selection) corresponding to 'dir'
+function multidecor.helpers.rotate_bbox(bbox, dir)
+	local y_rot = vector.dir_to_rotation(dir).y
+
+	local box = {
+		min = {x=bbox[1], y=bbox[2], z=bbox[3]},
+		max = {x=bbox[4], y=bbox[5], z=bbox[6]}
+	}
+
+	box.min = hlpfuncs.rot(box.min, y_rot)
+	box.max = hlpfuncs.rot(box.max, y_rot)
+
+	local new_bbox = {
+		box.min.x, box.min.y, box.min.z,
+		box.max.x, box.max.y, box.max.z
+	}
+
+	return new_bbox
+end
+
 -- Limits the 'v' value at the range [s, e]. If 'v' < 's', returns 's', 'v' > 'e', returns 'e'
 function multidecor.helpers.clamp(s, e, v)
 	local start_v = s

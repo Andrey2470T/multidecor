@@ -11,43 +11,6 @@ function multidecor.doors.rotate(pos, dir, rotate_p)
 	return rotate_p + rel_pos, {x=0, y=y_rot, z=0}
 end
 
--- Returns rotated collisionbox and selectionbox corresponding to "dir"
-function multidecor.doors.rotate_bbox(sbox, cbox, dir)
-	local y_rot = vector.dir_to_rotation(dir).y
-
-	local box = {
-		min = {x=sbox[1], y=sbox[2], z=sbox[3]},
-		max = {x=sbox[4], y=sbox[5], z=sbox[6]}
-	}
-
-	box.min = hlpfuncs.rot(box.min, y_rot)
-	box.max = hlpfuncs.rot(box.max, y_rot)
-
-	local new_sbox = {
-		box.min.x, box.min.y, box.min.z,
-		box.max.x, box.max.y, box.max.z
-	}
-
-	local new_cbox
-
-	if cbox then
-		box = {
-			min = {x=cbox[1], y=cbox[2], z=cbox[3]},
-			max = {x=cbox[4], y=cbox[5], z=cbox[6]}
-		}
-
-		box.min = hlpfuncs.rot(box.min, y_rot)
-		box.max = hlpfuncs.rot(box.max, y_rot)
-
-		new_cbox = {
-			box.min.x, box.min.y, box.min.z,
-			box.max.x, box.max.y, box.max.z
-		}
-	end
-
-	return new_sbox, new_cbox
-end
-
 -- Activates obj rotation from 'self.start_v' to 'self.end_v' or vice versa depending on 'dir_sign' value
 function multidecor.doors.smooth_rotate(obj, dir_sign)
 	local self = obj:get_luaentity()
@@ -111,7 +74,13 @@ function multidecor.doors.convert_to_entity(pos)
 	local new_pos, rot = multidecor.doors.rotate(shift, dir, pos)
 
 	local def = minetest.registered_entities[obj_name]
-	local sbox, cbox = multidecor.doors.rotate_bbox(def.selectionbox, def.collisionbox, dir)
+
+	local sbox, cbox
+	sbox = hlpfuncs.rotate_bbox(def.selectionbox, dir)
+
+	if def.collisionbox then
+		cbox = hlpfuncs.rotate_bbox(def.collisionbox, dir)
+	end
 
 	local start_r, end_r = rot.y, rot.y+math.pi/2
 

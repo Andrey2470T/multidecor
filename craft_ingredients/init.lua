@@ -16,8 +16,8 @@ local craft_sounds_durabilities = {
 	["multidecor_hammer"] = 1
 }
 
--- Maps a playername to the current playing craft sound
-local players_craft_sounds = {}
+-- Maps a playername to the current playing action sound
+multidecor.players_actions_sounds = {}
 
 local woods = {"", "jungle", "aspen", "pine"}
 local items_and_crafts = {
@@ -570,8 +570,8 @@ minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv
 	end
 
 	local playername = player:get_player_name()
-	if contains_tool_with_name ~= "" and not players_craft_sounds[playername] then
-		players_craft_sounds[playername] = {
+	if contains_tool_with_name ~= "" and not multidecor.players_actions_sounds[playername] then
+		multidecor.players_actions_sounds[playername] = {
 			name = craft_tools[contains_tool_with_name],
 			cur_time = 0.0,
 			durability = craft_sounds_durabilities[craft_tools[contains_tool_with_name]]
@@ -586,13 +586,13 @@ end)
 minetest.register_globalstep(function(dtime)
 	for _, player in ipairs(minetest.get_connected_players()) do
 		local playername = player:get_player_name()
-		local sound = players_craft_sounds[playername]
+		local sound = multidecor.players_actions_sounds[playername]
 
 		if sound then
 			sound.cur_time = sound.cur_time + dtime
 
 			if sound.cur_time >= sound.durability then
-				players_craft_sounds[playername] = nil
+				multidecor.players_actions_sounds[playername] = nil
 			end
 		end
 	end
