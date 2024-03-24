@@ -12,7 +12,7 @@ function multidecor.curtains.can_place(pos, nodename)
 	local can_be_placed = false
 
 	if is_hanger then
-		if data.with_rings then
+		if data.top then
 			can_be_placed = true
 		end
 	else
@@ -21,7 +21,7 @@ function multidecor.curtains.can_place(pos, nodename)
 		if add_props_up and add_props_up.curtains_data then
 			local up_data = add_props_up.curtains_data
 
-			if up_data.common_name == data.common_name and not data.with_rings then
+			if up_data.common_name == data.common_name and not data.top then
 				can_be_placed = true
 			end
 		end
@@ -68,7 +68,7 @@ end
 -- Shifts by the unit the position 'pos' of all same curtains arranged vertically in the direction 'dir'
 function multidecor.curtains.move_curtains(pos, dir)
 	local max_move_nodes = 50
-	local curtain_with_rings_found = false
+	local curtain_top_found = false
 
 	local add_props = minetest.registered_nodes[minetest.get_node(pos).name].add_properties
 
@@ -81,20 +81,20 @@ function multidecor.curtains.move_curtains(pos, dir)
 
 		-- if the curtains with rings found and above that there are cornices, mark it as found in the varyable
 		if cur_add_props and cur_add_props.curtains_data and
-			cur_add_props.common_name == add_props.common_name and cur_add_props.curtains_data.with_rings then
+			cur_add_props.common_name == add_props.common_name and cur_add_props.curtains_data.top then
 
 			local is_above_cornice = minetest.get_item_group(minetest.get_node({x=cur_pos.x,y=cur_pos.y+1,z=cur_pos.z}).name, "hanger") == 1
 			local is_above_cornice2 = minetest.get_item_group(minetest.get_node(vector.add({x=cur_pos.x,y=cur_pos.y+1,z=cur_pos.z}, dir)).name, "hanger") == 1
 
 			if is_above_cornice and is_above_cornice2 then
-				curtain_with_rings_found = true
+				curtain_top_found = true
 				minetest.sound_play(add_props.curtains_data.sound, {gain=1.0, pitch=1.0, pos=pos, max_hear_distance=10})
 			end
 		end
 
 		-- if the curtains with rings hasn't found yet, then just skip the iteration
 		-- if this is found and the given node is not a curtain, break the search loop
-		if curtain_with_rings_found then
+		if curtain_top_found then
 			if not (cur_add_props and cur_add_props.curtains_data and cur_add_props.common_name == add_props.common_name) then
 				return
 			end

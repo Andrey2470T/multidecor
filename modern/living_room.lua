@@ -27,6 +27,61 @@ local tile_bboxes = {
 
 }
 
+multidecor.hanging.hangers["louvers"] = {
+	["top"] = "multidecor:louvers_top",
+	["medium"] = "multidecor:louvers_medium",
+	["bottom"] = "multidecor:louvers_bottom"
+}
+
+local louvers_parts = {
+	["louvers_top"] = "top",
+	["louvers_medium"] = "medium",
+	["louvers_bottom"] = "bottom",
+
+	["louvers_top_open"] = "top",
+	["louvers_medium_open"] = "medium",
+	["louvers_bottom_open"] = "bottom"
+}
+
+local louvers_on_rightclick = function(pos)
+	local def = hlpfuncs.ndef(pos)
+	local node = minetest.get_node(pos)
+
+	if def.groups.open == 1 then
+		minetest.set_node(pos, {name=node.name:gsub("_open", ""), param2=node.param2})
+	else
+		minetest.set_node(pos, {name=node.name .. "_open", param2=node.param2})
+	end
+end
+
+for louvers, part in pairs(louvers_parts) do
+	local groups = {cracky=3}
+	groups["hanger_" .. part] = 1
+
+	if louvers:find("_open") then
+		groups.open = 1
+		groups.not_in_creative_inventory = 1
+	end
+
+	multidecor.register.register_furniture_unit(louvers, {
+		type = "decoration",
+		style = "modern",
+		material = "plastic",
+		description = hlpfuncs.upper_first_letters(louvers),
+		mesh = "multidecor_" .. louvers .. ".b3d",
+		tiles = {"multidecor_plastic_material.png", "multidecor_plastic_material.png"},
+		groups = groups,
+		bounding_boxes = {{-0.5, -0.5, -0.2, 0.5, 0.5, 0.2}},
+		callbacks = {
+			after_place_node = multidecor.hanging.default_after_place_node,
+			on_rightclick = louvers_on_rightclick
+		},
+		add_properties = {
+			common_name = "louvers"
+		}
+	})
+end
+
 multidecor.register.register_furniture_unit("modern_floor_clock", {
 	type = "decoration",
 	style = "modern",
