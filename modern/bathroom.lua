@@ -547,8 +547,10 @@ multidecor.register.register_table("plastic_quadratic_cornice", {
 		on_construct = function(pos)
 			multidecor.connecting.update_adjacent_nodes_connection(pos, "directional")
 		end,
-		after_dig_node = function(pos, old_node)
+		after_dig_node = function(pos, old_node, oldmetadata, digger)
 			multidecor.connecting.update_adjacent_nodes_connection(pos, "directional", true, old_node)
+
+			multidecor.curtains.default_after_dig(pos, nil, nil, digger)
 		end
 	}
 },
