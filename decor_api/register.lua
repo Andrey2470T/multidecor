@@ -102,6 +102,44 @@ function multidecor.register.after_place_node(pos, placer, itemstack)
 	return leftover
 end
 
+function multidecor.register.on_punch(pos, node, puncher)
+	local wielded_item = puncher:get_wielded_item()
+
+	if wielded_item:get_name() ~= "multidecor:scraper" then
+		return
+	end
+
+	local def = hlpfuncs.ndef(pos)
+
+	if not def.is_colorable then return end
+
+	local mul = def.paramtype2 == "colorwallmounted" and 8 or 32
+	local palette_index = math.floor(node.param2 / mul)
+
+	if palette_index == 0 then return end
+
+	local color = multidecor.colors[palette_index+1]
+	local rot = node.param2 % mul
+
+	minetest.swap_node(pos, {name=node.name, param2=rot})
+
+	minetest.item_drop(ItemStack("dye:" .. color), puncher, pos)
+
+	wielded_item:set_wear(wielded_item:get_wear()+math.modf(65535/50))
+	puncher:set_wielded_item(wielded_item)
+
+	local playername = puncher:get_player_name()
+	if not multidecor.players_actions_sounds[playername] then
+		multidecor.players_actions_sounds[playername] = {
+			name = "multidecor_scraping",
+			cur_time = 0.0,
+			durability = 4.0
+		}
+
+		minetest.sound_play("multidecor_scraping", {to_player=playername})
+	end
+end
+
 --[[def:
 	{
 		type = <seat, shelf, bed, table, >
@@ -159,6 +197,10 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 
 	if f_def.drawtype == "mesh" then
 		f_def.mesh = def.mesh
+	end
+
+	if f_def.paramtype2 == "colorfacedir" or f_def.paramtype2 == "colorwallmounted" then
+		f_def.palette = "multidecor_palette.png"
 	end
 
 	f_def.tiles = def.tiles
@@ -222,6 +264,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	end
 
 	f_def.prevent_placement_check = def.prevent_placement_check
+	f_def.is_colorable = def.is_colorable
 
 	f_def.callbacks = def.callbacks or {}
 	for cb_name, f in pairs(f_def.callbacks) do
@@ -239,6 +282,17 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 		f_def.after_place_node = after_place
 	else
 		f_def.after_place_node = multidecor.register.after_place_node
+	end
+
+	if f_def.on_punch then
+		local prev_on_punch = f_def.on_punch
+		f_def.on_punch = function(pos, node, puncher)
+			prev_on_punch(pos, node, puncher)
+
+			multidecor.register.on_punch(pos, node, puncher)
+		end
+	else
+		f_def.on_punch = multidecor.register.on_punch
 	end
 
 	f_def.add_properties = def.add_properties or {}

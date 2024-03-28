@@ -41,7 +41,7 @@ end
 
 -- Defines at which direction (unit vector) depending on the 'mover's look dir the curtains at the position 'pos' should be moved
 function multidecor.curtains.define_move_dir(pos, mover)
-	local node_dir = minetest.facedir_to_dir(minetest.get_node(pos).param2)
+	local node_dir = hlpfuncs.get_dir(pos)*-1
 	node_dir.y = 0
 
 	local mover_dir = mover:get_look_dir()

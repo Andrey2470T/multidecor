@@ -494,10 +494,11 @@ multidecor.register.register_seat("toilet", {
 multidecor.register.register_curtain("bathroom_curtain", {
 	style = "modern",
 	material = "plastic",
-	drawtype = "colorfacedir",
+	paramtype2 = "colorfacedir",
 	bounding_boxes = {
 		{-0.5, -0.5, -0.1, 0.5, 0.5, 0.1}
-	}
+	},
+	is_colorable = true
 },
 {
 	common_name = "bathroom_curtain",
@@ -507,7 +508,7 @@ multidecor.register.register_curtain("bathroom_curtain", {
 			name = "bathroom_curtain_with_rings",
 			description = "Bathroom Curtain With Rings",
 			mesh = "multidecor_curtain_with_rings.b3d",
-			tiles = {"multidecor_cloth.png", "multidecor_metal_material.png"},
+			tiles = {"multidecor_cloth.png", {name="multidecor_metal_material.png",color=0xffffffff}},
 			craft = {
 				recipe = {
 					{"multidecor:wool_cloth", "multidecor:metal_bar", "multidecor:steel_scissors"},

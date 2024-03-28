@@ -17,7 +17,7 @@ function multidecor.register.register_seat(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
 
 	def.type = "seat"
-	def.paramtype2 = "facedir"
+	def.paramtype2 = def.paramtype2 or "facedir"
 
 	-- additional properties
 	if add_def then

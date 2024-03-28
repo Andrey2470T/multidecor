@@ -2,16 +2,44 @@ multidecor.helpers = {}
 
 hlpfuncs = multidecor.helpers
 
--- Returns a direction of the node with 'pos' position
-function multidecor.helpers.get_dir(pos)
-	local node = minetest.get_node(pos)
-	local def = minetest.registered_nodes[node.name]
-	local dir = def.paramtype2 == "facedir" and vector.copy(minetest.facedir_to_dir(node.param2)) or
-			def.paramtype2 == "wallmounted" and vector.copy(minetest.wallmounted_to_dir(node.param2)) or
-			vector.new(0, 0, 0)
+function multidecor.helpers.get_dir_from_param2(name, param2)
+	local def = minetest.registered_nodes[name]
+
+	local dir = vector.new(0, 0, 0)
+
+	if def.paramtype2 == "facedir" then
+		dir = minetest.facedir_to_dir(param2)
+	elseif def.paramtype2 == "wallmounted" then
+		dir = minetest.wallmounted_to_dir(param2)
+	elseif def.paramtype2 == "colorfacedir" then
+		dir = minetest.facedir_to_dir(param2 % 32)
+	elseif def.paramtype2 == "colorwallmounted" then
+		dir = minetest.wallmounted_to_dir(param2 % 8)
+	end
+
 	dir = dir*-1
 
 	return dir
+end
+
+-- Returns a direction of the node with 'pos' position
+function multidecor.helpers.get_dir(pos)
+	local node = minetest.get_node(pos)
+
+	return multidecor.helpers.get_dir_from_param2(node.name, node.param2)
+end
+
+function multidecor.helpers.from_dir_get_param2(name, old_param2, dir)
+	local param2 = minetest.dir_to_facedir(dir)
+
+	local def = minetest.registered_nodes[name]
+
+	if def.paramtype2 == "colorfacedir" then
+		local palette_index = math.floor(old_param2 / 32)
+		param2 = param2 + palette_index * 32
+	end
+
+	return param2
 end
 
 -- Returns a node def of the node at 'pos'

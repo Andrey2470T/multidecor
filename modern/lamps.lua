@@ -76,11 +76,13 @@ multidecor.register.register_light("silvered_desk_lamp_off", {
 	style = "modern",
 	material = "metal",
 	description = "Silvered Desk Lamp",
+	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	use_texture_alpha = "blend",
 	mesh = "multidecor_silvered_desk_lamp.b3d",
-	tiles = {"multidecor_silver_material.png", "multidecor_silvered_lampshade.png"},
+	tiles = {{name="multidecor_silver_material.png", color=0xffffffff}, "multidecor_silvered_lampshade.png"},
 	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, 0.5, 0.3}},
+	is_colorable = true
 },
 {
 	swap_light = {
@@ -116,10 +118,16 @@ multidecor.register.register_light("plastic_desk_lamp_off", {
 	style = "modern",
 	material = "plastic",
 	description = "Plastic Desk Lamp",
+	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	use_texture_alpha = "blend",
 	mesh = "multidecor_plastic_desk_lamp.b3d",
-	tiles = {"multidecor_plastic_material.png", "multidecor_plastic_desk_lampshade.png", "multidecor_bulb_surf.png"},
+	tiles = {
+		{name="multidecor_plastic_material.png", color=0xffffffff},
+		"multidecor_plastic_desk_lampshade.png",
+		{name="multidecor_bulb_surf.png", color=0xffffffff}
+	},
+	is_colorable = true,
 	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, 0.5, 0.3}},
 },
 {

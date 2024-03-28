@@ -100,9 +100,56 @@ minetest.register_craftitem(":multidecor:plaster_lump", {
 	inventory_image = "multidecor_plaster_lump.png"
 })
 
+
 minetest.register_tool(":multidecor:paint_brush", {
 	description = "Paint Brush (for painting armchairs, curtains, beds, chairs and etc)",
-	inventory_image = "multidecor_paint_brush.png"
+	inventory_image = "multidecor_paint_brush.png",
+	on_place = function(itemstack, placer, pointed_thing)
+		local pos = vector.add(pointed_thing.above, pointed_thing.under) / 2
+		local def = hlpfuncs.ndef(pos)
+
+		if not def.is_colorable then -- not colorable
+			return
+		end
+
+		local node = minetest.get_node(pos)
+
+		local mul = def.paramtype2 == "colorwallmounted" and 8 or 32
+		local palette_index = math.floor(node.param2 / mul)
+
+		if palette_index ~= 0 then -- already colored
+			return
+		end
+
+		local inv = placer:get_inventory()
+		local dye_index = placer:get_wield_index()
+		local next_itemstack = inv:get_stack("main", dye_index+1)
+		local next_itemname = next_itemstack:get_name()
+
+		if not next_itemstack or next_itemstack:is_empty() or
+			minetest.get_item_group(next_itemname, "dye") ~= 1 then -- no any dye next to the brush or the slot is empty
+			return
+		end
+
+		local index, dye_color
+
+		for colorindex, colorname in ipairs(multidecor.colors) do
+			if minetest.get_item_group(next_itemname, "color_" .. colorname) == 1 then
+				index = colorindex - 1
+				dye_color = colorname
+
+				break
+			end
+		end
+
+		if not dye_color then return end -- not supported color
+
+		local rot = node.param2 % mul
+		minetest.swap_node(pos, {name=node.name, param2=index*mul+rot})
+
+		next_itemstack:take_item()
+		inv:set_stack("main", dye_index+1, next_itemstack)
+	end
 })
 
 minetest.register_tool(":multidecor:spatula", {

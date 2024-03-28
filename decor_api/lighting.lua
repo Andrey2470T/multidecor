@@ -18,7 +18,7 @@ function multidecor.register.register_light(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
 
 	def.type = "light"
-	def.paramtype2 = "facedir"
+	def.paramtype2 = def.paramtype2 or "facedir"
 
 	if add_def then
 		if add_def.recipe then
