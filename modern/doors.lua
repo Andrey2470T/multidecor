@@ -94,7 +94,7 @@ for i, wood in ipairs(woods) do
 		description = "Simple " .. upper_name .. " Door",
 		mesh = "multidecor_modern_wooden_door.b3d",
 		tiles = {
-			base_texture,
+			base_texture .. "^multidecor_door_hinges.png",
 			doors_hands_texs[i] .. ".png"
 		},
 		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.35}}
@@ -164,7 +164,8 @@ for i, wood in ipairs(woods) do
 		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.38}}
 	})
 
-	multidecor.register.register_table(wood.name .. "_window_segment_connectable", {
+	-- TODO 'vertical' connection type is not workable currently, needs in a repair in next releases
+	--[[multidecor.register.register_table(wood.name .. "_window_segment_connectable", {
 		style = "modern",
 		material = "wood",
 		description = upper_name .. "Window Segment (Connectable)",
@@ -193,7 +194,7 @@ for i, wood in ipairs(woods) do
 			["edge_middle"] = "multidecor_window_segment_3.b3d",
 			["off_edge"] = "multidecor_window_segment_4.b3d"
 		}
-	})
+	})]]
 
 	multidecor.register.register_furniture_unit(wood.name .. "_window_segment_with_thick_slats", {
 		type = "decoration",
@@ -278,7 +279,7 @@ multidecor.register.register_door("patterned_wooden_door", {
 	description = "Patterned Wooden Door",
 	mesh = "multidecor_modern_wooden_door.b3d",
 	tiles = {
-		"multidecor_modern_wooden_door_base2.png",
+		"multidecor_modern_wooden_door_base.png^multidecor_door_hinges.png",
 		"multidecor_jungle_wood.png"
 	},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.35}}
@@ -311,7 +312,7 @@ multidecor.register.register_door("bathroom_door", {
 	description = "Bathroom Door",
 	mesh = "multidecor_bathroom_door.b3d",
 	tiles = {
-		"multidecor_white_pine_wood.png",
+		"multidecor_white_pine_wood.png^multidecor_door_hinges.png",
 		"multidecor_pine_wood2.png"
 	},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.35}}
@@ -345,7 +346,7 @@ multidecor.register.register_door("white_pine_glass_door", {
 	description = "White Pine Glass Door",
 	mesh = "multidecor_white_pine_glass_door.b3d",
 	tiles = {
-		"multidecor_white_pine_wood.png",
+		"multidecor_white_pine_wood.png^(multidecor_door_hinges.png^[transform2)",
 		"multidecor_gold_material.png",
 		"multidecor_glass_material.png"
 	},
@@ -372,7 +373,7 @@ multidecor.register.register_door("patterned_pine_glass_door", {
 	description = "Patterned Pine Glass Door",
 	mesh = "multidecor_pine_glass_door.b3d",
 	tiles = {
-		"multidecor_pine_glass_door_base2.png",
+		"multidecor_pine_glass_door_base2.png^multidecor_door_hinges.png",
 		"multidecor_metal_material.png",
 		"multidecor_glass_material.png"
 	},
@@ -408,7 +409,7 @@ multidecor.register.register_door("patterned_pine_door", {
 	description = "Patterned Pine Door",
 	mesh = "multidecor_pine_door.b3d",
 	tiles = {
-		"multidecor_pine_door.png",
+		"multidecor_pine_door.png^multidecor_door_hinges.png",
 		"multidecor_metal_material.png"
 	},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
@@ -495,7 +496,7 @@ multidecor.register.register_door("metallic_locked_door", {
 	mesh = "multidecor_door_with_lock.b3d",
 	use_texture_alpha = "blend",
 	tiles = {
-		"multidecor_coarse_metal_material.png",
+		"multidecor_coarse_metal_material.png^multidecor_door_hinges.png",
 		"multidecor_metal_material3.png",
 		"multidecor_glass_material.png"
 	},
@@ -522,7 +523,7 @@ if minetest.get_modpath("ethereal") then
 		mesh = "multidecor_door_with_lock.b3d",
 		use_texture_alpha = "blend",
 		tiles = {
-			"ethereal_redwood_wood.png^[transform1",
+			"ethereal_redwood_wood.png^[transform1^multidecor_door_hinges.png",
 			"multidecor_metal_material3.png",
 			"multidecor_glass_material.png"
 		},

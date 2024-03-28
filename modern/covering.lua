@@ -2,12 +2,12 @@ local wallpapers = {
 	"white",
 	"cyan_patterned",
 	"yellow_patterned",
-	"white_patterned"
+	"white_patterned",
 }
 
-local wallpaper_sbox = {-0.5, -0.5, -0.05, 0.5, 0.5, 0.05}
+local cover_sbox = {-0.5, -0.5, -0.05, 0.5, 0.5, 0.05}
 
-minetest.register_entity(":multidecor:wallpaper", {
+minetest.register_entity(":multidecor:cover", {
 	visual = "upright_sprite",
 	physical = false,
 	pointable = true,
@@ -20,7 +20,7 @@ minetest.register_entity(":multidecor:wallpaper", {
 		end
 
 		self.texture = staticdata
-		local texture = "multidecor_" .. staticdata .. "_wallpaper.png"
+		local texture = "multidecor_" .. staticdata .. ".png"
 
 		self.object:set_properties({textures={texture}})
 		self.object:set_armor_groups({immortal=1})
@@ -53,36 +53,39 @@ minetest.register_entity(":multidecor:wallpaper", {
 	end
 })
 
+local function on_place_cover(pointed_thing, cover_stack, cover_name)
+	local pos = vector.add(pointed_thing.above, pointed_thing.under) / 2
+
+	local dir_to_pos = vector.normalize(pos - pointed_thing.above)
+
+	if cover_name ~= "plaster" and dir_to_pos.y ~= 0.0 then -- Can not place on the floor or ceiling
+		return cover_stack
+	end
+	local target_pos = pointed_thing.above + dir_to_pos * 0.5
+
+	-- Slight position displacement
+	target_pos = target_pos - dir_to_pos * 0.01
+
+	local target_rot = vector.dir_to_rotation(dir_to_pos)
+	local target_sbox = hlpfuncs.rotate_bbox(cover_sbox, dir_to_pos)
+
+	local obj = minetest.add_entity(target_pos, "multidecor:cover", cover_name)
+
+	obj:set_rotation(target_rot)
+	obj:set_properties({selectionbox=target_sbox})
+
+	cover_stack:take_item()
+
+	return cover_stack
+end
+
 for _, wallpaper_sort in ipairs(wallpapers) do
 	local itemname = wallpaper_sort .. "_wallpaper"
-
 	minetest.register_craftitem(":multidecor:" .. itemname, {
 		description = hlpfuncs.upper_first_letters(itemname),
 		inventory_image = "multidecor_" .. itemname .. ".png",
 		on_place = function(itemstack, placer, pointed_thing)
-			local pos = vector.add(pointed_thing.above, pointed_thing.under) / 2
-
-			local dir_to_pos = vector.normalize(pos - pointed_thing.above)
-
-			if dir_to_pos.y ~= 0.0 then -- Can not place on the floor or ceiling
-				return itemstack
-			end
-			local target_pos = pointed_thing.above + dir_to_pos * 0.5
-
-			-- Slight position displacement
-			target_pos = target_pos - dir_to_pos * 0.01
-
-			local target_rot = vector.dir_to_rotation(dir_to_pos)
-			local target_sbox = hlpfuncs.rotate_bbox(wallpaper_sbox, dir_to_pos)
-
-			local obj = minetest.add_entity(target_pos, "multidecor:wallpaper", wallpaper_sort)
-
-			obj:set_rotation(target_rot)
-			obj:set_properties({selectionbox=target_sbox})
-
-			itemstack:take_item()
-
-			return itemstack
+			return on_place_cover(pointed_thing, itemstack, itemname)
 		end
 	})
 end
@@ -92,7 +95,30 @@ minetest.register_tool(":multidecor:scraper", {
 	inventory_image = "multidecor_scraper.png"
 })
 
+minetest.register_craftitem(":multidecor:plaster_lump", {
+	description = "Plaster Lump",
+	inventory_image = "multidecor_plaster_lump.png"
+})
+
+minetest.register_tool(":multidecor:paint_brush", {
+	description = "Paint Brush (for painting armchairs, curtains, beds, chairs and etc)",
+	inventory_image = "multidecor_paint_brush.png"
+})
+
 minetest.register_tool(":multidecor:spatula", {
-	description = "Spatula (for spreading plaster on ceilings)",
-	inventory_image = "multidecor_spatula.png"
+	description = "Spatula (for spreading plaster on surfaces)",
+	inventory_image = "multidecor_spatula.png",
+	on_place = function(itemstack, placer, pointed_thing)
+		local inv = placer:get_inventory()
+		local spatula_index = placer:get_wield_index()
+		local next_itemstack = inv:get_stack("main", spatula_index+1)
+
+		if not next_itemstack or next_itemstack:is_empty() or
+			next_itemstack:get_name() ~= "multidecor:plaster_lump" then
+			return
+		end
+
+		next_itemstack = on_place_cover(pointed_thing, next_itemstack, "plaster")
+		inv:set_stack("main", spatula_index+1, next_itemstack)
+	end
 })

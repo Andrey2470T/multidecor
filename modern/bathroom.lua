@@ -494,6 +494,7 @@ multidecor.register.register_seat("toilet", {
 multidecor.register.register_curtain("bathroom_curtain", {
 	style = "modern",
 	material = "plastic",
+	drawtype = "colorfacedir",
 	bounding_boxes = {
 		{-0.5, -0.5, -0.1, 0.5, 0.5, 0.1}
 	}
