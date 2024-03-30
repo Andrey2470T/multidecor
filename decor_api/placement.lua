@@ -75,12 +75,16 @@ function multidecor.placement.calc_place_space_size(bboxes)
 	return max_bbox
 end
 
-function multidecor.placement.check_for_placement(pos, placer)
+function multidecor.placement.check_for_placement(pos, placer, itemstack)
 	local nodename = minetest.get_node(pos).name
 	local def = minetest.registered_nodes[nodename]
 
 	if def.drawtype ~= "mesh" and def.drawtype ~= "nodebox" then
-		return
+		return itemstack
+	end
+
+	if def.prevent_placement_check then
+		return itemstack
 	end
 
 	local bboxes
@@ -109,10 +113,9 @@ function multidecor.placement.check_for_placement(pos, placer)
 	local can_be_placed = multidecor.placement.check_for_free_space(pos, max_bbox)
 
 	if not can_be_placed then
-		local return_item = ItemStack(nodename)
 		minetest.remove_node(pos)
 
-		placer:get_inventory():add_item("main", return_item)
-		return return_item
+		itemstack:set_count(itemstack:get_count()+1)
+		return itemstack
 	end
 end

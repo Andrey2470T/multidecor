@@ -8,10 +8,10 @@ local default_bed_on_rightclick = function(pos, node, clicker, itemstack, pointe
 	local bed_dir = multidecor.helpers.get_dir(pos)
 
 	local lpos = add_props.lay_pos1 or {x=0, y=0, z=0}
-	lpos = pos + vector.rotate_around_axis(lpos, {x=0, y=1, z=0}, vector.dir_to_rotation(bed_dir).y)
+	lpos = pos + multidecor.helpers.rot(lpos, vector.dir_to_rotation(bed_dir).y)
 
 	local lpos2 = add_props.lay_pos2
-	lpos2 = lpos2 and pos + vector.rotate_around_axis(lpos2, {x=0, y=1, z=0}, vector.dir_to_rotation(bed_dir).y)
+	lpos2 = lpos2 and pos + multidecor.helpers.rot(lpos2, vector.dir_to_rotation(bed_dir).y)
 
 	local is_lpos_fr = true
 	local is_lpos2_fr = true
@@ -41,7 +41,7 @@ local default_bed_on_destruct = function(pos)
 end
 
 local default_bed_can_dig = function(pos)
-	local add_props = minetest.registered_nodes[minetest.get_node(pos).name].add_properties
+	local add_props = multidecor.helpers.ndef(pos).add_properties
 
 	if not add_props then
 		return
@@ -50,7 +50,7 @@ local default_bed_can_dig = function(pos)
 	local bed_dir = multidecor.helpers.get_dir(pos)
 
 	local lpos = add_props.lay_pos1 or {x=0, y=0, z=0}
-	lpos = pos + vector.rotate_around_axis(lpos, {x=0, y=1, z=0}, vector.dir_to_rotation(bed_dir).y)
+	lpos = pos + multidecor.helpers.rot(lpos, vector.dir_to_rotation(bed_dir).y)
 
 	return beds.can_dig(lpos)
 end
@@ -59,7 +59,7 @@ function multidecor.register.register_bed(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
 
 	def.type = "bed"
-	def.paramtype = "facedir"
+	def.paramtype2 = def.paramtype2 or "facedir"
 
 	if add_def then
 		if add_def.recipe then

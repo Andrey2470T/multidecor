@@ -32,8 +32,7 @@ end
 
 -- Destructs and drops (if was dug by player) below curtain node at the 'pos' position if the above node (cornice or other connected curtain) has got absent
 function multidecor.curtains.drop_below_curtain(pos, digger)
-	local nodename = minetest.get_node(pos).name
-	local add_props = minetest.registered_nodes[nodename].add_properties
+	local add_props = hlpfuncs.ndef(pos).add_properties
 
 	if add_props and add_props.curtains_data then
 		minetest.dig_node(pos)
@@ -42,7 +41,7 @@ end
 
 -- Defines at which direction (unit vector) depending on the 'mover's look dir the curtains at the position 'pos' should be moved
 function multidecor.curtains.define_move_dir(pos, mover)
-	local node_dir = minetest.facedir_to_dir(minetest.get_node(pos).param2)
+	local node_dir = hlpfuncs.get_dir(pos)*-1
 	node_dir.y = 0
 
 	local mover_dir = mover:get_look_dir()
@@ -68,9 +67,9 @@ end
 -- Shifts by the unit the position 'pos' of all same curtains arranged vertically in the direction 'dir'
 function multidecor.curtains.move_curtains(pos, dir)
 	local max_move_nodes = 50
-	local curtain_with_rings_found = false
+	local curtain_top_found = false
 
-	local add_props = minetest.registered_nodes[minetest.get_node(pos).name].add_properties
+	local add_props = hlpfuncs.ndef(pos).add_properties
 
 	local res = false
 
@@ -83,18 +82,19 @@ function multidecor.curtains.move_curtains(pos, dir)
 		if cur_add_props and cur_add_props.curtains_data and
 			cur_add_props.common_name == add_props.common_name and cur_add_props.curtains_data.with_rings then
 
-			local is_above_cornice = minetest.get_item_group(minetest.get_node({x=cur_pos.x,y=cur_pos.y+1,z=cur_pos.z}).name, "hanger") == 1
-			local is_above_cornice2 = minetest.get_item_group(minetest.get_node(vector.add({x=cur_pos.x,y=cur_pos.y+1,z=cur_pos.z}, dir)).name, "hanger") == 1
+			local hanger_pos = {x=cur_pos.x,y=cur_pos.y+1,z=cur_pos.z}
+			local is_above_cornice = minetest.get_item_group(minetest.get_node(hanger_pos).name, "hanger") == 1
+			local is_above_cornice2 = minetest.get_item_group(minetest.get_node(vector.add(hanger_pos, dir)).name, "hanger") == 1
 
 			if is_above_cornice and is_above_cornice2 then
-				curtain_with_rings_found = true
+				curtain_top_found = true
 				minetest.sound_play(add_props.curtains_data.sound, {gain=1.0, pitch=1.0, pos=pos, max_hear_distance=10})
 			end
 		end
 
 		-- if the curtains with rings hasn't found yet, then just skip the iteration
 		-- if this is found and the given node is not a curtain, break the search loop
-		if curtain_with_rings_found then
+		if curtain_top_found then
 			if not (cur_add_props and cur_add_props.curtains_data and cur_add_props.common_name == add_props.common_name) then
 				return
 			end
@@ -103,7 +103,7 @@ function multidecor.curtains.move_curtains(pos, dir)
 		end
 
 		local target_pos = vector.add(cur_pos, dir)
-		local target_def = minetest.registered_nodes[minetest.get_node(target_pos).name]
+		local target_def = hlpfuncs.ndef(target_pos)
 		local target_add_props = target_def.add_properties
 
 		if target_def.drawtype ~= "airlike" then

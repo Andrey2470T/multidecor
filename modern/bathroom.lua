@@ -71,7 +71,7 @@ for _, tile in ipairs(ceramic_tiles) do
 		paramtype = "light",
 		paramtype2 = "wallmounted",
 		tiles = {tex_name},
-		groups = {cracky=1.5},
+		groups = {cracky=3.5},
 		node_box = tile_bboxes,
 		selection_box = tile_bboxes,
 		sounds = default.node_sound_stone_defaults()
@@ -79,11 +79,13 @@ for _, tile in ipairs(ceramic_tiles) do
 
 	local recipe = {"default:clay_lump", "default:clay_lump"}
 	table.copy_to(tile[2], recipe)
+	table.insert(recipe, "multidecor:paint_brush")
 
 	minetest.register_craft({
 		type = "shapeless",
 		output = tile_name,
-		recipe = recipe
+		recipe = recipe,
+		replacements = {{"multidecor:paint_brush", "multidecor:paint_brush"}}
 	})
 
 	local block_name = "multidecor:bathroom_ceramic_" .. tile[1] .. "_tiles_block"
@@ -93,7 +95,7 @@ for _, tile in ipairs(ceramic_tiles) do
 		paramtype = "light",
 		paramtype2 = "facedir",
 		tiles = {tex_name},
-		groups = {cracky=1.5},
+		groups = {cracky=2.5},
 		sounds = default.node_sound_stone_defaults()
 	})
 
@@ -120,11 +122,13 @@ for _, style in ipairs(bathroom_styles) do
 
 	local panel_craft = {"multidecor:pine_board"}
 	table.copy_to(craft, panel_craft)
+	table.insert(panel_craft, "multidecor:paint_brush")
 
 	minetest.register_craft({
 		type = "shapeless",
 		output = panel_name,
-		recipe = panel_craft
+		recipe = panel_craft,
+		replacements = {{"multidecor:paint_brush", "multidecor:paint_brush"}}
 	})
 
 	local bathtub_with_shields_def = table.copy(bathtub_def)
@@ -494,9 +498,11 @@ multidecor.register.register_seat("toilet", {
 multidecor.register.register_curtain("bathroom_curtain", {
 	style = "modern",
 	material = "plastic",
+	paramtype2 = "colorfacedir",
 	bounding_boxes = {
 		{-0.5, -0.5, -0.1, 0.5, 0.5, 0.1}
-	}
+	},
+	is_colorable = true
 },
 {
 	common_name = "bathroom_curtain",
@@ -506,7 +512,7 @@ multidecor.register.register_curtain("bathroom_curtain", {
 			name = "bathroom_curtain_with_rings",
 			description = "Bathroom Curtain With Rings",
 			mesh = "multidecor_curtain_with_rings.b3d",
-			tiles = {"multidecor_cloth.png", "multidecor_metal_material.png"},
+			tiles = {"multidecor_cloth.png", {name="multidecor_metal_material.png",color=0xffffffff}},
 			craft = {
 				recipe = {
 					{"multidecor:wool_cloth", "multidecor:metal_bar", "multidecor:steel_scissors"},
@@ -547,8 +553,10 @@ multidecor.register.register_table("plastic_quadratic_cornice", {
 		on_construct = function(pos)
 			multidecor.connecting.update_adjacent_nodes_connection(pos, "directional")
 		end,
-		after_dig_node = function(pos, old_node)
+		after_dig_node = function(pos, old_node, oldmetadata, digger)
 			multidecor.connecting.update_adjacent_nodes_connection(pos, "directional", true, old_node)
+
+			multidecor.curtains.default_after_dig(pos, nil, nil, digger)
 		end
 	}
 },
@@ -684,17 +692,6 @@ multidecor.register.register_furniture_unit("shower_head", {
 	}
 })
 
-local crooked_shower_head_recipe
-if minetest.get_modpath("technic_worldgen") then
-	crooked_shower_head_recipe = {
-		recipe = {
-			{"technic:cast_iron_ingot", "technic:cast_iron_ingot", "multidecor:plastic_sheet"},
-			{"technic:cast_iron_ingot", "", ""},
-			{"", "", ""}
-		}
-	}
-end
-
 multidecor.register.register_furniture_unit("crooked_shower_head", {
 	type = "decoration",
 	style = "modern",
@@ -725,7 +722,13 @@ multidecor.register.register_furniture_unit("crooked_shower_head", {
 		}
 	}
 },
-crooked_shower_head_recipe)
+{
+	recipe = {
+		{"multidecor:coarse_steel_sheet", "multidecor:coarse_steel_sheet", "multidecor:plastic_sheet"},
+		{"multidecor:coarse_steel_sheet", "", ""},
+		{"", "", ""}
+	}
+})
 
 multidecor.register.register_furniture_unit("bathroom_mirror", {
 	type = "decoration",

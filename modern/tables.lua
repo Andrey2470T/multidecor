@@ -39,12 +39,18 @@ multidecor.register.register_table("kitchen_modern_wooden_table_with_cloth", {
 	style = "modern",
 	material = "wood",
 	description = "Kitchen Modern Wooden Table With Cloth",
+	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	mesh = "multidecor_kitchen_modern_wooden_table.b3d",
-	tiles = {"multidecor_wood.png^[opacity:0", "multidecor_wood.png", "multidecor_wool_material.png"},
+	tiles = {
+		{name="multidecor_wood.png^[opacity:0", color=0xffffffff},
+		{name="multidecor_wood.png", color=0xffffffff},
+		"multidecor_wool_material.png"
+	},
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}
 	},
+	is_colorable = true,
 	callbacks = {
 		on_construct = function(pos)
 			multidecor.connecting.update_adjacent_nodes_connection(pos, "horizontal")

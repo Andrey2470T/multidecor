@@ -88,7 +88,7 @@ function multidecor.sitting.sit_player(player, node_pos)
 	if seat_data.model then
 		prev_pdata.model = player_api.get_animation(player)
 
-		local node_dir = vector.multiply(minetest.facedir_to_dir(minetest.get_node(node_pos).param2), -1)
+		local node_dir = multidecor.helpers.get_dir(node_pos)
 		local near_node = minetest.get_node(vector.add(node_pos, node_dir))
 
 		if minetest.get_item_group(near_node.name, "table") ~= 1 then

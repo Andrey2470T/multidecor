@@ -1,6 +1,7 @@
 local silvered_lamp_recipe
 local gold_chandelier_recipe
 local silver_candlestick_recipe
+local silver_chain_recipe
 
 if minetest.get_modpath("moreores") then
 	silvered_lamp_recipe = {
@@ -24,78 +25,73 @@ if minetest.get_modpath("moreores") then
 			{"multidecor:steel_sheet", "multidecor:steel_sheet", "moreores:silver_ingot"},
 			{"multidecor:wax_candle", "", ""},
 			{"", "", ""}
+		}
 	}
+
+	silver_chain_recipe = {
+		recipe = {
+			{"multidecor:metal_chain", "default:gold_ingot", ""},
+			{"", "", ""},
+			{"", "", ""}
+		}
 	}
 end
 
 local silver_chain_bbox = {
-	type = "fixed",
-	fixed = {-0.1, -0.5, -0.1, 0.1, 0.5, 0.1}
+	{-0.1, -0.5, -0.1, 0.1, 0.5, 0.1}
 }
 
-local silver_chain_after_place_node = function(pos)
-	local up_node = minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z})
-	local up_def = minetest.registered_nodes[up_node.name]
+multidecor.hanging.hangers["silver_chain"] = {
+	["top"] = "multidecor:silver_chain_tip",
+	["medium"] = "multidecor:silver_chain"
+}
 
-	if up_node.name ~= "multidecor:silver_chain_tip" and up_node.name ~= "multidecor:silver_chain" and
-		not (up_def.drawtype == "airlike" or up_def.drawtype == "liquid" or
-			up_def.drawtype == "flowingliquid") then
-		minetest.set_node(pos, {name="multidecor:silver_chain_tip"})
-	end
-end
-
-local silver_chandelier_after_place_node = function(pos, placer)
-	local up_node = minetest.get_node({x=pos.x, y=pos.y+1, z=pos.z})
-
-	if minetest.get_item_group(up_node.name, "multidecor_silver_chain") == 0 then
-		local put_item = ItemStack(minetest.get_node(pos).name)
-		minetest.remove_node(pos)
-
-		placer:get_inventory():add_item("main", put_item)
-
-		return put_item
-	end
-end
-
-minetest.register_node(":multidecor:silver_chain", {
-	drawtype = "mesh",
-	visual_scale = 0.5,
-	paramtype = "light",
-	paramtype2 = "facedir",
+multidecor.register.register_furniture_unit("silver_chain", {
+	type = "decoration",
+	style = "modern",
+	material = "metal",
 	description = "Silver Chain",
 	mesh = "multidecor_silver_chain.b3d",
 	tiles = {"multidecor_silver_material.png"},
-	groups = {cracky=1.5, oddly_breakable_by_hand=0, multidecor_silver_chain=1},
-	sounds = default.node_sound_metal_defaults(),
-	collision_box = silver_chain_bbox,
-    selection_box = silver_chain_bbox,
-	after_place_node = silver_chain_after_place_node
+	groups = {cracky=1.5, not_in_creative_inventory=1, hanger_medium=1},
+	bounding_boxes = silver_chain_bbox,
+	callbacks = {
+		after_place_node = multidecor.hanging.default_after_place_node
+	},
+	add_properties = {
+		common_name = "silver_chain"
+	}
 })
 
-minetest.register_node(":multidecor:silver_chain_tip", {
-	drawtype = "mesh",
-	visual_scale = 0.5,
-	paramtype = "light",
-	paramtype2 = "facedir",
-	description = "Silver Chain",
+multidecor.register.register_furniture_unit("silver_chain_tip", {
+	type = "decoration",
+	style = "modern",
+	material = "metal",
+	description = "Silver Chain Tip",
 	mesh = "multidecor_silver_chain_tip.b3d",
 	tiles = {"multidecor_silver_material.png", "multidecor_gold_material.png"},
-	groups = {cracky=1.5, oddly_breakable_by_hand=0, not_in_creative_inventory=1, multidecor_silver_chain=1},
-	sounds = default.node_sound_metal_defaults(),
-	collision_box = silver_chain_bbox,
-	selection_box = silver_chain_bbox
-})
+	groups = {cracky=1.5, hanger_top=1},
+	bounding_boxes = silver_chain_bbox,
+	callbacks = {
+		after_place_node = multidecor.hanging.default_after_place_node
+	},
+	add_properties = {
+		common_name = "silver_chain"
+	}
+}, silver_chain_recipe)
 
 
 multidecor.register.register_light("silvered_desk_lamp_off", {
 	style = "modern",
 	material = "metal",
 	description = "Silvered Desk Lamp",
+	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	use_texture_alpha = "blend",
 	mesh = "multidecor_silvered_desk_lamp.b3d",
-	tiles = {"multidecor_silver_material.png", "multidecor_silvered_lampshade.png"},
+	tiles = {{name="multidecor_silver_material.png", color=0xffffffff}, "multidecor_silvered_lampshade.png"},
 	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, 0.5, 0.3}},
+	is_colorable = true
 },
 {
 	swap_light = {
@@ -109,7 +105,6 @@ multidecor.register.register_light("copper_wall_sconce_off", {
 	material = "glass",
 	description = "Copper Wall Sconce",
 	visual_scale = 0.4,
-	paramtype2 = "wallmounted",
 	mesh = "multidecor_copper_wall_sconce.b3d",
 	tiles = {"multidecor_copper_material.png", "multidecor_bulb_surf.png"},
 	bounding_boxes = {{-0.2, 0, 0.3, 0.2, 0.4, 0.5}},
@@ -131,10 +126,16 @@ multidecor.register.register_light("plastic_desk_lamp_off", {
 	style = "modern",
 	material = "plastic",
 	description = "Plastic Desk Lamp",
+	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	use_texture_alpha = "blend",
 	mesh = "multidecor_plastic_desk_lamp.b3d",
-	tiles = {"multidecor_plastic_material.png", "multidecor_plastic_desk_lampshade.png", "multidecor_bulb_surf.png"},
+	tiles = {
+		{name="multidecor_plastic_material.png", color=0xffffffff},
+		"multidecor_plastic_desk_lampshade.png",
+		{name="multidecor_bulb_surf.png", color=0xffffffff}
+	},
+	is_colorable = true,
 	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, 0.5, 0.3}},
 },
 {
@@ -157,6 +158,7 @@ multidecor.register.register_light("gold_chandelier_with_glass_candles_off", {
 	description = "Gold Chandelier With Glass Candles",
 	wield_scale = {x=0.3, y=0.3, z=0.3},
 	use_texture_alpha = "blend",
+	groups = {hanger_bottom=1},
 	mesh = "multidecor_gold_chandelier_with_glass_candles.b3d",
 	tiles = {
 		"multidecor_gold_material.png",
@@ -169,10 +171,11 @@ multidecor.register.register_light("gold_chandelier_with_glass_candles_off", {
 		{-0.5, -0.5, -0.5, 0.5, 0, 0.5}
 	},
 	callbacks = {
-		after_place_node = silver_chandelier_after_place_node
+		after_place_node = multidecor.hanging.default_after_place_node
 	}
 },
 {
+	common_name = "silver_chain",
 	swap_light = {
 		name = "gold_chandelier_with_glass_candles_on",
 		light_level = 13

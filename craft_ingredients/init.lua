@@ -2,8 +2,29 @@ local modpath = minetest.get_modpath("craft_ingredients")
 
 dofile(modpath .. "/ores.lua")
 
+-- Maps a tool name to its sound playing on crafting
+local craft_tools = {
+	["saw"] = "multidecor_saw",
+	["steel_scissors"] = "multidecor_steel_scissors",
+	["hammer"] = "multidecor_hammer"
+}
+
+-- Durabilities of each craft sound in seconds
+local craft_sounds_durabilities = {
+	["multidecor_saw"] = 3,
+	["multidecor_steel_scissors"] = 2,
+	["multidecor_hammer"] = 1
+}
+
+-- Maps a playername to the current playing action sound
+multidecor.players_actions_sounds = {}
 
 local woods = {"", "jungle", "aspen", "pine"}
+
+if minetest.get_modpath("ethereal") then
+	table.insert(woods, "redwood")
+end
+
 local items_and_crafts = {
 	["board"] = {
 		{
@@ -62,12 +83,21 @@ for _, wood in ipairs(woods) do
 			inventory_image = "multidecor_" .. (wood == "jungle" and wood .. "_" or wood) .. item .. ".png"
 		})
 
-		for _, recipe in ipairs(recipes) do
+		for i, recipe in ipairs(recipes) do
+			local recipe_c = table.copy(recipe)
+
+			if wood == "redwood_" and item == "board" then
+				if i == 1 then
+					recipe_c.recipe[1] = "ethereal:%swood"
+				end
+			end
+			recipe_c.recipe = format_nested_strings(recipe_c.recipe, wood)
+
 			local def = {
-				type = recipe.type,
-				output = "multidecor:" .. wood .. item .. " " .. recipe.amount,
-				recipe = format_nested_strings(recipe.recipe, wood),
-				replacements = recipe.type == "shapeless" and {{"multidecor:saw", "multidecor:saw"}} or nil
+				type = recipe_c.type,
+				output = "multidecor:" .. wood .. item .. " " .. recipe_c.amount,
+				recipe = recipe_c.recipe,
+				replacements = recipe_c.type == "shapeless" and {{"multidecor:saw", "multidecor:saw"}} or nil
 			}
 			minetest.register_craft(def)
 		end
@@ -83,6 +113,16 @@ bucket.register_liquid(
 	nil,
 	true
 )
+
+minetest.register_node(":multidecor:marble_block", {
+	description = "Marble Block",
+	paramtype = "light",
+	paramtype2 = "none",
+	sunlight_propagates = true,
+	tiles = {"multidecor_marble_material.png^[sheet:2x2:0,0"},
+	groups = {cracky=2.5},
+	sounds = default.node_sound_stone_defaults()
+})
 
 
 minetest.register_craftitem(":multidecor:cabinet_door",
@@ -127,6 +167,12 @@ minetest.register_craftitem(":multidecor:steel_sheet",
 	inventory_image = "multidecor_steel_sheet.png"
 })
 
+minetest.register_craftitem(":multidecor:coarse_steel_sheet",
+{
+	description = "Coarse Steel Sheet",
+	inventory_image = "multidecor_coarse_steel_sheet.png"
+})
+
 minetest.register_craftitem(":multidecor:steel_scissors",
 {
 	description = "Steel Scissors",
@@ -155,6 +201,12 @@ minetest.register_craftitem(":multidecor:plastic_sheet",
 {
 	description = "Plastic Sheet",
 	inventory_image = "multidecor_plastic_sheet.png"
+})
+
+minetest.register_craftitem(":multidecor:plastic_strip",
+{
+	description = "Plastic Strip",
+	inventory_image = "multidecor_plastic_strip.png"
 })
 
 minetest.register_craftitem(":multidecor:metal_wire",
@@ -309,6 +361,13 @@ minetest.register_craft(
 minetest.register_craft(
 {
 	type = "shapeless",
+	output = "multidecor:coarse_steel_sheet",
+	recipe = {"multidecor:steel_sheet"}
+})
+
+minetest.register_craft(
+{
+	type = "shapeless",
 	output = "multidecor:metal_bar 2",
 	recipe = {"default:steel_ingot", "default:steel_ingot", "multidecor:steel_scissors"},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
@@ -365,6 +424,12 @@ minetest.register_craft({
 })
 
 minetest.register_craft({
+    type = "shapeless",
+    output = "multidecor:plastic_strip 2",
+    recipe = {"multidecor:plastic_sheet"}
+})
+
+minetest.register_craft({
 	type = "shapeless",
 	output = "multidecor:terracotta_fragment 4",
 	recipe = {"default:clay_brick", "multidecor:hammer"},
@@ -389,9 +454,8 @@ if minetest.get_modpath("moreores") then
 	minetest.register_craft(
 	{
 		type = "shapeless",
-		output = "multidecor:silver_chain 3",
-		recipe = {"multidecor:metal_bar", "moreores:silver_ingot", "multidecor:steel_scissors"},
-		replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+		output = "multidecor:silver_chain",
+		recipe = {"multidecor:metal_chain", "moreores:silver_ingot"}
 	})
 
 	minetest.register_craft({
@@ -435,7 +499,7 @@ minetest.register_craft({
 minetest.register_craft({
 	type = "shapeless",
 	output = "multidecor:metal_chain",
-	recipe = {"multidecor:metal_wire", "multidecor:metal_wire"}
+	recipe = {"multidecor:metal_wire", "multidecor:metal_wire", "multidecor:metal_wire"}
 })
 
 minetest.register_craft({
@@ -518,12 +582,16 @@ minetest.register_craft({
 })
 
 minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:marble_block",
+	recipe = {"default:clay", "default:silver_sandstone", "default:coal_lump"}
+})
+
+minetest.register_craft({
+	type = "shapeless",
 	output = "multidecor:marble_sheet 5",
-	recipe = {
-		{"default:sandstone", "default:silver_sandstone", "default:coal_lump"},
-		{"", "", ""},
-		{"", "", ""}
-	}
+	recipe = {"multidecor:marble_block", "multidecor:hammer"},
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
 
 minetest.register_craft({
@@ -536,38 +604,49 @@ minetest.register_craft({
 })
 
 minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
-	local contains_saw = false
-	local contains_steel_scissors = false
-	local contains_hammer = false
+	local contains_tool_with_name = ""
 
-	local function check_for_item(item)
-		if item == "multidecor:saw" then
-			contains_saw = true
-			return
-		end
-		if item == "multidecor:steel_scissors" then
-			contains_steel_scissors = true
-			return
-		end
-
-		if item == "multidecor:hammer" then
-			contains_hammer = true
-			return
+	local function check_for_item(itemname)
+		for name, _ in pairs(craft_tools) do
+			if "multidecor:" .. name == itemname then
+				contains_tool_with_name = name
+				break
+			end
 		end
 	end
 
 	for _, stack in ipairs(old_craft_grid) do
 		check_for_item(stack:get_name())
-		if contains_saw or contains_steel_scissors or contains_hammer then
+		if contains_tool_with_name ~= "" then
 			break
 		end
 	end
 
-	local sound = contains_saw and "multidecor_saw" or
-		contains_steel_scissors and "multidecor_steel_scissors" or contains_hammer and "multidecor_hammer"
-	if sound then
-		minetest.sound_play(sound, {to_player = player:get_player_name()})
+	local playername = player:get_player_name()
+	if contains_tool_with_name ~= "" and not multidecor.players_actions_sounds[playername] then
+		multidecor.players_actions_sounds[playername] = {
+			name = craft_tools[contains_tool_with_name],
+			cur_time = 0.0,
+			durability = craft_sounds_durabilities[craft_tools[contains_tool_with_name]]
+		}
+
+		minetest.sound_play(craft_tools[contains_tool_with_name], {to_player=playername})
 	end
 
 	return
+end)
+
+minetest.register_globalstep(function(dtime)
+	for _, player in ipairs(minetest.get_connected_players()) do
+		local playername = player:get_player_name()
+		local sound = multidecor.players_actions_sounds[playername]
+
+		if sound then
+			sound.cur_time = sound.cur_time + dtime
+
+			if sound.cur_time >= sound.durability then
+				multidecor.players_actions_sounds[playername] = nil
+			end
+		end
+	end
 end)
