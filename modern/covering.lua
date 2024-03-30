@@ -24,12 +24,25 @@ minetest.register_entity(":multidecor:cover", {
 	on_activate = function(self, staticdata)
 		if staticdata == "" then
 			self.object:remove()
+			return
 		end
 
-		self.texture = staticdata
-		local texture = "multidecor_" .. staticdata .. ".png"
+		local data = minetest.deserialize(staticdata)
 
-		self.object:set_properties({textures={texture}})
+		if not data then
+			self.object:remove()
+			return
+		end
+
+		self.cover_name = data.cover_name
+		self.box = data.box
+
+		local texture = "multidecor_" .. self.cover_name .. ".png"
+
+		self.object:set_properties({
+			textures = {texture},
+			selectionbox = self.box
+		})
 		self.object:set_armor_groups({immortal=1})
 	end,
 	on_punch = function(self, puncher)
@@ -56,7 +69,7 @@ minetest.register_entity(":multidecor:cover", {
 		end
 	end,
 	get_staticdata = function(self)
-		return self.texture
+		return minetest.serialize({cover_name=self.cover_name, box=self.box})
 	end
 })
 
@@ -76,10 +89,9 @@ local function on_place_cover(pointed_thing, cover_stack, cover_name)
 	local target_rot = vector.dir_to_rotation(dir_to_pos)
 	local target_sbox = hlpfuncs.rotate_bbox(cover_sbox, dir_to_pos)
 
-	local obj = minetest.add_entity(target_pos, "multidecor:cover", cover_name)
+	local obj = minetest.add_entity(target_pos, "multidecor:cover", minetest.serialize({cover_name=cover_name, box=target_sbox}))
 
 	obj:set_rotation(target_rot)
-	obj:set_properties({selectionbox=target_sbox})
 
 	cover_stack:take_item()
 
