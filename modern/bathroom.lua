@@ -79,11 +79,13 @@ for _, tile in ipairs(ceramic_tiles) do
 
 	local recipe = {"default:clay_lump", "default:clay_lump"}
 	table.copy_to(tile[2], recipe)
+	table.insert(recipe, "multidecor:paint_brush")
 
 	minetest.register_craft({
 		type = "shapeless",
 		output = tile_name,
-		recipe = recipe
+		recipe = recipe,
+		replacements = {{"multidecor:paint_brush", "multidecor:paint_brush"}}
 	})
 
 	local block_name = "multidecor:bathroom_ceramic_" .. tile[1] .. "_tiles_block"
@@ -120,11 +122,13 @@ for _, style in ipairs(bathroom_styles) do
 
 	local panel_craft = {"multidecor:pine_board"}
 	table.copy_to(craft, panel_craft)
+	table.insert(panel_craft, "multidecor:paint_brush")
 
 	minetest.register_craft({
 		type = "shapeless",
 		output = panel_name,
-		recipe = panel_craft
+		recipe = panel_craft,
+		replacements = {{"multidecor:paint_brush", "multidecor:paint_brush"}}
 	})
 
 	local bathtub_with_shields_def = table.copy(bathtub_def)
@@ -688,17 +692,6 @@ multidecor.register.register_furniture_unit("shower_head", {
 	}
 })
 
-local crooked_shower_head_recipe
-if minetest.get_modpath("technic_worldgen") then
-	crooked_shower_head_recipe = {
-		recipe = {
-			{"technic:cast_iron_ingot", "technic:cast_iron_ingot", "multidecor:plastic_sheet"},
-			{"technic:cast_iron_ingot", "", ""},
-			{"", "", ""}
-		}
-	}
-end
-
 multidecor.register.register_furniture_unit("crooked_shower_head", {
 	type = "decoration",
 	style = "modern",
@@ -729,7 +722,13 @@ multidecor.register.register_furniture_unit("crooked_shower_head", {
 		}
 	}
 },
-crooked_shower_head_recipe)
+{
+	recipe = {
+		{"multidecor:coarse_steel_sheet", "multidecor:coarse_steel_sheet", "multidecor:plastic_sheet"},
+		{"multidecor:coarse_steel_sheet", "", ""},
+		{"", "", ""}
+	}
+})
 
 multidecor.register.register_furniture_unit("bathroom_mirror", {
 	type = "decoration",

@@ -5,6 +5,13 @@ local wallpapers = {
 	"white_patterned",
 }
 
+local wallpapers_crafts = {
+	{"dye:white"},
+	{"dye:cyan", "dye:blue"},
+	{"dye:yellow", "dye:white"},
+	{"dye:white", "dye:grey"}
+}
+
 local cover_sbox = {-0.5, -0.5, -0.05, 0.5, 0.5, 0.05}
 
 minetest.register_entity(":multidecor:cover", {
@@ -79,7 +86,7 @@ local function on_place_cover(pointed_thing, cover_stack, cover_name)
 	return cover_stack
 end
 
-for _, wallpaper_sort in ipairs(wallpapers) do
+for i, wallpaper_sort in ipairs(wallpapers) do
 	local itemname = wallpaper_sort .. "_wallpaper"
 	minetest.register_craftitem(":multidecor:" .. itemname, {
 		description = hlpfuncs.upper_first_letters(itemname),
@@ -88,6 +95,17 @@ for _, wallpaper_sort in ipairs(wallpapers) do
 			return on_place_cover(pointed_thing, itemstack, itemname)
 		end
 	})
+
+	local recipe = table.copy(wallpapers_crafts[i])
+	table.insert(recipe, "default:paper")
+	table.insert(recipe, "multidecor:paint_brush")
+
+	minetest.register_craft({
+		type = "shapeless",
+		output = "multidecor:" .. itemname,
+		recipe = recipe,
+		replacements = {{"multidecor:paint_brush", "multidecor:paint_brush"}}
+	})
 end
 
 minetest.register_tool(":multidecor:scraper", {
@@ -95,9 +113,22 @@ minetest.register_tool(":multidecor:scraper", {
 	inventory_image = "multidecor_scraper.png"
 })
 
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:scraper",
+	recipe = {"multidecor:steel_sheet", "multidecor:coarse_steel_sheet"}
+})
+
 minetest.register_craftitem(":multidecor:plaster_lump", {
 	description = "Plaster Lump",
 	inventory_image = "multidecor_plaster_lump.png"
+})
+
+minetest.register_craft({
+	type = "cooking",
+	output = "multidecor:plaster_lump",
+	recipe = "default:clay",
+	cooktime = 8
 })
 
 
@@ -152,6 +183,16 @@ minetest.register_tool(":multidecor:paint_brush", {
 	end
 })
 
+minetest.register_craft({
+	output = "multidecor:paint_brush",
+	recipe = {
+		{"default:stick", "multidecor:wool_cloth", "multidecor:steel_scissors"},
+		{"", "", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
 minetest.register_tool(":multidecor:spatula", {
 	description = "Spatula (for spreading plaster on surfaces)",
 	inventory_image = "multidecor_spatula.png",
@@ -168,4 +209,10 @@ minetest.register_tool(":multidecor:spatula", {
 		next_itemstack = on_place_cover(pointed_thing, next_itemstack, "plaster")
 		inv:set_stack("main", spatula_index+1, next_itemstack)
 	end
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:spatula",
+	recipe = {"multidecor:steel_sheet", "multidecor:steel_sheet", "multidecor:coarse_steel_sheet"}
 })

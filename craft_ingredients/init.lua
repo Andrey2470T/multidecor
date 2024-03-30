@@ -20,6 +20,11 @@ local craft_sounds_durabilities = {
 multidecor.players_actions_sounds = {}
 
 local woods = {"", "jungle", "aspen", "pine"}
+
+if minetest.get_modpath("ethereal") then
+	table.insert(woods, "redwood")
+end
+
 local items_and_crafts = {
 	["board"] = {
 		{
@@ -78,12 +83,21 @@ for _, wood in ipairs(woods) do
 			inventory_image = "multidecor_" .. (wood == "jungle" and wood .. "_" or wood) .. item .. ".png"
 		})
 
-		for _, recipe in ipairs(recipes) do
+		for i, recipe in ipairs(recipes) do
+			local recipe_c = table.copy(recipe)
+
+			if wood == "redwood_" and item == "board" then
+				if i == 1 then
+					recipe_c.recipe[1] = "ethereal:%swood"
+				end
+			end
+			recipe_c.recipe = format_nested_strings(recipe_c.recipe, wood)
+
 			local def = {
-				type = recipe.type,
-				output = "multidecor:" .. wood .. item .. " " .. recipe.amount,
-				recipe = format_nested_strings(recipe.recipe, wood),
-				replacements = recipe.type == "shapeless" and {{"multidecor:saw", "multidecor:saw"}} or nil
+				type = recipe_c.type,
+				output = "multidecor:" .. wood .. item .. " " .. recipe_c.amount,
+				recipe = recipe_c.recipe,
+				replacements = recipe_c.type == "shapeless" and {{"multidecor:saw", "multidecor:saw"}} or nil
 			}
 			minetest.register_craft(def)
 		end
@@ -99,6 +113,16 @@ bucket.register_liquid(
 	nil,
 	true
 )
+
+minetest.register_node(":multidecor:marble_block", {
+	description = "Marble Block",
+	paramtype = "light",
+	paramtype2 = "none",
+	sunlight_propagates = true,
+	tiles = {"multidecor_marble_material.png^[sheet:2x2:0,0"},
+	groups = {cracky=2.5},
+	sounds = default.node_sound_stone_defaults()
+})
 
 
 minetest.register_craftitem(":multidecor:cabinet_door",
@@ -143,6 +167,12 @@ minetest.register_craftitem(":multidecor:steel_sheet",
 	inventory_image = "multidecor_steel_sheet.png"
 })
 
+minetest.register_craftitem(":multidecor:coarse_steel_sheet",
+{
+	description = "Coarse Steel Sheet",
+	inventory_image = "multidecor_coarse_steel_sheet.png"
+})
+
 minetest.register_craftitem(":multidecor:steel_scissors",
 {
 	description = "Steel Scissors",
@@ -171,6 +201,12 @@ minetest.register_craftitem(":multidecor:plastic_sheet",
 {
 	description = "Plastic Sheet",
 	inventory_image = "multidecor_plastic_sheet.png"
+})
+
+minetest.register_craftitem(":multidecor:plastic_strip",
+{
+	description = "Plastic Strip",
+	inventory_image = "multidecor_plastic_strip.png"
 })
 
 minetest.register_craftitem(":multidecor:metal_wire",
@@ -325,6 +361,13 @@ minetest.register_craft(
 minetest.register_craft(
 {
 	type = "shapeless",
+	output = "multidecor:coarse_steel_sheet",
+	recipe = {"multidecor:steel_sheet"}
+})
+
+minetest.register_craft(
+{
+	type = "shapeless",
 	output = "multidecor:metal_bar 2",
 	recipe = {"default:steel_ingot", "default:steel_ingot", "multidecor:steel_scissors"},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
@@ -378,6 +421,12 @@ minetest.register_craft({
     output = "multidecor:plastic_sheet",
     recipe = "default:leaves",
 	cooktime = 10
+})
+
+minetest.register_craft({
+    type = "shapeless",
+    output = "multidecor:plastic_strip 2",
+    recipe = {"multidecor:plastic_sheet"}
 })
 
 minetest.register_craft({
@@ -533,12 +582,16 @@ minetest.register_craft({
 })
 
 minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:marble_block",
+	recipe = {"default:clay", "default:silver_sandstone", "default:coal_lump"}
+})
+
+minetest.register_craft({
+	type = "shapeless",
 	output = "multidecor:marble_sheet 5",
-	recipe = {
-		{"default:sandstone", "default:silver_sandstone", "default:coal_lump"},
-		{"", "", ""},
-		{"", "", ""}
-	}
+	recipe = {"multidecor:marble_block", "multidecor:hammer"},
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
 
 minetest.register_craft({

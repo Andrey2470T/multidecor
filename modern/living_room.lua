@@ -58,9 +58,12 @@ for louvers, part in pairs(louvers_parts) do
 	local groups = {cracky=3}
 	groups["hanger_" .. part] = 1
 
+	if louvers ~= "louvers_top" then
+		groups.not_in_creative_inventory = 1
+	end
+
 	if louvers:find("_open") then
 		groups.open = 1
-		groups.not_in_creative_inventory = 1
 	end
 
 	multidecor.register.register_furniture_unit(louvers, {
@@ -79,6 +82,14 @@ for louvers, part in pairs(louvers_parts) do
 		add_properties = {
 			common_name = "louvers"
 		}
+	},
+	{
+		recipe = {
+			{"multidecor:plastic_strip", "multidecor:plastic_strip", "multidecor:plastic_strip"},
+			{"multidecor:plastic_strip", "multidecor:plastic_strip", "multidecor:plastic_strip"},
+			{"multidecor:plastic_strip", "multidecor:plastic_strip", "multidecor:steel_scissors"}
+		},
+		replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 	})
 end
 

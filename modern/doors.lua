@@ -62,8 +62,8 @@ multidecor.register.register_door("dark_rusty_gate", {
 
 local woods = {
 	{name="wooden", texture="multidecor_wood"},
-	{name="pine", texture="multidecor_pine_wood"},
-	{name="dark_pine", texture="multidecor_pine_wood2"},
+	{name="pine", texture="multidecor_pine_wood2"},
+	{name="aspen", texture="multidecor_pine_wood"},
 	{name="white_pine", texture="multidecor_white_pine_wood"}
 }
 
@@ -75,19 +75,39 @@ local doors_hands_texs = {
 	"multidecor_gold_material"
 }
 
+local doors_hands_metals = {
+	"default:steel_ingot",
+	"default:copper_ingot",
+	"multidecor:brass_ingot",
+	"default:gold_ingot",
+	"default:gold_ingot"
+}
+
 if minetest.get_modpath("ethereal") then
-	table.insert(woods, {name="sequoia", texture="ethereal_redwood_wood"})
+	table.insert(woods, {name="redwood", texture="ethereal_redwood_wood"})
 end
 
 for i, wood in ipairs(woods) do
 	local upper_name = multidecor.helpers.upper_first_letters(wood.name)
 
+	local material_name = ""
+
+	local white_dye = ""
+	if wood.name == "white_pine" then
+		material_name = "pine_"
+		white_dye = "dye:white"
+	elseif wood.name ~= "wooden" then
+		material_name = wood.name .. "_"
+	end
+
+
 	local base_texture = wood.texture .. ".png"
 
-	if wood.name == "sequoia" then
+	if wood.name == "redwood" then
 		base_texture = base_texture .. "^[transform1"
 	end
 
+	local board = "multidecor:" .. material_name .. "board"
 	multidecor.register.register_door("simple_" .. wood.name .. "_door", {
 		style = "modern",
 		material = "wood",
@@ -111,8 +131,17 @@ for i, wood in ipairs(woods) do
 				close = "multidecor_wooden_door_close"
 			}
 		}
+	},
+	{
+		recipe = {
+			{board, board, "multidecor:saw"},
+			{doors_hands_metals[i], white_dye, ""},
+			{"", "", ""}
+		},
+		replacements = {{"multidecor:saw", "multidecor:saw"}}
 	})
 
+	local plinth = "multidecor:" .. wood.name .. "_plinth"
 	multidecor.register.register_furniture_unit(wood.name .. "_doorjamb", {
 		type = "decoration",
 		style = "modern",
@@ -125,8 +154,17 @@ for i, wood in ipairs(woods) do
 			{0.725, -0.5, 0.4, 0.5, 1.725, 0.5},-- right
 			{-0.5, 1.5, 0.4, 0.5, 1.725, 0.5}
 		}
+	},
+	{
+		recipe = {
+			{plinth, plinth, plinth},
+			{plinth, plinth, "multidecor:hammer"},
+			{"", "", ""}
+		},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 
+	local plank = "multidecor:" .. material_name .. "plank"
 	multidecor.register.register_furniture_unit(wood.name .. "_plinth", {
 		type = "decoration",
 		style = "modern",
@@ -135,6 +173,12 @@ for i, wood in ipairs(woods) do
 		mesh = "multidecor_wooden_plinth.b3d",
 		tiles = {base_texture},
 		bounding_boxes = {{-0.5, -0.5, 0.4, 0.5, -0.2, 0.5}}
+	},
+	{
+		type = "shapeless",
+		recipe = {plank, "multidecor:saw", white_dye},
+		count = 2,
+		replacements = {{"multidecor:saw", "multidecor:saw"}}
 	})
 
 	multidecor.register.register_furniture_unit(wood.name .. "_corner_plinth", {
@@ -148,6 +192,11 @@ for i, wood in ipairs(woods) do
 			{-0.5, -0.5, 0.4, 0.5, -0.2, 0.5},
 			{0.4, -0.5, -0.5, 0.5, -0.2, 0.4}
 		}
+	},
+	{
+		type = "shapeless",
+		recipe = {plinth, plinth, "multidecor:hammer"},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 
 	multidecor.register.register_furniture_unit(wood.name .. "_window_segment", {
@@ -162,6 +211,14 @@ for i, wood in ipairs(woods) do
 		},
 		use_texture_alpha = "blend",
 		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.38}}
+	},
+	{
+		recipe = {
+			{plank, plank, "multidecor:hammer"},
+			{"xpanes:pane_flat", white_dye, ""},
+			{"", "", ""}
+		},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 
 	-- TODO 'vertical' connection type is not workable currently, needs in a repair in next releases
@@ -208,6 +265,15 @@ for i, wood in ipairs(woods) do
 		},
 		use_texture_alpha = "blend",
 		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.38}}
+	},
+	{
+		recipe = {
+			{plank, plank, "multidecor:hammer"},
+			{"xpanes:pane_flat", plank, plank},
+			{white_dye, "", ""}
+		},
+		count = 2,
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 
 	multidecor.register.register_furniture_unit(wood.name .. "_window_segment_with_thin_slats", {
@@ -222,8 +288,17 @@ for i, wood in ipairs(woods) do
 		},
 		use_texture_alpha = "blend",
 		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.38}}
+	},
+	{
+		recipe = {
+			{plank, plank, "multidecor:hammer"},
+			{"xpanes:pane_flat", plank, white_dye},
+			{"", "", ""}
+		},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 
+	local window = "multidecor:" .. wood.name .. "_window_segment"
 	multidecor.register.register_door(wood.name .. "_window_door", {
 		style = "modern",
 		material = "wood",
@@ -246,8 +321,14 @@ for i, wood in ipairs(woods) do
 				close = "multidecor_wooden_door_close"
 			}
 		}
+	},
+	{
+		type = "shapeless",
+		recipe = {window, window, plank, "multidecor:hammer", white_dye},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 
+	local window_with_thin_slats = "multidecor:" .. wood.name .. "_window_segment_with_thin_slats"
 	multidecor.register.register_door(wood.name .. "_window_door_with_thin_slats", {
 		style = "modern",
 		material = "wood",
@@ -270,6 +351,11 @@ for i, wood in ipairs(woods) do
 				close = "multidecor_wooden_door_close"
 			}
 		}
+	},
+	{
+		type = "shapeless",
+		recipe = {window_with_thin_slats, window_with_thin_slats, plank, "multidecor:hammer", white_dye},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 end
 
@@ -365,12 +451,20 @@ multidecor.register.register_door("white_pine_glass_door", {
 			close = "multidecor_wooden_door_close"
 		}
 	}
+},
+{
+	recipe = {
+		{"multidecor:pine_plank", "multidecor:pine_plank", "multidecor:pine_plank"},
+		{"multidecor:pine_plank", "dye:white", "multidecor:hammer"},
+		{"xpanes:pane_flat", "xpanes:pane_flat", ""}
+	},
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
 
-multidecor.register.register_door("patterned_pine_glass_door", {
+multidecor.register.register_door("patterned_aspen_glass_door", {
 	style = "modern",
 	material = "wood",
-	description = "Patterned Pine Glass Door",
+	description = "Patterned Aspen Glass Door",
 	mesh = "multidecor_pine_glass_door.b3d",
 	tiles = {
 		"multidecor_pine_glass_door_base2.png^multidecor_door_hinges.png",
@@ -381,7 +475,7 @@ multidecor.register.register_door("patterned_pine_glass_door", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
 {
-	common_name = "pine_glass_door",
+	common_name = "patterned_aspen_glass_door",
 	door = {
 		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_pine_glass_door_open.b3d",
@@ -395,18 +489,18 @@ multidecor.register.register_door("patterned_pine_glass_door", {
 },
 {
 	recipe = {
-		{"multidecor:pine_board", "xpanes:pane_flat", "multidecor:pine_plank"},
-		{"multidecor:pine_board", "xpanes:pane_flat", "multidecor:pine_plank"},
-		{"multidecor:steel_sheet", "multidecor:steel_scissors", ""}
+		{"multidecor:aspen_board", "xpanes:pane_flat", "multidecor:aspen_plank"},
+		{"multidecor:aspen_board", "xpanes:pane_flat", "multidecor:aspen_plank"},
+		{"multidecor:steel_sheet", "multidecor:hammer", ""}
 	},
-	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
 
-multidecor.register.register_door("patterned_pine_door", {
+multidecor.register.register_door("patterned_aspen_door", {
 	style = "modern",
 	material = "wood",
 	visual_scale = 0.5,
-	description = "Patterned Pine Door",
+	description = "Patterned Aspen Door",
 	mesh = "multidecor_pine_door.b3d",
 	tiles = {
 		"multidecor_pine_door.png^multidecor_door_hinges.png",
@@ -415,7 +509,7 @@ multidecor.register.register_door("patterned_pine_door", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
 {
-	common_name = "pine_door",
+	common_name = "patterned_aspen_door",
 	door = {
 		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_pine_door_open.b3d",
@@ -426,13 +520,21 @@ multidecor.register.register_door("patterned_pine_door", {
 			close = "multidecor_wooden_door_close"
 		}
 	}
+},
+{
+	recipe = {
+		{"multidecor:aspen_board", "multidecor:aspen_plank", "multidecor:aspen_plank"},
+		{"multidecor:aspen_board", "multidecor:steel_sheet", "multidecor:hammer"},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
 
-multidecor.register.register_door("dark_pine_glass_door", {
+multidecor.register.register_door("pine_glass_door", {
 	style = "modern",
 	material = "wood",
 	visual_scale = 0.5,
-	description = "Dark Pine Glass Door",
+	description = "Pine Glass Door",
 	mesh = "multidecor_dark_pine_glass_door.b3d",
 	tiles = {
 		"multidecor_dark_pine_door_base.png",
@@ -443,7 +545,7 @@ multidecor.register.register_door("dark_pine_glass_door", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
 {
-	common_name = "dark_pine_glass_door",
+	common_name = "pine_glass_door",
 	door = {
 		has_mirrored_counterpart = true,
 		mesh_open = "multidecor_dark_pine_glass_door_open.b3d",
@@ -454,6 +556,14 @@ multidecor.register.register_door("dark_pine_glass_door", {
 			close = "multidecor_wooden_door_close"
 		}
 	}
+},
+{
+	recipe = {
+		{"multidecor:pine_board", "multidecor:pine_plank", "xpanes:pane_flat"},
+		{"multidecor:pine_board", "multidecor:steel_sheet", "multidecor:hammer"},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
 
 multidecor.register.register_door("technical_locked_door", {
@@ -513,13 +623,21 @@ multidecor.register.register_door("metallic_locked_door", {
 			close = "multidecor_metallic_door_close"
 		}
 	}
+},
+{
+	recipe = {
+		{"multidecor:coarse_steel_sheet", "multidecor:coarse_steel_sheet", "multidecor:steel_scissors"},
+		{"multidecor:steel_sheet", "", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 if minetest.get_modpath("ethereal") then
-	multidecor.register.register_door("sequoia_locked_door", {
+	multidecor.register.register_door("redwood_locked_door", {
 		style = "modern",
 		material = "metal",
-		description = "Sequoia Locked Door",
+		description = "Redwood Locked Door",
 		mesh = "multidecor_door_with_lock.b3d",
 		use_texture_alpha = "blend",
 		tiles = {
@@ -540,15 +658,21 @@ if minetest.get_modpath("ethereal") then
 				close = "multidecor_metallic_door_close"
 			}
 		}
+	},
+	{
+		recipe = {
+			{"multidecor:redwood_board", "multidecor:redwood_board", "multidecor:steel_scissors"},
+			{"multidecor:steel_sheet", "", ""},
+			{"", "", ""}
+		},
+		replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 	})
 end
 
 minetest.register_alias("multidecor:wooden_door", "multidecor:patterned_wooden_door")
-minetest.register_alias("multidecor:pine_glass_door", "multidecor:patterned_pine_glass_door")
-minetest.register_alias("multidecor:pine_door", "multidecor:patterned_pine_door")
+minetest.register_alias("multidecor:pine_door", "multidecor:patterned_aspen_door")
 minetest.register_alias("multidecor:technical_door", "multidecor:technical_locked_door")
 
 minetest.register_alias("multidecor:wooden_door_open", "multidecor:patterned_wooden_door_open")
-minetest.register_alias("multidecor:pine_glass_door_open", "multidecor:patterned_pine_glass_door_open")
-minetest.register_alias("multidecor:pine_door_open", "multidecor:patterned_pine_door_open")
+minetest.register_alias("multidecor:pine_door_open", "multidecor:patterned_aspen_door_open")
 minetest.register_alias("multidecor:technical_door_open", "multidecor:technical_locked_door_open")

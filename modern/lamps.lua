@@ -1,6 +1,7 @@
 local silvered_lamp_recipe
 local gold_chandelier_recipe
 local silver_candlestick_recipe
+local silver_chain_recipe
 
 if minetest.get_modpath("moreores") then
 	silvered_lamp_recipe = {
@@ -24,7 +25,15 @@ if minetest.get_modpath("moreores") then
 			{"multidecor:steel_sheet", "multidecor:steel_sheet", "moreores:silver_ingot"},
 			{"multidecor:wax_candle", "", ""},
 			{"", "", ""}
+		}
 	}
+
+	silver_chain_recipe = {
+		recipe = {
+			{"multidecor:metal_chain", "default:gold_ingot", ""},
+			{"", "", ""},
+			{"", "", ""}
+		}
 	}
 end
 
@@ -69,7 +78,7 @@ multidecor.register.register_furniture_unit("silver_chain_tip", {
 	add_properties = {
 		common_name = "silver_chain"
 	}
-})
+}, silver_chain_recipe)
 
 
 multidecor.register.register_light("silvered_desk_lamp_off", {
@@ -96,7 +105,6 @@ multidecor.register.register_light("copper_wall_sconce_off", {
 	material = "glass",
 	description = "Copper Wall Sconce",
 	visual_scale = 0.4,
-	paramtype2 = "wallmounted",
 	mesh = "multidecor_copper_wall_sconce.b3d",
 	tiles = {"multidecor_copper_material.png", "multidecor_bulb_surf.png"},
 	bounding_boxes = {{-0.2, 0, 0.3, 0.2, 0.4, 0.5}},

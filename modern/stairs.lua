@@ -83,8 +83,15 @@ for _, stair in ipairs(stairs_data) do
 		tiles = {stair.tex},
 		groups = {stair=1},
 		bounding_boxes = stair_ledged_bboxes
+	},
+	{
+		type = "shapeless",
+		recipe = {"stairs:stair_" .. stair.name, "multidecor:hammer"},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 
+	local stair_material = stair.name == "stone" and "default:stone" or
+		"multidecor:" .. stair.name .. "_block"
 	multidecor.register.register_furniture_unit("spiral_" .. stair.name .. "_stair_base", {
 		type = "decoration",
 		style = "modern",
@@ -93,6 +100,11 @@ for _, stair in ipairs(stairs_data) do
 		mesh = "multidecor_spiral_stair_base.b3d",
 		tiles = {stair.tex},
 		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}}
+	},
+	{
+		type = "shapeless",
+		recipe = {stair_material, "multidecor:hammer"},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 
 	multidecor.register.register_furniture_unit("spiral_" .. stair.name .. "_stair_segment", {
@@ -104,6 +116,15 @@ for _, stair in ipairs(stairs_data) do
 		tiles = {stair.tex},
 		groups = {stair=1, spiral=1},
 		bounding_boxes = sstair_bboxes
+	},
+	{
+		type = "shapeless",
+		recipe = {
+			"stairs:stair_" .. stair.name,
+			"multidecor:spiral_" .. stair.name .. "_stair_base",
+			"multidecor:hammer"
+		},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 
 	multidecor.register.register_furniture_unit("spiral_" .. stair.name .. "_ledged_stair_segment", {
@@ -115,36 +136,38 @@ for _, stair in ipairs(stairs_data) do
 		tiles = {stair.tex},
 		groups = {stair=1, spiral=1},
 		bounding_boxes = sstair_bboxes
+	},
+	{
+		type = "shapeless",
+		recipe = {
+			"multidecor:" .. stair.name .. "_ledged_stair_segment",
+			"multidecor:spiral_" .. stair.name .. "_stair_base",
+			"multidecor:hammer"
+		},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 end
 
-minetest.register_node(":multidecor:marble_block", {
-	description = "Marble Block",
-	paramtype = "light",
-	paramtype2 = "none",
-	sunlight_propagates = true,
-	tiles = {"multidecor_marble_material.png^[sheet:2x2:0,0"},
-	groups = {cracky=2.5},
-	sounds = default.node_sound_stone_defaults()
-})
-
-minetest.register_node(":multidecor:granite_block", {
-	description = "Granite Block",
-	paramtype = "light",
-	paramtype2 = "none",
-	sunlight_propagates = true,
-	tiles = {"multidecor_granite_material.png^[sheet:2x2:0,0"},
-	groups = {cracky=3},
-	sounds = default.node_sound_stone_defaults()
-})
 
 local spiral_stairs_data = {
-	{name="metal", tex={"multidecor_coarse_metal_material.png", "multidecor_coarse_metal_material.png"}},
-	{name="plastic", tex={"multidecor_plastic_material.png", "multidecor_gold_material.png"}}
+	{
+		name="metal",
+		tex={"multidecor_coarse_metal_material.png", "multidecor_coarse_metal_material.png"},
+		base_craft_material = "multidecor:coarse_steel_sheet"
+	},
+	{
+		name="plastic",
+		tex={"multidecor_plastic_material.png", "multidecor_gold_material.png"},
+		base_craft_material = "multidecor:plastic_sheet"
+	}
 }
 
 if minetest.get_modpath("ethereal") then
-	table.insert(spiral_stairs_data, {name="sequoia", tex={"ethereal_redwood_wood.png", "ethereal_redwood_wood.png"}})
+	table.insert(spiral_stairs_data, {
+		name="redwood",
+		tex={"ethereal_redwood_wood.png", "ethereal_redwood_wood.png"},
+		base_craft_material = "multidecor:redwood_board"
+	})
 end
 
 
@@ -154,39 +177,62 @@ for _, sstair in ipairs(spiral_stairs_data) do
 	multidecor.register.register_furniture_unit(sstair.name .. "_plank_stair_segment", {
 		type = "decoration",
 		style = "modern",
-		material = sstair.name == "sequoia" and "wood" or sstair.name,
+		material = sstair.name == "redwood" and "wood" or sstair.name,
 		description = upper_name .. "Plank Stair Segment",
 		mesh = "multidecor_plank_stair_segment.b3d",
 		tiles = sstair.tex,
 		groups = {stair=1},
 		bounding_boxes = stair_plank_bboxes
+	},
+	{
+		recipe = {
+			{sstair.base_craft_material, sstair.base_craft_material, sstair.base_craft_material},
+			{"", "", ""},
+			{"", "", ""}
+		}
 	})
 
 	multidecor.register.register_furniture_unit("spiral_" .. sstair.name .. "_plank_stair_segment", {
 		type = "decoration",
 		style = "modern",
-		material = sstair.name == "sequoia" and "wood" or sstair.name,
+		material = sstair.name == "redwood" and "wood" or sstair.name,
 		description = "Spiral " .. upper_name .. "Plank Stair Segment",
 		mesh = "multidecor_spiral_plank_stair_segment.b3d",
 		tiles = sstair.tex,
 		groups = {stair=1, spiral=1},
 		bounding_boxes = sstair_plank_bboxes
+	},
+	{
+		recipe = {
+			{sstair.base_craft_material, sstair.base_craft_material, sstair.base_craft_material},
+			{sstair.base_craft_material, "multidecor:hammer", ""},
+			{"", "", ""}
+		},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 
 	multidecor.register.register_furniture_unit("spiral_" .. sstair.name .. "_plank_stair_segment_with_banister", {
 		type = "decoration",
 		style = "modern",
-		material = sstair.name == "sequoia" and "wood" or sstair.name,
+		material = sstair.name == "redwood" and "wood" or sstair.name,
 		description = "Spiral " .. upper_name .. "Plank Stair Segment With Banister",
 		mesh = "multidecor_spiral_plank_stair_segment_with_banister.b3d",
 		tiles = sstair.tex,
 		bounding_boxes = sstair_plank_bboxes_wban
+	},
+	{
+		recipe = {
+			{sstair.base_craft_material, sstair.base_craft_material, sstair.base_craft_material},
+			{sstair.base_craft_material, "multidecor:hammer", "multidecor:" .. sstair.name .. "_banister"},
+			{"", "", ""}
+		},
+		replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 	})
 
 	local banister_common_name = sstair.name .. "_banister"
 	multidecor.register.register_banister(banister_common_name, {
 		style = "modern",
-		material = sstair.name == "sequoia" and "wood" or sstair.name,
+		material = sstair.name == "redwood" and "wood" or sstair.name,
 		description = upper_name .. " Banister",
 		mesh = "multidecor_banister.b3d",
 		tiles = sstair.tex,
@@ -201,5 +247,13 @@ for _, sstair in ipairs(spiral_stairs_data) do
 			["spiral"] = {mesh="multidecor_spiral_banister.b3d", bboxes=spiral_banister_bboxes},
 			["corner"] = {mesh="multidecor_banister_corner.b3d", bboxes=corner_banister_bboxes}
 		}
+	},
+	{
+		recipe = {
+			{sstair.base_craft_material, sstair.base_craft_material, "multidecor:steel_scissors"},
+			{"", "", ""},
+			{"", "", ""}
+		},
+		replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 	})
 end

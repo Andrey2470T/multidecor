@@ -730,16 +730,6 @@ multidecor.register.register_furniture_unit("saucepans_set", {
 	}
 })
 
-local cast_iron_pan_recipe
-if minetest.get_modpath("technic_worldgen") then
-	cast_iron_pan_recipe = {
-		recipe = {
-			{"technic:cast_iron_ingot", "multidecor:plank", ""},
-			{"technic:cast_iron_ingot", "", ""},
-			{"", "", ""}
-		}
-	}
-end
 
 multidecor.register.register_furniture_unit("cast_iron_pan", {
 	type = "decoration",
@@ -754,7 +744,14 @@ multidecor.register.register_furniture_unit("cast_iron_pan", {
 	bounding_boxes = {
 		{-0.25, -0.5, -0.25, 0.25, -0.35, 0.25}
 	}
-}, cast_iron_pan_recipe)
+},
+{
+	recipe = {
+		{"multidecor:coarse_steel_sheet", "multidecor:plank", ""},
+		{"multidecor:coarse_steel_sheet", "", ""},
+		{"", "", ""}
+	}
+})
 
 multidecor.register.register_furniture_unit("porcelain_saucer_with_cup", {
 	type = "decoration",
@@ -972,7 +969,7 @@ multidecor.register.register_furniture_unit("kitchen_metallic_hanger", {
 },
 {
 	recipe = {
-		{"technic:cast_iron_ingot", "multidecor:metal_bar", ""},
+		{"multidecor:coarse_steel_sheet", "multidecor:metal_bar", ""},
 		{"", "", ""},
 		{"", "", ""}
 	}
@@ -999,8 +996,8 @@ multidecor.register.register_furniture_unit("kitchen_metallic_hanger_with_ladle_
 },
 {
 	recipe = {
-		{"technic:cast_iron_ingot", "multidecor:metal_bar", "multidecor:metal_bar"},
-		{"technic:cast_iron_ingot", "multidecor:board", ""},
+		{"multidecor:coarse_steel_sheet", "multidecor:metal_bar", "multidecor:metal_bar"},
+		{"multidecor:coarse_steel_sheet", "multidecor:board", ""},
 		{"", "", ""}
 	}
 })

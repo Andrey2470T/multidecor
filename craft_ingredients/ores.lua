@@ -152,6 +152,36 @@ minetest.register_craft({
 	cooktime = 5
 })
 
+minetest.register_node(":multidecor:granite_block", {
+	description = "Granite Block",
+	paramtype = "light",
+	paramtype2 = "none",
+	sunlight_propagates = true,
+	tiles = {"multidecor_granite_material.png^[sheet:2x2:0,0"},
+	groups = {cracky=3},
+	sounds = default.node_sound_stone_defaults()
+})
+
+minetest.register_ore({
+    ore_type = "sheet",
+    ore = "multidecor:granite_block",
+    wherein = "default:stone",
+    column_height_min = 5,
+    column_height_max = 15,
+    column_midpoint_factor = 0,
+    y_min = -500,
+    y_max = 0
+})
+
+minetest.register_ore({
+    ore_type = "stratum",
+    ore = "multidecor:granite_block",
+    wherein = "default:desert_stone",
+    np_stratum_thickness = 8,
+    y_min = -500,
+    y_max = 0
+})
+
 
 minetest.register_node(":multidecor:consolidated_oil", {
     description = "Consolidated Oil (use furnace to melt)",
