@@ -54,7 +54,7 @@ minetest.register_entity(":multidecor:cover", {
 })
 
 local function on_place_cover(pointed_thing, cover_stack, cover_name)
-	local pos = vector.add(pointed_thing.above, pointed_thing.under) / 2
+	local pos = pointed_thing.under
 
 	local dir_to_pos = vector.normalize(pos - pointed_thing.above)
 
@@ -105,7 +105,7 @@ minetest.register_tool(":multidecor:paint_brush", {
 	description = "Paint Brush (for painting armchairs, curtains, beds, chairs and etc)",
 	inventory_image = "multidecor_paint_brush.png",
 	on_place = function(itemstack, placer, pointed_thing)
-		local pos = vector.add(pointed_thing.above, pointed_thing.under) / 2
+		local pos = pointed_thing.under
 		local def = hlpfuncs.ndef(pos)
 
 		if not def.is_colorable then -- not colorable

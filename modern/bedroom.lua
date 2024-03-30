@@ -3,13 +3,18 @@ multidecor.register.register_bed("jungle_bed", {
 	material = "wood",
 	description = "Jungle Bed (single)",
 	visual_scale = 0.4,
+	paramtype2 = "colorfacedir",
 	mesh = "multidecor_jungle_bed.obj",
-	tiles = {"multidecor_modern_jungle_bed.png"},
+	tiles = {
+		{name="multidecor_modern_jungle_bed.png", color=0xffffffff},
+		"multidecor_wool_material.png"
+	},
 	inventory_image = "multidecor_jungle_bed_inv.png",
 	bounding_boxes = {
 		{-0.5, -0.5, -1.5, 0.5, 0, 0.3},
 		{-0.5, -0.5, 0.3, 0.5, 0.5, 0.5}
 	},
+	is_colorable = true,
 	callbacks = {
 		on_construct = function(pos)
 			multidecor.connecting.update_adjacent_nodes_connection(pos, "pair")
@@ -43,14 +48,20 @@ multidecor.register.register_bed("wooden_bed_with_legs", {
 	material = "wood",
 	description = "Wooden bed with legs (single)",
 	visual_scale = 0.4,
+	paramtype2 = "colorfacedir",
 	mesh = "multidecor_wooden_bed_with_legs.b3d",
-	tiles = {"multidecor_wood.png", "multidecor_wool_material.png", "multidecor_wooden_bed_legs.png"},
+	tiles = {
+		{name="multidecor_wood.png", color=0xffffffff},
+		"multidecor_wool_material.png",
+		{name="multidecor_wooden_bed_legs.png", color=0xffffffff}
+	},
 	inventory_image = "multidecor_wooden_bed_inv.png",
 	bounding_boxes = {
 		{-0.5, -0.5, -1.5, 0.5, 0.35, -1.3},
 		{-0.5, -0.5, -1.3, 0.5, 0.1, 0.3},
 		{-0.5, -0.5, 0.3, 0.5, 0.55, 0.5}
 	},
+	is_colorable = true,
 	callbacks = {
 		on_construct = function(pos)
 			multidecor.connecting.update_adjacent_nodes_connection(pos, "pair")
