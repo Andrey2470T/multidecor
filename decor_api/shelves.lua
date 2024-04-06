@@ -369,7 +369,11 @@ multidecor.shelves.create_detached_inventory = function(pos, shelf_i, shelves_da
 					local name = stack:get_name()
 
 					local output = minetest.get_craft_result({method="cooking", width=1, items=inv:get_list(listname)})
-					output.item = {name=output.item:get_name(), count=output.item:get_count()*stack:get_count(), wear=output.item:get_wear()}
+					output.item = {
+						name=output.item:get_name(),
+						count=output.item:get_count()*stack:get_count(),
+						wear=output.item:get_wear()
+					}
 					local total_time = output.time*stack:get_count()
 
 					minetest.swap_node(pos, {
@@ -380,8 +384,8 @@ multidecor.shelves.create_detached_inventory = function(pos, shelf_i, shelves_da
 					local meta = minetest.get_meta(pos)
 					local cook_data = {output, 0, total_time, 0}
 
-					if obj then
-						local self = obj:get_luaentity()
+					if open_shelves[playername] then
+						local self = open_shelves[playername]:get_luaentity()
 						self.cook_info = cook_data
 
 						local self2 = multidecor.shelves.get_opposite_symdoor(self, shelf_data)
