@@ -118,6 +118,11 @@ function multidecor.register.on_punch(pos, node, puncher)
 
 	if palette_index == 0 then return end
 
+	local playername = puncher:get_player_name()
+	if minetest.is_protected(pos, playername) then
+		return
+	end
+
 	local color = multidecor.colors[palette_index+1]
 	local rot = node.param2 % mul
 
@@ -128,7 +133,6 @@ function multidecor.register.on_punch(pos, node, puncher)
 	wielded_item:set_wear(wielded_item:get_wear()+math.modf(65535/50))
 	puncher:set_wielded_item(wielded_item)
 
-	local playername = puncher:get_player_name()
 	if not multidecor.players_actions_sounds[playername] then
 		multidecor.players_actions_sounds[playername] = {
 			name = "multidecor_scraping",

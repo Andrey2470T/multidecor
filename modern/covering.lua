@@ -52,6 +52,10 @@ minetest.register_entity(":multidecor:cover", {
 			return
 		end
 
+		if minetest.is_protected(self.object:get_pos(), puncher:get_player_name()) then
+			return
+		end
+
 		self.object:remove()
 
 		wielded_item:set_wear(wielded_item:get_wear()+math.modf(65535/50))
@@ -73,7 +77,7 @@ minetest.register_entity(":multidecor:cover", {
 	end
 })
 
-local function on_place_cover(pointed_thing, cover_stack, cover_name)
+local function on_place_cover(pointed_thing, cover_stack, cover_name, placer)
 	local pos = pointed_thing.under
 
 	local dir_to_pos = vector.normalize(pos - pointed_thing.above)
@@ -81,6 +85,11 @@ local function on_place_cover(pointed_thing, cover_stack, cover_name)
 	if cover_name ~= "plaster" and dir_to_pos.y ~= 0.0 then -- Can not place on the floor or ceiling
 		return cover_stack
 	end
+
+	if minetest.is_protected(pointed_thing.above, placer:get_player_name()) then
+		return cover_stack
+	end
+
 	local target_pos = pointed_thing.above + dir_to_pos * 0.5
 
 	-- Slight position displacement
@@ -104,7 +113,7 @@ for i, wallpaper_sort in ipairs(wallpapers) do
 		description = hlpfuncs.upper_first_letters(itemname),
 		inventory_image = "multidecor_" .. itemname .. ".png",
 		on_place = function(itemstack, placer, pointed_thing)
-			return on_place_cover(pointed_thing, itemstack, itemname)
+			return on_place_cover(pointed_thing, itemstack, itemname, placer)
 		end
 	})
 
@@ -186,6 +195,10 @@ minetest.register_tool(":multidecor:paint_brush", {
 		end
 
 		if not dye_color then return end -- not supported color
+
+		if minetest.is_protected(pos, placer:get_player_name()) then
+			return
+		end
 
 		local rot = node.param2 % mul
 		minetest.swap_node(pos, {name=node.name, param2=index*mul+rot})

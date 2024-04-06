@@ -391,7 +391,12 @@ local on_rightclick_flowerpot = function(pos, node, clicker, itemstack)
 	local modname = itemname:sub(1, is_flowers_mod_i-1)
 	local flower = itemname:sub(is_flowers_mod_i+1)
 
-	if modname ~= "flowers" or minetest.get_item_group(itemname, "flower") == 0 or table.indexof(flowers, flower) == -1 then
+	if modname ~= "flowers" or minetest.get_item_group(itemname, "flower") == 0 or
+		table.indexof(flowers, flower) == -1 then
+		return
+	end
+
+	if minetest.is_protected(pos, clicker:get_player_name()) then
 		return
 	end
 
@@ -417,14 +422,17 @@ local on_rightclick_flowerpot_with_flower = function(pos, node, clicker, itemsta
 		flower = itemname:sub(is_flowers_mod_i+1)
 	end
 
-	if modname == "flowers" and minetest.get_item_group(itemname, "flower") == 1 and table.indexof(flowers, flower) ~= -1 then
-		if flower ~= current_flower then
-			minetest.set_node(pos, {name=node.name:gsub(current_flower, flower), param2=node.param2})
+	if minetest.is_protected(pos, clicker:get_player_name()) then
+		return
+	end
 
-			itemstack:take_item()
+	if modname == "flowers" and minetest.get_item_group(itemname, "flower") == 1 and
+			table.indexof(flowers, flower) ~= -1 and flower ~= current_flower then
+		minetest.set_node(pos, {name=node.name:gsub(current_flower, flower), param2=node.param2})
 
-			clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
-		end
+		itemstack:take_item()
+
+		clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
 	else
 		minetest.set_node(pos, {name=node.name:gsub("_with_flower_" .. current_flower, ""), param2=node.param2})
 
