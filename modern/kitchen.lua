@@ -170,12 +170,12 @@ end
 
 
 --Since there`s no granite material yet, it is replaced temporarily to the default stone
-granite_cmpnts.two_floor_drws.craft[3][2] = "stairs:slab_stone"
-granite_cmpnts.three_floor_drws.craft[3][3] = "stairs:slab_stone"
-granite_cmpnts.two_floor_doors.craft[3][2] = "stairs:slab_stone"
-granite_cmpnts.three_floor_doors.craft[3][3] = "stairs:slab_stone"
-granite_cmpnts.three_floor_drw_door.craft[3][3] = "stairs:slab_stone"
-granite_cmpnts.sink.craft[3][3] = "stairs:slab_stone"
+granite_cmpnts.two_floor_drws.craft[3][2] = "stairs:slab_granite"
+granite_cmpnts.three_floor_drws.craft[3][3] = "stairs:slab_granite"
+granite_cmpnts.two_floor_doors.craft[3][2] = "stairs:slab_granite"
+granite_cmpnts.three_floor_doors.craft[3][3] = "stairs:slab_granite"
+granite_cmpnts.three_floor_drw_door.craft[3][3] = "stairs:slab_granite"
+granite_cmpnts.sink.craft[3][3] = "stairs:slab_granite"
 
 granite_cmpnts.two_wall_door = {
 	description = "Kitchen Two Shelves Wall Cabinet With Door",

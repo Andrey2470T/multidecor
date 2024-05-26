@@ -589,8 +589,8 @@ minetest.register_craft({
 
 minetest.register_craft({
 	type = "shapeless",
-	output = "multidecor:marble_sheet 5",
-	recipe = {"multidecor:marble_block", "multidecor:hammer"},
+	output = "multidecor:marble_sheet 2",
+	recipe = {"stairs:slab_marble", "multidecor:hammer"},
 	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
 
