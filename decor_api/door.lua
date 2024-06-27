@@ -85,9 +85,9 @@ function multidecor.doors.convert_to_entity(pos)
 	local start_r, end_r = rot.y, rot.y+math.pi/2
 
 	if is_open then
-		dir = hlpfuncs.rot(dir, math.pi/2)
-		local new_pos2, rot2 = multidecor.doors.rotate(new_pos, dir, shift)
-		rot = rot2
+		rot.y = end_r
+	else
+		rot.y = start_r
 	end
 
 	if is_mir_cpart then

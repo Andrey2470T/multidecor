@@ -177,7 +177,9 @@ minetest.register_ore({
     ore_type = "sheet",
     ore = "multidecor:granite_block",
     wherein = "default:desert_stone",
-    np_stratum_thickness = 8,
+    column_height_min = 5,
+    column_height_max = 15,
+    column_midpoint_factor = 0,
     y_min = -500,
     y_max = 0
 })
