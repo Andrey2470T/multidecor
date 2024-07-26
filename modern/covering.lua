@@ -231,7 +231,7 @@ minetest.register_tool(":multidecor:spatula", {
 			return
 		end
 
-		next_itemstack = on_place_cover(pointed_thing, next_itemstack, "plaster")
+		next_itemstack = on_place_cover(pointed_thing, next_itemstack, "plaster", placer)
 		inv:set_stack("main", spatula_index+1, next_itemstack)
 	end
 })
