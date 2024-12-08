@@ -1,0 +1,64 @@
+# textdomain: craft_ingredients
+
+# init.lua
+Marble Block=Блок мрамора
+Cabinet Door=Кабинетная дверь
+Cabinet Half Door=Кабинетная полудверь
+Cabinet Half Glass Door=Кабинетная стеклянная полудверь
+Saw=Пила
+Wool Cloth=Шерстяная одежда
+Metal Bar=Металлический прут
+Steel Sheet=Стальной лист
+Coarse Steel Sheet=Грубый лист стали
+Steel Scissors=Стальные кусачки
+Hammer=Молоток
+Bulb=Лампочка
+Lampshade=Абажур
+Plastic Sheet=Пластиковый лист
+Plastic Strip=Пластиковая полоска
+Metal Wire=Металлический провод
+Chain=Цепь
+Set from four bulbs=Набор из 4 лампочек
+Wolfram Wire=Вольфрамовый провод
+Silver Wire=Серебяный провод
+Set from four lampshades=Набор из 4 абажуров
+Digital Dial=Цифровой циферблат
+Brass Ingot=Латунный слиток
+Brass Stripe=Латунная полоска
+Gear=Шестерёнка
+Spring=Пружина
+Wax Lump=Ком воска
+Wax Candle=Восковая свеча
+Chainlink=Металлическая сетка
+Terracotta Fragment=Фрагмент терракоты
+Copper And Tin=Медь и олово
+Copper And Zinc=Медь и цинк
+Marble Sheet=Мраморная панель
+Syphon=Сифон
+Board=Широкая доска
+Jungl Board=Широкая доска из тропического дерева
+Aspen Board=Широкая доска из осины
+Pine Board=Широкая доска из сосны
+Plank=Узкая доска
+Jungl Plank=Узкая доска из тропического дерева
+Aspen Plank=Узкая доска из осины
+Pine Plank=Узкая доска из сосны
+Drawer=Ящик
+Jungl Drawer=Ящик из тропического дерева
+Aspen Drawer=Ящик из осины
+Pine Drawer=Ящик из сосны
+
+
+# ores.lua
+Wolfram Ore=Вольфрамовая руда
+Desert Wolfram Ore=Пустынная вольфрамовая руда
+Wolfram Lump=Кусок вольфрама
+Wolfram Ingot=Вольфрамовый слиток
+Zinc Ore=Цинковая руда
+Desert Zinc Ore=Пустынная цинковая руда
+Zinc Fragment=Цинковый фрагмент
+Zinc Ingot=Цинковый слиток
+Granite Block=Гранитный блок
+Consolidated Oil (use furnace to melt)=Консолидированная нефть (используйте печь, чтобы расплавить)
+Oil Source=Источник нефти
+Flowing Oil=Текущая нефть

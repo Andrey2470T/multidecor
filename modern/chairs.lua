@@ -1,7 +1,7 @@
 multidecor.register.register_seat("kitchen_modern_wooden_chair", {
 	style = "modern",
 	material = "wood",
-	description = "Kitchen Modern Wooden Chair",
+	description = modern.S("Kitchen Modern Wooden Chair"),
 	visual_scale = 0.4,
 	mesh = "multidecor_kitchen_modern_wooden_chair.b3d",
 	tiles = {"multidecor_wood.png"},
@@ -29,7 +29,7 @@ multidecor.register.register_seat("kitchen_modern_wooden_chair", {
 multidecor.register.register_seat("soft_kitchen_modern_wooden_chair", {
 	style = "modern",
 	material = "wood",
-	description = "Soft Kitchen Modern Wooden Chair",
+	description = modern.S("Soft Kitchen Modern Wooden Chair"),
 	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	mesh = "multidecor_soft_kitchen_modern_wooden_chair.b3d",
@@ -60,7 +60,7 @@ multidecor.register.register_seat("soft_kitchen_modern_wooden_chair", {
 multidecor.register.register_seat("soft_modern_jungle_chair", {
 	style = "modern",
 	material = "wood",
-	description = "Soft Modern Jungle Chair",
+	description = modern.S("Soft Modern Jungle Chair"),
 	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	mesh = "multidecor_soft_modern_jungle_chair.b3d",
@@ -90,7 +90,7 @@ multidecor.register.register_seat("soft_modern_jungle_chair", {
 multidecor.register.register_seat("soft_round_modern_metallic_chair", {
 	style = "modern",
 	material = "metal",
-	description = "Soft Round Modern Metallic Chair",
+	description = modern.S("Soft Round Modern Metallic Chair"),
 	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	mesh = "multidecor_round_soft_metallic_chair.b3d",
@@ -120,7 +120,7 @@ multidecor.register.register_seat("soft_round_modern_metallic_chair", {
 multidecor.register.register_seat("round_modern_metallic_stool", {
 	style = "modern",
 	material = "metal",
-	description = "Round Modern Metallic Stool",
+	description = modern.S("Round Modern Metallic Stool"),
 	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	mesh = "multidecor_modern_round_metallic_stool.b3d",
@@ -149,7 +149,7 @@ multidecor.register.register_seat("round_modern_metallic_stool", {
 multidecor.register.register_seat("armchair_with_wooden_legs", {
 	style = "modern",
 	material = "wood",
-	description = "Armchair with wooden legs",
+	description = modern.S("Armchair with wooden legs"),
 	inventory_image = "multidecor_armchair_with_wooden_legs_inv.png",
 	paramtype2 = "colorfacedir",
 	mesh = "multidecor_armchair_with_wooden_legs.b3d",
@@ -185,7 +185,7 @@ multidecor.register.register_seat("armchair_with_wooden_legs", {
 multidecor.register.register_seat("sofa", {
 	style = "modern",
 	material = "plastic",
-	description = "Sofa",
+	description = modern.S("Sofa"),
 	paramtype2 = "colorfacedir",
 	mesh = "multidecor_modern_sofa.b3d",
 	tiles = {{name="multidecor_modern_sofa.png", color=0xffffffff}, "multidecor_cloth.png"},

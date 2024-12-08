@@ -110,7 +110,7 @@ end
 for i, wallpaper_sort in ipairs(wallpapers) do
 	local itemname = wallpaper_sort .. "_wallpaper"
 	minetest.register_craftitem(":multidecor:" .. itemname, {
-		description = hlpfuncs.upper_first_letters(itemname),
+		description = modern.S(hlpfuncs.upper_first_letters(itemname)),
 		inventory_image = "multidecor_" .. itemname .. ".png",
 		on_place = function(itemstack, placer, pointed_thing)
 			return on_place_cover(pointed_thing, itemstack, itemname, placer)
@@ -130,7 +130,7 @@ for i, wallpaper_sort in ipairs(wallpapers) do
 end
 
 minetest.register_tool(":multidecor:scraper", {
-	description = "Scraper (for stripping wallpapers, paint or plaster)",
+	description = modern.S("Scraper (for stripping wallpapers, paint or plaster)"),
 	inventory_image = "multidecor_scraper.png"
 })
 
@@ -141,7 +141,7 @@ minetest.register_craft({
 })
 
 minetest.register_craftitem(":multidecor:plaster_lump", {
-	description = "Plaster Lump",
+	description = modern.S("Plaster Lump"),
 	inventory_image = "multidecor_plaster_lump.png"
 })
 
@@ -154,7 +154,7 @@ minetest.register_craft({
 
 
 minetest.register_tool(":multidecor:paint_brush", {
-	description = "Paint Brush (for painting armchairs, curtains, beds, chairs and etc)",
+	description = modern.S("Paint Brush (for painting armchairs, curtains, beds, chairs and etc)"),
 	inventory_image = "multidecor_paint_brush.png",
 	on_place = function(itemstack, placer, pointed_thing)
 		local pos = pointed_thing.under
@@ -219,7 +219,7 @@ minetest.register_craft({
 })
 
 minetest.register_tool(":multidecor:spatula", {
-	description = "Spatula (for spreading plaster on surfaces)",
+	description = modern.S("Spatula (for spreading plaster on surfaces)"),
 	inventory_image = "multidecor_spatula.png",
 	on_place = function(itemstack, placer, pointed_thing)
 		local inv = placer:get_inventory()

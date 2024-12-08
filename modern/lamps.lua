@@ -50,7 +50,7 @@ multidecor.register.register_furniture_unit("silver_chain", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	description = "Silver Chain",
+	description = modern.S("Silver Chain"),
 	mesh = "multidecor_silver_chain.b3d",
 	tiles = {"multidecor_silver_material.png"},
 	groups = {cracky=1.5, not_in_creative_inventory=1, hanger_medium=1},
@@ -67,7 +67,7 @@ multidecor.register.register_furniture_unit("silver_chain_tip", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	description = "Silver Chain Tip",
+	description = modern.S("Silver Chain Tip"),
 	mesh = "multidecor_silver_chain_tip.b3d",
 	tiles = {"multidecor_silver_material.png", "multidecor_gold_material.png"},
 	groups = {cracky=1.5, hanger_top=1},
@@ -84,7 +84,7 @@ multidecor.register.register_furniture_unit("silver_chain_tip", {
 multidecor.register.register_light("silvered_desk_lamp_off", {
 	style = "modern",
 	material = "metal",
-	description = "Silvered Desk Lamp",
+	description = modern.S("Silvered Desk Lamp"),
 	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	use_texture_alpha = "blend",
@@ -103,7 +103,7 @@ multidecor.register.register_light("silvered_desk_lamp_off", {
 multidecor.register.register_light("copper_wall_sconce_off", {
 	style = "modern",
 	material = "glass",
-	description = "Copper Wall Sconce",
+	description = modern.S("Copper Wall Sconce"),
 	visual_scale = 0.4,
 	mesh = "multidecor_copper_wall_sconce.b3d",
 	tiles = {"multidecor_copper_material.png", "multidecor_bulb_surf.png"},
@@ -125,7 +125,7 @@ multidecor.register.register_light("copper_wall_sconce_off", {
 multidecor.register.register_light("plastic_desk_lamp_off", {
 	style = "modern",
 	material = "plastic",
-	description = "Plastic Desk Lamp",
+	description = modern.S("Plastic Desk Lamp"),
 	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	use_texture_alpha = "blend",
@@ -155,7 +155,7 @@ multidecor.register.register_light("plastic_desk_lamp_off", {
 multidecor.register.register_light("gold_chandelier_with_glass_candles_off", {
 	style = "modern",
 	material = "metal",
-	description = "Gold Chandelier With Glass Candles",
+	description = modern.S("Gold Chandelier With Glass Candles"),
 	wield_scale = {x=0.3, y=0.3, z=0.3},
 	use_texture_alpha = "blend",
 	groups = {hanger_bottom=1},
@@ -185,7 +185,7 @@ multidecor.register.register_light("gold_chandelier_with_glass_candles_off", {
 multidecor.register.register_light("metal_chandelier_with_plastic_plafonds_off", {
 	style = "modern",
 	material = "metal",
-	description = "Metal Chandelier With Plastic Plafonds",
+	description = modern.S("Metal Chandelier With Plastic Plafonds"),
 	visual_scale = 0.4,
 	inventory_image = "multidecor_metal_chandelier_inv.png",
 	use_texture_alpha = "blend",
@@ -217,7 +217,7 @@ multidecor.register.register_light("metal_chandelier_with_plastic_plafonds_off",
 multidecor.register.register_light("brass_candlestick", {
 	style = "modern",
 	material = "metal",
-	description = "Brass Candlestick",
+	description = modern.S("Brass Candlestick"),
 	use_texture_alpha = "blend",
 	light_source = 10,
 	mesh = "multidecor_brass_candlestick.b3d",
@@ -247,7 +247,7 @@ multidecor.register.register_light("brass_candlestick", {
 multidecor.register.register_light("silver_candlestick", {
 	style = "modern",
 	material = "metal",
-	description = "Silver Candlestick",
+	description = modern.S("Silver Candlestick"),
 	use_texture_alpha = "blend",
 	light_source = 10,
 	mesh = "multidecor_brass_candlestick.b3d",
@@ -270,7 +270,7 @@ multidecor.register.register_light("silver_candlestick", {
 multidecor.register.register_light("ceiling_round_lamp", {
 	style = "modern",
 	material = "glass",
-	description = "Ceiling Round Lamp",
+	description = modern.S("Ceiling Round Lamp"),
 	light_source = 12,
 	mesh = "multidecor_ceiling_round_lamp.b3d",
 	tiles = {"multidecor_ceiling_round_lamp.png"},
@@ -288,7 +288,7 @@ multidecor.register.register_light("ceiling_round_lamp", {
 multidecor.register.register_light("ceiling_wooden_lamp", {
 	style = "modern",
 	material = "glass",
-	description = "Ceiling Wooden Lamp",
+	description = modern.S("Ceiling Wooden Lamp"),
 	light_source = 12,
 	mesh = "multidecor_ceiling_wooden_lamp.b3d",
 	tiles = {
@@ -309,7 +309,7 @@ multidecor.register.register_light("ceiling_wooden_lamp", {
 multidecor.register.register_light("kitchen_chandelier", {
 	style = "modern",
 	material = "wood",
-	description = "Kitchen Chandelier",
+	description = modern.S("Kitchen Chandelier"),
 	mesh = "multidecor_kitchen_chandelier.b3d",
 	use_texture_alpha = "blend",
 	tiles = {

@@ -1,7 +1,7 @@
 multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 	style = "modern",
 	material = "wood",
-	description = "Wooden cupboard with glass doors",
+	description = modern.S("Wooden cupboard with glass doors"),
 	mesh = "multidecor_cupboard_with_glass_doors.b3d",
 	tiles = {"multidecor_jungle_wood.png", "multidecor_glass_material.png", "multidecor_metal_material.png"},
 	inventory_image = "multidecor_cupboard_inv.png",

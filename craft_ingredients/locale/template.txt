@@ -1,0 +1,61 @@
+# textdomain: craft_ingredients
+
+# init.lua
+Marble Block=
+Cabinet Door=
+Cabinet Half Door=
+Cabinet Half Glass Door=
+Saw=
+Wool Cloth=
+Metal Bar=
+Steel Sheet=
+Coarse Steel Sheet=
+Steel Scissors=
+Hammer=
+Bulb=
+Lampshade=
+Plastic Sheet=
+Plastic Strip=
+Metal Wire=
+Chain=
+Set from four bulbs=
+Wolfram Wire=
+Silver Wire=
+Set from four lampshades=
+Digital Dial=
+Brass Ingot=
+Brass Stripe=
+Gear=
+Spring=
+Wax Lump=
+Wax Candle=
+Chainlink=
+Terracotta Fragment=
+Copper And Tin=
+Copper And Zinc=
+Marble Sheet=
+Syphon=
+Board=
+Jungle Board=
+Plank=
+Jungle Plank=
+Aspen Plank=
+Pine Plank=
+Drawer=
+Jungle Drawer=
+Aspen Drawer=
+Pine Drawer=
+
+# ores.lua
+Wolfram Ore=
+Desert Wolfram Ore=
+Wolfram Lump=
+Wolfram Ingot=
+Zinc Ore=
+Desert Zinc Ore=
+Zinc Fragment=
+Zinc Ingot=
+Granite Block=
+Consolidated Oil (use furnace to melt)=
+Oil Source=
+Flowing Oil=

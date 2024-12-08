@@ -93,7 +93,7 @@ function multidecor.register.build_description(name, base_desc)
 	local style = multidecor.register.get_name_from_category(name, 1)
 	local material = multidecor.register.get_name_from_category(name, 2)
 
-	return base_desc .. "\nStyle: " .. style .. (material ~= "" and "\nMaterial: " .. material or "")
+	return base_desc .. multidecor.S("\nStyle: ") .. multidecor.S(style) .. (material ~= "" and multidecor.S("\nMaterial: ") .. multidecor.S(material) or "")
 end
 
 function multidecor.register.after_place_node(pos, placer, itemstack)
@@ -188,7 +188,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	assert(multidecor.register.category_contains(def.type, 0), "The type with a name \"" .. def.type .. "\" is not registered!")
 	assert(multidecor.register.category_contains(def.style, 1), "The style with a name \"" .. def.style .. "\" is not registered!")
 
-	f_def.description = multidecor.S(def.description)
+	f_def.description = def.description
 	f_def.visual_scale = def.visual_scale or 0.5
 	f_def.wield_scale = def.wield_scale or {x=0.5, y=0.5, z=0.5}
 	f_def.drawtype = def.drawtype or "mesh"
@@ -235,7 +235,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 		f_def.groups.oddly_breakable_by_hand = 1
 	end
 
-	f_def.description = f_def.description .. "\nStyle: " .. def.style .. (def.material and "\nMaterial: " .. def.material or "")
+	f_def.description = f_def.description .. multidecor.S("\nStyle: ") .. multidecor.S(def.style) .. (def.material and multidecor.S("\nMaterial: ") .. multidecor.S(def.material) or "")
 	if def.bounding_boxes then
 		if f_def.drawtype == "nodebox" then
 			f_def.node_box = {

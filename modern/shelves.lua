@@ -8,7 +8,7 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		material = "wood",
 		drawtype = "nodebox",
 		visual_scale = 1,
-		description = "Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Closed Shelf (without back)",
+		description = modern.S("Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Closed Shelf (without back)"),
 		tiles = {tex, tex, tex, tex, tex, tex},
 		bounding_boxes = {
 			{-0.5, -0.4, -0.5, -0.4, 0.4, 0.5},			-- Left side
@@ -46,7 +46,7 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		material = "wood",
 		drawtype = "nodebox",
 		visual_scale = 1,
-		description = "Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Closed Shelf (with back)",
+		description = modern.S("Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Closed Shelf (with back)"),
 		tiles = {tex, tex, tex, tex, tex, tex},
 		bounding_boxes = {
 			{-0.5, -0.4, -0.5, -0.4, 0.4, 0.5},			-- Left side
@@ -83,7 +83,7 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		style = "modern",
 		material = "wood",
 		paramtype2 = "wallmounted",
-		description = "Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf",
+		description = modern.S("Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf"),
 		mesh = "multidecor_wall_shelf.obj",
 		tiles = {tex},
 		bounding_boxes = {
@@ -101,7 +101,7 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		style = "modern",
 		material = "wood",
 		paramtype2 = "wallmounted",
-		description = "Modern Corner Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf",
+		description = modern.S("Modern Corner Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf"),
 		mesh = "multidecor_corner_wall_shelf.b3d",
 		tiles = {tex},
 		bounding_boxes = {
@@ -121,7 +121,7 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		style = "modern",
 		material = "wood",
 		paramtype2 = "wallmounted",
-		description = "Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf With Books",
+		description = modern.S("Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf With Books"),
 		mesh = "multidecor_wall_shelf_with_books.b3d",
 		tiles = { -- Red, blue, green, darkmagenta, darkorange
 			tex,
@@ -147,7 +147,7 @@ end
 multidecor.register.register_table("three_level_wooden_rack", {
 	style = "modern",
 	material = "wood",
-	description =  "Three Level Wooden Rack",
+	description =  modern.S("Three Level Wooden Rack"),
 	mesh = "multidecor_three_level_wooden_rack.b3d",
 	tiles = {"multidecor_wood.png"},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}},

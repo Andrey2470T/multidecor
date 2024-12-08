@@ -10,7 +10,7 @@ function multidecor.clock.get_current_time()
 end
 
 function multidecor.clock.get_formatted_time_str(hours, minutes)
-	return ("Current time: %d:%d"):format(hours, minutes)
+	return (multidecor.S("Current time: %d:%d")):format(hours, minutes)
 end
 
 function multidecor.clock.default_on_construct(pos)

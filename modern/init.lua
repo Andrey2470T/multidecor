@@ -1,4 +1,6 @@
 local modpath = minetest.get_modpath("modern")
+modern = {}
+modern.S = minetest.get_translator("modern")
 
 dofile(modpath .. "/bathroom.lua")
 dofile(modpath .. "/bedroom.lua")

@@ -1,7 +1,7 @@
 multidecor.register.register_door("high_dark_rusty_gate", {
 	style = "modern",
 	material = "metal",
-	description = "High Dark Rusty Gate",
+	description = modern.S("High Dark Rusty Gate"),
 	mesh = "multidecor_high_dark_rusty_gate.b3d",
 	tiles = {
 		"multidecor_fence_chainlink.png",
@@ -34,7 +34,7 @@ multidecor.register.register_door("high_dark_rusty_gate", {
 multidecor.register.register_door("dark_rusty_gate", {
 	style = "modern",
 	material = "metal",
-	description = "Dark Rusty Gate",
+	description = modern.S("Dark Rusty Gate"),
 	mesh = "multidecor_dark_rusty_gate.b3d",
 	tiles = {
 		"multidecor_fence_chainlink.png",
@@ -111,7 +111,7 @@ for i, wood in ipairs(woods) do
 	multidecor.register.register_door("simple_" .. wood.name .. "_door", {
 		style = "modern",
 		material = "wood",
-		description = "Simple " .. upper_name .. " Door",
+		description = modern.S("Simple " .. upper_name .. " Door"),
 		mesh = "multidecor_modern_wooden_door.b3d",
 		tiles = {
 			base_texture .. "^multidecor_door_hinges.png",
@@ -146,7 +146,7 @@ for i, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		description = upper_name .. "Doorjamb",
+		description = modern.S(upper_name .. "Doorjamb"),
 		mesh = "multidecor_wooden_doorjamb.b3d",
 		tiles = {base_texture},
 		bounding_boxes = {
@@ -169,7 +169,7 @@ for i, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		description = upper_name .. "Plinth",
+		description = modern.S(upper_name .. "Plinth"),
 		mesh = "multidecor_wooden_plinth.b3d",
 		tiles = {base_texture},
 		bounding_boxes = {{-0.5, -0.5, 0.4, 0.5, -0.2, 0.5}}
@@ -185,7 +185,7 @@ for i, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		description = upper_name .. "Corner Plinth",
+		description = modern.S(upper_name .. "Corner Plinth"),
 		mesh = "multidecor_wooden_corner_plinth.b3d",
 		tiles = {base_texture},
 		bounding_boxes = {
@@ -203,7 +203,7 @@ for i, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		description = upper_name .. "Window Segment",
+		description = modern.S(upper_name .. "Window Segment"),
 		mesh = "multidecor_window_segment.b3d",
 		tiles = {
 			base_texture,
@@ -257,7 +257,7 @@ for i, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		description = upper_name .. "Window Segment With Thick Slats",
+		description = modern.S(upper_name .. "Window Segment With Thick Slats"),
 		mesh = "multidecor_window_segment_with_thick_slats.b3d",
 		tiles = {
 			base_texture,
@@ -280,7 +280,7 @@ for i, wood in ipairs(woods) do
 		type = "decoration",
 		style = "modern",
 		material = "wood",
-		description = upper_name .. "Window Segment With Thin Slats",
+		description = modern.S(upper_name .. "Window Segment With Thin Slats"),
 		mesh = "multidecor_window_segment_with_thin_slats.b3d",
 		tiles = {
 			base_texture,
@@ -302,7 +302,7 @@ for i, wood in ipairs(woods) do
 	multidecor.register.register_door(wood.name .. "_window_door", {
 		style = "modern",
 		material = "wood",
-		description = upper_name .. "Window Door",
+		description = modern.S(upper_name .. "Window Door"),
 		mesh = "multidecor_window_door.b3d",
 		tiles = {
 			base_texture,
@@ -332,7 +332,7 @@ for i, wood in ipairs(woods) do
 	multidecor.register.register_door(wood.name .. "_window_door_with_thin_slats", {
 		style = "modern",
 		material = "wood",
-		description = upper_name .. "Window Door With Thin Slats",
+		description = modern.S(upper_name .. "Window Door With Thin Slats"),
 		mesh = "multidecor_window_door_with_thin_slats.b3d",
 		tiles = {
 			base_texture,
@@ -362,7 +362,7 @@ end
 multidecor.register.register_door("patterned_wooden_door", {
 	style = "modern",
 	material = "wood",
-	description = "Patterned Wooden Door",
+	description = modern.S("Patterned Wooden Door"),
 	mesh = "multidecor_modern_wooden_door.b3d",
 	tiles = {
 		"multidecor_modern_wooden_door_base.png^multidecor_door_hinges.png",
@@ -395,7 +395,7 @@ multidecor.register.register_door("patterned_wooden_door", {
 multidecor.register.register_door("bathroom_door", {
 	style = "modern",
 	material = "wood",
-	description = "Bathroom Door",
+	description = modern.S("Bathroom Door"),
 	mesh = "multidecor_bathroom_door.b3d",
 	tiles = {
 		"multidecor_white_pine_wood.png^multidecor_door_hinges.png",
@@ -429,7 +429,7 @@ multidecor.register.register_door("white_pine_glass_door", {
 	style = "modern",
 	material = "wood",
 	visual_scale = 0.5,
-	description = "White Pine Glass Door",
+	description = modern.S("White Pine Glass Door"),
 	mesh = "multidecor_white_pine_glass_door.b3d",
 	tiles = {
 		"multidecor_white_pine_wood.png^(multidecor_door_hinges.png^[transform2)",
@@ -464,7 +464,7 @@ multidecor.register.register_door("white_pine_glass_door", {
 multidecor.register.register_door("patterned_aspen_glass_door", {
 	style = "modern",
 	material = "wood",
-	description = "Patterned Aspen Glass Door",
+	description = modern.S("Patterned Aspen Glass Door"),
 	mesh = "multidecor_pine_glass_door.b3d",
 	tiles = {
 		"multidecor_pine_glass_door_base2.png^multidecor_door_hinges.png",
@@ -500,7 +500,7 @@ multidecor.register.register_door("patterned_aspen_door", {
 	style = "modern",
 	material = "wood",
 	visual_scale = 0.5,
-	description = "Patterned Aspen Door",
+	description = modern.S("Patterned Aspen Door"),
 	mesh = "multidecor_pine_door.b3d",
 	tiles = {
 		"multidecor_pine_door.png^multidecor_door_hinges.png",
@@ -534,7 +534,7 @@ multidecor.register.register_door("pine_glass_door", {
 	style = "modern",
 	material = "wood",
 	visual_scale = 0.5,
-	description = "Pine Glass Door",
+	description = modern.S("Pine Glass Door"),
 	mesh = "multidecor_dark_pine_glass_door.b3d",
 	tiles = {
 		"multidecor_dark_pine_door_base.png",
@@ -569,7 +569,7 @@ multidecor.register.register_door("pine_glass_door", {
 multidecor.register.register_door("technical_locked_door", {
 	style = "modern",
 	material = "metal",
-	description = "Technical Locked Door",
+	description = modern.S("Technical Locked Door"),
 	mesh = "multidecor_technical_door.b3d",
 	use_texture_alpha = "blend",
 	tiles = {
@@ -602,7 +602,7 @@ multidecor.register.register_door("technical_locked_door", {
 multidecor.register.register_door("metallic_locked_door", {
 	style = "modern",
 	material = "metal",
-	description = "Metallic Locked Door",
+	description = modern.S("Metallic Locked Door"),
 	mesh = "multidecor_door_with_lock.b3d",
 	use_texture_alpha = "blend",
 	tiles = {
@@ -637,7 +637,7 @@ if minetest.get_modpath("ethereal") then
 	multidecor.register.register_door("redwood_locked_door", {
 		style = "modern",
 		material = "metal",
-		description = "Redwood Locked Door",
+		description = modern.S("Redwood Locked Door"),
 		mesh = "multidecor_door_with_lock.b3d",
 		use_texture_alpha = "blend",
 		tiles = {
