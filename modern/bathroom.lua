@@ -30,8 +30,8 @@ local bathtub_def = {{
 multidecor.register.register_seat("bathtub", bathtub_def[1], bathtub_def[2],
 {
 	recipe = {
-		{"multidecor:marble_sheet", "multidecor:marble_sheet", "multidecor:steel_sheet"},
-		{"multidecor:marble_sheet", "multidecor:marble_sheet", "multidecor:steel_sheet"},
+		{"multidecor:marble_sheet", "multidecor:marble_sheet", "multidecor:coarse_steel_sheet"},
+		{"multidecor:marble_sheet", "multidecor:marble_sheet", "multidecor:steel_stripe"},
 		{"multidecor:marble_sheet", "multidecor:hammer", ""}
 	},
 	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
@@ -48,7 +48,7 @@ local ceramic_tiles = {
 	{"brown_dandelion", {"dye:brown", "dye:orange", "dye:orange"}},
 	{"darkceladon_marble", {"dye:dark_green", "dye:cyan"}},
 	{"darksea_marble", {"dye:blue", "dye:cyan"}},
-	{"marble", {}}
+	{"grey", {"dye:grey"}}
 }
 
 local tile_bboxes = {
@@ -58,6 +58,25 @@ local tile_bboxes = {
 	wall_side = {-0.5, -0.5, -0.5, -0.4, 0.5, 0.5}
 
 }
+
+minetest.register_node(":multidecor:ceramic_tile", {
+	description = "Ceramic Tile",
+	drawtype = "nodebox",
+	visual_scale = 1.0,
+	paramtype = "light",
+	paramtype2 = "wallmounted",
+	tiles = {"default_clay.png"},
+	groups = {cracky=3.5},
+	node_box = tile_bboxes,
+	selection_box = tile_bboxes,
+	sounds = default.node_sound_stone_defaults()
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "multidecor:ceramic_tile",
+	recipe = {"default:clay_lump", "default:clay_lump"}
+})
 
 for _, tile in ipairs(ceramic_tiles) do
 	local tile_name = "multidecor:bathroom_ceramic_" .. tile[1] .. "_tile"
@@ -77,7 +96,7 @@ for _, tile in ipairs(ceramic_tiles) do
 		sounds = default.node_sound_stone_defaults()
 	})
 
-	local recipe = {"default:clay_lump", "default:clay_lump"}
+	local recipe = {"multidecor:ceramic_tile"}
 	table.copy_to(tile[2], recipe)
 	table.insert(recipe, "multidecor:paint_brush")
 
@@ -206,9 +225,9 @@ for _, style in ipairs(bathroom_styles) do
 	},
 	{
 		recipe = {
-			{"multidecor:bathroom_sink", "multidecor:steel_sheet", "multidecor:syphon"},
+			{"multidecor:bathroom_sink", "multidecor:bathroom_tap_with_cap_flap", "multidecor:syphon"},
 			{panel_name, panel_name, panel_name},
-			{"multidecor:saw", "", ""}
+			{"multidecor:saw", "multidecor:steel_stripe", ""}
 		},
 		replacements = {{"multidecor:saw", "multidecor:saw"}}
 	})
@@ -251,7 +270,7 @@ for _, style in ipairs(bathroom_styles) do
 	{
 		recipe = {
 			{"multidecor:pine_board", "multidecor:pine_board", "multidecor:pine_board"},
-			{"multidecor:pine_board", "dye:white", "multidecor:steel_sheet"},
+			{"multidecor:pine_board", "dye:white", "multidecor:steel_stripe"},
 			{panel_name, "multidecor:saw", ""}
 		},
 		replacements = {{"multidecor:saw", "multidecor:saw"}}
@@ -301,7 +320,7 @@ for _, style in ipairs(bathroom_styles) do
 		recipe = {
 			{"multidecor:pine_board", "multidecor:pine_board", "xpanes:pane_flat"},
 			{"multidecor:pine_plank", panel_name, "multidecor:plastic_sheet"},
-			{"multidecor:steel_sheet", "multidecor:saw", ""}
+			{"multidecor:steel_stripe", "multidecor:saw", ""}
 		},
 		replacements = {{"multidecor:saw", "multidecor:saw"}}
 	})
@@ -378,7 +397,7 @@ multidecor.register.register_furniture_unit("bathroom_shower_base", {
 },
 {
 	recipe = {
-		{"multidecor:marble_sheet", "multidecor:steel_sheet", "multidecor:hammer"},
+		{"multidecor:marble_sheet", "multidecor:steel_stripe", "multidecor:hammer"},
 		{"multidecor:marble_sheet", "", ""},
 		{"", "", ""}
 	},
@@ -424,7 +443,7 @@ multidecor.register.register_furniture_unit("bathroom_slatted_ceiling_with_lamp"
 },
 {
 	recipe = {
-		{"multidecor:plastic_sheet", "multidecor:bulb", "multidecor:steel_sheet"},
+		{"multidecor:plastic_sheet", "multidecor:bulb", "multidecor:steel_stripe"},
 		{"multidecor:plastic_sheet", "multidecor:steel_scissors", ""},
 		{"", "", ""}
 	},

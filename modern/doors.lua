@@ -24,7 +24,7 @@ multidecor.register.register_door("high_dark_rusty_gate", {
 },
 {
 	recipe = {
-		{"multidecor:high_dark_rusty_fence", "multidecor:steel_sheet", "multidecor:steel_sheet"},
+		{"multidecor:high_dark_rusty_fence", "multidecor:steel_stripe", ""},
 		{"multidecor:steel_scissors", "", ""},
 		{"", "", ""}
 	},
@@ -385,7 +385,7 @@ multidecor.register.register_door("patterned_wooden_door", {
 },
 {
 	recipe = {
-		{"multidecor:board", "multidecor:plank", "multidecor:steel_sheet"},
+		{"multidecor:board", "multidecor:plank", "multidecor:steel_stripe"},
 		{"multidecor:board", "multidecor:plank", "multidecor:steel_scissors"},
 		{"", "", ""}
 	},
@@ -491,7 +491,7 @@ multidecor.register.register_door("patterned_aspen_glass_door", {
 	recipe = {
 		{"multidecor:aspen_board", "xpanes:pane_flat", "multidecor:aspen_plank"},
 		{"multidecor:aspen_board", "xpanes:pane_flat", "multidecor:aspen_plank"},
-		{"multidecor:steel_sheet", "multidecor:hammer", ""}
+		{"multidecor:steel_stripe", "multidecor:hammer", ""}
 	},
 	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 })
@@ -524,7 +524,7 @@ multidecor.register.register_door("patterned_aspen_door", {
 {
 	recipe = {
 		{"multidecor:aspen_board", "multidecor:aspen_plank", "multidecor:aspen_plank"},
-		{"multidecor:aspen_board", "multidecor:steel_sheet", "multidecor:hammer"},
+		{"multidecor:aspen_board", "multidecor:steel_stripe", "multidecor:hammer"},
 		{"", "", ""}
 	},
 	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
@@ -560,7 +560,7 @@ multidecor.register.register_door("pine_glass_door", {
 {
 	recipe = {
 		{"multidecor:pine_board", "multidecor:pine_plank", "xpanes:pane_flat"},
-		{"multidecor:pine_board", "multidecor:steel_sheet", "multidecor:hammer"},
+		{"multidecor:pine_board", "multidecor:steel_stripe", "multidecor:hammer"},
 		{"", "", ""}
 	},
 	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
@@ -627,7 +627,7 @@ multidecor.register.register_door("metallic_locked_door", {
 {
 	recipe = {
 		{"multidecor:coarse_steel_sheet", "multidecor:coarse_steel_sheet", "multidecor:steel_scissors"},
-		{"multidecor:steel_sheet", "", ""},
+		{"multidecor:steel_stripe", "", ""},
 		{"", "", ""}
 	},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
@@ -662,7 +662,7 @@ if minetest.get_modpath("ethereal") then
 	{
 		recipe = {
 			{"multidecor:redwood_board", "multidecor:redwood_board", "multidecor:steel_scissors"},
-			{"multidecor:steel_sheet", "", ""},
+			{"multidecor:steel_stripe", "", ""},
 			{"", "", ""}
 		},
 		replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}

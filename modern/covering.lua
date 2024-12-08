@@ -137,7 +137,7 @@ minetest.register_tool(":multidecor:scraper", {
 minetest.register_craft({
 	type = "shapeless",
 	output = "multidecor:scraper",
-	recipe = {"multidecor:steel_sheet", "multidecor:coarse_steel_sheet"}
+	recipe = {"multidecor:steel_stripe", "multidecor:plastic_strip"}
 })
 
 minetest.register_craftitem(":multidecor:plaster_lump", {
@@ -239,5 +239,5 @@ minetest.register_tool(":multidecor:spatula", {
 minetest.register_craft({
 	type = "shapeless",
 	output = "multidecor:spatula",
-	recipe = {"multidecor:steel_sheet", "multidecor:steel_sheet", "multidecor:coarse_steel_sheet"}
+	recipe = {"multidecor:steel_stripet", "multidecor:coarse_steel_sheet"}
 })

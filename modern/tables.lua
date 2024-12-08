@@ -4,7 +4,7 @@ multidecor.register.register_table("kitchen_modern_wooden_table", {
 	description = "Kitchen Modern Wooden Table",
 	visual_scale = 0.4,
 	mesh = "multidecor_kitchen_modern_wooden_table.b3d",
-	tiles = {"multidecor_wood.png", "multidecor_wood.png", "multidecor_wood.png^[opacity:0"},
+	tiles = {"multidecor_wood.png"},
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}
 	},
@@ -41,9 +41,8 @@ multidecor.register.register_table("kitchen_modern_wooden_table_with_cloth", {
 	description = "Kitchen Modern Wooden Table With Cloth",
 	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
-	mesh = "multidecor_kitchen_modern_wooden_table.b3d",
+	mesh = "multidecor_kitchen_modern_wooden_table_with_cloth.b3d",
 	tiles = {
-		{name="multidecor_wood.png^[opacity:0", color=0xffffffff},
 		{name="multidecor_wood.png", color=0xffffffff},
 		"multidecor_wool_material.png"
 	},
@@ -63,11 +62,11 @@ multidecor.register.register_table("kitchen_modern_wooden_table_with_cloth", {
 {
 	common_name = "kitchen_modern_wooden_table_with_cloth",
 	connect_parts = {
-		["edge"] = "multidecor_kitchen_modern_wooden_table_1.b3d",
-		["corner"] = "multidecor_kitchen_modern_wooden_table_2.b3d",
-		["middle"] = "multidecor_kitchen_modern_wooden_table_3.b3d",
-		["edge_middle"] = "multidecor_kitchen_modern_wooden_table_4.b3d",
-		["off_edge"] = "multidecor_kitchen_modern_wooden_table_5.b3d"
+		["edge"] = "multidecor_kitchen_modern_wooden_table_with_cloth_1.b3d",
+		["corner"] = "multidecor_kitchen_modern_wooden_table_with_cloth_2.b3d",
+		["middle"] = "multidecor_kitchen_modern_wooden_table_with_cloth_3.b3d",
+		["edge_middle"] = "multidecor_kitchen_modern_wooden_table_with_cloth_4.b3d",
+		["off_edge"] = "multidecor_kitchen_modern_wooden_table_with_cloth_5.b3d"
 	}
 },
 {

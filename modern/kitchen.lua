@@ -129,7 +129,7 @@ local cmpnts = {
 		},
 		craft = {
 			{"multidecor:board", "multidecor:board", "multidecor:board"},
-			{"multidecor:board", "multidecor:cabinet_door", "multidecor:steel_sheet"},
+			{"multidecor:board", "multidecor:cabinet_door", "multidecor:bathroom_tap_with_cap_flap"},
 			{"multidecor:syphon", "multidecor:hammer", ""}
 		},
 		callbacks = {
@@ -643,7 +643,7 @@ multidecor.register.register_furniture_unit("porcelain_plate_with_fork_and_knife
 },
 {
 	recipe = {
-		{"default:stick", "", "multidecor:steel_sheet"},
+		{"default:stick", "", "multidecor:steel_stripe"},
 		{"", "multidecor:porcelain_plate", "multidecor:steel_scissors"},
 		{"", "", ""}
 	},
@@ -725,7 +725,7 @@ multidecor.register.register_furniture_unit("saucepans_set", {
 {
 	recipe = {
 		{"multidecor:steel_sheet", "xpanes:pane_flat", "dye:black"},
-		{"multidecor:steel_sheet", "xpanes:pane_flat", "multidecor:plastic_sheet"},
+		{"multidecor:steel_sheet", "xpanes:pane_flat", "multidecor:plastic_strip"},
 		{"multidecor:steel_sheet" , "", ""}
 	}
 })
@@ -862,8 +862,8 @@ local tiles = {
 		"Kitchen Wall Ceramic Tile",
 		"multidecor_kitchen_ceramic_tile1.png",
 		{
-			{"default:clay_lump", "default:clay_lump", "dye:yellow"},
-			{"", "", ""},
+			{"multidecor:ceramic_tile", "dye:yellow", ""},
+			{"multidecor:paint_brush", "", ""},
 			{"", "", ""}
 		}
 	},
@@ -871,8 +871,8 @@ local tiles = {
 		"Kitchen Wall Ceramic Tile",
 		"multidecor_kitchen_ceramic_tile2.png",
 		{
-			{"default:clay_lump", "default:clay_lump", "dye:brown"},
-			{"", "", ""},
+			{"multidecor:ceramic_tile", "dye:brown", ""},
+			{"multidecor:paint_brush", "", ""},
 			{"", "", ""}
 		}
 	},
@@ -880,8 +880,8 @@ local tiles = {
 		"Kitchen Wall Marble Tile",
 		"multidecor_kitchen_marble_tile.png",
 		{
-			{"default:clay_lump", "default:clay_lump", "dye:white"},
-			{"dye:grey", "dye:dark_grey", ""},
+			{"multidecor:ceramic_tile", "dye:white", ""},
+			{"multidecor:paint_brush", "dye:grey", "dye:dark_grey"},
 			{"", "", ""}
 		}
 	},
@@ -889,8 +889,8 @@ local tiles = {
 		"Kitchen Floor Black Tile",
 		"multidecor_kitchen_floor_black_tile.png",
 		{
-			{"default:clay_lump", "default:clay_lump", "dye:black"},
-			{"", "", ""},
+			{"multidecor:ceramic_tile", "dye:black", ""},
+			{"multidecor:paint_brush", "", ""},
 			{"", "", ""}
 		}
 	},
@@ -898,8 +898,8 @@ local tiles = {
 		"Kitchen Floor White Tile",
 		"multidecor_kitchen_floor_white_tile.png",
 		{
-			{"default:clay_lump", "default:clay_lump", "dye:white"},
-			{"", "", ""},
+			{"multidecor:ceramic_tile", "dye:white", ""},
+			{"multidecor:paint_brush", "", ""},
 			{"", "", ""}
 		}
 	},
@@ -922,7 +922,8 @@ for name, def in pairs(tiles) do
 
 	minetest.register_craft({
 		output = tile_name,
-		recipe = def[3]
+		recipe = def[3],
+		replacements = {{"multidecor:paint_brush", "multidecor:paint_brush"}}
 	})
 
 	local block_name = "multidecor:" .. name .. "s_block"
@@ -1020,7 +1021,7 @@ multidecor.register.register_furniture_unit("kitchen_organiser", {
 {
 	recipe = {
 		{"multidecor:steel_sheet", "multidecor:plastic_sheet", "dye:black"},
-		{"multidecor:steel_sheet", "multidecor:steel_scissors", ""},
+		{"multidecor:steel_stripe", "multidecor:steel_scissors", ""},
 		{"", "", ""}
 	},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}

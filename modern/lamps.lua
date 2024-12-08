@@ -6,8 +6,8 @@ local silver_chain_recipe
 if minetest.get_modpath("moreores") then
 	silvered_lamp_recipe = {
 		recipe = {
-			{"moreores:silver_ingot", "multidecor:bulb", "moreores:silver_ingot"},
-			{"moreores:silver_ingot", "multidecor:lampshade", "moreores:silver_ingot"},
+			{"multidecor:silver_sheet", "multidecor:bulb", ""},
+			{"multidecor:silver_sheet", "multidecor:lampshade", ""},
 			{"", "", ""}
 		}
 	}
@@ -22,7 +22,7 @@ if minetest.get_modpath("moreores") then
 
 	silver_candlestick_recipe = {
 		recipe = {
-			{"multidecor:steel_sheet", "multidecor:steel_sheet", "moreores:silver_ingot"},
+			{"multidecor:silver_sheet", "multidecor:steel_scissors", ""},
 			{"multidecor:wax_candle", "", ""},
 			{"", "", ""}
 		}
@@ -238,7 +238,7 @@ multidecor.register.register_light("brass_candlestick", {
 },
 {
 	recipe = {
-		{"multidecor:steel_sheet", "multidecor:steel_sheet", "multidecor:brass_ingot"},
+		{"multidecor:brass_sheet", "multidecor:steel_scissors", ""},
 		{"multidecor:wax_candle", "", ""},
 		{"", "", ""}
 	}
@@ -278,7 +278,7 @@ multidecor.register.register_light("ceiling_round_lamp", {
 },
 {
 	recipe = {
-		{"multidecor:steel_sheet", "xpanes:pane_flat", ""},
+		{"multidecor:steel_stripe", "xpanes:pane_flat", ""},
 		{"multidecor:wolfram_wire", "multidecor:steel_scissors", ""},
 		{"", "", ""}
 	},

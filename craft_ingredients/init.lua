@@ -161,10 +161,24 @@ minetest.register_craftitem(":multidecor:metal_bar",
 	inventory_image = "multidecor_metal_bar.png"
 })
 
+if minetest.get_modpath("moreores") then
+	minetest.register_craftitem(":multidecor:silver_sheet",
+	{
+		description = "Silver Sheet",
+		inventory_image = "multidecor_silver_sheet.png"
+	})
+end
+
 minetest.register_craftitem(":multidecor:steel_sheet",
 {
 	description = "Steel Sheet",
 	inventory_image = "multidecor_steel_sheet.png"
+})
+
+minetest.register_craftitem(":multidecor:brass_sheet",
+{
+	description = "Brass Sheet",
+	inventory_image = "multidecor_brass_sheet.png"
 })
 
 minetest.register_craftitem(":multidecor:coarse_steel_sheet",
@@ -257,6 +271,12 @@ minetest.register_craftitem(":multidecor:brass_ingot",
 	inventory_image = "multidecor_brass_ingot.png"
 })
 
+minetest.register_craftitem(":multidecor:steel_stripe",
+{
+	description = "Steel Stripe",
+	inventory_image = "multidecor_steel_stripe.png"
+})
+
 minetest.register_craftitem(":multidecor:brass_stripe",
 {
 	description = "Brass Stripe",
@@ -326,7 +346,7 @@ minetest.register_craftitem(":multidecor:syphon",
 minetest.register_craft({
 	output = "multidecor:cabinet_door",
 	recipe = {
-		{"multidecor:board", "multidecor:steel_sheet", "multidecor:steel_scissors"},
+		{"multidecor:board", "multidecor:steel_stripe", "multidecor:steel_scissors"},
 		{"", "", ""},
 		{"", "", ""}
 	}
@@ -335,7 +355,7 @@ minetest.register_craft({
 minetest.register_craft({
 	output = "multidecor:cabinet_half_door",
 	recipe = {
-		{"multidecor:plank", "multidecor:steel_sheet", "multidecor:steel_scissors"},
+		{"multidecor:plank", "multidecor:steel_stripe", "multidecor:steel_scissors"},
 		{"", "", ""},
 		{"", "", ""}
 	}
@@ -344,11 +364,21 @@ minetest.register_craft({
 minetest.register_craft({
 	output = "multidecor:cabinet_half_glass_door",
 	recipe = {
-		{"multidecor:plank", "multidecor:steel_sheet", "multidecor:steel_scissors"},
+		{"multidecor:plank", "multidecor:steel_stripe", "multidecor:steel_scissors"},
 		{"xpanes:pane_flat", "", ""},
 		{"", "", ""}
 	}
 })
+
+if minetest.get_modpath("moreores") then
+	minetest.register_craft(
+	{
+		type = "shapeless",
+		output = "multidecor:silver_sheet 5",
+		recipe = {"moreores:silver_ingot", "multidecor:steel_scissors"},
+		replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+	})
+end
 
 minetest.register_craft(
 {
@@ -361,8 +391,17 @@ minetest.register_craft(
 minetest.register_craft(
 {
 	type = "shapeless",
+	output = "multidecor:brass_sheet 5",
+	recipe = {"multidecor:brass_ingot", "multidecor:steel_scissors"},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+minetest.register_craft(
+{
+	type = "shapeless",
 	output = "multidecor:coarse_steel_sheet",
-	recipe = {"multidecor:steel_sheet"}
+	recipe = {"multidecor:steel_sheet", "multidecor:scraper"},
+	replacements = {{"multidecor:scraper", "multidecor:scraper"}}
 })
 
 minetest.register_craft(
@@ -413,7 +452,8 @@ minetest.register_craft(
 {
 	type = "shapeless",
 	output = "multidecor:lampshade 3",
-	recipe = {"wool:white", "multidecor:metal_wire"}
+	recipe = {"wool:white", "multidecor:metal_wire", "multidecor:steel_scissors"},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 minetest.register_craft({
@@ -470,7 +510,7 @@ minetest.register_craft({
 	output = "multidecor:bulb",
 	recipe = {
 		{"vessels:glass_bottle", "multidecor:wolfram_wire", ""},
-		{"multidecor:steel_sheet", "multidecor:steel_scissors", ""},
+		{"multidecor:steel_stripe", "multidecor:steel_scissors", ""},
 		{"", "", ""}
 	},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
@@ -517,8 +557,15 @@ minetest.register_craft({
 
 minetest.register_craft({
 	type = "shapeless",
+	output = "multidecor:steel_stripe 4",
+	recipe = {"multidecor:steel_sheet", "multidecor:steel_scissors"},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+})
+
+minetest.register_craft({
+	type = "shapeless",
 	output = "multidecor:brass_stripe 4",
-	recipe = {"multidecor:brass_ingot", "multidecor:steel_scissors"},
+	recipe = {"multidecor:brass_sheet", "multidecor:steel_scissors"},
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 

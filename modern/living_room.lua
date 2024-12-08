@@ -279,7 +279,7 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 },
 {
 	recipe = {
-		{"multidecor:steel_sheet", "multidecor:steel_sheet", "dye:green"},
+		{"multidecor:steel_stripe", "", "dye:green"},
 		{"multidecor:plastic_sheet", "multidecor:digital_dial", "multidecor:plastic_sheet"},
 		{"multidecor:spring", "multidecor:gear", "multidecor:steel_scissors"}
 	},
