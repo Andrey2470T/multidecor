@@ -1,7 +1,7 @@
 multidecor.register.register_bed("jungle_bed", {
 	style = "modern",
 	material = "wood",
-	description = "Jungle Bed (single)",
+	description = modern.S("Jungle Bed (single)"),
 	visual_scale = 0.4,
 	paramtype2 = "colorfacedir",
 	mesh = "multidecor_jungle_bed.obj",
@@ -30,7 +30,7 @@ multidecor.register.register_bed("jungle_bed", {
 	lay_pos2 = {x=-1, y=0, z=1},
 	double = {
 		mutable_bounding_box_indices = {1, 2},
-		description = "Jungle Bed (double)",
+		description = modern.S("Jungle Bed (double)"),
 		inv_image = "multidecor_double_jungle_bed_inv.png",
 		mesh = "multidecor_double_jungle_bed.obj"
 	}
@@ -46,7 +46,7 @@ multidecor.register.register_bed("jungle_bed", {
 multidecor.register.register_bed("wooden_bed_with_legs", {
 	style = "modern",
 	material = "wood",
-	description = "Wooden bed with legs (single)",
+	description = modern.S("Wooden bed with legs (single)"),
 	visual_scale = 0.4,
 	paramtype2 = "colorfacedir",
 	mesh = "multidecor_wooden_bed_with_legs.b3d",
@@ -80,7 +80,7 @@ multidecor.register.register_bed("wooden_bed_with_legs", {
 	lay_pos2 = {x=-1, y=0, z=1},
 	double = {
 		mutable_bounding_box_indices = {1, 2, 3},
-		description = "Wooden bed with legs (double)",
+		description = modern.S("Wooden bed with legs (double)"),
 		inv_image = "multidecor_double_wooden_bed_inv.png",
 		mesh = "multidecor_double_wooden_bed_with_legs.b3d"
 	}
@@ -96,7 +96,7 @@ multidecor.register.register_bed("wooden_bed_with_legs", {
 multidecor.register.register_table("dresser_with_mirror", {
 	style = "modern",
 	material = "wood",
-	description = "Dresser With Mirror",
+	description = modern.S("Dresser With Mirror"),
 	mesh = "multidecor_dresser_with_mirror.b3d",
 	tiles = {"multidecor_aspen_wood.png", "multidecor_gloss.png"},
 	inventory_image = "multidecor_dresser_with_mirror_inv.png",

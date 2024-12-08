@@ -1,4 +1,5 @@
 local modpath = minetest.get_modpath("craft_ingredients")
+local S = minetest.get_translator(minetest.get_current_modname())
 
 dofile(modpath .. "/ores.lua")
 
@@ -79,7 +80,7 @@ for _, wood in ipairs(woods) do
 	for item, recipes in pairs(items_and_crafts) do
 		minetest.register_craftitem(":multidecor:" .. wood .. item,
 		{
-			description = to_capital_l .. item:sub(1,1):upper() .. item:sub(2),
+			description = S(to_capital_l .. item:sub(1,1):upper() .. item:sub(2)),
 			inventory_image = "multidecor_" .. (wood == "jungle" and wood .. "_" or wood) .. item .. ".png"
 		})
 
@@ -115,7 +116,7 @@ bucket.register_liquid(
 )
 
 minetest.register_node(":multidecor:marble_block", {
-	description = "Marble Block",
+	description = S("Marble Block"),
 	paramtype = "light",
 	paramtype2 = "none",
 	sunlight_propagates = true,
@@ -127,37 +128,37 @@ minetest.register_node(":multidecor:marble_block", {
 
 minetest.register_craftitem(":multidecor:cabinet_door",
 {
-	description = "Cabinet Door",
+	description = S("Cabinet Door"),
 	inventory_image = "multidecor_cabinet_door.png"
 })
 
 minetest.register_craftitem(":multidecor:cabinet_half_door",
 {
-	description = "Cabinet Half Door",
+	description = S("Cabinet Half Door"),
 	inventory_image = "multidecor_cabinet_half_door.png"
 })
 
 minetest.register_craftitem(":multidecor:cabinet_half_glass_door",
 {
-	description = "Cabinet Half Glass Door",
+	description = S("Cabinet Half Glass Door"),
 	inventory_image = "multidecor_cabinet_half_glass_door.png"
 })
 
 minetest.register_craftitem(":multidecor:saw",
 {
-	description = "Saw",
+	description = S("Saw"),
 	inventory_image = "multidecor_saw.png"
 })
 
 minetest.register_craftitem(":multidecor:wool_cloth",
 {
-	description = "Wool Cloth",
+	description = S("Wool Cloth"),
 	inventory_image = "multidecor_wool_cloth.png"
 })
 
 minetest.register_craftitem(":multidecor:metal_bar",
 {
-	description = "Metal Bar",
+	description = S("Metal Bar"),
 	inventory_image = "multidecor_metal_bar.png"
 })
 
@@ -171,7 +172,7 @@ end
 
 minetest.register_craftitem(":multidecor:steel_sheet",
 {
-	description = "Steel Sheet",
+	description = S("Steel Sheet"),
 	inventory_image = "multidecor_steel_sheet.png"
 })
 
@@ -183,91 +184,91 @@ minetest.register_craftitem(":multidecor:brass_sheet",
 
 minetest.register_craftitem(":multidecor:coarse_steel_sheet",
 {
-	description = "Coarse Steel Sheet",
+	description = S("Coarse Steel Sheet"),
 	inventory_image = "multidecor_coarse_steel_sheet.png"
 })
 
 minetest.register_craftitem(":multidecor:steel_scissors",
 {
-	description = "Steel Scissors",
+	description = S("Steel Scissors"),
 	inventory_image = "multidecor_steel_scissors.png"
 })
 
 minetest.register_craftitem(":multidecor:hammer",
 {
-	description = "Hammer",
+	description = S("Hammer"),
 	inventory_image = "multidecor_hammer.png"
 })
 
 minetest.register_craftitem(":multidecor:bulb",
 {
-	description = "Bulb",
+	description = S("Bulb"),
 	inventory_image = "multidecor_bulb.png"
 })
 
 minetest.register_craftitem(":multidecor:lampshade",
 {
-	description = "Lampshade",
+	description = S("Lampshade"),
 	inventory_image = "multidecor_lampshade.png"
 })
 
 minetest.register_craftitem(":multidecor:plastic_sheet",
 {
-	description = "Plastic Sheet",
+	description = S("Plastic Sheet"),
 	inventory_image = "multidecor_plastic_sheet.png"
 })
 
 minetest.register_craftitem(":multidecor:plastic_strip",
 {
-	description = "Plastic Strip",
+	description = S("Plastic Strip"),
 	inventory_image = "multidecor_plastic_strip.png"
 })
 
 minetest.register_craftitem(":multidecor:metal_wire",
 {
-	description = "Metal Wire",
+	description = S("Metal Wire"),
 	inventory_image = "multidecor_metal_wire.png"
 })
 
 minetest.register_craftitem(":multidecor:metal_chain",
 {
-	description = "Chain",
+	description = S("Chain"),
 	inventory_image = "multidecor_chain.png"
 })
 
 minetest.register_craftitem(":multidecor:four_bulbs_set",
 {
-	description = "Set from four bulbs",
+	description = S("Set from four bulbs"),
 	inventory_image = "multidecor_four_bulbs_set.png"
 })
 
 minetest.register_craftitem(":multidecor:wolfram_wire",
 {
-	description = "Wolfram Wire",
+	description = S("Wolfram Wire"),
 	inventory_image = "multidecor_wolfram_wire.png"
 })
 
 minetest.register_craftitem(":multidecor:silver_wire",
 {
-	description = "Silver Wire",
+	description = S("Silver Wire"),
 	inventory_image = "multidecor_silver_wire.png"
 })
 
 minetest.register_craftitem(":multidecor:four_lampshades_set",
 {
-	description = "Set from four lampshades",
+	description = S("Set from four lampshades"),
 	inventory_image = "multidecor_four_lampshades_set.png"
 })
 
 minetest.register_craftitem(":multidecor:digital_dial",
 {
-	description = "Digital Dial",
+	description = S("Digital Dial"),
 	inventory_image = "multidecor_digital_dial.png"
 })
 
 minetest.register_craftitem(":multidecor:brass_ingot",
 {
-	description = "Brass Ingot",
+	description = S("Brass Ingot"),
 	inventory_image = "multidecor_brass_ingot.png"
 })
 
@@ -279,67 +280,67 @@ minetest.register_craftitem(":multidecor:steel_stripe",
 
 minetest.register_craftitem(":multidecor:brass_stripe",
 {
-	description = "Brass Stripe",
+	description = S("Brass Stripe"),
 	inventory_image = "multidecor_brass_stripe.png"
 })
 
 minetest.register_craftitem(":multidecor:gear",
 {
-	description = "Gear",
+	description = S("Gear"),
 	inventory_image = "multidecor_gear.png"
 })
 
 minetest.register_craftitem(":multidecor:spring",
 {
-	description = "Spring",
+	description = S("Spring"),
 	inventory_image = "multidecor_spring.png"
 })
 
 minetest.register_craftitem(":multidecor:wax_lump",
 {
-	description = "Wax Lump",
+	description = S("Wax Lump"),
 	inventory_image = "multidecor_wax_lump.png"
 })
 
 minetest.register_craftitem(":multidecor:wax_candle",
 {
-	description = "Wax Candle",
+	description = S("Wax Candle"),
 	inventory_image = "multidecor_wax_candle.png"
 })
 
 minetest.register_craftitem(":multidecor:chainlink",
 {
-	description = "Chainlink",
+	description = S("Chainlink"),
 	inventory_image = "multidecor_chainlink.png"
 })
 
 minetest.register_craftitem(":multidecor:terracotta_fragment",
 {
-	description = "Terracotta Fragment",
+	description = S("Terracotta Fragment"),
 	inventory_image = "multidecor_terracotta_fragment.png"
 })
 
 minetest.register_craftitem(":multidecor:copper_and_tin",
 {
-	description = "Copper And Tin",
+	description = S("Copper And Tin"),
 	inventory_image = "multidecor_copper_and_tin.png"
 })
 
 minetest.register_craftitem(":multidecor:copper_and_zinc",
 {
-	description = "Copper And Zinc",
+	description = S("Copper And Zinc"),
 	inventory_image = "multidecor_copper_and_zinc.png"
 })
 
 minetest.register_craftitem(":multidecor:marble_sheet",
 {
-	description = "Marble Sheet",
+	description = S("Marble Sheet"),
 	inventory_image = "multidecor_marble_sheet.png"
 })
 
 minetest.register_craftitem(":multidecor:syphon",
 {
-	description = "Syphon",
+	description = S("Syphon"),
 	inventory_image = "multidecor_syphon.png"
 })
 

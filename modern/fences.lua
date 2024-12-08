@@ -1,7 +1,7 @@
 multidecor.register.register_hedge("dark_rusty_fence", {
 	style = "modern",
 	material = "metal",
-	description = "Dark Rusty Fence",
+	description = modern.S("Dark Rusty Fence"),
 	mesh = "multidecor_dark_rusty_fence.b3d",
 	tiles = {
 		"multidecor_dark_metal_rusty_fence.png",
@@ -36,7 +36,7 @@ multidecor.register.register_hedge("dark_rusty_fence", {
 multidecor.register.register_hedge("high_dark_rusty_fence", {
 	style = "modern",
 	material = "metal",
-	description = "High Dark Rusty Fence",
+	description = modern.S("High Dark Rusty Fence"),
 	mesh = "multidecor_high_dark_rusty_fence.b3d",
 	tiles = {
 		"multidecor_dark_metal_rusty_fence.png",
@@ -64,7 +64,7 @@ multidecor.register.register_furniture_unit("slatted_wooden_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	description = "Slatted Wooden Fence",
+	description = modern.S("Slatted Wooden Fence"),
 	use_texture_alpha = "blend",
 	mesh = "multidecor_slatted_wooden_fence.b3d",
 	tiles = {"multidecor_wood.png^multidecor_fence_nail_knob.png"},
@@ -83,7 +83,7 @@ multidecor.register.register_furniture_unit("high_slatted_wooden_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	description = "High Slatted Wooden Fence",
+	description = modern.S("High Slatted Wooden Fence"),
 	use_texture_alpha = "blend",
 	mesh = "multidecor_high_slatted_wooden_fence.b3d",
 	tiles = {"multidecor_wood.png^multidecor_fence_nail_knob2.png"},
@@ -98,7 +98,7 @@ multidecor.register.register_furniture_unit("corrugated_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	description = "Corrugated Fence",
+	description = modern.S("Corrugated Fence"),
 	mesh = "multidecor_corrugated_fence.b3d",
 	tiles = {"multidecor_plastic_material.png^[multiply:darkgreen"},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.4}}
@@ -116,7 +116,7 @@ multidecor.register.register_furniture_unit("high_corrugated_fence", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	description = "High Corrugated Fence",
+	description = modern.S("High Corrugated Fence"),
 	mesh = "multidecor_high_corrugated_fence.b3d",
 	tiles = {"multidecor_plastic_material.png^[multiply:darkgreen"},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}

@@ -70,7 +70,7 @@ for louvers, part in pairs(louvers_parts) do
 		type = "decoration",
 		style = "modern",
 		material = "plastic",
-		description = hlpfuncs.upper_first_letters(louvers),
+		description = modern.S(hlpfuncs.upper_first_letters(louvers)),
 		mesh = "multidecor_" .. louvers .. ".b3d",
 		tiles = {"multidecor_plastic_material.png", "multidecor_plastic_material.png"},
 		groups = groups,
@@ -97,7 +97,7 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	description = "Floor Clock",
+	description = modern.S("Floor Clock"),
 	inventory_image = "multidecor_floor_clock_inv.png",
 	use_texture_alpha = "blend",
 	mesh = "multidecor_floor_clock.b3d",
@@ -152,7 +152,7 @@ multidecor.register.register_furniture_unit("book", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	description = "Book",
+	description = modern.S("Book"),
 	mesh = "multidecor_book.b3d",
 	tiles = {
 		"multidecor_book_envelope.png^[multiply:blue^multidecor_book_pattern.png",
@@ -183,7 +183,7 @@ multidecor.register.register_furniture_unit("book_open", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	description = "Book",
+	description = modern.S("Book"),
 	mesh = "multidecor_book_open.b3d",
 	tiles = {
 		"multidecor_book_envelope.png^[multiply:blue^multidecor_book_pattern.png",
@@ -230,7 +230,7 @@ multidecor.register.register_furniture_unit("books_stack", {
 	type = "decoration",
 	style = "modern",
 	material = "wood",
-	description = "Books Stack",
+	description = modern.S("Books Stack"),
 	mesh = "multidecor_books_stack.b3d",
 	tiles = {
 		"multidecor_book_envelope.png^[multiply:green^multidecor_book_pattern.png",
@@ -253,7 +253,7 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 	type = "decoration",
 	style = "modern",
 	material = "plastic",
-	description = "Alarm Clock",
+	description = modern.S("Alarm Clock"),
 	mesh = "multidecor_alarm_clock.b3d",
 	tiles = {
 		"multidecor_plastic_material.png^[multiply:green",
@@ -325,7 +325,7 @@ local floors_defs = {
 for name, def in pairs(floors_defs) do
 	local tile_name = "multidecor:" .. name .. "_tile"
 	minetest.register_node(":" .. tile_name, {
-		description = def[1] .. " Tile",
+		description = modern.S(def[1] .. " Tile"),
 		drawtype = "nodebox",
 		visual_scale = 1.0,
 		paramtype = "light",
@@ -345,7 +345,7 @@ for name, def in pairs(floors_defs) do
 
 	local block_name = "multidecor:" .. name .. "_block"
 	minetest.register_node(":" .. block_name, {
-		description = def[1] .. " Block",
+		description = modern.S(def[1] .. " Block"),
 		visual_scale = 0.5,
 		paramtype = "light",
 		paramtype2 = "facedir",
@@ -460,7 +460,7 @@ local flowerpot_tmp_def = {
 
 local pots_defs = {
 	["terracotta_flowerpot"] = {
-		description = "Terracotta Flowerpot (right-click to place wielded flower)",
+		description = modern.S("Terracotta Flowerpot (right-click to place wielded flower)"),
 		mesh = "multidecor_terracotta_flowerpot",
 		tiles = {
 			"multidecor_terracotta_material2.png^[multiply:brown",
@@ -478,7 +478,7 @@ local pots_defs = {
 		}
 	},
 	["green_small_flowerpot"] = {
-		description = "Green Small Flowerpot (right-click to place wielded flower)",
+		description = modern.S("Green Small Flowerpot (right-click to place wielded flower)"),
 		mesh = "multidecor_green_small_flowerpot",
 		tiles = {
 			"multidecor_terracotta_material.png^[multiply:palegreen",
@@ -495,7 +495,7 @@ local pots_defs = {
 		}
 	},
 	["glass_vase"] = {
-		description = "Glass Vase (right-click to place wielded flower)",
+		description = modern.S("Glass Vase (right-click to place wielded flower)"),
 		mesh = "multidecor_glass_vase",
 		tiles = {"multidecor_gloss.png^[opacity:120"},
 		inventory_image = "multidecor_glass_vase_inv.png",
@@ -553,7 +553,7 @@ multidecor.register.register_furniture_unit("white_plastic_flowerpot", {
 	type = "decoration",
 	style = "modern",
 	material = "plastic",
-	description = "White Plastic Flowerpot",
+	description = modern.S("White Plastic Flowerpot"),
 	mesh = "multidecor_white_plastic_flowerpot.b3d",
 	tiles = {
 		"multidecor_white_plastic_pot.png",

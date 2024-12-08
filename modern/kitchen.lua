@@ -26,7 +26,7 @@ local tap_pos = vector.new(0, 0.75, -0.05)
 
 local cmpnts = {
 	["two_floor_drws"] = {
-		description = "Kitchen %s Two Shelves Cabinet With Drawers",
+		description = modern.S("Kitchen %s Two Shelves Cabinet With Drawers"),
 		mesh = "multidecor_kitchen_cabinet_two_shelves.b3d",
 		inventory_image = "multidecor_kitchen_%s_cabinet_with_two_drawers_inv.png",
 		bounding_boxes = cab_bboxes,
@@ -42,7 +42,7 @@ local cmpnts = {
 		}
 	},
 	["three_floor_drws"] = {
-		description = "Kitchen %s Three Shelves Cabinet With Drawers",
+		description = modern.S("Kitchen %s Three Shelves Cabinet With Drawers"),
 		mesh = "multidecor_kitchen_cabinet_three_shelves.b3d",
 		inventory_image = "multidecor_kitchen_%s_cabinet_with_three_drawers_inv.png",
 		bounding_boxes = cab_bboxes,
@@ -59,7 +59,7 @@ local cmpnts = {
 		}
 	},
 	["two_floor_doors"] = {
-		description = "Kitchen %s Two Shelves Cabinet With Doors",
+		description = modern.S("Kitchen %s Two Shelves Cabinet With Doors"),
 		mesh = "multidecor_kitchen_cabinet_two_shelves.b3d",
 		inventory_image = "multidecor_kitchen_%s_cabinet_with_doors_inv.png",
 		bounding_boxes = cab_bboxes,
@@ -75,7 +75,7 @@ local cmpnts = {
 		}
 	},
 	["three_floor_doors"] = {
-		description = "Kitchen %s Three Shelves Cabinet With Doors",
+		description = modern.S("Kitchen %s Three Shelves Cabinet With Doors"),
 		mesh = "multidecor_kitchen_cabinet_three_shelves.b3d",
 		inventory_image = "multidecor_kitchen_%s_cabinet_with_doors_inv.png",
 		bounding_boxes = cab_bboxes,
@@ -91,7 +91,7 @@ local cmpnts = {
 		}
 	},
 	["three_floor_drw_door"] = {
-		description = "Kitchen %s Three Shelves Cabinet With Drawer And Door",
+		description = modern.S("Kitchen %s Three Shelves Cabinet With Drawer And Door"),
 		mesh = "multidecor_kitchen_cabinet_three_shelves.b3d",
 		inventory_image = "multidecor_kitchen_%s_cabinet_with_door_and_drawer_inv.png",
 		bounding_boxes = cab_bboxes,
@@ -108,7 +108,7 @@ local cmpnts = {
 		}
 	},
 	["sink"] = {
-		description = "Kitchen %s Sink Cabinet",
+		description = modern.S("Kitchen %s Sink Cabinet"),
 		mesh = "multidecor_kitchen_sink_cabinet.b3d",
 		inventory_image = "multidecor_kitchen_%s_sink_inv.png",
 		bounding_boxes = sink_bboxes,
@@ -178,7 +178,7 @@ granite_cmpnts.three_floor_drw_door.craft[3][3] = "stairs:slab_granite"
 granite_cmpnts.sink.craft[3][3] = "stairs:slab_granite"
 
 granite_cmpnts.two_wall_door = {
-	description = "Kitchen Two Shelves Wall Cabinet With Door",
+	description = modern.S("Kitchen Two Shelves Wall Cabinet With Door"),
 	mesh = "multidecor_kitchen_wall_cabinet_two_shelves.b3d",
 	inventory_image = "multidecor_kitchen_wall_cabinet_with_door_inv.png",
 	bounding_boxes = wall_cab_bbox,
@@ -195,7 +195,7 @@ granite_cmpnts.two_wall_door = {
 }
 
 granite_cmpnts.two_wall_hdoor = {
-	description = "Kitchen Two Shelves Wall Cabinet With Half Doors",
+	description = modern.S("Kitchen Two Shelves Wall Cabinet With Half Doors"),
 	mesh = "multidecor_kitchen_wall_cabinet_two_shelves.b3d",
 	inventory_image = "multidecor_kitchen_wall_cabinet_with_half_door_inv.png",
 	bounding_boxes = wall_cab_bbox,
@@ -212,7 +212,7 @@ granite_cmpnts.two_wall_hdoor = {
 }
 
 granite_cmpnts.two_wall_hgldoor = {
-	description = "Kitchen Two Shelves Wall Cabinet With Half Glass Doors",
+	description = modern.S("Kitchen Two Shelves Wall Cabinet With Half Glass Doors"),
 	mesh = "multidecor_kitchen_wall_cabinet_two_shelves.b3d",
 	inventory_image = "multidecor_kitchen_wall_cabinet_with_half_glass_doors_inv.png",
 	bounding_boxes = wall_cab_bbox,
@@ -229,7 +229,7 @@ granite_cmpnts.two_wall_hgldoor = {
 }
 
 granite_cmpnts.two_wall_crn_hgldoor = {
-	description = "Kitchen Two Shelves Wall Corner Cabinet With Half Glass Doors",
+	description = modern.S("Kitchen Two Shelves Wall Corner Cabinet With Half Glass Doors"),
 	mesh = "multidecor_kitchen_wall_corner_cabinet_two_shelves.b3d",
 	bounding_boxes = wall_cab_bbox,
 	shelves_data = {
@@ -307,7 +307,7 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 	type = "decoration",
 	style = "modern",
 	material = "plastic",
-	description = "Ceiling Fan",
+	description = modern.S("Ceiling Fan"),
 	mesh = "multidecor_ceiling_fan.b3d",
 	tiles = {"multidecor_ceiling_fan.png"},
 	inventory_image = "multidecor_ceiling_fan_inv.png",
@@ -389,7 +389,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	description = "Kitchen Cooker",
+	description = modern.S("Kitchen Cooker"),
 	mesh = "multidecor_kitchen_cooker.b3d",
 	inventory_image = "multidecor_kitchen_cooker_inv.png",
 	tiles = {
@@ -435,7 +435,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker_activated", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	description = "Kitchen Cooker",
+	description = modern.S("Kitchen Cooker"),
 	mesh = "multidecor_kitchen_cooker.b3d",
 	inventory_image = "multidecor_kitchen_cooker_inv.png",
 	light_source = 8,
@@ -489,7 +489,7 @@ minetest.register_entity("modern:kitchen_cooker_oven_door", {
 multidecor.register.register_light("kitchen_hood", {
 	style = "modern",
 	material = "metal",
-	description = "Kitchen Hood",
+	description = modern.S("Kitchen Hood"),
 	mesh = "multidecor_kitchen_hood.b3d",
 	tiles = {
 		"multidecor_kitchen_hood_body.png",
@@ -518,7 +518,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	description = "Kitchen Fridge",
+	description = modern.S("Kitchen Fridge"),
 	mesh = "multidecor_fridge.b3d",
 	inventory_image = "multidecor_fridge_inv.png",
 	tiles = {
@@ -611,7 +611,7 @@ multidecor.register.register_furniture_unit("porcelain_plate", {
 	type = "decoration",
 	style = "modern",
 	material = "glass",
-	description = "Porcelain Plate",
+	description = modern.S("Porcelain Plate"),
 	mesh = "multidecor_porcelain_plate.b3d",
 	tiles = {"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png"},
 	bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, -0.4, 0.3}}
@@ -628,7 +628,7 @@ multidecor.register.register_furniture_unit("porcelain_plate_with_fork_and_knife
 	type = "decoration",
 	style = "modern",
 	material = "glass",
-	description = "Porcelain Plate With Fork And Knife",
+	description = modern.S("Porcelain Plate With Fork And Knife"),
 	mesh = "multidecor_porcelain_plate_with_fork_and_knife.b3d",
 	tiles = {
 		"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png",
@@ -654,7 +654,7 @@ multidecor.register.register_furniture_unit("porcelain_cup", {
 	type = "decoration",
 	style = "modern",
 	material = "glass",
-	description = "Porcelain Cup",
+	description = modern.S("Porcelain Cup"),
 	mesh = "multidecor_porcelain_cup.b3d",
 	tiles = {"multidecor_porcelain_material.png"},
 	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, -0.15, 0.2}}
@@ -671,7 +671,7 @@ multidecor.register.register_furniture_unit("glass_cup", {
 	type = "decoration",
 	style = "modern",
 	material = "glass",
-	description = "Glass Cup",
+	description = modern.S("Glass Cup"),
 	mesh = "multidecor_porcelain_cup.b3d",
 	use_texture_alpha = "blend",
 	tiles = {"multidecor_glass_material.png"},
@@ -690,7 +690,7 @@ multidecor.register.register_furniture_unit("napkins_rack", {
 	type = "decoration",
 	style = "modern",
 	material = "plastic",
-	description = "Rack for paper napkins",
+	description = modern.S("Rack for paper napkins"),
 	mesh = "multidecor_napkins_rack.b3d",
 	tiles = {"multidecor_metal_material.png", "multidecor_paper_napkins.png"},
 	bounding_boxes = {{-0.2, -0.5, -0.1, 0.2, -0.1, 0.1}}
@@ -708,7 +708,7 @@ multidecor.register.register_furniture_unit("saucepans_set", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	description = "Saucepans set (put it on the cooker top)",
+	description = modern.S("Saucepans set (put it on the cooker top)"),
 	mesh = "multidecor_saucepans_set.b3d",
 	use_texture_alpha = "blend",
 	tiles = {
@@ -735,7 +735,7 @@ multidecor.register.register_furniture_unit("cast_iron_pan", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	description = "Cast Iron Pan",
+	description = modern.S("Cast Iron Pan"),
 	mesh = "multidecor_cast_iron_pan.b3d",
 	tiles = {
 		"multidecor_coarse_metal_material.png",
@@ -757,7 +757,7 @@ multidecor.register.register_furniture_unit("porcelain_saucer_with_cup", {
 	type = "decoration",
 	style = "modern",
 	material = "glass",
-	description = "Porcelain Saucer With Cup",
+	description = modern.S("Porcelain Saucer With Cup"),
 	mesh = "multidecor_porcelain_saucer_with_cup.b3d",
 	tiles = {
 		"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png",
@@ -776,7 +776,7 @@ multidecor.register.register_furniture_unit("porcelain_saucer_with_tea_cup", {
 	type = "decoration",
 	style = "modern",
 	material = "glass",
-	description = "Porcelain Saucer With Tea Cup",
+	description = modern.S("Porcelain Saucer With Tea Cup"),
 	mesh = "multidecor_porcelain_saucer_with_tea_cup.b3d",
 	tiles = {
 		"multidecor_porcelain_material.png^multidecor_porcelain_plate_pattern.png",
@@ -822,7 +822,7 @@ multidecor.register.register_furniture_unit("faceted_glass", {
 	type = "decoration",
 	style = "modern",
 	material = "glass",
-	description = "Faceted Glass",
+	description = modern.S("Faceted Glass"),
 	mesh = "multidecor_faceted_glass.b3d",
 	tiles = {"multidecor_glass_material.png"},
 	use_texture_alpha = "blend",
@@ -841,7 +841,7 @@ multidecor.register.register_furniture_unit("porcelain_teapot", {
 	type = "decoration",
 	style = "modern",
 	material = "glass",
-	description = "Porcelain Teapot",
+	description = modern.S("Porcelain Teapot"),
 	mesh = "multidecor_porcelain_teapot.b3d",
 	tiles = {"multidecor_porcelain_material.png", "multidecor_porcelain_plate_pattern.png"},
 	bounding_boxes = {
@@ -908,7 +908,7 @@ local tiles = {
 for name, def in pairs(tiles) do
 	local tile_name = "multidecor:" .. name
 	minetest.register_node(":" .. tile_name, {
-		description = def[1],
+		description = modern.S(def[1]),
 		drawtype = "nodebox",
 		visual_scale = 1.0,
 		paramtype = "light",
@@ -928,7 +928,7 @@ for name, def in pairs(tiles) do
 
 	local block_name = "multidecor:" .. name .. "s_block"
 	minetest.register_node(":" .. block_name, {
-		description = def[1] .. "s Block",
+		description = modern.S(def[1] .. "s Block"),
 		visual_scale = 0.5,
 		paramtype = "light",
 		paramtype2 = "facedir",
@@ -956,7 +956,7 @@ multidecor.register.register_furniture_unit("kitchen_metallic_hanger", {
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	description = "Kitchen Metallic Hanger",
+	description = modern.S("Kitchen Metallic Hanger"),
 	mesh = "multidecor_kitchen_metallic_hanger.b3d",
 	tiles = {
 		"multidecor_metal_material3.png",
@@ -980,7 +980,7 @@ multidecor.register.register_furniture_unit("kitchen_metallic_hanger_with_ladle_
 	type = "decoration",
 	style = "modern",
 	material = "metal",
-	description = "Kitchen Metallic Hanger With Ladle And Board",
+	description = modern.S("Kitchen Metallic Hanger With Ladle And Board"),
 	mesh = "multidecor_kitchen_metallic_hanger_with_ladle_and_board.b3d",
 	tiles = {
 		"multidecor_metal_material3.png",
@@ -1007,7 +1007,7 @@ multidecor.register.register_furniture_unit("kitchen_organiser", {
 	type = "decoration",
 	style = "modern",
 	material = "plastic",
-	description = "Kitchen Cutlery Organiser",
+	description = modern.S("Kitchen Cutlery Organiser"),
 	mesh = "multidecor_kitchen_cutlery_organiser.b3d",
 	tiles = {
 		"multidecor_kitchen_cooker_black_metal.png",
@@ -1031,7 +1031,7 @@ multidecor.register.register_furniture_unit("microwave", {
 	type = "decoration",
 	style = "modern",
 	material = "plastic",
-	description = "Microwave",
+	description = modern.S("Microwave"),
 	mesh = "multidecor_microwave.b3d",
 	tiles = {
 		"multidecor_plastic_material.png",
@@ -1078,7 +1078,7 @@ multidecor.register.register_furniture_unit("microwave_activated", {
 	type = "decoration",
 	style = "modern",
 	material = "plastic",
-	description = "Microwave",
+	description = modern.S("Microwave"),
 	mesh = "multidecor_microwave.b3d",
 	light_source = 8,
 	tiles = {

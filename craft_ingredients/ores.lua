@@ -1,5 +1,7 @@
+local S = minetest.get_translator(minetest.get_current_modname())
+
 minetest.register_node(":multidecor:wolfram_ore", {
-    description = "Wolfram Ore",
+    description = S("Wolfram Ore"),
     tiles = {"default_stone.png^multidecor_wolfram_mineral.png"},
     is_ground_content = true,
     paramtype = "light",
@@ -17,7 +19,7 @@ minetest.register_node(":multidecor:wolfram_ore", {
 })
 
 minetest.register_node(":multidecor:desert_wolfram_ore", {
-    description = "Desert Wolfram Ore",
+    description = S("Desert Wolfram Ore"),
     tiles = {"default_desert_stone.png^multidecor_wolfram_mineral.png"},
     is_ground_content = true,
     paramtype = "light",
@@ -58,13 +60,13 @@ minetest.register_ore({
 
 minetest.register_craftitem(":multidecor:wolfram_lump",
 {
-	description = "Wolfram Lump",
+	description = S("Wolfram Lump"),
 	inventory_image = "multidecor_wolfram_lump.png"
 })
 
 minetest.register_craftitem(":multidecor:wolfram_ingot",
 {
-	description = "Wolfram Ingot",
+	description = S("Wolfram Ingot"),
 	inventory_image = "multidecor_wolfram_ingot.png"
 })
 
@@ -76,7 +78,7 @@ minetest.register_craft({
 })
 
 minetest.register_node(":multidecor:zinc_ore", {
-    description = "Zinc Ore",
+    description = S("Zinc Ore"),
     tiles = {"default_stone.png^multidecor_zinc_mineral.png"},
     is_ground_content = true,
     paramtype = "light",
@@ -94,7 +96,7 @@ minetest.register_node(":multidecor:zinc_ore", {
 })
 
 minetest.register_node(":multidecor:desert_zinc_ore", {
-    description = "Desert Zinc Ore",
+    description = S("Desert Zinc Ore"),
     tiles = {"default_desert_stone.png^multidecor_zinc_mineral.png"},
     is_ground_content = true,
     paramtype = "light",
@@ -135,13 +137,13 @@ minetest.register_ore({
 
 minetest.register_craftitem(":multidecor:zinc_fragment",
 {
-	description = "Zinc Fragment",
+	description = S("Zinc Fragment"),
 	inventory_image = "multidecor_zinc_fragment.png"
 })
 
 minetest.register_craftitem(":multidecor:zinc_ingot",
 {
-	description = "Zinc Ingot",
+	description = S("Zinc Ingot"),
 	inventory_image = "multidecor_zinc_ingot.png"
 })
 
@@ -153,7 +155,7 @@ minetest.register_craft({
 })
 
 minetest.register_node(":multidecor:granite_block", {
-	description = "Granite Block",
+	description = S("Granite Block"),
 	paramtype = "light",
 	paramtype2 = "none",
 	sunlight_propagates = true,
@@ -186,7 +188,7 @@ minetest.register_ore({
 
 
 minetest.register_node(":multidecor:consolidated_oil", {
-    description = "Consolidated Oil (use furnace to melt)",
+    description = S("Consolidated Oil (use furnace to melt)"),
     tiles = {"multidecor_consolidated_oil.png"},
     paramtype = "light",
     paramtype2 = "facedir",
@@ -224,7 +226,7 @@ local oil_def = {
 
 local oil_src_def = table.copy(oil_def)
 
-oil_src_def.description = "Oil Source"
+oil_src_def.description = S("Oil Source")
 oil_src_def.drawtype = "liquid"
 oil_src_def.tiles = {table.copy(oil_anim_def)}
 oil_src_def.tiles[1].name = "multidecor_oil_source_animated.png"
@@ -234,7 +236,7 @@ minetest.register_node(":multidecor:oil_source", oil_src_def)
 
 local oil_flow_def = table.copy(oil_def)
 
-oil_flow_def.description = "Flowing Oil"
+oil_flow_def.description = S("Flowing Oil")
 oil_flow_def.drawtype = "flowingliquid"
 oil_flow_def.paramtype2 = "flowingliquid"
 oil_flow_def.tiles = {"multidecor_oil_source.png"}
