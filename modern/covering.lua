@@ -1,18 +1,46 @@
 local wallpapers = {
-	"white",
-	"cyan_patterned",
-	"yellow_patterned",
-	"white_patterned",
-}
-
-local wallpapers_crafts = {
-	{"dye:white"},
-	{"dye:cyan", "dye:blue"},
-	{"dye:yellow", "dye:white"},
-	{"dye:white", "dye:grey"}
+	{name="white", colorable=true, recipe={"dye:white"}},
+	{name="cyan_patterned", colorable=false, recipe={"dye:cyan", "dye:blue"}},
+	{name="yellow_patterned", colorable=false, recipe={"dye:yellow", "dye:white"}},
+	{name="white_patterned", colorable=true, recipe={"dye:white", "dye:grey"}}
 }
 
 local cover_sbox = {-0.5, -0.5, -0.05, 0.5, 0.5, 0.05}
+
+local function wallpaper_colorable(name)
+	for _, wallpaper_sort in ipairs(wallpapers) do
+		if wallpaper_sort.name .. "_wallpaper" == name and wallpaper_sort.colorable then
+			return true
+		end
+	end
+
+	return false
+end
+
+local function check_for_dye_in_inv(player)
+	local inv = player:get_inventory()
+	local dye_index = player:get_wield_index() + 1
+	local dye = inv:get_stack("main", dye_index)
+	local next_itemname = dye:get_name()
+
+	if not dye or dye:is_empty() or
+		minetest.get_item_group(next_itemname, "dye") ~= 1 then -- no any dye next to the brush or the slot is empty
+		return
+	end
+
+	local index
+
+	-- Checks if the color of the given dye is supported for painting
+	for colorindex, colorname in ipairs(multidecor.colors) do
+		if minetest.get_item_group(next_itemname, "color_" .. colorname) == 1 then
+			index = colorindex - 1
+
+			break
+		end
+	end
+
+	return index
+end
 
 minetest.register_entity(":multidecor:cover", {
 	visual = "upright_sprite",
@@ -36,14 +64,54 @@ minetest.register_entity(":multidecor:cover", {
 
 		self.cover_name = data.cover_name
 		self.box = data.box
+		self.color = data.color
 
 		local texture = "multidecor_" .. self.cover_name .. ".png"
+
+		if self.color then
+			texture = texture .. "^[multiply:" .. self.color
+		end
 
 		self.object:set_properties({
 			textures = {texture},
 			selectionbox = self.box
 		})
 		self.object:set_armor_groups({immortal=1})
+	end,
+	on_rightclick = function(self, clicker)
+		local paint_brush = clicker:get_wielded_item()
+
+		if paint_brush:get_name() ~= "multidecor:paint_brush" then
+			return
+		end
+
+		local color_index = check_for_dye_in_inv(clicker)
+
+		if not color_index then
+			return
+		end
+
+		if self.cover_name ~= "plaster" and not wallpaper_colorable(self.cover_name) then
+			return
+		end
+
+		if minetest.is_protected(pos, clicker:get_player_name()) then
+			return
+		end
+
+		local color = multidecor.colors[color_index+1]
+
+		self.color = color
+
+		self.object:set_properties({
+			textures = {"multidecor_" .. self.cover_name .. ".png^[multiply:" .. self.color}
+		})
+
+		local dye_index = clicker:get_wield_index() + 1
+		local inv = clicker:get_inventory()
+		local dye = inv:get_stack("main", dye_index)
+		dye:take_item()
+		inv:set_stack("main", dye_index, dye)
 	end,
 	on_punch = function(self, puncher)
 		local wielded_item = puncher:get_wielded_item()
@@ -61,19 +129,10 @@ minetest.register_entity(":multidecor:cover", {
 		wielded_item:set_wear(wielded_item:get_wear()+math.modf(65535/50))
 		puncher:set_wielded_item(wielded_item)
 
-		local playername = puncher:get_player_name()
-		if not multidecor.players_actions_sounds[playername] then
-			multidecor.players_actions_sounds[playername] = {
-				name = "multidecor_scraping",
-				cur_time = 0.0,
-				durability = 4.0
-			}
-
-			minetest.sound_play("multidecor_scraping", {to_player=playername})
-		end
+		multidecor.tools_sounds.play(puncher:get_player_name(), 4)
 	end,
 	get_staticdata = function(self)
-		return minetest.serialize({cover_name=self.cover_name, box=self.box})
+		return minetest.serialize({cover_name=self.cover_name, box=self.box, color=self.color})
 	end
 })
 
@@ -107,8 +166,8 @@ local function on_place_cover(pointed_thing, cover_stack, cover_name, placer)
 	return cover_stack
 end
 
-for i, wallpaper_sort in ipairs(wallpapers) do
-	local itemname = wallpaper_sort .. "_wallpaper"
+for _, wallpaper_sort in ipairs(wallpapers) do
+	local itemname = wallpaper_sort.name .. "_wallpaper"
 	minetest.register_craftitem(":multidecor:" .. itemname, {
 		description = modern.S(hlpfuncs.upper_first_letters(itemname)),
 		inventory_image = "multidecor_" .. itemname .. ".png",
@@ -117,7 +176,7 @@ for i, wallpaper_sort in ipairs(wallpapers) do
 		end
 	})
 
-	local recipe = table.copy(wallpapers_crafts[i])
+	local recipe = table.copy(wallpaper_sort.recipe)
 	table.insert(recipe, "default:paper")
 	table.insert(recipe, "multidecor:paint_brush")
 
@@ -173,38 +232,24 @@ minetest.register_tool(":multidecor:paint_brush", {
 			return
 		end
 
-		local inv = placer:get_inventory()
-		local dye_index = placer:get_wield_index()
-		local next_itemstack = inv:get_stack("main", dye_index+1)
-		local next_itemname = next_itemstack:get_name()
+		local color_index = check_for_dye_in_inv(placer)
 
-		if not next_itemstack or next_itemstack:is_empty() or
-			minetest.get_item_group(next_itemname, "dye") ~= 1 then -- no any dye next to the brush or the slot is empty
+		if not color_index then
 			return
 		end
-
-		local index, dye_color
-
-		for colorindex, colorname in ipairs(multidecor.colors) do
-			if minetest.get_item_group(next_itemname, "color_" .. colorname) == 1 then
-				index = colorindex - 1
-				dye_color = colorname
-
-				break
-			end
-		end
-
-		if not dye_color then return end -- not supported color
 
 		if minetest.is_protected(pos, placer:get_player_name()) then
 			return
 		end
 
 		local rot = node.param2 % mul
-		minetest.swap_node(pos, {name=node.name, param2=index*mul+rot})
+		minetest.swap_node(pos, {name=node.name, param2=color_index*mul+rot})
 
-		next_itemstack:take_item()
-		inv:set_stack("main", dye_index+1, next_itemstack)
+		local dye_index = placer:get_wield_index() + 1
+		local inv = placer:get_inventory()
+		local dye = inv:get_stack("main", dye_index)
+		dye:take_item()
+		inv:set_stack("main", dye_index, dye)
 	end
 })
 
@@ -223,16 +268,16 @@ minetest.register_tool(":multidecor:spatula", {
 	inventory_image = "multidecor_spatula.png",
 	on_place = function(itemstack, placer, pointed_thing)
 		local inv = placer:get_inventory()
-		local spatula_index = placer:get_wield_index()
-		local next_itemstack = inv:get_stack("main", spatula_index+1)
+		local plaster_index = placer:get_wield_index() + 1
+		local plaster = inv:get_stack("main", plaster_index)
 
-		if not next_itemstack or next_itemstack:is_empty() or
-			next_itemstack:get_name() ~= "multidecor:plaster_lump" then
+		if not plaster or plaster:is_empty() or
+			plaster:get_name() ~= "multidecor:plaster_lump" then
 			return
 		end
 
-		next_itemstack = on_place_cover(pointed_thing, next_itemstack, "plaster", placer)
-		inv:set_stack("main", spatula_index+1, next_itemstack)
+		plaster = on_place_cover(pointed_thing, plaster, "plaster", placer)
+		inv:set_stack("main", plaster_index, plaster)
 	end
 })
 

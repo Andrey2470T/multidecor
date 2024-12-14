@@ -3,23 +3,6 @@ local S = minetest.get_translator(minetest.get_current_modname())
 
 dofile(modpath .. "/ores.lua")
 
--- Maps a tool name to its sound playing on crafting
-local craft_tools = {
-	["saw"] = "multidecor_saw",
-	["steel_scissors"] = "multidecor_steel_scissors",
-	["hammer"] = "multidecor_hammer"
-}
-
--- Durabilities of each craft sound in seconds
-local craft_sounds_durabilities = {
-	["multidecor_saw"] = 3,
-	["multidecor_steel_scissors"] = 2,
-	["multidecor_hammer"] = 1
-}
-
--- Maps a playername to the current playing action sound
-multidecor.players_actions_sounds = {}
-
 local woods = {"", "jungle", "aspen", "pine"}
 
 if minetest.get_modpath("ethereal") then
@@ -650,51 +633,3 @@ minetest.register_craft({
 		{"", "", ""}
 	}
 })
-
-minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
-	local contains_tool_with_name = ""
-
-	local function check_for_item(itemname)
-		for name, _ in pairs(craft_tools) do
-			if "multidecor:" .. name == itemname then
-				contains_tool_with_name = name
-				break
-			end
-		end
-	end
-
-	for _, stack in ipairs(old_craft_grid) do
-		check_for_item(stack:get_name())
-		if contains_tool_with_name ~= "" then
-			break
-		end
-	end
-
-	local playername = player:get_player_name()
-	if contains_tool_with_name ~= "" and not multidecor.players_actions_sounds[playername] then
-		multidecor.players_actions_sounds[playername] = {
-			name = craft_tools[contains_tool_with_name],
-			cur_time = 0.0,
-			durability = craft_sounds_durabilities[craft_tools[contains_tool_with_name]]
-		}
-
-		minetest.sound_play(craft_tools[contains_tool_with_name], {to_player=playername})
-	end
-
-	return
-end)
-
-minetest.register_globalstep(function(dtime)
-	for _, player in ipairs(minetest.get_connected_players()) do
-		local playername = player:get_player_name()
-		local sound = multidecor.players_actions_sounds[playername]
-
-		if sound then
-			sound.cur_time = sound.cur_time + dtime
-
-			if sound.cur_time >= sound.durability then
-				multidecor.players_actions_sounds[playername] = nil
-			end
-		end
-	end
-end)

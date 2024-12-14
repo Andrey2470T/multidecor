@@ -131,15 +131,7 @@ function multidecor.register.on_punch(pos, node, puncher)
 	wielded_item:set_wear(wielded_item:get_wear()+math.modf(65535/50))
 	puncher:set_wielded_item(wielded_item)
 
-	if not multidecor.players_actions_sounds[playername] then
-		multidecor.players_actions_sounds[playername] = {
-			name = "multidecor_scraping",
-			cur_time = 0.0,
-			durability = 4.0
-		}
-
-		minetest.sound_play("multidecor_scraping", {to_player=playername})
-	end
+	multidecor.tools_sounds.play(playername, 4)
 end
 
 --[[def:
