@@ -97,9 +97,7 @@ function multidecor.register.build_description(name, base_desc)
 end
 
 function multidecor.register.after_place_node(pos, placer, itemstack)
-	local leftover = multidecor.placement.check_for_placement(pos, placer, itemstack)
-
-	return leftover
+	return multidecor.placement.check_for_placement(pos, placer, itemstack)
 end
 
 function multidecor.register.on_punch(pos, node, puncher)

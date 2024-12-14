@@ -114,8 +114,9 @@ function multidecor.placement.check_for_placement(pos, placer, itemstack)
 
 	if not can_be_placed then
 		minetest.remove_node(pos)
-
-		itemstack:set_count(itemstack:get_count()+1)
-		return itemstack
+	else
+		itemstack:set_count(itemstack:get_count()-1)
 	end
+
+	return itemstack
 end
