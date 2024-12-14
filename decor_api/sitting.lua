@@ -71,7 +71,7 @@ function multidecor.sitting.sit_player(player, node_pos)
 
 	local playername = player:get_player_name()
 	if multidecor.sitting.is_seat_busy(node_pos) then
-		minetest.chat_send_player(playername, "This seat is busy!")
+		minetest.chat_send_player(playername, multidecor.S("This seat is busy!"))
 		return false
 	end
 

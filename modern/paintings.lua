@@ -111,7 +111,7 @@ for _, img in ipairs(images) do
 		type = "decoration",
 		style = "modern",
 		material = mat,
-		description = multidecor.helpers.upper_first_letters(name),
+		description = modern.S(multidecor.helpers.upper_first_letters(name)),
 		mesh = "multidecor_" .. mesh .. ".b3d",
 		tiles = {base_tile, "multidecor_image_" .. img[1] .. ".png"},
 		bounding_boxes = {img_bbox}
@@ -123,7 +123,7 @@ end
 
 
 minetest.register_craftitem(":multidecor:painting_frame", {
-	description = "Painting Frame",
+	description = modern.S("Painting Frame"),
 	inventory_image = "multidecor_painting_frame.png"
 })
 

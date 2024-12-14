@@ -1,0 +1,39 @@
+# textdomain: decor_api
+
+# init.lua
+
+# beds.lua
+This bed is already occupied!=Эта кровать уже занята!
+
+# clock.lua
+Current time: %d:%d=Текущее время: %d:%d
+
+# door.lua
+This door has locked!=Эта дверь закрыта!
+
+# register.lua
+@nStyle: =@nСтиль: 
+@nMaterial: =@nМатериал: 
+baroque=барокко
+classic=классический
+high_tech=хай-тек
+mixed=смешанный
+modern=модерн
+royal=роял
+wood=дерево
+glass=стекло
+metal=металл
+plastic=пластик
+stone=камень
+
+# shelves.lua
+Unlock Shelf@n(do it accessible by everyone)=Открыть полку@n(открыть доступ для всех)
+Lock Shelf@n(do it accessible only by you and everyone from the share group)=Закрыть полку@n(открыть доступ только Вам и всем из группы общего доступа)
+Share access@n(provide access to certain players)=Поделиться@n(открыть доступ определённым игрокам)
+Enter name of player to add to the group=Введите имя игрока, которого хотите добавить
+Owned by =Владелец: 
+@nShare group:@n=@nОбщий доступ:@n
+Cooked to: =Приготовлено в
+
+# sitting.lua
+This seat is busy!=Это место занято!

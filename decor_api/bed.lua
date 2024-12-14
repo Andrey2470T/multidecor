@@ -27,7 +27,7 @@ local default_bed_on_rightclick = function(pos, node, clicker, itemstack, pointe
 	local tpos = is_lpos_fr and lpos or is_lpos2_fr and lpos2
 
 	if not tpos then
-		minetest.chat_send_player(clicker:get_player_name(), "This bed is already occupied!")
+		minetest.chat_send_player(clicker:get_player_name(), multidecor.S("This bed is already occupied!"))
 		return
 	end
 
