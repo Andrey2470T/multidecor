@@ -46,8 +46,8 @@ local ceramic_tiles = {
 	{"green_mosaic", {"dye:green"}},
 	{"brown_flowers", {"dye:brown", "dye:orange"}},
 	{"brown_dandelion", {"dye:brown", "dye:orange", "dye:orange"}},
-	{"darkceladon_marble", {"dye:dark_green", "dye:cyan"}},
-	{"darksea_marble", {"dye:blue", "dye:cyan"}},
+	{"darkceladon_patterned", {"dye:dark_green", "dye:cyan"}},
+	{"darksea_patterned", {"dye:blue", "dye:cyan"}},
 	{"grey", {"dye:grey"}}
 }
 
@@ -60,7 +60,7 @@ local tile_bboxes = {
 }
 
 minetest.register_node(":multidecor:ceramic_tile", {
-	description = "Ceramic Tile",
+	description = modern.S("Ceramic Tile"),
 	drawtype = "nodebox",
 	visual_scale = 1.0,
 	paramtype = "light",
@@ -124,6 +124,14 @@ for _, tile in ipairs(ceramic_tiles) do
 		recipe = {tile_name, tile_name, tile_name, tile_name, tile_name, tile_name}
 	})
 end
+
+minetest.register_alias("multidecor:bathroom_ceramic_darkceladon_marble_tile", "multidecor:bathroom_ceramic_darkceladon_patterned_tile")
+minetest.register_alias("multidecor:bathroom_ceramic_darkceladon_marble_tiles_block", "multidecor:bathroom_ceramic_darkceladon_patterned_tiles_block")
+minetest.register_alias("multidecor:bathroom_ceramic_darksea_marble_tile", "multidecor:bathroom_ceramic_darksea_patterned_tile")
+minetest.register_alias("multidecor:bathroom_ceramic_darksea_marble_tiles_block", "multidecor:bathroom_ceramic_darksea_patterned_tiles_block")
+minetest.register_alias("multidecor:bathroom_ceramic_marble_tile", "multidecor:bathroom_ceramic_grey_tile")
+minetest.register_alias("multidecor:bathroom_ceramic_marble_tiles_block", "multidecor:bathroom_ceramic_grey_tiles_block")
+
 
 local bathroom_styles = {1, 2, 3, 4, 5, 6}
 

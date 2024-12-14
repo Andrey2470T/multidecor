@@ -148,7 +148,7 @@ minetest.register_craftitem(":multidecor:metal_bar",
 if minetest.get_modpath("moreores") then
 	minetest.register_craftitem(":multidecor:silver_sheet",
 	{
-		description = "Silver Sheet",
+		description = S("Silver Sheet"),
 		inventory_image = "multidecor_silver_sheet.png"
 	})
 end
@@ -161,7 +161,7 @@ minetest.register_craftitem(":multidecor:steel_sheet",
 
 minetest.register_craftitem(":multidecor:brass_sheet",
 {
-	description = "Brass Sheet",
+	description = S("Brass Sheet"),
 	inventory_image = "multidecor_brass_sheet.png"
 })
 
@@ -257,7 +257,7 @@ minetest.register_craftitem(":multidecor:brass_ingot",
 
 minetest.register_craftitem(":multidecor:steel_stripe",
 {
-	description = "Steel Stripe",
+	description = S("Steel Stripe"),
 	inventory_image = "multidecor_steel_stripe.png"
 })
 
