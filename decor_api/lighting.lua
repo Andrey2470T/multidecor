@@ -1,4 +1,6 @@
-local function default_light_on_rightclick(pos)
+multidecor.lighting = {}
+
+function multidecor.lighting.on_rightclick(pos)
 	local node = minetest.get_node(pos)
 	local add_props = minetest.registered_nodes[node.name].add_properties
 
@@ -29,7 +31,7 @@ function multidecor.register.register_light(name, base_def, add_def, craft_def)
 	end
 
 	def.callbacks = def.callbacks or {}
-	def.callbacks.on_rightclick = def.callbacks.on_rightclick or default_light_on_rightclick
+	def.callbacks.on_rightclick = def.callbacks.on_rightclick or multidecor.lighting.on_rightclick
 
 	local sound_off
 	local are_props = def.add_properties and def.add_properties.swap_light

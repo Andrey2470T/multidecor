@@ -437,7 +437,7 @@ end
 
 
 -- Callbacks for shelves having objects attached (doors, drawers)
-multidecor.shelves.default_on_activate = function(self, staticdata)
+multidecor.shelves.on_activate = function(self, staticdata)
 	if staticdata ~= "" then
 		local data = minetest.deserialize(staticdata)
 
@@ -495,7 +495,7 @@ multidecor.shelves.default_on_activate = function(self, staticdata)
 	multidecor.shelves.create_detached_inventory(self.connected_to.pos, self.shelf_data_i, shelves_data, self.object)
 end
 
-multidecor.shelves.default_get_staticdata = function(self)
+multidecor.shelves.get_staticdata = function(self)
 	return minetest.serialize({
 		self.connected_to, self.dir,
 		self.shelf_data_i, self.inv_list,
@@ -504,7 +504,7 @@ multidecor.shelves.default_get_staticdata = function(self)
 	})
 end
 
-multidecor.shelves.default_on_rightclick = function(self, clicker)
+multidecor.shelves.on_rightclick = function(self, clicker)
 	local playername = clicker:get_player_name()
 	local has = multidecor.shelves.has_access(self.lock_info, playername)
 
@@ -620,7 +620,7 @@ local function cook_step(pos, shelf_i, lock_info, dtime, obj)
 	end
 end
 
-multidecor.shelves.default_drawer_on_step = function(self, dtime)
+multidecor.shelves.drawer_on_step = function(self, dtime)
 	local node = minetest.get_node(self.connected_to.pos)
 	local data = minetest.registered_nodes[node.name].add_properties and minetest.registered_nodes[node.name].add_properties.shelves_data
 
@@ -647,7 +647,7 @@ multidecor.shelves.default_drawer_on_step = function(self, dtime)
 	cook_step(self.connected_to.pos, self.shelf_data_i, self.lock_info, dtime, self.object)
 end
 
-multidecor.shelves.default_door_on_step = function(self, dtime)
+multidecor.shelves.door_on_step = function(self, dtime)
 	local node = minetest.get_node(self.connected_to.pos)
 	local data = minetest.registered_nodes[node.name].add_properties and minetest.registered_nodes[node.name].add_properties.shelves_data
 
@@ -662,7 +662,7 @@ multidecor.shelves.default_door_on_step = function(self, dtime)
 	cook_step(self.connected_to.pos, self.shelf_data_i, self.lock_info, dtime, self.object)
 end
 
-multidecor.shelves.default_on_deactivate = function(self, removal)
+multidecor.shelves.on_deactivate = function(self, removal)
 	if not removal then return end
 
 	local shelves_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data
@@ -675,7 +675,7 @@ end
 
 
 -- Callbacks for nodes having one shelf (without doors, drawers)
-multidecor.shelves.default_on_construct = function(pos)
+multidecor.shelves.on_construct = function(pos)
 	local node = minetest.get_node(pos)
 	local meta = minetest.get_meta(pos)
 	meta:set_string("connected_to", minetest.serialize({pos=pos,name=node.name}))
@@ -685,7 +685,7 @@ multidecor.shelves.default_on_construct = function(pos)
 	multidecor.shelves.create_detached_inventory(pos, 1, shelves_data)
 end
 
-multidecor.shelves.default_on_destruct = function(pos)
+multidecor.shelves.on_destruct = function(pos)
 	local meta = minetest.get_meta(pos)
 	local connected_to = minetest.deserialize(meta:get_string("connected_to"))
 
@@ -698,7 +698,7 @@ multidecor.shelves.default_on_destruct = function(pos)
 
 end
 
-multidecor.shelves.default_on_node_rightclick = function(pos, node, clicker)
+multidecor.shelves.node_on_rightclick = function(pos, node, clicker)
 	local playername = clicker:get_player_name()
 
 	local meta = minetest.get_meta(pos)
@@ -732,7 +732,7 @@ multidecor.shelves.default_on_node_rightclick = function(pos, node, clicker)
 		multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "fs", 1, connected_to.pos), fs)
 end
 
-multidecor.shelves.default_on_receive_fields = function(player, formname, fields)
+multidecor.shelves.on_receive_fields = function(player, formname, fields)
 	local correct_formname = multidecor.shelves.check_for_formname(formname)
 
 	if not correct_formname then return end
@@ -921,7 +921,7 @@ multidecor.shelves.default_on_receive_fields = function(player, formname, fields
 end
 
 
-multidecor.shelves.default_can_dig = function(pos)
+multidecor.shelves.can_dig = function(pos)
 	local name = minetest.get_node(pos).name
 	local shelves_data = minetest.registered_nodes[name].add_properties.shelves_data
 
@@ -939,4 +939,4 @@ multidecor.shelves.default_can_dig = function(pos)
 	return is_all_empty
 end
 
-minetest.register_on_player_receive_fields(multidecor.shelves.default_on_receive_fields)
+minetest.register_on_player_receive_fields(multidecor.shelves.on_receive_fields)

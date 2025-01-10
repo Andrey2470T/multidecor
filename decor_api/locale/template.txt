@@ -14,6 +14,7 @@ This door has locked!=
 # register.lua
 @nStyle: =
 @nMaterial: =
+unknown=
 baroque=
 classic=
 high_tech=

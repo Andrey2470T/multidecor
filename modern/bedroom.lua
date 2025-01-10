@@ -108,7 +108,7 @@ multidecor.register.register_table("dresser_with_mirror", {
 		on_construct = function(pos)
 			multidecor.shelves.set_shelves(pos)
 		end,
-		can_dig = multidecor.shelves.default_can_dig
+		can_dig = multidecor.shelves.can_dig
 	}
 },
 {
@@ -210,9 +210,9 @@ minetest.register_entity("modern:wooden_drawer_with_round_handle", {
 	physical = false,
 	selectionbox = {-0.5, -0.16, -0.45, 0.525, 0.16, 0.575},
 	static_save = true,
-	on_activate = multidecor.shelves.default_on_activate,
-	on_rightclick = multidecor.shelves.default_on_rightclick,
-	on_step = multidecor.shelves.default_drawer_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata,
-	on_deactivate = multidecor.shelves.default_on_deactivate
+	on_activate = multidecor.shelves.on_activate,
+	on_rightclick = multidecor.shelves.on_rightclick,
+	on_step = multidecor.shelves.drawer_on_step,
+	get_staticdata = multidecor.shelves.get_staticdata,
+	on_deactivate = multidecor.shelves.on_deactivate
 })

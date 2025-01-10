@@ -30,9 +30,9 @@ function multidecor.register.register_seat(name, base_def, add_def, craft_def)
 
 	def.callbacks = def.callbacks or {}
 
-	def.callbacks.on_construct = def.callbacks.on_construct or multidecor.sitting.default_on_construct
-	def.callbacks.on_destruct = def.callbacks.on_destruct or multidecor.sitting.default_on_destruct
-	def.callbacks.on_rightclick = def.callbacks.on_rightclick or multidecor.sitting.default_on_rightclick
+	def.callbacks.on_construct = def.callbacks.on_construct or multidecor.sitting.on_construct
+	def.callbacks.on_destruct = def.callbacks.on_destruct or multidecor.sitting.on_destruct
+	def.callbacks.on_rightclick = def.callbacks.on_rightclick or multidecor.sitting.on_rightclick
 
 	multidecor.register.register_furniture_unit(name, def, craft_def)
 

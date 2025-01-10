@@ -137,8 +137,8 @@ local cmpnts = {
 				multidecor.shelves.set_shelves(pos)
 				--multidecor.tap.register_water_stream(pos, tap_pos, tap_pos, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", false)
 			end,
-			on_rightclick = multidecor.tap.default_on_rightclick,
-			on_destruct = multidecor.tap.default_on_destruct
+			on_rightclick = multidecor.tap.on_rightclick,
+			on_destruct = multidecor.tap.on_destruct
 		}
 	},
 }
@@ -295,11 +295,11 @@ for name, props in pairs(objects) do
 		use_texture_alpha = true,
 		physical = false,
 		selectionbox = props.box,
-		on_activate = multidecor.shelves.default_on_activate,
-		on_rightclick = multidecor.shelves.default_on_rightclick,
-		on_step = props.type == "drawer" and multidecor.shelves.default_drawer_on_step or multidecor.shelves.default_door_on_step,
-		get_staticdata = multidecor.shelves.default_get_staticdata,
-		on_deactivate = multidecor.shelves.default_on_deactivate
+		on_activate = multidecor.shelves.on_activate,
+		on_rightclick = multidecor.shelves.on_rightclick,
+		on_step = props.type == "drawer" and multidecor.shelves.drawer_on_step or multidecor.shelves.door_on_step,
+		get_staticdata = multidecor.shelves.get_staticdata,
+		on_deactivate = multidecor.shelves.on_deactivate
 	})
 end
 
@@ -403,7 +403,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker", {
 		on_construct = function(pos)
 			multidecor.shelves.set_shelves(pos)
 		end,
-		can_dig = multidecor.shelves.default_can_dig
+		can_dig = multidecor.shelves.can_dig
 	},
 	add_properties = {
 		shelves_data = {
@@ -448,7 +448,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker_activated", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}},
 	groups = {not_in_creative_inventory=1},
 	callbacks = {
-		can_dig = multidecor.shelves.default_can_dig
+		can_dig = multidecor.shelves.can_dig
 	},
 	add_properties = {
 		shelves_data = {
@@ -479,11 +479,11 @@ minetest.register_entity("modern:kitchen_cooker_oven_door", {
 	backface_culling = false,
 	selectionbox = {-0.5, 0, 0.1, 0.5, 0.6, 0},
 	static_save = true,
-	on_activate = multidecor.shelves.default_on_activate,
-	on_rightclick = multidecor.shelves.default_on_rightclick,
-	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata,
-	on_deactivate = multidecor.shelves.default_on_deactivate
+	on_activate = multidecor.shelves.on_activate,
+	on_rightclick = multidecor.shelves.on_rightclick,
+	on_step = multidecor.shelves.door_on_step,
+	get_staticdata = multidecor.shelves.get_staticdata,
+	on_deactivate = multidecor.shelves.on_deactivate
 })
 
 multidecor.register.register_light("kitchen_hood", {
@@ -533,7 +533,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 		on_construct = function(pos)
 			multidecor.shelves.set_shelves(pos)
 		end,
-		can_dig = multidecor.shelves.default_can_dig
+		can_dig = multidecor.shelves.can_dig
 	},
 	add_properties = {
 		shelves_data = {
@@ -583,11 +583,11 @@ minetest.register_entity("modern:kitchen_fridge_upper_door", {
 	backface_culling = false,
 	selectionbox = {0, -0.5, 0, 1, 0.8, 0.1},
 	static_save = true,
-	on_activate = multidecor.shelves.default_on_activate,
-	on_rightclick = multidecor.shelves.default_on_rightclick,
-	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata,
-	on_deactivate = multidecor.shelves.default_on_deactivate
+	on_activate = multidecor.shelves.on_activate,
+	on_rightclick = multidecor.shelves.on_rightclick,
+	on_step = multidecor.shelves.door_on_step,
+	get_staticdata = multidecor.shelves.get_staticdata,
+	on_deactivate = multidecor.shelves.on_deactivate
 })
 
 minetest.register_entity("modern:kitchen_fridge_lower_door", {
@@ -600,11 +600,11 @@ minetest.register_entity("modern:kitchen_fridge_lower_door", {
 	backface_culling = false,
 	selectionbox = {0, -0.5, 0, 1, 0.15, 0.1},
 	static_save = true,
-	on_activate = multidecor.shelves.default_on_activate,
-	on_rightclick = multidecor.shelves.default_on_rightclick,
-	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata,
-	on_deactivate = multidecor.shelves.default_on_deactivate
+	on_activate = multidecor.shelves.on_activate,
+	on_rightclick = multidecor.shelves.on_rightclick,
+	on_step = multidecor.shelves.door_on_step,
+	get_staticdata = multidecor.shelves.get_staticdata,
+	on_deactivate = multidecor.shelves.on_deactivate
 })
 
 multidecor.register.register_furniture_unit("porcelain_plate", {
@@ -1045,7 +1045,7 @@ multidecor.register.register_furniture_unit("microwave", {
 		on_construct = function(pos)
 			multidecor.shelves.set_shelves(pos)
 		end,
-		can_dig = multidecor.shelves.default_can_dig
+		can_dig = multidecor.shelves.can_dig
 	},
 	add_properties = {
 		shelves_data = {
@@ -1094,7 +1094,7 @@ multidecor.register.register_furniture_unit("microwave_activated", {
 		on_construct = function(pos)
 			multidecor.shelves.set_shelves(pos)
 		end,
-		can_dig = multidecor.shelves.default_can_dig
+		can_dig = multidecor.shelves.can_dig
 	},
 	add_properties = {
 		shelves_data = {
@@ -1125,9 +1125,9 @@ minetest.register_entity("modern:microwave_door", {
 	backface_culling = false,
 	selectionbox = {-0.575, -0.25, 0.075, 0, 0.25, 0},
 	static_save = true,
-	on_activate = multidecor.shelves.default_on_activate,
-	on_rightclick = multidecor.shelves.default_on_rightclick,
-	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata,
-	on_deactivate = multidecor.shelves.default_on_deactivate
+	on_activate = multidecor.shelves.on_activate,
+	on_rightclick = multidecor.shelves.on_rightclick,
+	on_step = multidecor.shelves.door_on_step,
+	get_staticdata = multidecor.shelves.get_staticdata,
+	on_deactivate = multidecor.shelves.on_deactivate
 })

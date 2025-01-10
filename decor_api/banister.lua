@@ -102,14 +102,12 @@ function multidecor.banister.place_banister(pos, common_name, itemstack)
 		minetest.set_node(pos, {name=name, param2=dir_to_param2})
 		itemstack:take_item()
 	end
-
-	return itemstack
 end
 
-function multidecor.banister.default_after_place_node(pos, placer, itemstack)
+function multidecor.banister.after_place_node(pos, placer, itemstack)
 	local add_properties = hlpfuncs.ndef(pos).add_properties
 
-	return multidecor.banister.place_banister(pos, add_properties.common_name, itemstack)
+	multidecor.banister.place_banister(pos, add_properties.common_name, itemstack)
 end
 
 function multidecor.register.register_banister(name, base_def, add_def, craft_def)
@@ -125,7 +123,7 @@ function multidecor.register.register_banister(name, base_def, add_def, craft_de
 
 	def.add_properties = add_def
 	def.callbacks = def.callbacks or {}
-	def.callbacks.after_place_node = def.callbacks.after_place_node or multidecor.banister.default_after_place_node
+	def.callbacks.after_place_node = def.callbacks.after_place_node or multidecor.banister.after_place_node
 
 	multidecor.register.register_furniture_unit(name, def, craft_def)
 

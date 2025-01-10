@@ -56,7 +56,7 @@ function multidecor.hanging.define_correct_hanger_parts(pos, cmn_name)
 	return up_part, part
 end
 
-function multidecor.hanging.default_after_place_node(pos)
+function multidecor.hanging.after_place_node(pos)
 	local node = minetest.get_node(pos)
 	local def = hlpfuncs.ndef(pos)
 

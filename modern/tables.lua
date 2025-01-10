@@ -176,11 +176,11 @@ minetest.register_entity("modern:wooden_drawer", {
 	physical = false,
 	selectionbox = {-0.35, -0.15, -0.4, 0.35, 0.15, 0.4},
 	static_save = true,
-	on_activate = multidecor.shelves.default_on_activate,
-	on_rightclick = multidecor.shelves.default_on_rightclick,
-	on_step = multidecor.shelves.default_drawer_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata,
-	on_deactivate = multidecor.shelves.default_on_deactivate
+	on_activate = multidecor.shelves.on_activate,
+	on_rightclick = multidecor.shelves.on_rightclick,
+	on_step = multidecor.shelves.drawer_on_step,
+	get_staticdata = multidecor.shelves.get_staticdata,
+	on_deactivate = multidecor.shelves.on_deactivate
 })
 
 minetest.register_entity("modern:wooden_door", {
@@ -191,11 +191,11 @@ minetest.register_entity("modern:wooden_door", {
 	physical = false,
 	selectionbox = {-0.65, -0.25, 0, 0, 0.25, 0.05},
 	static_save = true,
-	on_activate = multidecor.shelves.default_on_activate,
-	on_rightclick = multidecor.shelves.default_on_rightclick,
-	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata,
-	on_deactivate = multidecor.shelves.default_on_deactivate
+	on_activate = multidecor.shelves.on_activate,
+	on_rightclick = multidecor.shelves.on_rightclick,
+	on_step = multidecor.shelves.door_on_step,
+	get_staticdata = multidecor.shelves.get_staticdata,
+	on_deactivate = multidecor.shelves.on_deactivate
 })
 
 multidecor.register.register_table("modern_wooden_table_with_metallic_legs", {

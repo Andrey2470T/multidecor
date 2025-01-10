@@ -14,7 +14,6 @@ local function book_save_meta_after_dig(pos, oldnode, oldmeta, drops)
 
 		local base_desc = "Book" .. (oldmeta.text ~= "" and " (written)" or "")
 
-		stackmeta:set_string("description", multidecor.register.build_description(oldnode.name, base_desc))
 		stackmeta:set_string("text", oldmeta.text)
 	end
 end
@@ -76,7 +75,7 @@ for louvers, part in pairs(louvers_parts) do
 		groups = groups,
 		bounding_boxes = {{-0.5, -0.5, -0.2, 0.5, 0.5, 0.2}},
 		callbacks = {
-			after_place_node = multidecor.hanging.default_after_place_node,
+			after_place_node = multidecor.hanging.after_place_node,
 			on_rightclick = louvers_on_rightclick
 		},
 		add_properties = {
@@ -109,8 +108,8 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 	},
 	bounding_boxes = {{-0.4, -0.5, -0.3, 0.4, 2, 0.4}},
 	callbacks = {
-		on_construct = multidecor.clock.default_on_construct,
-		on_rightclick = multidecor.clock.default_on_rightclick
+		on_construct = multidecor.clock.on_construct,
+		on_rightclick = multidecor.clock.on_rightclick
 	},
 	add_properties = {
 		time_params = {
@@ -143,9 +142,9 @@ minetest.register_entity("modern:floor_clock_balance_wheel", {
 	mesh = "multidecor_floor_clock_balance_wheel.b3d",
 	textures = {"multidecor_gold_material.png"},
 	static_save = true,
-	on_activate = multidecor.clock.default_on_activate,
-	on_step = multidecor.clock.default_on_step,
-	get_staticdata = multidecor.clock.default_get_staticdata
+	on_activate = multidecor.clock.on_activate,
+	on_step = multidecor.clock.on_step,
+	get_staticdata = multidecor.clock.get_staticdata
 })
 
 multidecor.register.register_furniture_unit("book", {
@@ -264,8 +263,8 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 	use_texture_alpha = "blend",
 	bounding_boxes = {{-0.25, -0.5, -0.175, 0.25, 0.1, 0.175}},
 	callbacks = {
-		on_construct = multidecor.clock.default_on_construct,
-		on_rightclick = multidecor.clock.default_on_rightclick,
+		on_construct = multidecor.clock.on_construct,
+		on_rightclick = multidecor.clock.on_rightclick,
 	},
 	add_properties = {
 		time_params = {
@@ -294,9 +293,9 @@ minetest.register_entity("modern:alarm_clock_dummy_wheel", {
 	physical = false,
 	pointable = false,
 	static_save = true,
-	on_activate = multidecor.clock.default_on_activate,
-	on_step = multidecor.clock.default_on_step,
-	get_staticdata = multidecor.clock.default_get_staticdata
+	on_activate = multidecor.clock.on_activate,
+	on_step = multidecor.clock.on_step,
+	get_staticdata = multidecor.clock.get_staticdata
 })
 
 local floors_defs = {

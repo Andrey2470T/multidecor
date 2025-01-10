@@ -166,15 +166,15 @@ player_api.register_model(multidecor.sitting.standard_model, {
 	}
 })
 
-multidecor.sitting.default_on_construct = function(pos)
+multidecor.sitting.on_construct = function(pos)
 	minetest.get_meta(pos):set_string("is_busy", "")
 end
 
-multidecor.sitting.default_on_destruct = function(pos)
+multidecor.sitting.on_destruct = function(pos)
 	multidecor.sitting.standup_player(minetest.get_player_by_name(minetest.get_meta(pos):get_string("is_busy")), pos)
 end
 
-multidecor.sitting.default_on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+multidecor.sitting.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 	local bool = multidecor.sitting.sit_player(clicker, pos)
 
 	if not bool then

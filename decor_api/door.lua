@@ -154,7 +154,7 @@ function multidecor.doors.convert_from_entity(obj)
 	end
 end
 
-function multidecor.doors.default_node_on_rightclick(pos, node, clicker)
+function multidecor.doors.node_on_rightclick(pos, node, clicker)
 	local door_data = hlpfuncs.ndef(pos).add_properties.door
 
 	local owner = minetest.get_meta(pos):get_string("owner")
@@ -186,7 +186,7 @@ function multidecor.doors.default_node_on_rightclick(pos, node, clicker)
 	multidecor.doors.smooth_rotate(obj, dir_sign)
 end
 
-function multidecor.doors.default_after_place_node(pos, placer)
+function multidecor.doors.after_place_node(pos, placer)
 	local nodedef = hlpfuncs.ndef(pos)
 
 	if nodedef.add_properties.door.has_mirrored_counterpart then
@@ -216,7 +216,7 @@ function multidecor.doors.default_after_place_node(pos, placer)
 	end
 end
 
-function multidecor.doors.default_entity_on_rightclick(self, clicker)
+function multidecor.doors.entity_on_rightclick(self, clicker)
 	if self.owner and self.owner ~= clicker:get_player_name() then
 		minetest.chat_send_player(multidecor.S("This door has locked!"))
 		return
@@ -234,7 +234,7 @@ function multidecor.doors.default_entity_on_rightclick(self, clicker)
 	multidecor.doors.smooth_rotate(self.object, dir_sign)
 end
 
-function multidecor.doors.default_entity_on_activate(self, staticdata)
+function multidecor.doors.entity_on_activate(self, staticdata)
 	if staticdata ~= "" then
 		local data = minetest.deserialize(staticdata)
 		self.dir = data[1]
@@ -256,7 +256,7 @@ function multidecor.doors.default_entity_on_activate(self, staticdata)
 	self.object:set_armor_groups({immortal=1})
 end
 
-function multidecor.doors.default_entity_on_step(self, dtime)
+function multidecor.doors.entity_on_step(self, dtime)
 	local door_data = minetest.registered_nodes[self.name].add_properties.door
 
 	multidecor.doors.smooth_rotate_step(self, dtime, door_data.vel or 30, door_data.acc or 0)
@@ -266,7 +266,7 @@ function multidecor.doors.default_entity_on_step(self, dtime)
 	end
 end
 
-function multidecor.doors.default_entity_get_staticdata(self)
+function multidecor.doors.entity_get_staticdata(self)
 	return minetest.serialize({self.dir, self.bbox,
 		self.start_v, self.end_v, self.action, self.mirrored_counterpart, self.owner})
 end
@@ -284,8 +284,8 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 	c_def.add_properties.door.mode = "closed"
 
 	c_def.callbacks = c_def.callbacks or {}
-	c_def.callbacks.on_rightclick = c_def.callbacks.on_rightclick or multidecor.doors.default_node_on_rightclick
-	c_def.callbacks.after_place_node = c_def.callbacks.after_place_node or multidecor.doors.default_after_place_node
+	c_def.callbacks.on_rightclick = c_def.callbacks.on_rightclick or multidecor.doors.node_on_rightclick
+	c_def.callbacks.after_place_node = c_def.callbacks.after_place_node or multidecor.doors.after_place_node
 
 	multidecor.register.register_furniture_unit(name, c_def, craft_def)
 
@@ -321,9 +321,9 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 		use_texture_alpha = base_def.use_texture_alpha == "blend",
 		backface_culling = false,
 		static_save = true,
-		on_activate = multidecor.doors.default_entity_on_activate,
-		on_rightclick = multidecor.doors.default_entity_on_rightclick,
-		on_step = multidecor.doors.default_entity_on_step,
-		get_staticdata = multidecor.doors.default_entity_get_staticdata
+		on_activate = multidecor.doors.entity_on_activate,
+		on_rightclick = multidecor.doors.entity_on_rightclick,
+		on_step = multidecor.doors.entity_on_step,
+		get_staticdata = multidecor.doors.entity_get_staticdata
 	})
 end

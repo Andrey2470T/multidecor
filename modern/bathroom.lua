@@ -199,9 +199,9 @@ for _, style in ipairs(bathroom_styles) do
 
 				--multidecor.tap.register_water_stream(pos, {x=0.0, y=0.65, z=-0.1}, {x=0.0, y=0.65, z=-0.1}, 30, 2, {x=0, y=-1, z=0}, "multidecor_tap", false)
 			end,
-			can_dig = multidecor.shelves.default_can_dig,
-			on_rightclick = multidecor.tap.default_on_rightclick,
-			on_destruct = multidecor.tap.default_on_destruct
+			can_dig = multidecor.shelves.can_dig,
+			on_rightclick = multidecor.tap.on_rightclick,
+			on_destruct = multidecor.tap.on_destruct
 		}
 	},
 	{
@@ -254,7 +254,7 @@ for _, style in ipairs(bathroom_styles) do
 			on_construct = function(pos)
 				multidecor.shelves.set_shelves(pos)
 			end,
-			can_dig = multidecor.shelves.default_can_dig
+			can_dig = multidecor.shelves.can_dig
 		}
 	},
 	{
@@ -303,7 +303,7 @@ for _, style in ipairs(bathroom_styles) do
 			on_construct = function(pos)
 				multidecor.shelves.set_shelves(pos)
 			end,
-			can_dig = multidecor.shelves.default_can_dig
+			can_dig = multidecor.shelves.can_dig
 		}
 	},
 	{
@@ -583,7 +583,7 @@ multidecor.register.register_table("plastic_quadratic_cornice", {
 		after_dig_node = function(pos, old_node, oldmetadata, digger)
 			multidecor.connecting.update_adjacent_nodes_connection(pos, "directional", true, old_node)
 
-			multidecor.curtains.default_after_dig(pos, nil, nil, digger)
+			multidecor.curtains.after_dig_node(pos, nil, nil, digger)
 		end
 	}
 },
@@ -618,9 +618,9 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_cap_flap", {
 
 			minetest.get_node_timer(pos):start(1)
 		end,
-		on_rightclick = multidecor.tap.default_on_rightclick,
-		on_destruct = multidecor.tap.default_on_destruct,
-		on_timer = multidecor.tap.default_on_timer
+		on_rightclick = multidecor.tap.on_rightclick,
+		on_destruct = multidecor.tap.on_destruct,
+		on_timer = multidecor.tap.on_timer
 	},
 	add_properties = {
 		tap_data = {
@@ -656,9 +656,9 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_side_flaps", {
 
 			minetest.get_node_timer(pos):start(1)
 		end,
-		on_rightclick = multidecor.tap.default_on_rightclick,
-		on_destruct = multidecor.tap.default_on_destruct,
-		on_timer = multidecor.tap.default_on_timer
+		on_rightclick = multidecor.tap.on_rightclick,
+		on_destruct = multidecor.tap.on_destruct,
+		on_timer = multidecor.tap.on_timer
 	},
 	add_properties = {
 		tap_data = {
@@ -695,9 +695,9 @@ multidecor.register.register_furniture_unit("shower_head", {
 
 			minetest.get_node_timer(pos):start(1)
 		end,
-		on_rightclick = multidecor.tap.default_on_rightclick,
-		on_destruct = multidecor.tap.default_on_destruct,
-		on_timer = multidecor.tap.default_on_timer
+		on_rightclick = multidecor.tap.on_rightclick,
+		on_destruct = multidecor.tap.on_destruct,
+		on_timer = multidecor.tap.on_timer
 	},
 	add_properties = {
 		tap_data = {
@@ -733,9 +733,9 @@ multidecor.register.register_furniture_unit("crooked_shower_head", {
 
 			minetest.get_node_timer(pos):start(1)
 		end,
-		on_rightclick = multidecor.tap.default_on_rightclick,
-		on_destruct = multidecor.tap.default_on_destruct,
-		on_timer = multidecor.tap.default_on_timer
+		on_rightclick = multidecor.tap.on_rightclick,
+		on_destruct = multidecor.tap.on_destruct,
+		on_timer = multidecor.tap.on_timer
 	},
 	add_properties = {
 		tap_data = {
@@ -803,7 +803,7 @@ multidecor.register.register_furniture_unit("underwear_tank", {
 		on_construct = function(pos)
 			multidecor.shelves.set_shelves(pos)
 		end,
-		can_dig = multidecor.shelves.default_can_dig
+		can_dig = multidecor.shelves.can_dig
 	},
 	add_properties = {
 		shelves_data = {
@@ -842,11 +842,11 @@ minetest.register_entity("modern:bathroom_washbasin_door", {
 	backface_culling = false,
 	selectionbox = {-0.35, -0.3, -0.05, 0.0, 0.3, 0.0},
 	static_save = true,
-	on_activate = multidecor.shelves.default_on_activate,
-	on_rightclick = multidecor.shelves.default_on_rightclick,
-	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata,
-	on_deactivate = multidecor.shelves.default_on_deactivate
+	on_activate = multidecor.shelves.on_activate,
+	on_rightclick = multidecor.shelves.on_rightclick,
+	on_step = multidecor.shelves.door_on_step,
+	get_staticdata = multidecor.shelves.get_staticdata,
+	on_deactivate = multidecor.shelves.on_deactivate
 })
 
 minetest.register_entity("modern:bathroom_wall_cabinet_door", {
@@ -859,11 +859,11 @@ minetest.register_entity("modern:bathroom_wall_cabinet_door", {
 	backface_culling = false,
 	selectionbox = {-0.5, -0.53, 0.0, 0, 0.53, 0.05},
 	static_save = true,
-	on_activate = multidecor.shelves.default_on_activate,
-	on_rightclick = multidecor.shelves.default_on_rightclick,
-	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata,
-	on_deactivate = multidecor.shelves.default_on_deactivate
+	on_activate = multidecor.shelves.on_activate,
+	on_rightclick = multidecor.shelves.on_rightclick,
+	on_step = multidecor.shelves.door_on_step,
+	get_staticdata = multidecor.shelves.get_staticdata,
+	on_deactivate = multidecor.shelves.on_deactivate
 })
 
 minetest.register_entity("modern:bathroom_wall_set_with_mirror_door", {
@@ -876,11 +876,11 @@ minetest.register_entity("modern:bathroom_wall_set_with_mirror_door", {
 	backface_culling = false,
 	selectionbox = {-0.35, -0.8, 0, 0, 0.7, 0.075},
 	static_save = true,
-	on_activate = multidecor.shelves.default_on_activate,
-	on_rightclick = multidecor.shelves.default_on_rightclick,
-	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata,
-	on_deactivate = multidecor.shelves.default_on_deactivate
+	on_activate = multidecor.shelves.on_activate,
+	on_rightclick = multidecor.shelves.on_rightclick,
+	on_step = multidecor.shelves.door_on_step,
+	get_staticdata = multidecor.shelves.get_staticdata,
+	on_deactivate = multidecor.shelves.on_deactivate
 })
 
 minetest.register_entity("modern:underwear_tank_cover", {
@@ -892,9 +892,9 @@ minetest.register_entity("modern:underwear_tank_cover", {
 	backface_culling = false,
 	selectionbox = {-0.4, 0.0, 0.05, 0.4, 0.15, 0.55},
 	static_save = true,
-	on_activate = multidecor.shelves.default_on_activate,
-	on_rightclick = multidecor.shelves.default_on_rightclick,
-	on_step = multidecor.shelves.default_door_on_step,
-	get_staticdata = multidecor.shelves.default_get_staticdata,
-	on_deactivate = multidecor.shelves.default_on_deactivate
+	on_activate = multidecor.shelves.on_activate,
+	on_rightclick = multidecor.shelves.on_rightclick,
+	on_step = multidecor.shelves.door_on_step,
+	get_staticdata = multidecor.shelves.get_staticdata,
+	on_deactivate = multidecor.shelves.on_deactivate
 })

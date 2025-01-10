@@ -56,7 +56,7 @@ multidecor.register.register_furniture_unit("silver_chain", {
 	groups = {cracky=1.5, not_in_creative_inventory=1, hanger_medium=1},
 	bounding_boxes = silver_chain_bbox,
 	callbacks = {
-		after_place_node = multidecor.hanging.default_after_place_node
+		after_place_node = multidecor.hanging.after_place_node
 	},
 	add_properties = {
 		common_name = "silver_chain"
@@ -73,7 +73,7 @@ multidecor.register.register_furniture_unit("silver_chain_tip", {
 	groups = {cracky=1.5, hanger_top=1},
 	bounding_boxes = silver_chain_bbox,
 	callbacks = {
-		after_place_node = multidecor.hanging.default_after_place_node
+		after_place_node = multidecor.hanging.after_place_node
 	},
 	add_properties = {
 		common_name = "silver_chain"
@@ -171,7 +171,7 @@ multidecor.register.register_light("gold_chandelier_with_glass_candles_off", {
 		{-0.5, -0.5, -0.5, 0.5, 0, 0.5}
 	},
 	callbacks = {
-		after_place_node = multidecor.hanging.default_after_place_node
+		after_place_node = multidecor.hanging.after_place_node
 	}
 },
 {

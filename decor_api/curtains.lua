@@ -146,7 +146,7 @@ function multidecor.curtains.move_curtains(pos, dir)
 	return res
 end
 
-function multidecor.curtains.default_after_place(pos, placer)
+function multidecor.curtains.after_place_node(pos, placer)
 	local name = minetest.get_node(pos).name
 
 	local val = multidecor.curtains.can_place(pos, name)
@@ -157,11 +157,11 @@ function multidecor.curtains.default_after_place(pos, placer)
 	end
 end
 
-function multidecor.curtains.default_after_dig(pos, oldnode, oldmeta, digger)
+function multidecor.curtains.after_dig_node(pos, oldnode, oldmeta, digger)
 	multidecor.curtains.drop_below_curtain({x=pos.x, y=pos.y-1, z=pos.z}, digger)
 end
 
-function multidecor.curtains.default_on_rightclick(pos, node, clicker)
+function multidecor.curtains.on_rightclick(pos, node, clicker)
 	local mdir = multidecor.curtains.define_move_dir(pos, clicker)
 
 	if vector.length(mdir) ~= 0  then
@@ -183,9 +183,9 @@ function multidecor.register.register_curtain(name, base_def, add_def)
 	c_def.tiles = data.curtain_with_rings.tiles
 
 	c_def.callbacks = c_def.callbacks or {}
-	c_def.callbacks.after_place_node = c_def.callbacks.after_place_node or multidecor.curtains.default_after_place
-	c_def.callbacks.after_dig_node = c_def.callbacks.after_dig_node or multidecor.curtains.default_after_dig
-	c_def.callbacks.on_rightclick = c_def.callbacks.on_rightclick or multidecor.curtains.default_on_rightclick
+	c_def.callbacks.after_place_node = c_def.callbacks.after_place_node or multidecor.curtains.after_place_node
+	c_def.callbacks.after_dig_node = c_def.callbacks.after_dig_node or multidecor.curtains.after_dig_node
+	c_def.callbacks.on_rightclick = c_def.callbacks.on_rightclick or multidecor.curtains.on_rightclick
 
 	multidecor.register.register_furniture_unit(
 		data.curtain_with_rings.name, c_def,

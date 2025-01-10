@@ -1,10 +1,16 @@
 -- Registration API
 
+-- NOTE: since version 1.3.5 the registration API encapsulates some own methods/varyables via the local 'register'
+-- intentionally doing them inaccessible outside, it has been done in the safety goals.
+-- Only the really necessary API will be exposed for mods as global.
+
 multidecor.register = {}
+
+local register = {}
 
 
 -- Default furniture types
-multidecor.register.supported_types = {
+register.supported_types = {
 	"banister",
 	"door",
 	"seat",
@@ -18,7 +24,7 @@ multidecor.register.supported_types = {
 }
 
 -- Default furniture styles
-multidecor.register.supported_styles = {
+register.supported_styles = {
 	"baroque",
 	"classic",
 	"high_tech",
@@ -28,7 +34,7 @@ multidecor.register.supported_styles = {
 }
 
 -- Default furniture materials
-multidecor.register.supported_materials = {
+register.supported_materials = {
 	"wood",
 	"glass",
 	"metal",
@@ -38,7 +44,7 @@ multidecor.register.supported_materials = {
 
 -- Registers a new furniture type
 function multidecor.register.register_type(type_name)
-	table.insert(multidecor.register.supported_types, type_name)
+	table.insert(register.supported_types, type_name)
 end
 
 -- Checks whether the given 'name' is in the category with 'category_id' (whether it is registered there).
@@ -47,11 +53,11 @@ function multidecor.register.category_contains(name, category_id)
 	local lookup_t
 
 	if category_id == 0 then
-		lookup_t = multidecor.register.supported_types
+		lookup_t = register.supported_types
 	elseif category_id == 1 then
-		lookup_t = multidecor.register.supported_styles
+		lookup_t = register.supported_styles
 	elseif category_id == 2 then
-		lookup_t = multidecor.register.supported_materials
+		lookup_t = register.supported_materials
 	end
 
 	for _, cat_name in ipairs(lookup_t) do
@@ -63,37 +69,11 @@ function multidecor.register.category_contains(name, category_id)
 	return false
 end
 
--- Returns the name from category with 'category_id' for the node with 'name' name.
--- 'category_id': '0' - types, '1' - styles, '2' - materials
-function multidecor.register.get_name_from_category(name, category_id)
-	local def = minetest.registered_nodes[name]
+function register.build_description(style, material, base_desc)
+	material = material or "unknown"
 
-	local ret_cat = ""
-
-	local lookup_t
-
-	if category_id == 0 then
-		lookup_t = multidecor.register.supported_types
-	elseif category_id == 1 then
-		lookup_t = multidecor.register.supported_styles
-	elseif category_id == 2 then
-		lookup_t = multidecor.register.supported_materials
-	end
-
-	for _, cat in ipairs(lookup_t) do
-		if def.groups[cat] then
-			ret_cat = cat
-		end
-	end
-
-	return ret_cat
-end
-
-function multidecor.register.build_description(name, base_desc)
-	local style = multidecor.register.get_name_from_category(name, 1)
-	local material = multidecor.register.get_name_from_category(name, 2)
-
-	return base_desc .. multidecor.S("\nStyle: ") .. multidecor.S(style) .. (material ~= "" and multidecor.S("\nMaterial: ") .. multidecor.S(material) or "")
+	local desc = base_desc .. multidecor.S("\nStyle: ") .. "%s" .. multidecor.S("\nMaterial: ") .. "%s" 
+	return desc:format(multidecor.S(style), multidecor.S(material))
 end
 
 function multidecor.register.after_place_node(pos, placer, itemstack)
@@ -225,7 +205,8 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 		f_def.groups.oddly_breakable_by_hand = 1
 	end
 
-	f_def.description = f_def.description .. multidecor.S("\nStyle: ") .. multidecor.S(def.style) .. (def.material and multidecor.S("\nMaterial: ") .. multidecor.S(def.material) or "")
+	f_def.description = register.build_description(def.style, def.material, f_def.description)
+
 	if def.bounding_boxes then
 		if f_def.drawtype == "nodebox" then
 			f_def.node_box = {
@@ -268,7 +249,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	if f_def.after_place_node then
 		local prev_after_place = f_def.after_place_node
 		local function after_place(pos, placer, itemstack)
-			local itemstack = prev_after_place(pos, placer, itemstack)
+			prev_after_place(pos, placer, itemstack)
 
 			return multidecor.register.after_place_node(pos, placer, itemstack)
 		end
@@ -475,7 +456,7 @@ function multidecor.register.register_garniture(def)
 		cabdef.bounding_boxes = def.components[name].bounding_boxes
 		cabdef.callbacks = def.components[name].callbacks or {}
 		cabdef.callbacks.on_construct = cabdef.callbacks.on_construct or function(pos) multidecor.shelves.set_shelves(pos) end
-		cabdef.callbacks.can_dig = cabdef.callbacks.can_dig or multidecor.shelves.default_can_dig
+		cabdef.callbacks.can_dig = cabdef.callbacks.can_dig or multidecor.shelves.can_dig
 		cabdef.add_properties = {}
 
 		minetest.register_craft({

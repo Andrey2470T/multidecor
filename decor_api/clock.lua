@@ -13,7 +13,7 @@ function multidecor.clock.get_formatted_time_str(hours, minutes)
 	return (multidecor.S("Current time: %d:%d")):format(hours, minutes)
 end
 
-function multidecor.clock.default_on_construct(pos)
+function multidecor.clock.on_construct(pos)
 	local node = minetest.get_node(pos)
 
 	local time_params = minetest.registered_nodes[node.name].add_properties.time_params
@@ -28,7 +28,7 @@ function multidecor.clock.default_on_construct(pos)
 	minetest.get_meta(pos):set_string("is_activated", "false")
 end
 
-function multidecor.clock.default_on_rightclick(pos, node, clicker)
+function multidecor.clock.on_rightclick(pos, node, clicker)
 	local meta = minetest.get_meta(pos)
 
 	if meta:get_string("is_activated") == "false" then
@@ -98,7 +98,7 @@ function multidecor.clock.stop(wheel)
 	self.attached_to.sound = nil
 end
 
-function multidecor.clock.default_on_activate(self, staticdata)
+function multidecor.clock.on_activate(self, staticdata)
 	-- The code below is for backwards compatibility with versions < 1.2.5
 	if staticdata == "" then
 		local pos = self.object:get_pos()
@@ -128,7 +128,7 @@ function multidecor.clock.default_on_activate(self, staticdata)
 	end
 end
 
-function multidecor.clock.default_on_step(self, dtime)
+function multidecor.clock.on_step(self, dtime)
 	if not self.attached_to then
 		self.object:remove()
 		return
@@ -154,6 +154,6 @@ function multidecor.clock.default_on_step(self, dtime)
 	end
 end
 
-function multidecor.clock.default_get_staticdata(self)
+function multidecor.clock.get_staticdata(self)
 	return minetest.serialize(self.attached_to)
 end

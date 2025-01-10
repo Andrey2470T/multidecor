@@ -1,16 +1,18 @@
-local function default_on_construct_dir(pos)
+multidecor.hedge = {}
+
+function multidecor.hedge.on_construct_dir(pos)
 	multidecor.connecting.update_adjacent_nodes_connection(pos, "directional")
 end
 
-local function default_after_destruct_dir(pos, oldnode)
+function multidecor.hedge.after_destruct_dir(pos, oldnode)
 	multidecor.connecting.update_adjacent_nodes_connection(pos, "directional", true, oldnode)
 end
 
-local function default_on_construct_pair(pos)
+function multidecor.hedge.on_construct_pair(pos)
 	multidecor.connecting.update_adjacent_nodes_connection(pos, "pair")
 end
 
-local function default_after_destruct_pair(pos, oldnode)
+function multidecor.hedge.after_destruct_pair(pos, oldnode)
 	multidecor.connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
 end
 
@@ -32,10 +34,10 @@ function multidecor.register.register_hedge(name, base_def, add_def, craft_def)
 	def.callbacks = def.callbacks or {}
 
 	if add_def.connect_parts then
-		def.callbacks.on_construct = def.callbacks.on_construct or default_on_construct_dir
-		def.callbacks.after_dig_node = def.callbacks.after_dig_node or default_after_destruct_dir
+		def.callbacks.on_construct = def.callbacks.on_construct or multidecor.hedge.on_construct_dir
+		def.callbacks.after_dig_node = def.callbacks.after_dig_node or multidecor.hedge.after_destruct_dir
 	elseif add_def.double then
-		def.callbacks.on_construct = def.callbacks.on_construct or default_on_construct_pair
+		def.callbacks.on_construct = def.callbacks.on_construct or multidecor.hedge.on_construct_pair
 	end
 
 	multidecor.register.register_furniture_unit(name, def, craft_def)
@@ -63,7 +65,7 @@ function multidecor.register.register_hedge(name, base_def, add_def, craft_def)
 
 		if def2.callbacks then
 			def2.callbacks.on_construct = nil
-			def2.callbacks.after_dig_node = base_def.callbacks and base_def.callbacks.after_dig_node or default_after_destruct_pair
+			def2.callbacks.after_dig_node = base_def.callbacks and base_def.callbacks.after_dig_node or multidecor.hedge.after_destruct_pair
 		end
 		multidecor.register.register_furniture_unit(name .. "_double", def2)
 	end

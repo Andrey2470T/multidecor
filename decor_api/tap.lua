@@ -88,15 +88,15 @@ function multidecor.tap.toggle(pos)
 	end
 end
 
-function multidecor.tap.default_on_rightclick(pos)
+function multidecor.tap.on_rightclick(pos)
 	multidecor.tap.toggle(pos)
 end
 
-function multidecor.tap.default_on_destruct(pos)
+function multidecor.tap.on_destruct(pos)
 	multidecor.tap.off(pos)
 end
 
-function multidecor.tap.default_on_timer(pos, elapsed)
+function multidecor.tap.on_timer(pos, elapsed)
 	local down_node = minetest.get_node({x=pos.x, y=pos.y-1, z=pos.z})
 	local down_node2 = minetest.get_node({x=pos.x, y=pos.y-2, z=pos.z})
 

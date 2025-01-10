@@ -17,11 +17,11 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 			{-0.5, 0.4, -0.5, 0.5, 0.5, 0.5}			-- Top side
 		},
 		callbacks = {
-			on_construct = multidecor.shelves.default_on_construct,
-			on_rightclick = multidecor.shelves.default_on_node_rightclick,
-			can_dig = multidecor.shelves.default_can_dig,
-			on_receive_fields = multidecor.shelves.default_on_receive_fields,
-			on_destruct = multidecor.shelves.default_on_destruct
+			on_construct = multidecor.shelves.on_construct,
+			on_rightclick = multidecor.shelves.node_on_rightclick,
+			can_dig = multidecor.shelves.can_dig,
+			on_receive_fields = multidecor.shelves.on_receive_fields,
+			on_destruct = multidecor.shelves.on_destruct
 		}
 	},
 	{
@@ -56,11 +56,11 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 			{-0.4, -0.4, 0.4, 0.4, 0.4, 0.5}			-- Back side
 		},
 		callbacks = {
-			on_construct = multidecor.shelves.default_on_construct,
-			on_rightclick = multidecor.shelves.default_on_node_rightclick,
-			can_dig = multidecor.shelves.default_can_dig,
-			on_receive_fields = multidecor.shelves.default_on_receive_fields,
-			on_destruct = multidecor.shelves.default_on_destruct
+			on_construct = multidecor.shelves.on_construct,
+			on_rightclick = multidecor.shelves.node_on_rightclick,
+			can_dig = multidecor.shelves.can_dig,
+			on_receive_fields = multidecor.shelves.on_receive_fields,
+			on_destruct = multidecor.shelves.on_destruct
 		}
 	},
 	{
@@ -152,11 +152,11 @@ multidecor.register.register_table("three_level_wooden_rack", {
 	tiles = {"multidecor_wood.png"},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}},
 	callbacks = {
-		on_construct = multidecor.shelves.default_on_construct,
-		on_rightclick = multidecor.shelves.default_on_node_rightclick,
-		can_dig = multidecor.shelves.default_can_dig,
-		on_receive_fields = multidecor.shelves.default_on_receive_fields,
-		on_destruct = multidecor.shelves.default_on_destruct
+		on_construct = multidecor.shelves.on_construct,
+		on_rightclick = multidecor.shelves.node_on_rightclick,
+		can_dig = multidecor.shelves.can_dig,
+		on_receive_fields = multidecor.shelves.on_receive_fields,
+		on_destruct = multidecor.shelves.on_destruct
 	}
 },
 {
