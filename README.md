@@ -5,7 +5,7 @@
 This modpack adds various detailed furniture components, decorations and exterior stuff with various designs and styles of each epoch. Inspired by Homedecor and based on my abandoned Luxury Decor. Currently it contains the decor stuff only of "modern" style. A simple cheap style without any quaintness and luxury. In future there will be added still few sorts of that: baroque, high-tech, classic and royal.
 
 ## Changelog List
-#### [10.01.24] Release 1.3.5.
+#### [10.01.25] Release 1.3.5.
 #### [14.12.24] Release 1.3.4.
 #### [08.12.24] Release 1.3.3.
 #### [27.06.24] Release 1.3.2.
