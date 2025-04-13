@@ -669,6 +669,52 @@ if minetest.get_modpath("ethereal") then
 	})
 end
 
+local sliding_doors_bbox = {{-0.5, -0.5, -0.44, 0.5, 1.5, -0.31}}
+
+multidecor.register.register_furniture_unit("sliding_glass_door", {
+	type = "decoration",
+	style = "modern",
+	material = "metallic",
+	visual_scale = 1.0,
+	description = modern.S("Sliding Glass Door"),
+	mesh = "multidecor_sliding_glass_door.obj",
+	tiles = {
+		"multidecor_metal_material5.png",
+		"multidecor_glass_material.png"
+	},
+	use_texture_alpha = "blend",
+	bounding_boxes = sliding_doors_bbox
+})
+
+multidecor.register.register_furniture_unit("sliding_japanese_door", {
+	type = "decoration",
+	style = "modern",
+	material = "wood",
+	visual_scale = 1.0,
+	description = modern.S("Sliding Japanese Door"),
+	mesh = "multidecor_sliding_japanese_door.obj",
+	tiles = {
+		"multidecor_aspen_wood.png",
+		"multidecor_cloth.png"
+	},
+	use_texture_alpha = "blend",
+	bounding_boxes = sliding_doors_bbox
+})
+
+multidecor.register.register_furniture_unit("sliding_slotted_door", {
+	type = "decoration",
+	style = "modern",
+	material = "wood",
+	visual_scale = 1.0,
+	description = modern.S("Sliding Slotted Door"),
+	mesh = "multidecor_sliding_slotted_door.obj",
+	tiles = {
+		"multidecor_wood.png"
+	},
+	use_texture_alpha = "blend",
+	bounding_boxes = sliding_doors_bbox
+})
+
 minetest.register_alias("multidecor:wooden_door", "multidecor:patterned_wooden_door")
 minetest.register_alias("multidecor:pine_door", "multidecor:patterned_aspen_door")
 minetest.register_alias("multidecor:technical_door", "multidecor:technical_locked_door")

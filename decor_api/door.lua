@@ -3,10 +3,7 @@ multidecor.doors = {}
 
 -- Returns new position rotated around 'rotate_p' and rotation correponding to "dir"
 function multidecor.doors.rotate(pos, dir, rotate_p)
-	local y_rot = vector.dir_to_rotation(dir).y
-	local rel_pos = pos - rotate_p
-
-	rel_pos = hlpfuncs.rot(rel_pos, y_rot)
+	local rel_pos = hlpfuncs.rotate_to_dir(pos - rotate_p, dir)
 
 	return rotate_p + rel_pos, {x=0, y=y_rot, z=0}
 end

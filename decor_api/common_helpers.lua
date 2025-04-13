@@ -26,7 +26,7 @@ end
 function multidecor.helpers.get_dir(pos)
 	local node = minetest.get_node(pos)
 
-	return multidecor.helpers.get_dir_from_param2(node.name, node.param2)
+	return hlpfuncs.get_dir_from_param2(node.name, node.param2)
 end
 
 function multidecor.helpers.from_dir_get_param2(name, old_param2, dir)
@@ -47,37 +47,38 @@ function multidecor.helpers.ndef(pos)
 	return minetest.registered_nodes[minetest.get_node(pos).name]
 end
 
--- Rotates 'dir' vector around (0, 1, 0) axis at 'angle'.
-function multidecor.helpers.rot(dir, angle)
+-- Rotates vertically 'pos' around (0, 1, 0) axis at 'angle'.
+function multidecor.helpers.rot(pos, angle)
 	return vector.rotate_around_axis(dir, vector.new(0, 1, 0), angle)
 end
 
--- Rotates 'rel_pos' vertically relative to 'pos' of some node according to its facedir
-function multidecor.helpers.rotate_to_node_dir(pos, rel_pos)
-	local dir = multidecor.helpers.get_dir(pos)
-
+-- Rotates vertically 'pos' according to 'dir'
+function multidecor.helpers.rotate_to_dir(pos, dir)
 	if dir.x == 0 and dir.z == 0 then
 		return vector.zero()
 	end
 
 	local rot_y = vector.dir_to_rotation(dir).y
 
-	local new_rel_pos = vector.rotate_around_axis(rel_pos, vector.new(0, 1, 0), rot_y)
+	return hlpfuncs.rot(pos, rot_y)
+end
 
-	return new_rel_pos
+-- Rotates vertically 'rel_pos' which is relative to 'pos' of some node according to its param2 direction
+function multidecor.helpers.rotate_to_node_dir(pos, rel_pos)
+	local dir = hlpfuncs.get_dir(pos)
+
+	return hlpfuncs.rotate_to_dir(rel_pos, dir)
 end
 
 -- Returns rotated 'bbox' bounding box (collision or selection) corresponding to 'dir'
 function multidecor.helpers.rotate_bbox(bbox, dir)
-	local y_rot = vector.dir_to_rotation(dir).y
-
 	local box = {
 		min = {x=bbox[1], y=bbox[2], z=bbox[3]},
 		max = {x=bbox[4], y=bbox[5], z=bbox[6]}
 	}
 
-	box.min = hlpfuncs.rot(box.min, y_rot)
-	box.max = hlpfuncs.rot(box.max, y_rot)
+	box.min = hlpfuncs.rotate_to_dir(box.min, dir)
+	box.max = hlpfuncs.rotate_to_dir(box.max, dir)
 
 	local new_bbox = {
 		box.min.x, box.min.y, box.min.z,
@@ -87,15 +88,18 @@ function multidecor.helpers.rotate_bbox(bbox, dir)
 	return new_bbox
 end
 
+-- Swaps two values if a > b
+function multidecor.helpers.swap(a, b)
+	if a > b then
+		return b, a
+	else
+		return a, b
+	end
+end
+
 -- Limits the 'v' value at the range [s, e]. If 'v' < 's', returns 's', 'v' > 'e', returns 'e'
 function multidecor.helpers.clamp(s, e, v)
-	local start_v = s
-	local end_v = e
-
-	if s > e then
-		start_v = e
-		end_v = s
-	end
+	local start_v, end_v = hlpfuncs.swap(s, e)
 
 	return v < start_v and start_v or v > end_v and end_v or v
 end
