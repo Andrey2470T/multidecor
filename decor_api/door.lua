@@ -8,8 +8,8 @@ function multidecor.doors.rotate(pos, dir, rotate_p)
 	return rotate_p + rel_pos, {x=0, y=y_rot, z=0}
 end
 
--- Activates obj rotation from 'self.start_v' to 'self.end_v' or vice versa depending on 'dir_sign' value
-function multidecor.doors.smooth_rotate(obj, dir_sign)
+-- Activates obj movement/rotation from 'self.start_v' to 'self.end_v' or vice versa depending on 'dir_sign' value
+function multidecor.doors.set_dir(obj, dir_sign)
 	local self = obj:get_luaentity()
 	if not self then
 		return
@@ -48,6 +48,22 @@ function multidecor.doors.smooth_rotate_step(self, dtime, vel, acc)
 	self.object:set_rotation(rot)
 end
 
+function multidecor.doors.track_movement(self)
+	if self.dir == 0 or not self.dir then
+		return
+	end
+
+	local cur_pos = self.object:get_pos()
+	local target_pos = self.dir == 1 and self.end_v or self.start_v
+
+	if math.abs(target_pos - cur_pos[self.move_axis]) <= 0.05 then
+		self.dir = 0
+		self.object:set_velocity(vector.zero())
+		cur_pos[self.move_axis] = target_pos
+		self.object:set_pos(cur_pos)
+	end
+end
+
 function multidecor.doors.convert_to_entity(pos)
 	local node = minetest.get_node(pos)
 	local dir = hlpfuncs.get_dir(pos)
@@ -55,22 +71,23 @@ function multidecor.doors.convert_to_entity(pos)
 	local meta = minetest.get_meta(pos)
 
 
-	local is_mir_cpart = minetest.get_meta(pos):get_string("mirrored_counterpart") == "true"
+	local is_mir_cpart = meta:get_string("mirrored_counterpart") == "true"
 	minetest.remove_node(pos)
 
-	local add_props = minetest.registered_nodes[node.name].add_properties
-	local is_open = add_props.door.mode == "open"
+	local door_data = minetest.registered_nodes[node.name].add_properties.door
+	local is_open = meta:get_string("door_mode") == "open" or door_data.mode == "open"
 
-	local obj_name = is_open and node.name:gsub("_open", "") or node.name
+	local obj_name = node.name
 
-	if is_open then
-		dir = hlpfuncs.rot(dir, -math.pi/2)
+	if is_open and door_data.type == "regular" then
+		obj_name = node.name:gsub("_open", "")
+		--dir = hlpfuncs.rot(dir, -math.pi/2)
 	end
 
 	local shift = {x=pos.x+0.495, y=pos.y, z=pos.z+0.45}
 	local new_pos, rot = multidecor.doors.rotate(shift, dir, pos)
 
-	local def = minetest.registered_entities[obj_name]
+	local def = minetest.registered_entities[node.name]
 
 	local sbox, cbox
 	sbox = hlpfuncs.rotate_bbox(def.selectionbox, dir)
@@ -79,7 +96,16 @@ function multidecor.doors.convert_to_entity(pos)
 		cbox = hlpfuncs.rotate_bbox(def.collisionbox, dir)
 	end
 
-	local start_r, end_r = rot.y, rot.y+math.pi/2
+	local start_v, end_v
+
+	if door_data.type == "regular" then
+		start_v = rot.y
+		end_v = rot.y+math.pi/2
+	else
+		local move_dir = hlpfuncs.rot(dir, is_mir_cpart and -math.pi/2 or math.pi/2)
+		start_v = new_pos
+		end_v = new_pos + move_dir
+	end
 
 	if is_open then
 		rot.y = end_r
@@ -91,6 +117,7 @@ function multidecor.doors.convert_to_entity(pos)
 		is_open = not is_open
 	end
 
+	local add_props = minetest.registered_nodes[node.name].add_properties
 	if add_props.door.sounds and not is_open then
 		minetest.sound_play(add_props.door.sounds.open, {pos=pos, max_hear_distance=10})
 	end
@@ -150,6 +177,29 @@ function multidecor.doors.convert_from_entity(obj)
 		meta:set_string("infotext", "Owned by " .. self.owner)
 	end
 end
+
+function multidecor.doors.define_dummy_door_props(def)
+{
+	local bbox = table.copy(def.add_properties.bounding_boxes[1])
+	local z_center = (bbox[3]+bbox[6])/2
+	bbox[3] = bbox[3] - z_center
+	bbox[6] = bbox[6] - z_center
+
+	bbox[1] = bbox[1] - 0.5
+	bbox[4] = bbox[4] - 0.5
+
+	local format_s = def.mesh:find(".")
+	local props = {
+		textures = def.tiles,
+		mesh = def.mesh:sub(1, format_s-1) .. "_activated." .. (def.add_properties.door.format or "b3d")
+		visual_size = def.add_properties.door.type == "regular" and {x=5,y=5,z=5} or {x=1,y=1,z=1}
+		collisionbox = bbox,
+		selectionbox = bbox,
+		use_texture_alpha = def.use_texture_alpha == "blend"
+	}
+
+	return props
+}
 
 function multidecor.doors.node_on_rightclick(pos, node, clicker)
 	local door_data = hlpfuncs.ndef(pos).add_properties.door
@@ -228,7 +278,7 @@ function multidecor.doors.entity_on_rightclick(self, clicker)
 		self.action = "open"
 	end
 
-	multidecor.doors.smooth_rotate(self.object, dir_sign)
+	multidecor.doors.set_dir(self.object, dir_sign)
 end
 
 function multidecor.doors.entity_on_activate(self, staticdata)
@@ -241,10 +291,17 @@ function multidecor.doors.entity_on_activate(self, staticdata)
 		self.action = data[5]
 		self.mirrored_counterpart = data[6]
 		self.owner = data[7]
+		self.var_props = data[8]
+		self.move_axis = data[9]
+		self.rotate_x = data[10]
 	end
 
-	if self.bbox then
+	if self.bbox and self.var_props then
 		obj:set_properties({
+			visual_size = self.var_props.visual_size,
+			mesh = self.var_props.mesh,
+			textures = self.var_props.textures,
+			use_texture_alpha = self.var_props.use_texture_alpha,
 			collisionbox = self.bbox,
 			selectionbox = self.bbox
 		})
@@ -256,7 +313,11 @@ end
 function multidecor.doors.entity_on_step(self, dtime)
 	local door_data = minetest.registered_nodes[self.name].add_properties.door
 
-	multidecor.doors.smooth_rotate_step(self, dtime, door_data.vel or 30, door_data.acc or 0)
+	if door_data.type == "regular" then
+		multidecor.doors.smooth_rotate_step(self, dtime, door_data.vel or 30, door_data.acc or 0)
+	else
+		multidecor.doors.track_movement(self)
+	end
 
 	if self.dir == 0 then
 		multidecor.doors.convert_from_entity(self.object)
@@ -264,8 +325,12 @@ function multidecor.doors.entity_on_step(self, dtime)
 end
 
 function multidecor.doors.entity_get_staticdata(self)
-	return minetest.serialize({self.dir, self.bbox,
-		self.start_v, self.end_v, self.action, self.mirrored_counterpart, self.owner})
+	return minetest.serialize({
+		self.dir, self.bbox,
+		self.start_v, self.end_v, self.action,
+		self.mirrored_counterpart, self.owner,
+		self.var_props, self.move_axis, self.rotate_x
+	})
 end
 
 function multidecor.register.register_door(name, base_def, add_def, craft_def)
@@ -278,6 +343,7 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 	end
 
 	c_def.add_properties = add_def
+	c_def.add_properties.door.type = c_def.add_properties.door.type or "regular"
 	c_def.add_properties.door.mode = "closed"
 
 	c_def.callbacks = c_def.callbacks or {}
@@ -286,19 +352,24 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 
 	multidecor.register.register_furniture_unit(name, c_def, craft_def)
 
-	local c_def2 = table.copy(c_def)
-	c_def2.add_properties.door.mode = "open"
-	c_def2.mesh = c_def2.add_properties.door.mesh_open
-	c_def2.drop = "multidecor:" .. name
-	c_def2.bounding_boxes[1][3] = c_def2.bounding_boxes[1][3] * -1
-	c_def2.bounding_boxes[1][6] = c_def2.bounding_boxes[1][6] *-1
+	local type = c_def.add_properties.door.type
+	if type == "regular" then
+		local c_def2 = table.copy(c_def)
+		c_def2.add_properties.door.mode = "open"
 
-	c_def2.groups = c_def2.groups or {}
-	c_def2.groups.not_in_creative_inventory = 1
+		local format_s = c_def2.mesh:find(".")
+		c_def2.mesh = c_def2.mesh:sub(1, format_s-1) .. "_open." .. (c_def2.add_properties.door.format or "b3d")
+		c_def2.drop = "multidecor:" .. name
+		c_def2.bounding_boxes[1][3] = c_def2.bounding_boxes[1][3] * -1
+		c_def2.bounding_boxes[1][6] = c_def2.bounding_boxes[1][6] * -1
 
-	c_def2.callbacks.after_place_node = nil
+		c_def2.groups = c_def2.groups or {}
+		c_def2.groups.not_in_creative_inventory = 1
 
-	multidecor.register.register_furniture_unit(name .. "_open", c_def2)
+		c_def2.callbacks.after_place_node = nil
+
+		multidecor.register.register_furniture_unit(name .. "_open", c_def2)
+	end
 
 	local bbox = table.copy(base_def.bounding_boxes[1])
 	local z_center = (bbox[3]+bbox[6])/2
@@ -307,11 +378,19 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 
 	bbox[1] = bbox[1] - 0.5
 	bbox[4] = bbox[4] - 0.5
+
+	local format_s = c_def.mesh:find(".")
+	local size = type == "regular" and {x=5,y=5,z=5} or {x=1,y=1,z=1}
+	local mesh = c_def.mesh
+
+	if type == "regular" then
+		mesh = mesh:sub(1, format_s-1) .. "_activated." .. (c_def.add_properties.door.format or "b3d")
+	end
 	minetest.register_entity(":multidecor:" .. name, {
 		visual = "mesh",
-		visual_size = {x=5, y=5, z=5},
+		visual_size = size,
 		textures = base_def.tiles,
-		mesh = c_def2.add_properties.door.mesh_activated,
+		mesh = mesh,
 		physical = true,
 		collisionbox = bbox,
 		selectionbox = bbox,
