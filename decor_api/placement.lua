@@ -1,5 +1,11 @@
 multidecor.placement = {}
 
+function multidecor.placement.is_free_space(pos)
+	local def = minetest.registered_nodes[minetest.get_node(pos).name]
+
+	return def.drawtype == "airlike"
+end
+
 function multidecor.placement.check_for_free_space(pos, size_bbox)
 	local free = true
 
@@ -9,9 +15,7 @@ function multidecor.placement.check_for_free_space(pos, size_bbox)
 				local shift_pos = pos + vector.new(x, y, z)
 
 				if not vector.equals(pos, shift_pos) then
-					local shift_node_def = minetest.registered_nodes[minetest.get_node(shift_pos).name]
-
-					if shift_node_def.drawtype ~= "airlike" or shift_node_def.walkable then
+					if not multidecor.placement.is_free_space(shift_pos) then
 						free = false
 						break
 					end
@@ -75,16 +79,15 @@ function multidecor.placement.calc_place_space_size(bboxes)
 	return max_bbox
 end
 
-function multidecor.placement.check_for_placement(pos, placer, itemstack)
-	local nodename = minetest.get_node(pos).name
-	local def = minetest.registered_nodes[nodename]
+function multidecor.placement.check_for_placement(pos, name)
+	local def = minetest.registered_nodes[name]
 
 	if def.drawtype ~= "mesh" and def.drawtype ~= "nodebox" then
-		return itemstack
+		return true
 	end
 
 	if def.prevent_placement_check then
-		return itemstack
+		return true
 	end
 
 	local bboxes
@@ -110,13 +113,5 @@ function multidecor.placement.check_for_placement(pos, placer, itemstack)
 		rot_bbox.max.x, rot_bbox.max.y, rot_bbox.max.z
 	})
 
-	local can_be_placed = multidecor.placement.check_for_free_space(pos, max_bbox)
-
-	if not can_be_placed then
-		minetest.remove_node(pos)
-	else
-		itemstack:set_count(itemstack:get_count()-1)
-	end
-
-	return itemstack
+	return multidecor.placement.check_for_free_space(pos, max_bbox)
 end

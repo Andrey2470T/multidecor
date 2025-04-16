@@ -77,7 +77,16 @@ function register.build_description(style, material, base_desc)
 end
 
 function multidecor.register.after_place_node(pos, placer, itemstack)
-	return multidecor.placement.check_for_placement(pos, placer, itemstack)
+	local place = multidecor.placement.check_for_placement(pos, itemstack:get_name())
+
+	if not place then
+		minetest.chat_send_player(placer:get_player_name(), "Not enough free place for the given node!")
+		minetest.remove_node(pos)
+	else
+		itemstack:set_count(itemstack:get_count()-1)
+	end
+
+	return itemstack
 end
 
 function multidecor.register.on_punch(pos, node, puncher)

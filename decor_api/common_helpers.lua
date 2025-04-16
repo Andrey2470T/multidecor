@@ -49,7 +49,7 @@ end
 
 -- Rotates vertically 'pos' around (0, 1, 0) axis at 'angle'.
 function multidecor.helpers.rot(pos, angle)
-	return vector.rotate_around_axis(dir, vector.new(0, 1, 0), angle)
+	return vector.rotate_around_axis(pos, vector.new(0, 1, 0), angle)
 end
 
 -- Rotates vertically 'pos' according to 'dir'
@@ -89,8 +89,8 @@ function multidecor.helpers.rotate_bbox(bbox, dir)
 end
 
 -- Swaps two values if a > b
-function multidecor.helpers.swap(a, b)
-	if a > b then
+function multidecor.helpers.swap(a, b, criteria)
+	if criteria == true or criteria == nil then
 		return b, a
 	else
 		return a, b
@@ -99,7 +99,7 @@ end
 
 -- Limits the 'v' value at the range [s, e]. If 'v' < 's', returns 's', 'v' > 'e', returns 'e'
 function multidecor.helpers.clamp(s, e, v)
-	local start_v, end_v = hlpfuncs.swap(s, e)
+	local start_v, end_v = hlpfuncs.swap(s, e, s > e)
 
 	return v < start_v and start_v or v > end_v and end_v or v
 end

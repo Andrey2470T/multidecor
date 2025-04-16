@@ -647,6 +647,8 @@ local sliding_doors_data = {
 	door = {
 		format = "obj",
 		type = "sliding",
+		size = {x=10, y=10, z=10},
+		object_offset = {x=0, y=0, z=0},
 		vel = 0.8, -- metres per sec
 		sounds = {
 			open = "multidecor_drawer_open",
