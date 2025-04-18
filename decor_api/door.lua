@@ -28,6 +28,7 @@ function multidecor.doors.smooth_rotate_step(self, dtime, vel, acc)
 	local rot = self.object:get_rotation()
 	local rot_axis = self.rotate_x and "x" or "y"
 	local target_rot = self.dir == 1 and self.end_v or self.start_v
+	minetest.debug("rot: " .. rot[rot_axis] .. ", target_rot: " .. target_rot)
 
 	--rot[rot_axis] = hlpfuncs.clamp(self.start_v, self.end_v, rot[rot_axis])
 
@@ -87,36 +88,43 @@ function multidecor.doors.convert_to_entity(pos)
 	local dir = hlpfuncs.get_dir(pos)
 
 	local meta = minetest.get_meta(pos)
-	local mode = meta:get_string("door_mode")
-	local is_open = meta:get_string("door_mode") == "open"
-
 	local is_mir_cpart = meta:get_string("mirrored_counterpart") == "true"
-	minetest.remove_node(pos)
+
+	local mode = meta:get_string("door_mode")
+
+	local is_open
 
 	local door_data = minetest.registered_nodes[node.name].add_properties.door
+	if door_data.type == "regular" then
+		-- here 'is_open' means the open model version of the door
+		is_open = (not is_mir_cpart and mode == "open") or (is_mir_cpart and mode == "closed")
+	else
+		is_open = mode == "open"
+	end
+
+	minetest.remove_node(pos)
 
 	local obj_name = node.name
 
 	if is_open and door_data.type == "regular" then
 		obj_name = node.name:gsub("_open", "")
+
 		dir = hlpfuncs.rot(dir, -math.pi/2)
 	end
 
-	if is_mir_cpart then
-		if door_data.type == "sliding" then
-			obj_name = node.name:gsub("_mirrored", "")
-		else
-			obj_name = node.name:gsub("_open", "")
-		end
+	if is_mir_cpart and door_data.type == "sliding" then
+		obj_name = node.name:gsub("_mirrored", "")
 	end
 
-	local shift = pos + vector.new(door_data.object_offset or {x=0.495, y=0, z=0.45})
+	--minetest.debug("dir: " .. vector.to_string(dir))
+	local offset = vector.new(door_data.object_offset or {x=0.495, y=0, z=0.45})
+	local shift = pos + offset
 	local new_pos, rot = multidecor.doors.rotate(shift, dir, pos)
 
 	local def = minetest.registered_entities[obj_name]
 
 	local sbox, cbox
-	local inv_dir = dir * -1
+	local inv_dir = door_data.type == "sliding" and dir * -1 or dir
 	sbox = hlpfuncs.rotate_bbox(def.selectionbox, inv_dir)
 
 	if def.collisionbox then
@@ -161,9 +169,9 @@ function multidecor.doors.convert_to_entity(pos)
 		rot.y = rot.y + math.pi
 	end
 
-	--[[if is_mir_cpart then
+	if door_data.type == "regular" and is_mir_cpart then
 		is_open = not is_open
-	end]]
+	end
 
 	if door_data.sounds and not is_open then
 		minetest.sound_play(door_data.sounds.open, {pos=pos, max_hear_distance=10})
@@ -178,6 +186,7 @@ function multidecor.doors.convert_to_entity(pos)
 	})
 
 	local self = obj:get_luaentity()
+	minetest.debug("rot.y: " .. rot.y .. ", start_v: " .. start_v .. ", end_v: " .. end_v)
 	self.start_v = start_v
 	self.end_v = end_v
 	self.move_axis = move_axis
@@ -198,37 +207,44 @@ function multidecor.doors.convert_from_entity(obj)
 	local dir = get_dir_from_object_rot(obj)
 
 	local self = obj:get_luaentity()
-	local door = minetest.registered_nodes[self.name].add_properties.door
+	local door_data = minetest.registered_nodes[self.name].add_properties.door
 
-	if door.type == "regular" then
+	if door_data.type == "regular" then
 		dir = dir * -1
 	end
 	local param2 = minetest.dir_to_facedir(dir)
 
 	local pos = obj:get_pos()
 
+	local is_closed = self.action == "close"
+
 	local is_mir_cpart = self.mirrored_counterpart
 
-	--[[if is_mir_cpart then
+	if door_data.type == "regular" and is_mir_cpart then
 		is_closed = not is_closed
-	end]]
-
-	if door.sounds and self.action == "close" then
-		minetest.sound_play(door.sounds.close, {pos=pos, max_hear_distance=10})
 	end
+
+	if door_data.sounds and not is_closed then
+		minetest.sound_play(door_data.sounds.close, {pos=pos, max_hear_distance=10})
+	end
+
+	local action = self.action
+	local owner = self.owner
+	local name = self.name
 
 	obj:remove()
 
-	local name = self.name
-
-	if self.action == "open" and door.type == "regular" then
-		name = name .. "_open"
+	if door_data.type == "regular" then
+		if action == "open" and not is_mir_cpart or action == "close" and is_mir_cpart then
+			name = name .. "_open"
+		end
 	end
 
-	if door.type == "sliding" and is_mir_cpart then
+	if door_data.type == "sliding" and is_mir_cpart then
 		name = name .. "_mirrored"
 	end
 
+	minetest.debug("action: " .. action .. ", type: " .. door_data.type)
 	minetest.set_node(pos, {name=name, param2=param2})
 
 	local meta = minetest.get_meta(pos)
@@ -236,12 +252,12 @@ function multidecor.doors.convert_from_entity(obj)
 		meta:set_string("mirrored_counterpart", "true")
 	end
 
-	local new_mode = self.action == "close" and "closed" or "open"
+	local new_mode = action == "close" and "closed" or "open"
 	meta:set_string("door_mode", new_mode)
 
-	if self.owner then
-		meta:set_string("owner", self.owner)
-		meta:set_string("infotext", "Owned by " .. self.owner)
+	if owner then
+		meta:set_string("owner", owner)
+		meta:set_string("infotext", "Owned by " .. owner)
 	end
 end
 
@@ -251,6 +267,7 @@ function multidecor.doors.node_on_rightclick(pos, node, clicker)
 	local meta = minetest.get_meta(pos)
 	local owner = meta:get_string("owner")
 	local cur_mode = meta:get_string("door_mode")
+	local is_mir_cpart = meta:get_string("mirrored_counterpart") == "true"
 
 	if door_data.has_lock then
 		local playername = clicker:get_player_name()
@@ -271,6 +288,10 @@ function multidecor.doors.node_on_rightclick(pos, node, clicker)
 	else
 		dir_sign = -1
 		action = "close"
+	end
+
+	if door_data.type == "regular" and is_mir_cpart then
+		dir_sign = dir_sign * -1
 	end
 
 	if door_data.type == "sliding" then
@@ -294,6 +315,7 @@ function multidecor.doors.node_on_rightclick(pos, node, clicker)
 	end
 
 	multidecor.doors.set_dir(obj, dir_sign)
+	minetest.debug("on_rightclick self.dir: " .. self.dir)
 
 	if door_data.type == "sliding" then
 		multidecor.doors.smooth_movement(obj, node_dir, self.action, door_data.vel or 1)
@@ -320,8 +342,7 @@ function multidecor.doors.after_place_node(pos, placer)
 				add_props.common_name .. "_mirrored"
 			local mirrored_door_param2 = minetest.dir_to_facedir(dir)
 
-			minetest.set_node(pos, {name="multidecor:" .. mirrored_door_name, param2=mirrored_door_param2})
-
+			minetest.swap_node(pos, {name="multidecor:" .. mirrored_door_name, param2=mirrored_door_param2})
 			meta:set_string("mirrored_counterpart", "true")
 		end
 	end
@@ -348,6 +369,7 @@ function multidecor.doors.entity_on_rightclick(self, clicker)
 		self.action = "open"
 	end
 
+	minetest.debug("on_rightclick self.dir: " .. dir_sign)
 	multidecor.doors.set_dir(self.object, dir_sign)
 
 	local door_data = minetest.registered_nodes[self.name].add_properties.door
@@ -386,6 +408,7 @@ function multidecor.doors.entity_on_activate(self, staticdata)
 end
 
 function multidecor.doors.entity_on_step(self, dtime)
+	minetest.debug("before self.dir: " .. (self.dir or "nil"))
 	local door_data = minetest.registered_nodes[self.name].add_properties.door
 
 	if door_data.type == "regular" then
@@ -394,6 +417,7 @@ function multidecor.doors.entity_on_step(self, dtime)
 		multidecor.doors.track_movement(self)
 	end
 
+	minetest.debug("self.dir: " .. (self.dir or "nil"))
 	if self.dir == 0 then
 		multidecor.doors.convert_from_entity(self.object)
 	end
@@ -419,7 +443,6 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 
 	c_def.add_properties = add_def
 	c_def.add_properties.door.type = c_def.add_properties.door.type or "regular"
-	--c_def.add_properties.door.mode = "closed"
 
 	c_def.callbacks = c_def.callbacks or {}
 	c_def.callbacks.on_rightclick = c_def.callbacks.on_rightclick or multidecor.doors.node_on_rightclick
@@ -433,7 +456,6 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 	local c_def2 = table.copy(c_def)
 
 	local endname = type == "regular" and "_open" or "_mirrored"
-	--c_def2.add_properties.door.mode = "open"
 
 	if type == "regular" or (type == "sliding" and c_def.add_properties.door.has_mirrored_counterpart) then
 		c_def2.mesh = c_def2.mesh:gsub(mesh_format, endname .. mesh_format)
