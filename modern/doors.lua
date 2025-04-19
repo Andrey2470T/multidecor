@@ -119,7 +119,7 @@ for i, wood in ipairs(woods) do
 		common_name = "simple_" .. wood.name .. "_door",
 		door = {
 			has_mirrored_counterpart = true,
-			vel = 100, -- degrees per sec
+			--vel = 100, -- degrees per sec
 			sounds = {
 				open = "multidecor_wooden_door_open",
 				close = "multidecor_wooden_door_close"
@@ -307,7 +307,7 @@ for i, wood in ipairs(woods) do
 	},
 	{
 		door = {
-			vel = 100, -- degrees per sec
+			--vel = 100, -- degrees per sec
 			sounds = {
 				open = "multidecor_wooden_door_open",
 				close = "multidecor_wooden_door_close"
@@ -335,7 +335,7 @@ for i, wood in ipairs(woods) do
 	},
 	{
 		door = {
-			vel = 100, -- degrees per sec
+			--vel = 100, -- degrees per sec
 			sounds = {
 				open = "multidecor_wooden_door_open",
 				close = "multidecor_wooden_door_close"
@@ -364,7 +364,7 @@ multidecor.register.register_door("patterned_wooden_door", {
 	common_name = "patterned_wooden_door",
 	door = {
 		has_mirrored_counterpart = true,
-		vel = 100, -- degrees per sec
+		--vel = 100, -- degrees per sec
 		sounds = {
 			open = "multidecor_wooden_door_open",
 			close = "multidecor_wooden_door_close"
@@ -395,7 +395,7 @@ multidecor.register.register_door("bathroom_door", {
 	common_name = "bathroom_door",
 	door = {
 		has_mirrored_counterpart = true,
-		vel = 100, -- degrees per sec
+		--vel = 100, -- degrees per sec
 		sounds = {
 			open = "multidecor_wooden_door_open",
 			close = "multidecor_wooden_door_close"
@@ -429,7 +429,7 @@ multidecor.register.register_door("white_pine_glass_door", {
 	common_name = "white_pine_glass_door",
 	door = {
 		has_mirrored_counterpart = true,
-		vel = 100, -- degrees per sec
+		--vel = 100, -- degrees per sec
 		sounds = {
 			open = "multidecor_wooden_door_open",
 			close = "multidecor_wooden_door_close"
@@ -462,7 +462,7 @@ multidecor.register.register_door("patterned_aspen_glass_door", {
 	common_name = "patterned_aspen_glass_door",
 	door = {
 		has_mirrored_counterpart = true,
-		vel = 100, -- degrees per sec
+		--vel = 100, -- degrees per sec
 		sounds = {
 			open = "multidecor_wooden_door_open",
 			close = "multidecor_wooden_door_close"
@@ -494,7 +494,7 @@ multidecor.register.register_door("patterned_aspen_door", {
 	common_name = "patterned_aspen_door",
 	door = {
 		has_mirrored_counterpart = true,
-		vel = 100, -- degrees per sec
+		--vel = 100, -- degrees per sec
 		sounds = {
 			open = "multidecor_wooden_door_open",
 			close = "multidecor_wooden_door_close"
@@ -528,7 +528,7 @@ multidecor.register.register_door("pine_glass_door", {
 	common_name = "pine_glass_door",
 	door = {
 		has_mirrored_counterpart = true,
-		vel = 100, -- degrees per sec
+		--vel = 100, -- degrees per sec
 		sounds = {
 			open = "multidecor_wooden_door_open",
 			close = "multidecor_wooden_door_close"
@@ -560,7 +560,7 @@ multidecor.register.register_door("technical_locked_door", {
 {
 	door = {
 		has_lock = true,
-		vel = 80, -- degrees per sec
+		vel = 70, -- degrees per sec
 		sounds = {
 			open = "multidecor_metallic_door_open",
 			close = "multidecor_metallic_door_close"
@@ -591,7 +591,7 @@ multidecor.register.register_door("metallic_locked_door", {
 {
 	door = {
 		has_lock = true,
-		vel = 80, -- degrees per sec
+		vel = 70, -- degrees per sec
 		sounds = {
 			open = "multidecor_metallic_door_open",
 			close = "multidecor_metallic_door_close"
@@ -624,7 +624,7 @@ if minetest.get_modpath("ethereal") then
 	{
 		door = {
 			has_lock = true,
-			vel = 80, -- degrees per sec
+			vel = 70, -- degrees per sec
 			sounds = {
 				open = "multidecor_metallic_door_open",
 				close = "multidecor_metallic_door_close"
@@ -642,22 +642,121 @@ if minetest.get_modpath("ethereal") then
 end
 
 local sliding_doors_bbox = {{-0.5, -0.5, -0.44, 0.5, 1.5, -0.31}}
+local sliding_door_cornices_bbox = {{-0.5, -0.5, -0.5, 0.5, -0.125, -0.25}}
 
-local sliding_doors_data = {
-	door = {
-		format = "obj",
-		type = "sliding",
-		size = {x=10, y=10, z=10},
-		object_offset = {x=0, y=0, z=0},
-		vel = 0.8, -- metres per sec
-		sounds = {
-			open = "multidecor_drawer_open",
-			close = "multidecor_drawer_close"
-		}
+local sliding_doors_common_data = {
+	format = "obj",
+	type = "sliding",
+	size = {x=10, y=10, z=10},
+	object_offset = {x=0, y=0, z=0},
+	vel = 1.2, -- metres per sec
+	has_mirrored_counterpart = true,
+	sounds = {
+		open = "multidecor_drawer_open",
+		close = "multidecor_drawer_close"
 	}
 }
 
-multidecor.register.register_door("sliding_glass_door", {
+local sliding_doors_data = {
+	{
+		craft_cmp = "multidecor:metal_bar",
+		has_glass_cmp = true,
+		doorname = "sliding_glass_door",
+		cornicename = "sliding_door_metal_cornice",
+		material =  "metallic",
+		tiles = {
+			"multidecor_metal_material5.png",
+			"multidecor_glass_material.png"
+		},
+	},
+	{
+		craft_cmp = "multidecor:aspen_plank",
+		doorname = "sliding_japanese_door",
+		cornicename = "sliding_door_aspen_cornice",
+		material =  "wood",
+		tiles = {
+			"multidecor_aspen_wood.png",
+			"multidecor_cloth.png"
+		},
+	},
+	{
+		craft_cmp = "multidecor:plank",
+		doorname = "sliding_slotted_door",
+		cornicename = "sliding_door_wooden_cornice",
+		material =  "wood",
+		tiles = {
+			"multidecor_wood.png"
+		},
+	}
+}
+
+local sliding_doors_recipe = {
+	recipe = {
+		{"", "", ""},
+		{"", "", ""},
+		{"", "multidecor:saw", ""}
+	},
+	replacements = {{"multidecor:saw", "multidecor:saw"}}
+}
+
+local sliding_doors_cornices_recipe = {
+	recipe = {
+		{"", "", ""},
+		{"", "multidecor:saw", ""},
+		{"", "", ""}
+	},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
+}
+
+for _, door_n in ipairs(sliding_doors_data) do
+	local sliding_doors_recipe_copy = table.copy(sliding_doors_recipe)
+
+	for cmps_row = 1, #sliding_doors_recipe_copy.recipe do
+		for cmp_n = 1, #sliding_doors_recipe_copy.recipe[cmps_row] do
+			if cmps_row == 2 and cmp_n == 2 then
+				if door_n.has_glass_cmp then
+					sliding_doors_recipe_copy.recipe[cmps_row][cmp_n] = "xpanes:pane_flat"
+				end
+			elseif cmps_row ~= 3 and cmp_n ~= 2 then
+				sliding_doors_recipe_copy.recipe[cmps_row][cmp_n] = door_n.craft_cmp
+			end
+		end
+	end
+	multidecor.register.register_door(door_n.doorname, {
+		style = "modern",
+		material = door_n.material,
+		visual_scale = 1.0,
+		description = modern.S(hlpfuncs.upper_first_letters(door_n.doorname)),
+		mesh = "multidecor_" .. door_n.doorname ..  ".obj",
+		tiles = door_n.tiles,
+		use_texture_alpha = "blend",
+		bounding_boxes = sliding_doors_bbox
+	},
+	{
+		common_name = door_n.doorname,
+		door = sliding_doors_common_data
+	}, sliding_doors_recipe_copy)
+
+	local sliding_doors_cornices_recipe_copy = table.copy(sliding_doors_cornices_recipe)
+
+	
+	for cmp_n = 1, #sliding_doors_cornices_recipe_copy.recipe[1] do
+		sliding_doors_cornices_recipe_copy.recipe[1][cmp_n] = door_n.craft_cmp
+	end
+
+	multidecor.register.register_furniture_unit(door_n.cornicename, {
+		type = "decoration",
+		style = "modern",
+		material = door_n.material,
+		visual_scale = 1.0,
+		description = modern.S(hlpfuncs.upper_first_letters(door_n.cornicename)),
+		mesh = "multidecor_sliding_door_cornice.obj",
+		tiles = {door_n.tiles[1]},
+		bounding_boxes = sliding_door_cornices_bbox
+	}, sliding_doors_cornices_recipe_copy)
+end
+
+--[[multidecor.register.register_door("sliding_glass_door", {
 	style = "modern",
 	material = "metallic",
 	visual_scale = 1.0,
@@ -669,7 +768,11 @@ multidecor.register.register_door("sliding_glass_door", {
 	},
 	use_texture_alpha = "blend",
 	bounding_boxes = sliding_doors_bbox
-}, sliding_doors_data)
+},
+{
+	common_name = "sliding_glass_door",
+	door = sliding_doors_data
+})
 
 multidecor.register.register_door("sliding_japanese_door", {
 	style = "modern",
@@ -683,7 +786,11 @@ multidecor.register.register_door("sliding_japanese_door", {
 	},
 	use_texture_alpha = "blend",
 	bounding_boxes = sliding_doors_bbox
-}, sliding_doors_data)
+},
+{
+	common_name = "sliding_japanese_door",
+	door = sliding_doors_data
+})
 
 multidecor.register.register_door("sliding_slotted_door", {
 	style = "modern",
@@ -696,7 +803,44 @@ multidecor.register.register_door("sliding_slotted_door", {
 	},
 	use_texture_alpha = "blend",
 	bounding_boxes = sliding_doors_bbox
-}, sliding_doors_data)
+},
+{
+	common_name = "sliding_slotted_door",
+	door = sliding_doors_data
+})
+
+multidecor.register.register_furniture_unit("sliding_door_metal_cornice", {
+	type = "decoration",
+	style = "modern",
+	material = "metal",
+	visual_scale = 1.0,
+	description = modern.S("Metal Cornice For Sliding Door"),
+	mesh = "multidecor_sliding_door_cornice.obj",
+	tiles = {"multidecor_metal_material5.png"},
+	bounding_boxes = sliding_door_cornices_bbox
+})
+
+multidecor.register.register_furniture_unit("sliding_door_aspen_cornice", {
+	type = "decoration",
+	style = "modern",
+	material = "wood",
+	visual_scale = 1.0,
+	description = modern.S("Aspen Cornice For Sliding Door"),
+	mesh = "multidecor_sliding_door_cornice.obj",
+	tiles = {"multidecor_aspen_wood.png"},
+	bounding_boxes = sliding_door_cornices_bbox
+})
+
+multidecor.register.register_furniture_unit("sliding_door_wooden_cornice", {
+	type = "decoration",
+	style = "modern",
+	material = "wood",
+	visual_scale = 1.0,
+	description = modern.S("Wooden Cornice For Sliding Door"),
+	mesh = "multidecor_sliding_door_cornice.obj",
+	tiles = {"multidecor_wood.png"},
+	bounding_boxes = sliding_door_cornices_bbox
+})]]
 
 minetest.register_alias("multidecor:wooden_door", "multidecor:patterned_wooden_door")
 minetest.register_alias("multidecor:pine_door", "multidecor:patterned_aspen_door")
