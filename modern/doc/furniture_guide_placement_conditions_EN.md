@@ -1,0 +1,3 @@
+# Furniture Placement Conditions
+
+Many of the furniture components like chairs, tables, sofas, chandeliers and etc check for the free space for their bounding boxes before being placed. For example, the bathtub requires two blocks horizontally free (filled by airlike nodes). If there's no enough free space, it will refuse to place and the corresponding chat message will be output. The main drawback of the current placement API is it doesn't check bounding boxes from some other furniture items around the placing node, but only the nodes themselves. So the bathtubs crossing each other is unfortunately acceptable situation now.

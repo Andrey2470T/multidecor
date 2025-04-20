@@ -16,3 +16,7 @@ dofile(modpath .. "/shelves.lua")
 dofile(modpath .. "/stairs.lua")
 dofile(modpath .. "/tables.lua")
 dofile(modpath .. "/wardrobes.lua")
+
+if minetest.get_modpath("doclib") then
+    dofile(modpath .. "/guide_paper.lua")
+end
