@@ -1,6 +1,8 @@
 local modpath = minetest.get_modpath("craft_ingredients")
 local S = minetest.get_translator(minetest.get_current_modname())
 
+local bm_modpath = minetest.get_modpath("basic_materials")
+
 dofile(modpath .. "/ores.lua")
 
 local woods = {"", "jungle", "aspen", "pine"}
@@ -139,11 +141,15 @@ minetest.register_craftitem(":multidecor:wool_cloth",
 	inventory_image = "multidecor_wool_cloth.png"
 })
 
-minetest.register_craftitem(":multidecor:metal_bar",
-{
-	description = S("Metal Bar"),
-	inventory_image = "multidecor_metal_bar.png"
-})
+if bm_modpath then
+	minetest.register_alias("multidecor:metal_bar", "basic_materials:steel_bar")
+else
+	minetest.register_craftitem(":multidecor:metal_bar",
+	{
+		description = S("Metal Bar"),
+		inventory_image = "multidecor_metal_bar.png"
+	})
+end
 
 if minetest.get_modpath("moreores") then
 	minetest.register_craftitem(":multidecor:silver_sheet",
@@ -195,29 +201,36 @@ minetest.register_craftitem(":multidecor:lampshade",
 	inventory_image = "multidecor_lampshade.png"
 })
 
-minetest.register_craftitem(":multidecor:plastic_sheet",
-{
-	description = S("Plastic Sheet"),
-	inventory_image = "multidecor_plastic_sheet.png"
-})
+if bm_modpath then
+	minetest.register_alias("multidecor:plastic_sheet", "basic_materials:plastic_sheet")
+	minetest.register_alias("multidecor:plastic_strip", "basic_materials:plastic_strip")
+	minetest.register_alias("multidecor:metal_wire", "basic_materials:steel_wire")
+	minetest.register_alias("multidecor:metal_chain", "basic_materials:chainlink_steel")
+else
+	minetest.register_craftitem(":multidecor:plastic_sheet",
+	{
+		description = S("Plastic Sheet"),
+		inventory_image = "multidecor_plastic_sheet.png"
+	})
 
-minetest.register_craftitem(":multidecor:plastic_strip",
-{
-	description = S("Plastic Strip"),
-	inventory_image = "multidecor_plastic_strip.png"
-})
+	minetest.register_craftitem(":multidecor:plastic_strip",
+	{
+		description = S("Plastic Strip"),
+		inventory_image = "multidecor_plastic_strip.png"
+	})
 
-minetest.register_craftitem(":multidecor:metal_wire",
-{
-	description = S("Metal Wire"),
-	inventory_image = "multidecor_metal_wire.png"
-})
+	minetest.register_craftitem(":multidecor:metal_wire",
+	{
+		description = S("Metal Wire"),
+		inventory_image = "multidecor_metal_wire.png"
+	})
 
-minetest.register_craftitem(":multidecor:metal_chain",
-{
-	description = S("Chain"),
-	inventory_image = "multidecor_chain.png"
-})
+	minetest.register_craftitem(":multidecor:metal_chain",
+	{
+		description = S("Chain"),
+		inventory_image = "multidecor_chain.png"
+	})
+end
 
 minetest.register_craftitem(":multidecor:four_bulbs_set",
 {
@@ -231,11 +244,15 @@ minetest.register_craftitem(":multidecor:wolfram_wire",
 	inventory_image = "multidecor_wolfram_wire.png"
 })
 
-minetest.register_craftitem(":multidecor:silver_wire",
-{
-	description = S("Silver Wire"),
-	inventory_image = "multidecor_silver_wire.png"
-})
+if bm_modpath then
+	minetest.register_alias("multidecor:silver_wire", "basic_materials:silver_wire")
+else
+	minetest.register_craftitem(":multidecor:silver_wire",
+	{
+		description = S("Silver Wire"),
+		inventory_image = "multidecor_silver_wire.png"
+	})
+end
 
 minetest.register_craftitem(":multidecor:four_lampshades_set",
 {
@@ -249,11 +266,15 @@ minetest.register_craftitem(":multidecor:digital_dial",
 	inventory_image = "multidecor_digital_dial.png"
 })
 
-minetest.register_craftitem(":multidecor:brass_ingot",
-{
-	description = S("Brass Ingot"),
-	inventory_image = "multidecor_brass_ingot.png"
-})
+if bm_modpath then
+	minetest.register_alias("multidecor:brass_ingot", "basic_materials:brass_ingot")
+else
+	minetest.register_craftitem(":multidecor:brass_ingot",
+	{
+		description = S("Brass Ingot"),
+		inventory_image = "multidecor_brass_ingot.png"
+	})
+end
 
 minetest.register_craftitem(":multidecor:steel_stripe",
 {
@@ -267,11 +288,15 @@ minetest.register_craftitem(":multidecor:brass_stripe",
 	inventory_image = "multidecor_brass_stripe.png"
 })
 
-minetest.register_craftitem(":multidecor:gear",
-{
-	description = S("Gear"),
-	inventory_image = "multidecor_gear.png"
-})
+if bm_modpath then
+	minetest.register_alias("multidecor:gear", "basic_materials:gear_steel")
+else
+	minetest.register_craftitem(":multidecor:gear",
+	{
+		description = S("Gear"),
+		inventory_image = "multidecor_gear.png"
+	})
+end
 
 minetest.register_craftitem(":multidecor:spring",
 {
@@ -297,11 +322,15 @@ minetest.register_craftitem(":multidecor:chainlink",
 	inventory_image = "multidecor_chainlink.png"
 })
 
-minetest.register_craftitem(":multidecor:terracotta_fragment",
-{
-	description = S("Terracotta Fragment"),
-	inventory_image = "multidecor_terracotta_fragment.png"
-})
+if bm_modpath then
+	minetest.register_alias("multidecor:terracotta_fragment", "basic_materials:terracotta_base")
+else
+	minetest.register_craftitem(":multidecor:terracotta_fragment",
+	{
+		description = S("Terracotta Fragment"),
+		inventory_image = "multidecor_terracotta_fragment.png"
+	})
+end
 
 minetest.register_craftitem(":multidecor:porcelain_fragment",
 {
