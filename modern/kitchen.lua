@@ -618,7 +618,7 @@ multidecor.register.register_furniture_unit("porcelain_plate", {
 },
 {
 	recipe = {
-		{"default:clay_lump", "multidecor:brass_stripe", "default:clay_lump"},
+		{"multidecor:porcelain_fragment", "multidecor:brass_stripe", "multidecor:porcelain_fragment"},
 		{"", "", ""},
 		{"", "", ""}
 	}
@@ -661,10 +661,11 @@ multidecor.register.register_furniture_unit("porcelain_cup", {
 },
 {
 	recipe = {
-		{"default:clay_lump", "", ""},
-		{"default:clay_lump", "", ""},
+		{"multidecor:porcelain_fragment", "", ""},
+		{"multidecor:porcelain_fragment", "", ""},
 		{"" , "", ""}
-	}
+	},
+	count = 2
 })
 
 multidecor.register.register_furniture_unit("glass_cup", {
@@ -850,8 +851,8 @@ multidecor.register.register_furniture_unit("porcelain_teapot", {
 },
 {
 	recipe = {
-		{"default:clay_lump", "default:clay_lump", "bucket:bucket_water"},
-		{"default:clay_lump", "default:grass_1", ""},
+		{"multidecor:porcelain_fragment", "multidecor:porcelain_fragment", "bucket:bucket_water"},
+		{"multidecor:porcelain_fragment", "default:grass_1", ""},
 		{"", "", ""}
 	},
 	replacements = {{"bucker:bucker_water", "bucket:bucket_empty"}}
@@ -997,7 +998,7 @@ multidecor.register.register_furniture_unit("kitchen_metallic_hanger_with_ladle_
 },
 {
 	recipe = {
-		{"multidecor:coarse_steel_sheet", "multidecor:metal_bar", "multidecor:metal_bar"},
+		{"multidecor:coarse_steel_sheet", "multidecor:metal_bar", "multidecor:cast_iron_pan"},
 		{"multidecor:coarse_steel_sheet", "multidecor:board", ""},
 		{"", "", ""}
 	}

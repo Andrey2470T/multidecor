@@ -303,6 +303,24 @@ minetest.register_craftitem(":multidecor:terracotta_fragment",
 	inventory_image = "multidecor_terracotta_fragment.png"
 })
 
+minetest.register_craftitem(":multidecor:porcelain_fragment",
+{
+	description = S("Porcelain Fragment"),
+	inventory_image = "multidecor_porcelain_fragment.png"
+})
+
+minetest.register_craftitem(":multidecor:clay_and_iron",
+{
+	description = S("Clay And Iron"),
+	inventory_image = "multidecor_clay_and_iron.png"
+})
+
+minetest.register_craftitem(":multidecor:clay_and_sand",
+{
+	description = S("Clay And Sand"),
+	inventory_image = "multidecor_clay_and_sand.png"
+})
+
 minetest.register_craftitem(":multidecor:copper_and_tin",
 {
 	description = S("Copper And Tin"),
@@ -450,14 +468,36 @@ minetest.register_craft({
 minetest.register_craft({
     type = "shapeless",
     output = "multidecor:plastic_strip 2",
-    recipe = {"multidecor:plastic_sheet"}
+    recipe = {"multidecor:plastic_sheet", "multidecor:steel_scissors"},
+	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
 minetest.register_craft({
+	type = "cooking",
+	output = "multidecor:terracotta_fragment",
+	recipe = "multidecor:clay_and_iron",
+	cooktime = 12
+})
+
+minetest.register_craft({
+	type = "cooking",
+	output = "multidecor:porcelain_fragment",
+	recipe = "multidecor:clay_and_sand",
+	cooktime = 15
+})
+
+minetest.register_craft(
+{
 	type = "shapeless",
-	output = "multidecor:terracotta_fragment 4",
-	recipe = {"default:clay_brick", "multidecor:hammer"},
-	replacements = {{"multidecor:hammer", "multidecor:hammer"}}
+	output = "multidecor:clay_and_iron",
+	recipe = {"default:clay_lump", "default:iron_lump"}
+})
+
+minetest.register_craft(
+{
+	type = "shapeless",
+	output = "multidecor:clay_and_sand",
+	recipe = {"default:clay_lump", "default:sand"}
 })
 
 minetest.register_craft(

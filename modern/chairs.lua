@@ -140,7 +140,7 @@ multidecor.register.register_seat("round_modern_metallic_stool", {
 },
 {
 	recipe = {
-		{"wool:white", "", ""},
+		{"multidecor:wool_cloth", "", ""},
 		{"multidecor:metal_bar", "multidecor:metal_bar", "multidecor:metal_bar"},
 		{"multidecor:metal_bar", "multidecor:metal_bar", ""}
 	}
