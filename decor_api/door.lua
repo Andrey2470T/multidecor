@@ -341,8 +341,9 @@ function multidecor.doors.after_place_node(pos, placer)
 end
 
 function multidecor.doors.entity_on_rightclick(self, clicker)
-	if self.owner and self.owner ~= clicker:get_player_name() then
-		minetest.chat_send_player(multidecor.S("This door has locked!"))
+	local playername = clicker:get_player_name()
+	if self.owner and playername then
+		minetest.chat_send_player(playername, multidecor.S("This door has locked!"))
 		return
 	end
 
