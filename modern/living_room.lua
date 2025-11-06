@@ -489,6 +489,7 @@ local pots_defs = {
 		},
 		bounding_boxes = {{-0.4, -0.5, -0.4, 0.4, 0.25, 0.4}},
 		sounds = default.node_sound_stone_defaults(),
+		use_texture_alpha="clip",
 		craft = {
 			recipe = {
 				{"multidecor:terracotta_fragment", "multidecor:terracotta_fragment", "multidecor:terracotta_fragment"},
@@ -506,6 +507,7 @@ local pots_defs = {
 		},
 		bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, 0.05, 0.3}},
 		sounds = default.node_sound_stone_defaults(),
+		use_texture_alpha="clip",
 		craft = {
 			recipe = {
 				{"multidecor:terracotta_fragment", "default:dirt", "dye:green"},
