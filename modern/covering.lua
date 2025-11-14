@@ -284,5 +284,5 @@ minetest.register_tool(":multidecor:spatula", {
 minetest.register_craft({
 	type = "shapeless",
 	output = "multidecor:spatula",
-	recipe = {"multidecor:steel_stripet", "multidecor:coarse_steel_sheet"}
+	recipe = {"multidecor:steel_strip", "multidecor:coarse_steel_sheet"}
 })
