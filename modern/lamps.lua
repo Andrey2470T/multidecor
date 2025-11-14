@@ -218,7 +218,7 @@ multidecor.register.register_light("brass_candlestick", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("Brass Candlestick"),
-	use_texture_alpha = "blend",
+	use_texture_alpha = "clip",
 	light_source = 10,
 	mesh = "multidecor_brass_candlestick.b3d",
 	tiles = {
@@ -248,7 +248,7 @@ multidecor.register.register_light("silver_candlestick", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("Silver Candlestick"),
-	use_texture_alpha = "blend",
+	use_texture_alpha = "clip",
 	light_source = 10,
 	mesh = "multidecor_brass_candlestick.b3d",
 	tiles = {
@@ -311,7 +311,7 @@ multidecor.register.register_light("kitchen_chandelier", {
 	material = "wood",
 	description = modern.S("Kitchen Chandelier"),
 	mesh = "multidecor_kitchen_chandelier.b3d",
-	use_texture_alpha = "blend",
+	use_texture_alpha = "clip",
 	tiles = {
 		"multidecor_metal_material.png",
 		"multidecor_polished_jungle_wood.png",

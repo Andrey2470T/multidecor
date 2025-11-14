@@ -466,6 +466,7 @@ local pots_defs = {
 			"multidecor_terracotta_material.png^[multiply:brown",
 			"default_dirt.png",
 		},
+		use_texture_alpha = "clip",
 		bounding_boxes = {{-0.4, -0.5, -0.4, 0.4, 0.25, 0.4}},
 		sounds = default.node_sound_stone_defaults(),
 		craft = {
@@ -483,6 +484,7 @@ local pots_defs = {
 			"multidecor_terracotta_material.png^[multiply:palegreen",
 			"default_dirt.png"
 		},
+		use_texture_alpha = "clip",
 		bounding_boxes = {{-0.3, -0.5, -0.3, 0.3, 0.05, 0.3}},
 		sounds = default.node_sound_stone_defaults(),
 		craft = {
@@ -499,7 +501,7 @@ local pots_defs = {
 		tiles = {"multidecor_gloss.png^[opacity:120"},
 		inventory_image = "multidecor_glass_vase_inv.png",
 		wield_image = "multidecor_glass_vase_inv.png",
-		use_texture_alpha = "blend",
+		use_texture_alpha = "clip",
 		bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0.2, 0.2}},
 		sounds = default.node_sound_glass_defaults(),
 		craft = {
