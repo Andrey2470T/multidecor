@@ -13,13 +13,13 @@ content = dofile(mp .. "/doc/furniture_guide_beds_EN.lua")
 doclib.add_to_manual("modern", "EN", content)
 content = dofile(mp .. "/doc/furniture_guide_books_EN.lua")
 doclib.add_to_manual("modern", "EN", content)
+content = dofile(mp .. "/doc/furniture_guide_decorating_EN.lua")
+doclib.add_to_manual("modern", "EN", content)
 content = dofile(mp .. "/doc/furniture_guide_lights_EN.lua")
 doclib.add_to_manual("modern", "EN", content)
 content = dofile(mp .. "/doc/furniture_guide_painting_EN.lua")
 doclib.add_to_manual("modern", "EN", content)
 content = dofile(mp .. "/doc/furniture_guide_placement_conditions_EN.lua")
-doclib.add_to_manual("modern", "EN", content)
-content = dofile(mp .. "/doc/furniture_guide_plastering_EN.lua")
 doclib.add_to_manual("modern", "EN", content)
 content = dofile(mp .. "/doc/furniture_guide_seats_EN.lua")
 doclib.add_to_manual("modern", "EN", content)
@@ -71,9 +71,9 @@ local plans_imgs = {
     ["bathroom_curtains"] = {"img", "multidecor_guide_bathroom_curtains.png", "12,10"},
     ["beds"] = {"img", "multidecor_guide_beds.png", "15,10"},
     ["books"] = {"img", "multidecor_guide_books.png", "15,10"},
+    ["decorating"] = {"img", "multidecor_guide_decorating.png", "13,10"},
     ["lights"] = {"img", "multidecor_guide_lights.png", "10,10"},
     ["painting"] = {"img", "multidecor_guide_painting.png", "13,10"},
-    ["plastering"] = {"img", "multidecor_guide_plastering.png", "13,10"},
     ["seats"] = {"img", "multidecor_guide_seats.png", "12,10"},
     ["shelves_inventories"] = {"img", "multidecor_guide_shelves_inventories.png", "13,10"},
     ["taps"] = {"img", "multidecor_guide_taps.png", "10,10"},
