@@ -1,88 +1,120 @@
-multidecor.placement = {}
+multidecor.placement = multidecor.placement or {}
+local placement = multidecor.placement
+local hlpfuncs = multidecor.helpers
 
-function multidecor.placement.is_free_space(pos)
-	local def = minetest.registered_nodes[minetest.get_node(pos).name]
-
-	return def.drawtype == "airlike"
+local function node_def_at(pos)
+	local node = minetest.get_node(pos)
+	return node and minetest.registered_nodes[node.name]
 end
 
-function multidecor.placement.check_for_free_space(pos, size_bbox)
-	local free = true
+local function snap_coord(coord)
+	local abs_value = math.abs(coord)
+	local int = math.floor(abs_value)
+	local frac = abs_value - int
 
-	for x = size_bbox[1], size_bbox[4] do
-		for y = size_bbox[2], size_bbox[5] do
-			for z = size_bbox[3], size_bbox[6] do
-				local shift_pos = pos + vector.new(x, y, z)
+	if frac > 0.5 then
+		abs_value = math.ceil(abs_value)
+	else
+		abs_value = int
+	end
 
-				if not vector.equals(pos, shift_pos) then
-					if not multidecor.placement.is_free_space(shift_pos) then
-						free = false
-						break
-					end
+	return coord < 0 and -abs_value or abs_value
+end
+
+local function ensure_box(box)
+	if not box then
+		return {}
+	end
+
+	if type(box[1]) == "number" then
+		return {table.copy(box)}
+	end
+
+	local result = {}
+	for _, sub_box in ipairs(box) do
+		result[#result + 1] = table.copy(sub_box)
+	end
+
+	return result
+end
+
+function placement.is_free_space(pos)
+	local def = node_def_at(pos)
+	return def and def.drawtype == "airlike"
+end
+
+function placement.check_for_free_space(pos, bbox)
+	for x = bbox[1], bbox[4] do
+		for y = bbox[2], bbox[5] do
+			for z = bbox[3], bbox[6] do
+				local shift_pos = vector.new(pos.x + x, pos.y + y, pos.z + z)
+				if not vector.equals(pos, shift_pos) and not placement.is_free_space(shift_pos) then
+					return false
 				end
 			end
-
-			if not free then break end
-		end
-
-		if not free then break end
-	end
-
-	return free
-end
-
-function multidecor.placement.box_repair(box)
-	local rep_box = table.copy(box)
-
-	if rep_box[1] > rep_box[4] then
-		local x = rep_box[1]
-		rep_box[1] = rep_box[4]
-		rep_box[4] = x
-	end
-
-	if rep_box[2] > rep_box[5] then
-		local y = rep_box[2]
-		rep_box[2] = rep_box[5]
-		rep_box[5] = y
-	end
-
-	if rep_box[3] > rep_box[6] then
-		local z = rep_box[3]
-		rep_box[3] = rep_box[6]
-		rep_box[6] = z
-	end
-
-	return rep_box
-end
-
-function multidecor.placement.calc_place_space_size(bboxes)
-	local max_bbox = {0, 0, 0, 0, 0, 0}
-
-	for box_id, _ in ipairs(bboxes) do
-		local new_box = multidecor.placement.box_repair(bboxes[box_id])
-
-		for i, v in ipairs(new_box) do
-			if i < 4 then
-				max_bbox[i] = box_id == 1 and v or math.min(max_bbox[i], v)
-			else
-				max_bbox[i] = math.max(max_bbox[i], v)
-			end
 		end
 	end
 
-	for i, coord in ipairs(max_bbox) do
-		local int, frac = math.modf(coord)
-		local sgn = math.sign(coord)
-		max_bbox[i] = math.abs(frac) > 0.5 and sgn*math.ceil(math.abs(coord)) or sgn*math.floor(math.abs(coord))
-	end
-
-	return max_bbox
+	return true
 end
 
-function multidecor.placement.check_for_placement(pos, name)
+function placement.box_repair(box)
+	local repaired = table.copy(box)
+
+	if repaired[1] > repaired[4] then
+		repaired[1], repaired[4] = repaired[4], repaired[1]
+	end
+
+	if repaired[2] > repaired[5] then
+		repaired[2], repaired[5] = repaired[5], repaired[2]
+	end
+
+	if repaired[3] > repaired[6] then
+		repaired[3], repaired[6] = repaired[6], repaired[3]
+	end
+
+	return repaired
+end
+
+function placement.calc_place_space_size(bboxes)
+	local list = ensure_box(bboxes)
+	if #list == 0 then
+		return {0, 0, 0, 0, 0, 0}
+	end
+
+	local min_x, min_y, min_z = math.huge, math.huge, math.huge
+	local max_x, max_y, max_z = -math.huge, -math.huge, -math.huge
+
+	for _, box in ipairs(list) do
+		local repaired = placement.box_repair(box)
+		min_x = math.min(min_x, repaired[1])
+		min_y = math.min(min_y, repaired[2])
+		min_z = math.min(min_z, repaired[3])
+		max_x = math.max(max_x, repaired[4])
+		max_y = math.max(max_y, repaired[5])
+		max_z = math.max(max_z, repaired[6])
+	end
+
+	return {
+		snap_coord(min_x),
+		snap_coord(min_y),
+		snap_coord(min_z),
+		snap_coord(max_x),
+		snap_coord(max_y),
+		snap_coord(max_z)
+	}
+end
+
+local function rotate_bbox(pos, bbox)
+	local min_vec = hlpfuncs.rotate_to_node_dir(pos, vector.rotate_around_axis(vector.new(bbox[1], bbox[2], bbox[3]), vector.new(0, 1, 0), math.pi))
+	local max_vec = hlpfuncs.rotate_to_node_dir(pos, vector.rotate_around_axis(vector.new(bbox[4], bbox[5], bbox[6]), vector.new(0, 1, 0), math.pi))
+
+	return placement.box_repair({min_vec.x, min_vec.y, min_vec.z, max_vec.x, max_vec.y, max_vec.z})
+end
+
+function placement.check_for_placement(pos, name)
 	local def = minetest.registered_nodes[name]
-
-	if def.drawtype ~= "mesh" and def.drawtype ~= "nodebox" then
+	if not def then
 		return true
 	end
 
@@ -90,28 +122,18 @@ function multidecor.placement.check_for_placement(pos, name)
 		return true
 	end
 
-	local bboxes
-
-	if def.drawtype == "nodebox" then
-		bboxes = def.node_box.fixed
-	else
-		bboxes = def.collision_box.fixed
+	local drawtype = def.drawtype
+	if drawtype ~= "mesh" and drawtype ~= "nodebox" then
+		return true
 	end
 
-	local max_bbox = multidecor.placement.calc_place_space_size(bboxes)
+	local source = drawtype == "nodebox" and def.node_box and def.node_box.fixed or def.collision_box and def.collision_box.fixed
+	if not source then
+		return true
+	end
 
-	local rot_bbox = {}
-	rot_bbox.min = multidecor.helpers.rotate_to_node_dir(pos,
-		vector.rotate_around_axis(vector.new(max_bbox[1], max_bbox[2], max_bbox[3]), vector.new(0, 1, 0), math.pi)
-	)
-	rot_bbox.max = multidecor.helpers.rotate_to_node_dir(pos,
-		vector.rotate_around_axis(vector.new(max_bbox[4], max_bbox[5], max_bbox[6]), vector.new(0, 1, 0), math.pi)
-	)
+	local max_bbox = placement.calc_place_space_size(source)
+	local rotated = rotate_bbox(pos, max_bbox)
 
-	max_bbox = multidecor.placement.box_repair({
-		rot_bbox.min.x, rot_bbox.min.y, rot_bbox.min.z,
-		rot_bbox.max.x, rot_bbox.max.y, rot_bbox.max.z
-	})
-
-	return multidecor.placement.check_for_free_space(pos, max_bbox)
+	return placement.check_for_free_space(pos, rotated)
 end
