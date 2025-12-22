@@ -1,0 +1,79 @@
+# textdomain: craft_ingredients
+
+# init.lua
+Marble Block=Bloc de marbre
+Cabinet Door =Porte de placard
+Cabinet Half Door =Demi-porte de placard
+Cabinet Half Glass Door =Demi-porte vitrée de placard
+Saw =Scie
+Wool Cloth =Tissu en laine
+Metal Bar =Barre de métal
+Silver Sheet=Feuille d'argent
+Steel Sheet =Feuille d'acier
+Brass Sheet =Feuille de laiton
+Coarse Steel Sheet =Feuille d'acier grossière
+Steel Scissors =Ciseaux en acier
+Hammer =Marteau
+Bulb =Ampoule
+Lampshade =Abat-jour
+Plastic Sheet =Feuille de plastique
+Plastic Strip =Bande de plastique
+Metal Wire =Fil métallique
+Chain=Chaîne
+Set from four bulbs=Lot de quatre ampoules
+Wolfram Wire =Fil de tungstène
+Silver Wire =Fil d'argent
+Set from four lampshades=Lot de quatre abat-jours
+Digital Dial =Cadran numérique
+Brass Ingot =Lingot de laiton
+Steel Stripe =Bande d'acier
+Brass Stripe =Bande de laiton
+Gear =Engrenage
+Spring =Ressort
+Wax Lump =Morceau de cire
+Wax Candle =Bougie en cire
+Chainlink =Maillon de chaîne
+Terracotta Fragment =Fragment de terre cuite
+Copper And Tin=Cuivre et étain
+Copper And Zinc=Cuivre et zinc
+Marble Sheet =Feuille de marbre
+Syphon =Siphon
+Board=Panneau
+Jungl Board=Panneau de jungle
+Plank=Planche
+Jungl Plank=Planche de jungle
+Aspen Plank=Planche de tremble
+Pine Plank=Planche de pin
+Drawer=Tiroir
+Jungl Drawer=Tiroir de jungle
+Aspen Drawer=Tiroir de tremble
+Pine Drawer=Tiroir en pin
+
+# ores.lua
+Wolfram Ore=Minerai de tungstène
+Desert Wolfram Ore=Minerai de tungstène du désert
+Wolfram Lump=Morceau de tungstène
+Wolfram Ingot=Lingot de tungstène
+Zinc Ore=Minerai de zinc
+Desert Zinc Ore=Minerai de zinc du désert
+Zinc Fragment=Fragment de zinc
+Zinc Ingot=Lingot de zinc
+Granite Block=Bloc de granit
+Consolidated Oil (use furnace to melt)=Pétrole solidifié (utilisez le four pour fondre)
+Oil Source=Source de pétrole
+Flowing Oil=Pétrole coulant
+
+# others
+Aspen Board=Panneau de tremble
+Clay And Iron =Argile et fer
+Clay And Sand =Argile et sable
+Copper And Tin =Cuivre et étain
+Copper And Zinc =Cuivre et zinc
+Four Bulbs Set =Lot de quatre ampoules
+Four Lampshades Set =Lot de quatre abat-jours
+Metal Chain =Chaîne métallique
+Pine Board=Panneau de pin
+Porcelain Fragment =Fragment de porcelaine
+Redwood Board=Panneau de séquoia
+Redwood Drawer=Tiroir en séquoia
+Redwood Plank=Planche de séquoia
