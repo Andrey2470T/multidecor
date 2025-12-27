@@ -1,7 +1,16 @@
-multidecor.register = {}
-local register = multidecor.register
+-- Registration API
 
-local SUPPORTED_TYPES = {
+-- NOTE: since version 1.3.5 the registration API encapsulates some own methods/varyables via the local 'register'
+-- intentionally doing them inaccessible outside, it has been done in the safety goals.
+-- Only the really necessary API will be exposed for mods as global.
+
+multidecor.register = {}
+
+local register = {}
+
+
+-- Default furniture types
+register.supported_types = {
 	"banister",
 	"door",
 	"seat",
@@ -14,7 +23,8 @@ local SUPPORTED_TYPES = {
 	"curtain"
 }
 
-local SUPPORTED_STYLES = {
+-- Default furniture styles
+register.supported_styles = {
 	"baroque",
 	"classic",
 	"high_tech",
@@ -23,7 +33,8 @@ local SUPPORTED_STYLES = {
 	"royal"
 }
 
-local SUPPORTED_MATERIALS = {
+-- Default furniture materials
+register.supported_materials = {
 	"wood",
 	"glass",
 	"metal",
@@ -31,592 +42,578 @@ local SUPPORTED_MATERIALS = {
 	"stone"
 }
 
-local function shallow_copy(source)
-	if not source then
-		return {}
+-- Registers a new furniture type
+function multidecor.register.register_type(type_name)
+	table.insert(register.supported_types, type_name)
+end
+
+-- Checks whether the given 'name' is in the category with 'category_id' (whether it is registered there).
+-- 'category_id': '0' - types, '1' - styles, '2' - materials
+function multidecor.register.category_contains(name, category_id)
+	local lookup_t
+
+	if category_id == 0 then
+		lookup_t = register.supported_types
+	elseif category_id == 1 then
+		lookup_t = register.supported_styles
+	elseif category_id == 2 then
+		lookup_t = register.supported_materials
 	end
 
-	local copy = {}
-
-	for key, value in pairs(source) do
-		copy[key] = value
+	for _, cat_name in ipairs(lookup_t) do
+		if cat_name == name then
+			return true
+		end
 	end
 
-	return copy
+	return false
 end
 
-local function build_lookup(list)
-	local lookup = {}
+function register.build_description(style, material, base_desc)
+	material = material or "unknown"
 
-	for _, name in ipairs(list) do
-		lookup[name] = true
-	end
-
-	return lookup
+	local desc = base_desc .. multidecor.S("\nStyle: ") .. "%s" .. multidecor.S("\nMaterial: ") .. "%s" 
+	return desc:format(multidecor.S(style), multidecor.S(material))
 end
 
-local CATEGORY_CONFIG = {
-	[0] = {label = "type", values = SUPPORTED_TYPES},
-	[1] = {label = "style", values = SUPPORTED_STYLES},
-	[2] = {label = "material", values = SUPPORTED_MATERIALS}
-}
+function multidecor.register.after_place_node(pos, placer, itemstack)
+	local place = multidecor.placement.check_for_placement(pos, itemstack:get_name())
 
-for _, config in pairs(CATEGORY_CONFIG) do
-	config.lookup = build_lookup(config.values)
-end
-
-register.supported_types = CATEGORY_CONFIG[0].values
-register.supported_styles = CATEGORY_CONFIG[1].values
-register.supported_materials = CATEGORY_CONFIG[2].values
-
-local function add_category_value(category_id, name)
-	local config = CATEGORY_CONFIG[category_id]
-
-	if not config or config.lookup[name] then
-		return
-	end
-
-	table.insert(config.values, name)
-	config.lookup[name] = true
-end
-
-local function ensure_category(name, category_id)
-	local config = CATEGORY_CONFIG[category_id]
-
-	assert(config and config.lookup[name], "The " .. config.label .. " with a name \"" .. name .. "\" is not registered!")
-end
-
-function register.register_type(type_name)
-	add_category_value(0, type_name)
-end
-
-function register.category_contains(name, category_id)
-	local config = CATEGORY_CONFIG[category_id]
-
-	return config and config.lookup[name] or false
-end
-
-local function translate_or_unknown(value)
-	if value then
-		return multidecor.S(value)
-	end
-
-	return multidecor.S("unknown")
-end
-
-local function build_description(style, material, base_desc)
-	return base_desc .. multidecor.S("\nStyle: ") .. translate_or_unknown(style) .. multidecor.S("\nMaterial: ") .. translate_or_unknown(material)
-end
-
-function register.after_place_node(pos, placer, itemstack)
-	if not multidecor.placement.check_for_placement(pos, itemstack:get_name()) then
+	if not place then
 		minetest.chat_send_player(placer:get_player_name(), "Not enough free place for the given node!")
 		minetest.remove_node(pos)
-		return itemstack
+	else
+		itemstack:set_count(itemstack:get_count()-1)
 	end
-
-	itemstack:take_item()
 
 	return itemstack
 end
 
-local function is_scraper(item)
-	return item:get_name() == "multidecor:scraper"
-end
-
-local function can_change_color(def)
-	return def and def.is_colorable
-end
-
-local function resolve_palette_multiplier(def)
-	if def.paramtype2 == "colorwallmounted" then
-		return 8
-	end
-
-	return 32
-end
-
-local function get_palette_color(index)
-	return multidecor.colors[index + 1]
-end
-
-local function strip_rotation(param2, multiplier)
-	return param2 % multiplier
-end
-
-local function has_palette_color(param2, multiplier)
-	return math.floor(param2 / multiplier) ~= 0
-end
-
-local function apply_color_scrape(pos, node, puncher, multiplier)
-	local color = get_palette_color(math.floor(node.param2 / multiplier))
-	local rotation = strip_rotation(node.param2, multiplier)
-
-	minetest.swap_node(pos, {name = node.name, param2 = rotation})
-	minetest.item_drop(ItemStack("dye:" .. color), puncher, pos)
-end
-
-function register.on_punch(pos, node, puncher)
+function multidecor.register.on_punch(pos, node, puncher)
 	local wielded_item = puncher:get_wielded_item()
 
-	if not is_scraper(wielded_item) then
+	if wielded_item:get_name() ~= "multidecor:scraper" then
 		return
 	end
 
 	local def = hlpfuncs.ndef(pos)
 
-	if not can_change_color(def) then
-		return
-	end
+	if not def.is_colorable then return end
 
-	local multiplier = resolve_palette_multiplier(def)
+	local mul = def.paramtype2 == "colorwallmounted" and 8 or 32
+	local palette_index = math.floor(node.param2 / mul)
 
-	if not has_palette_color(node.param2, multiplier) then
-		return
-	end
+	if palette_index == 0 then return end
 
 	local playername = puncher:get_player_name()
-
 	if minetest.is_protected(pos, playername) then
 		return
 	end
 
-	apply_color_scrape(pos, node, puncher, multiplier)
+	local color = multidecor.colors[palette_index+1]
+	local rot = node.param2 % mul
 
-	wielded_item:set_wear(wielded_item:get_wear() + math.modf(65535 / 50))
+	minetest.swap_node(pos, {name=node.name, param2=rot})
+
+	minetest.item_drop(ItemStack("dye:" .. color), puncher, pos)
+
+	wielded_item:set_wear(wielded_item:get_wear()+math.modf(65535/50))
 	puncher:set_wielded_item(wielded_item)
+
 	multidecor.tools_sounds.play(playername, 4)
 end
 
-local MATERIAL_PRESETS = {
-	wood = {
-		groups = {choppy = 2, oddly_breakable_by_hand = 1},
-		sounds = function()
-			return default.node_sound_wood_defaults()
-		end
-	},
-	glass = {
-		groups = {cracky = 2.5, oddly_breakable_by_hand = 1},
-		sounds = function()
-			return default.node_sound_glass_defaults()
-		end
-	},
-	metal = {
-		groups = {cracky = 1.5},
-		sounds = function()
-			return default.node_sound_metal_defaults()
-		end
-	},
-	plastic = {
-		groups = {snappy = 3, oddly_breakable_by_hand = 1},
-		sounds = function()
-			return default.node_sound_wood_defaults({dig = {name = "default_dig_snappy", gain = 0.5}})
-		end
-	},
-	stone = {
-		groups = {cracky = 1.5},
-		sounds = function()
-			return default.node_sound_stone_defaults()
-		end
-	}
-}
-
-local function merge_missing(target, source)
-	if not source then
-		return
-	end
-
-	for name, value in pairs(source) do
-		if target[name] == nil then
-			target[name] = value
-		end
-	end
-end
-
-local function apply_material_defaults(node_def, def)
-	if not def.material then
-		return
-	end
-
-	local preset = MATERIAL_PRESETS[def.material]
-
-	node_def.groups[def.material] = 1
-	merge_missing(node_def.groups, preset and preset.groups)
-
-	if node_def.groups.oddly_breakable_by_hand == nil and def.material ~= "metal" and def.material ~= "stone" then
-		node_def.groups.oddly_breakable_by_hand = 1
-	end
-
-	if node_def.sounds or not preset then
-		return
-	end
-
-	node_def.sounds = preset.sounds()
-end
-
-local function apply_palette(node_def)
-	local param = node_def.paramtype2
-
-	if param == "colorfacedir" or param == "colorwallmounted" then
-		node_def.palette = "multidecor_palette.png"
-	end
-end
-
-local function apply_bounding_boxes(node_def, def)
-	if not def.bounding_boxes then
-		return
-	end
-
-	if node_def.drawtype == "nodebox" then
-		node_def.node_box = {
-			type = "fixed",
-			fixed = def.bounding_boxes
-		}
-	else
-		node_def.collision_box = {
-			type = "fixed",
-			fixed = def.bounding_boxes
-		}
-	end
-
-	node_def.selection_box = node_def.collision_box or node_def.node_box
-end
-
-local function ensure_groups_table(node_def)
-	node_def.groups = node_def.groups or {}
-end
-
-local function ensure_add_properties(node_def)
-	node_def.add_properties = node_def.add_properties or {}
-end
-
-local function create_node_definition(def)
-	local node_def = {
-		description = def.description,
-		visual_scale = def.visual_scale or 0.5,
-		wield_scale = def.wield_scale or {x = 0.5, y = 0.5, z = 0.5},
-		drawtype = def.drawtype or "mesh",
-		paramtype = def.paramtype or "light",
-		paramtype2 = def.paramtype2 or "facedir",
-		tiles = def.tiles,
-		overlay_tiles = def.overlay_tiles,
-		inventory_image = def.inventory_image,
-		wield_image = def.wield_image,
-		drop = def.drop,
-		light_source = def.light_source,
-		sounds = def.sounds,
-		groups = shallow_copy(def.groups),
-		add_properties = shallow_copy(def.add_properties)
-	}
-
-	node_def.mesh = def.mesh
-	node_def.callbacks = shallow_copy(def.callbacks)
-
-	if node_def.paramtype2 == "wallmounted" and def.drawtype ~= "nodebox" then
-		node_def.paramtype2 = "facedir"
-	end
-
-	node_def.prevent_placement_check = def.prevent_placement_check
-	node_def.is_colorable = def.is_colorable
-	node_def.use_texture_alpha = def.use_texture_alpha ~= nil and def.use_texture_alpha or (node_def.drawtype == "mesh" and "clip" or def.use_texture_alpha)
-
-	return node_def
-end
-
-local function apply_callbacks(node_def, callbacks)
-	if not callbacks then
-		return
-	end
-
-	for name, handler in pairs(callbacks) do
-		node_def[name] = handler
-	end
-end
-
-local function attach_callback(node_def, name, fallback)
-	local handler = node_def[name]
-
-	if handler then
-		node_def[name] = function(...)
-			handler(...)
-			return fallback(...)
-		end
-	else
-		node_def[name] = fallback
-	end
-end
-
-function register.register_furniture_unit(name, def, craft_def)
-	ensure_category(def.type, 0)
-	ensure_category(def.style, 1)
-
-	local node_def = create_node_definition(def)
-
-	ensure_groups_table(node_def)
-	node_def.groups[def.type] = 1
-	node_def.groups[def.style] = 1
-
-	apply_material_defaults(node_def, def)
-	apply_palette(node_def)
-	apply_bounding_boxes(node_def, def)
-
-	node_def.description = build_description(def.style, def.material, node_def.description)
-
-	apply_callbacks(node_def, node_def.callbacks)
-	node_def.callbacks = nil
-
-	ensure_add_properties(node_def)
-
-	attach_callback(node_def, "after_place_node", register.after_place_node)
-	attach_callback(node_def, "on_punch", register.on_punch)
-
-	minetest.register_node(":" .. "multidecor:" .. name, node_def)
-
-	if not craft_def then
-		return
-	end
-
-	minetest.register_craft({
-		type = craft_def.type,
-		output = "multidecor:" .. name .. (craft_def.count and " " .. tostring(craft_def.count) or ""),
-		recipe = craft_def.recipe,
-		replacements = craft_def.replacements,
-		cooktime = craft_def.cooktime
-	})
-end
-
-local DOOR_SOUNDS = {
-	open = "multidecor_squeaky_door_open",
-	close = "multidecor_squeaky_door_close"
-}
-
-local DRAWER_SOUNDS = {
-	open = "multidecor_drawer_open",
-	close = "multidecor_drawer_close"
-}
-
-local OBJECT_SUFFIXES = {
-	floor_door = "floor_door",
-	floor_half_door = "floor_half_door",
-	wall_door = "wall_door",
-	wall_half_door = "wall_half_door",
-	wall_half_glass_door = "wall_half_glass_door",
-	large_drawer = "large_drawer",
-	small_drawer = "small_drawer"
-}
-
-local COMPONENT_TEMPLATES = {
-	two_floor_drws = {
-		entries = {
-			{type = "drawer", object = "large_drawer", pos = "pos_lower"},
-			{type = "drawer", object = "large_drawer", pos = "pos_upper"}
-		}
-	},
-	three_floor_drws = {
-		entries = {
-			{type = "drawer", object = "small_drawer", pos = "pos_lower"},
-			{type = "drawer", object = "small_drawer", pos = "pos_middle"},
-			{type = "drawer", object = "small_drawer", pos = "pos_upper"}
-		}
-	},
-	two_floor_doors = {
-		entries = {
-			{type = "sym_doors", object = "floor_half_door", pos = "pos_left", pos2 = "pos_right"}
-		}
-	},
-	three_floor_doors = {
-		entries = {
-			{type = "sym_doors", object = "floor_half_door", pos = "pos_left", pos2 = "pos_right"}
-		}
-	},
-	three_floor_drw_door = {
-		entries = {
-			{type = "drawer", object = "small_drawer", pos = "pos_upper"},
-			{type = "sym_doors", object = "floor_half_door", pos = "pos_left", pos2 = "pos_right", customize = function(entry)
-				entry.visual_size_adds = {x = 0, y = -1.75, z = 0}
-			end}
-		}
-	},
-	two_wall_door = {
-		entries = {
-			{type = "door", object = "wall_door", pos = "pos", side = "left"}
-		}
-	},
-	two_wall_hdoor = {
-		entries = {
-			{type = "sym_doors", object = "wall_half_door", pos = "pos_left", pos2 = "pos_right"}
-		}
-	},
-	two_wall_hgldoor = {
-		entries = {
-			{type = "sym_doors", object = "wall_half_glass_door", pos = "pos_left", pos2 = "pos_right"}
-		}
-	},
-	two_wall_crn_hgldoor = {
-		entries = {
-			{type = "sym_doors", object = "wall_half_glass_door", pos = "pos_left", pos2 = "pos_right", orig_angle = {x = 0, y = -math.pi / 4, z = 0}}
-		}
-	},
-	sink = {
-		entries = {
-			{type = "door", object = "floor_door", pos = "pos_trash", side = "left", list_type = "trash"}
+--[[def:
+	{
+		type = <seat, shelf, bed, table, >
+		style = <baroque, classic, high_tech, mixed, modern, royal>,
+		material = <wood, glass, metal and etc>,
+		description = <description>,
+		drawtype = <nodebox, mesh>,
+		mesh = <filename>,
+		tiles = {<textures>},
+		paramtype2 = <paramtype2>,
+		bounding_boxes = {
+			Box1: {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
+			Box2: {0.5, 1.5, 0.1, 0.5, 1.0, 0.5},
+			...
 		},
-		apply_properties = function(node_def, component)
-			node_def.add_properties.tap_data = component.tap_data
+		wield_scale = {x=<float>, y=<float>, z=<float>} (Optional),
+		visual_scale = <float> (Optional),
+		drop = <drop name> (Optional),
+		groups = {snappy=<int>, choppy=<int>, crumbly=<int>...} (Optional),
+		sounds = {
+			footstep = <SimpleSoundSpec>,
+			dig = <SimpleSoundSpec>,
+			dug = <SimpleSoundSpec>,
+			place = <SimpleSoundSpec>,
+			place_failed = <SimpleSoundSpec>,
+			fall = <SimpleSoundSpec>
+		} (Optional),
+
+		callbacks = {
+			on_construct = <function>,
+			on_destruct = <function>,
+			on_rightclick = <function>,
+			on_timer = <function>
+		}
+	}
+]]
+
+-- Registers some furniture component (chair, stool, table, sofa, cupboard and etc).
+function multidecor.register.register_furniture_unit(name, def, craft_def)
+	local f_def = {}
+
+	assert(multidecor.register.category_contains(def.type, 0), "The type with a name \"" .. def.type .. "\" is not registered!")
+	assert(multidecor.register.category_contains(def.style, 1), "The style with a name \"" .. def.style .. "\" is not registered!")
+
+	f_def.description = def.description
+	f_def.visual_scale = def.visual_scale or 0.5
+	f_def.wield_scale = def.wield_scale or {x=0.5, y=0.5, z=0.5}
+	f_def.drawtype = def.drawtype or "mesh"
+	f_def.paramtype = "light"
+	f_def.paramtype2 = def.paramtype2 or "facedir"
+	f_def.use_texture_alpha = def.use_texture_alpha or "clip"
+	f_def.drop = def.drop
+	f_def.light_source = def.light_source
+	f_def.use_texture_alpha = def.use_texture_alpha
+
+	if f_def.drawtype == "mesh" then
+		f_def.mesh = def.mesh
+	end
+
+	if f_def.paramtype2 == "colorfacedir" or f_def.paramtype2 == "colorwallmounted" then
+		f_def.palette = "multidecor_palette.png"
+	end
+
+	f_def.tiles = def.tiles
+	f_def.overlay_tiles = def.overlay_tiles
+	f_def.inventory_image = def.inventory_image
+	f_def.wield_image = def.wield_image
+
+	f_def.groups = def.groups or {}
+	f_def.groups[def.type] = 1
+	f_def.groups[def.style] = 1
+
+
+	if def.material then
+		f_def.groups[def.material] = 1
+	end
+
+	if def.material == "wood" then
+		f_def.groups.choppy = 2
+	elseif def.material == "glass" then
+		f_def.groups.cracky = 2.5
+	elseif def.material == "metal" or def.material == "stone" then
+		f_def.groups.cracky = 1.5
+	elseif def.material == "plastic" then
+		f_def.groups.snappy = 3
+	end
+
+	if def.material ~= "metal" and def.material ~= "stone" then
+		f_def.groups.oddly_breakable_by_hand = 1
+	end
+
+	f_def.description = register.build_description(def.style, def.material, f_def.description)
+
+	if def.bounding_boxes then
+		if f_def.drawtype == "nodebox" then
+			f_def.node_box = {
+				type = "fixed",
+				fixed = def.bounding_boxes
+			}
+		elseif f_def.drawtype == "mesh" then
+			f_def.collision_box = {
+				type = "fixed",
+				fixed = def.bounding_boxes
+			}
 		end
-	}
-}
-
-local function build_object_lookup(def)
-	local lookup = {}
-	local prefix = def.modname .. ":" .. def.objs_common_name .. "_"
-
-	for alias, suffix in pairs(OBJECT_SUFFIXES) do
-		lookup[alias] = prefix .. suffix
+		f_def.selection_box = f_def.collision_box or f_def.node_box
 	end
 
-	return lookup
-end
-
-local function build_shelf_entry(component, entry_cfg, object_lookup)
-	local shelves_meta = component.shelves_data or {}
-	local entry = {
-		type = entry_cfg.type,
-		object = object_lookup[entry_cfg.object],
-		invlist_type = entry_cfg.list_type or shelves_meta.invlist_type,
-		inv_size = shelves_meta.inv_size,
-		pos = shelves_meta[entry_cfg.pos],
-		pos2 = entry_cfg.pos2 and shelves_meta[entry_cfg.pos2] or nil,
-		orig_angle = entry_cfg.orig_angle,
-		side = entry_cfg.side or shelves_meta.side,
-		sounds = entry_cfg.type == "drawer" and DRAWER_SOUNDS or DOOR_SOUNDS
-	}
-
-	if entry_cfg.type == "drawer" then
-		entry.length = entry_cfg.length or 0.5
+	if def.sounds then
+		f_def.sounds = def.sounds
 	else
-		entry.acc = entry_cfg.acc or 1
+		if def.material == "wood" then
+			f_def.sounds = default.node_sound_wood_defaults()
+		elseif def.material == "glass" then
+			f_def.sounds = default.node_sound_glass_defaults()
+		elseif def.material == "metal" then
+			f_def.sounds = default.node_sound_metal_defaults()
+		elseif def.material == "plastic" then
+			f_def.sounds = default.node_sound_wood_defaults({dig={name="default_dig_snappy", gain=0.5}})
+		elseif def.material == "stone" then
+			f_def.sounds = default.node_sound_stone_defaults()
+		end
 	end
 
-	if entry_cfg.customize then
-		entry_cfg.customize(entry)
+	f_def.prevent_placement_check = def.prevent_placement_check
+	f_def.is_colorable = def.is_colorable
+
+	f_def.callbacks = def.callbacks or {}
+	for cb_name, f in pairs(f_def.callbacks) do
+		f_def[cb_name] = f
 	end
 
-	return entry
-end
+	if f_def.after_place_node then
+		local prev_after_place = f_def.after_place_node
+		local function after_place(pos, placer, itemstack)
+			prev_after_place(pos, placer, itemstack)
 
-local function ensure_shelves_callbacks(callbacks)
-	callbacks.on_construct = callbacks.on_construct or function(pos)
-		multidecor.shelves.set_shelves(pos)
-	end
-	callbacks.can_dig = callbacks.can_dig or multidecor.shelves.can_dig
-end
+			return multidecor.register.after_place_node(pos, placer, itemstack)
+		end
 
-local function clone_base_node(base_node)
-	local node_def = shallow_copy(base_node)
-
-	node_def.groups = shallow_copy(base_node.groups)
-	node_def.add_properties = shallow_copy(base_node.add_properties)
-
-	return node_def
-end
-
-local function create_component_node_def(base_node_def, component)
-	local node_def = clone_base_node(base_node_def)
-
-	node_def.description = component.description
-	node_def.mesh = component.mesh
-	node_def.inventory_image = component.inventory_image
-	node_def.bounding_boxes = component.bounding_boxes
-
-	if component.tiles then
-		node_def.tiles = component.tiles
+		f_def.after_place_node = after_place
+	else
+		f_def.after_place_node = multidecor.register.after_place_node
 	end
 
-	return node_def
-end
+	if f_def.on_punch then
+		local prev_on_punch = f_def.on_punch
+		f_def.on_punch = function(pos, node, puncher)
+			prev_on_punch(pos, node, puncher)
 
-local function build_shelves_data(def, component_name, component, config, object_lookup)
-	local shelves_data = {common_name = def.common_name .. "_" .. component_name}
-
-	for _, entry_cfg in ipairs(config.entries) do
-		table.insert(shelves_data, build_shelf_entry(component, entry_cfg, object_lookup))
+			multidecor.register.on_punch(pos, node, puncher)
+		end
+	else
+		f_def.on_punch = multidecor.register.on_punch
 	end
 
-	return shelves_data
-end
+	f_def.add_properties = def.add_properties or {}
 
-local function register_component_craft(def, component_name, component)
-	if not component.craft then
-		return
-	end
+	local f_name = "multidecor:" .. name
+	minetest.register_node(":" .. f_name, f_def)
 
-	if component.craft.type then
-		local count = component.craft.count and " " .. tostring(component.craft.count) or ""
-		local craft_output = component.craft.output or ("multidecor:" .. def.common_name .. "_" .. component_name .. count)
-
+	if craft_def then
 		minetest.register_craft({
-			type = component.craft.type,
-			output = craft_output,
-			recipe = component.craft.recipe,
-			replacements = component.craft.replacements or {{"multidecor:hammer", "multidecor:hammer"}},
-			cooktime = component.craft.cooktime
+			type = craft_def.type,
+			output = f_name .. (craft_def.count and " " .. tostring(craft_def.count) or ""),
+			recipe = craft_def.recipe,
+			replacements = craft_def.replacements or nil
 		})
-	else
+	end
+end
+
+
+--[[def:
+	{
+		type = <kitchen, bathroom>,
+		style = <baroque, classic, high_tech, mixed, modern, royal>,
+		material = <wood, glass, metal and etc>,
+		tiles = {
+			<tabletop texture>,
+			<base texture>,
+			<texture of legs/handles/sink>
+		},
+		groups = <groups>,
+		modname = <name of mod registering the garniture>,
+
+		For kitchen garniture:
+		components = {
+			["two_floor_drws"] = {
+				description = <description>,
+				mesh = <filename>,
+				bounding_boxes = <table of bboxes definitions>,
+				shelves_data = {
+					pos_lower = <position of lower shelf>,
+					pos_upper = <position of upper shelf>,
+					inventory = <formspec_string>
+				}
+			},
+			["three_floor_drws"] = {
+				description = <description>,
+				mesh = <filename>,
+				bounding_boxes = <table of bboxes definitions>,
+				shelves_data = {
+					pos_lower = <position of lower shelf>,
+					pos_middle = <position of middle shelf>
+					pos_upper = <position of upper shelf>,
+					inventory = <formspec_string>
+				}
+			},
+			["two_floor_doors"] = {
+				description = <description>,
+				mesh = <filename>,
+				bounding_boxes = <table of bboxes definitions>,
+				shelves_data = {
+					pos_left = <position of left door>,
+					pos_right = <position of right door>,
+					inventory = <formspec_string>
+				}
+			},
+			["three_floor_doors"] = {
+				description = <description>,
+				mesh = <filename>,
+				bounding_boxes = <table of bboxes definitions>,
+				shelves_data = {
+					pos = <position of left door>,
+					pos2 = <position of right door>,
+					inventory = <formspec_string>
+				}
+			},
+			["three_floor_drw_door"] = {
+				description = <description>,
+				mesh = <filename>,
+				bounding_boxes = <table of bboxes definitions>,
+				shelves_data = {
+					pos_upper = <position of upper drawer>,
+					pos_left = <position of left door>,
+					pos_right = <position of right door>,
+					inventory = <formspec_string>
+				}
+			},
+			["two_wall_door"] = {
+				description = <description>,
+				mesh = <filename>,
+				bounding_boxes = <table of bboxes definitions>,
+				shelves_data = {
+					pos = <position of shelf>,
+					inventory = <formspec_string>
+				}
+			},
+			["two_wall_hdoor"] = {
+				description = <description>,
+				mesh = <filename>,
+				bounding_boxes = <table of bboxes definitions>,
+				shelves_data = {
+					pos_left = <position of left door>,
+					pos_right = <position of right door>,
+					inventory = <formspec_string>
+				}
+			},
+			["two_wall_hgldoors"] = {
+				description = <description>,
+				mesh = <filename>,
+				bounding_boxes = <table of bboxes definitions>,
+				shelves_data = {
+					pos_left = <position of left door>,
+					pos_right = <position of right door>,
+					inventory = <formspec_string>
+				}
+			},
+			["two_wall_crn_hgldoors"] = {
+				description = <description>,
+				mesh = <filename>,
+				bounding_boxes = <table of bboxes definitions>,
+				shelves_data = {
+					pos_left = <position of left door>,
+					pos_right = <position of right door>,
+					inventory = <formspec_string>
+				}
+			},
+			["sink"] = {
+				description = <description>,
+				mesh = <filename>,
+				bounding_boxes = <table of bboxes definitions>,
+				tap_pos = <tap position>,
+				shelves_data = {
+					pos_trash = <position of trash shelf>,
+					inventory = <formspec_string>
+				}
+			},
+		},
+		move_parts = {
+			["floor_door"] = <meshname>,
+			["floor_half_door"] = <meshname>,
+			["wall_door"] = <meshname>,
+			["wall_half_door"] = <meshname>,
+			["wall_half_glass_door"] = <meshname>,
+			["large_drawer"] = <meshname>,
+			["small_drawer"] = <meshname>
+		}
+	}
+
+]]
+-- Registers a set of furniture components of certain type: "kitchen", "bathroom", "bedroom", "living_room" and etc.
+function multidecor.register.register_garniture(def)
+	local cmn_def = {}
+
+	assert(multidecor.register.category_contains(def.style, 1), "The style with a name \"" .. def.style .. "\" is not registered!")
+
+	cmn_def.style = def.style
+	cmn_def.material = def.material
+	cmn_def.drawtype = "mesh"
+	cmn_def.visual_scale = 0.5
+	cmn_def.tiles = def.tiles
+	cmn_def.groups = def.groups
+
+	local objects = {
+		def.modname .. ":" .. def.objs_common_name .. "_floor_door",
+		def.modname .. ":" .. def.objs_common_name .. "_floor_half_door",
+		def.modname .. ":" .. def.objs_common_name .. "_wall_door",
+		def.modname .. ":" .. def.objs_common_name .. "_wall_half_door",
+		def.modname .. ":" .. def.objs_common_name .. "_wall_half_glass_door",
+		def.modname .. ":" .. def.objs_common_name .. "_large_drawer",
+		def.modname .. ":" .. def.objs_common_name .. "_small_drawer"
+	}
+
+	local door_sounds = {
+		open = "multidecor_squeaky_door_open",
+		close = "multidecor_squeaky_door_close"
+	}
+
+	local drawer_sounds = {
+		open = "multidecor_drawer_open",
+		close = "multidecor_drawer_close"
+	}
+
+	local function form_cab_def(name)
+		local cabdef = table.copy(cmn_def)
+		cabdef.description = def.components[name].description
+		cabdef.mesh = def.components[name].mesh
+		cabdef.inventory_image = def.components[name].inventory_image
+		cabdef.bounding_boxes = def.components[name].bounding_boxes
+		cabdef.callbacks = def.components[name].callbacks or {}
+		cabdef.callbacks.on_construct = cabdef.callbacks.on_construct or function(pos) multidecor.shelves.set_shelves(pos) end
+		cabdef.callbacks.can_dig = cabdef.callbacks.can_dig or multidecor.shelves.can_dig
+		cabdef.add_properties = {}
+
 		minetest.register_craft({
-			output = "multidecor:" .. def.common_name .. "_" .. component_name,
-			recipe = component.craft,
+			output = "multidecor:" .. def.common_name .. "_" .. name,
+			recipe = def.components[name].craft,
 			replacements = {{"multidecor:hammer", "multidecor:hammer"}}
 		})
-	end
-end
 
-local function register_component(def, component_name, component, config, base_node_def, object_lookup)
-	local node_def = create_component_node_def(base_node_def, component)
-	local callbacks = shallow_copy(component.callbacks)
-
-	ensure_groups_table(node_def)
-	ensure_add_properties(node_def)
-	ensure_shelves_callbacks(callbacks)
-	apply_callbacks(node_def, callbacks)
-
-	local shelves_data = build_shelves_data(def, component_name, component, config, object_lookup)
-
-	node_def.add_properties.shelves_data = shelves_data
-
-	if component.tap_data then
-		node_def.add_properties.tap_data = component.tap_data
+		return cabdef
 	end
 
-	if config.apply_properties then
-		config.apply_properties(node_def, component)
+	local function form_shelf_data(name, type, objname, pos1, pos2, orig_angle, side, list_type)
+		return {
+			type = type,
+			object = objname,
+			invlist_type = list_type,
+			inv_size = def.components[name].shelves_data.inv_size,
+			pos = pos1,
+			pos2 = pos2,
+			length = type == "drawer" and 0.5,
+			acc = type ~= "drawer" and 1,
+			orig_angle = orig_angle,
+			side = side,
+			sounds = type == "drawer" and drawer_sounds or door_sounds
+		}
 	end
 
-	register.register_table(shelves_data.common_name, node_def)
-	register_component_craft(def, component_name, component)
-end
+	-- kitchen floor two shelves cabinet with drawers
+	if def.components.two_floor_drws then
+		local two_floor_drws = form_cab_def("two_floor_drws")
+		local tf_drws_s = def.components.two_floor_drws.shelves_data
+		two_floor_drws.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_floor_drws",
+			form_shelf_data("two_floor_drws", "drawer", objects[6], tf_drws_s.pos_lower),
+			form_shelf_data("two_floor_drws", "drawer", objects[6], tf_drws_s.pos_upper)
+		}
 
-function register.register_garniture(def)
-	ensure_category(def.style, 1)
+		multidecor.register.register_table(two_floor_drws.add_properties.shelves_data.common_name, two_floor_drws)
+	end
 
-	local base_node_def = {
-		type = def.type,
-		style = def.style,
-		material = def.material,
-		drawtype = "mesh",
-		visual_scale = 0.5,
-		tiles = def.tiles,
-		groups = shallow_copy(def.groups),
-		add_properties = {}
-	}
+	-- kitchen floor three shelves cabinet with drawers
+	if def.components.three_floor_drws then
+		local three_floor_drws = form_cab_def("three_floor_drws")
+		local thf_drws_s = def.components.three_floor_drws.shelves_data
+		three_floor_drws.add_properties.shelves_data = {
+			common_name = def.common_name .. "_three_floor_drws",
+			form_shelf_data("three_floor_drws", "drawer", objects[7], thf_drws_s.pos_lower),
+			form_shelf_data("three_floor_drws", "drawer", objects[7], thf_drws_s.pos_middle),
+			form_shelf_data("three_floor_drws", "drawer", objects[7], thf_drws_s.pos_upper)
+		}
 
-	local object_lookup = build_object_lookup(def)
+		multidecor.register.register_table(three_floor_drws.add_properties.shelves_data.common_name, three_floor_drws)
+	end
 
-	for component_name, config in pairs(COMPONENT_TEMPLATES) do
-		local component = def.components and def.components[component_name]
+	-- kitchen floor two shelves cabinet with doors
+	if def.components.two_floor_doors then
+		local two_floor_doors = form_cab_def("two_floor_doors")
+		local tf_drs_s = def.components.two_floor_doors.shelves_data
+		two_floor_doors.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_floor_doors",
+			form_shelf_data("two_floor_doors", "sym_doors", objects[2], tf_drs_s.pos_left, tf_drs_s.pos_right)
+		}
 
-		if component then
-			register_component(def, component_name, component, config, base_node_def, object_lookup)
-		end
+		multidecor.register.register_table(two_floor_doors.add_properties.shelves_data.common_name, two_floor_doors)
+	end
+
+	-- kitchen floor three shelves cabinet with doors
+	if def.components.three_floor_doors then
+		local three_floor_doors = form_cab_def("three_floor_doors")
+		local thf_drs_s = def.components.three_floor_doors.shelves_data
+		three_floor_doors.add_properties.shelves_data = {
+			common_name = def.common_name .. "_three_floor_doors",
+			form_shelf_data("three_floor_doors", "sym_doors", objects[2], thf_drs_s.pos_left, thf_drs_s.pos_right)
+		}
+
+		multidecor.register.register_table(three_floor_doors.add_properties.shelves_data.common_name, three_floor_doors)
+	end
+
+	-- kitchen floor three shelves cabinet with drawer and door
+	if def.components.three_floor_drw_door then
+		local three_floor_drw_door = form_cab_def("three_floor_drw_door")
+		local thf_drw_d_s = def.components.three_floor_drw_door.shelves_data
+		three_floor_drw_door.add_properties.shelves_data = {
+			common_name = def.common_name .. "_three_floor_drw_door",
+			form_shelf_data("three_floor_drw_door", "drawer", objects[7], thf_drw_d_s.pos_upper),
+			form_shelf_data("three_floor_drw_door", "sym_doors", objects[2], thf_drw_d_s.pos_left, thf_drw_d_s.pos_right)
+		}
+		three_floor_drw_door.add_properties.shelves_data[2].visual_size_adds = {x=0, y=-1.75, z=0}
+
+		multidecor.register.register_table(three_floor_drw_door.add_properties.shelves_data.common_name, three_floor_drw_door)
+	end
+
+	-- kitchen wall two shelves cabinet with door
+	if def.components.two_wall_door then
+		local two_wall_door = form_cab_def("two_wall_door")
+		two_wall_door.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_wall_door",
+			form_shelf_data("two_wall_door", "door", objects[3], def.components.two_wall_door.shelves_data.pos, nil, nil, "left")
+		}
+
+		multidecor.register.register_table(two_wall_door.add_properties.shelves_data.common_name, two_wall_door)
+	end
+
+	-- kitchen wall two shelves cabinet with half doors
+	if def.components.two_wall_hdoor then
+		local two_wall_hdoor = form_cab_def("two_wall_hdoor")
+		local tw_hd_s = def.components.two_wall_hdoor.shelves_data
+		two_wall_hdoor.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_wall_hdoor",
+			form_shelf_data("two_wall_hdoor", "sym_doors", objects[4], tw_hd_s.pos_left, tw_hd_s.pos_right)
+		}
+
+		multidecor.register.register_table(two_wall_hdoor.add_properties.shelves_data.common_name, two_wall_hdoor)
+	end
+
+	-- kitchen wall two shelves cabinet with half glass doors
+	if def.components.two_wall_hgldoor then
+		local two_wall_hgldoor = form_cab_def("two_wall_hgldoor")
+		local tw_hgld_s = def.components.two_wall_hgldoor.shelves_data
+		two_wall_hgldoor.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_wall_hgldoor",
+			form_shelf_data("two_wall_hgldoor", "sym_doors", objects[5], tw_hgld_s.pos_left, tw_hgld_s.pos_right)
+		}
+
+		multidecor.register.register_table(two_wall_hgldoor.add_properties.shelves_data.common_name, two_wall_hgldoor)
+	end
+
+	-- kitchen wall corner two shelves cabinet with half glass doors
+	if def.components.two_wall_crn_hgldoor then
+		local two_wall_crn_hgldoor = form_cab_def("two_wall_crn_hgldoor")
+		two_wall_crn_hgldoor.add_properties.shelves_data = {
+			common_name = def.common_name .. "_two_wall_crn_hgldoor",
+			form_shelf_data("two_wall_crn_hgldoor", "sym_doors", objects[5], def.components.two_wall_crn_hgldoor.shelves_data.pos_left,
+				def.components.two_wall_crn_hgldoor.shelves_data.pos_right, {x=0, y=-math.pi/4, z=0})
+		}
+
+		multidecor.register.register_table(two_wall_crn_hgldoor.add_properties.shelves_data.common_name, two_wall_crn_hgldoor)
+	end
+
+	-- kitchen sink
+	if def.components.sink then
+		local sink = form_cab_def("sink")
+		sink.add_properties.shelves_data = {
+			common_name = def.common_name .. "_sink",
+			form_shelf_data("sink", "door", objects[1], def.components.sink.shelves_data.pos_trash, nil, nil, "left", "trash")
+		}
+		sink.add_properties.tap_data = def.components.sink.tap_data
+
+		multidecor.register.register_table(sink.add_properties.shelves_data.common_name, sink)
 	end
 end
