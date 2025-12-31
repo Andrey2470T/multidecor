@@ -1,6 +1,6 @@
-local modpath = minetest.get_modpath("modern")
+local modpath = core.get_modpath("modern")
 modern = {}
-modern.S = minetest.get_translator("modern")
+modern.S = core.get_translator("modern")
 
 dofile(modpath .. "/bathroom.lua")
 dofile(modpath .. "/bedroom.lua")
@@ -17,6 +17,6 @@ dofile(modpath .. "/stairs.lua")
 dofile(modpath .. "/tables.lua")
 dofile(modpath .. "/wardrobes.lua")
 
-if minetest.get_modpath("doclib") then
+if core.get_modpath("doclib") then
     dofile(modpath .. "/guide_paper.lua")
 end

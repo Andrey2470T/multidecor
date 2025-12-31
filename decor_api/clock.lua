@@ -1,7 +1,7 @@
 multidecor.clock = {}
 
 function multidecor.clock.get_current_time()
-	local timeofday = minetest.get_timeofday()
+	local timeofday = core.get_timeofday()
 	local time = math.floor(timeofday * 1440)
 	local minute = time % 60
 	local hour = (time - minute) / 60
@@ -14,22 +14,22 @@ function multidecor.clock.get_formatted_time_str(hours, minutes)
 end
 
 function multidecor.clock.on_construct(pos)
-	local node = minetest.get_node(pos)
+	local node = core.get_node(pos)
 
-	local time_params = minetest.registered_nodes[node.name].add_properties.time_params
+	local time_params = core.registered_nodes[node.name].add_properties.time_params
 
-	local wheel = minetest.add_entity(pos, time_params.object, minetest.serialize({pos=pos, name=node.name}))
+	local wheel = core.add_entity(pos, time_params.object, core.serialize({pos=pos, name=node.name}))
 
 	local dir = multidecor.helpers.get_dir(pos)
 	local y_rot = vector.dir_to_rotation(dir).y
 
 	wheel:set_rotation({x=0, y=y_rot, z=0})
 
-	minetest.get_meta(pos):set_string("is_activated", "false")
+	core.get_meta(pos):set_string("is_activated", "false")
 end
 
 function multidecor.clock.on_rightclick(pos, node, clicker)
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 
 	if meta:get_string("is_activated") == "false" then
 		meta:set_string("is_activated", "true")
@@ -46,7 +46,7 @@ function multidecor.clock.remove_wheel(wheel)
 	wheel:remove()
 
 	if self.attached_to.sound then
-		minetest.sound_stop(self.attached_to.sound)
+		core.sound_stop(self.attached_to.sound)
 	end
 end
 
@@ -76,7 +76,7 @@ function multidecor.clock.start(wheel, time_params)
 			max_hear_distance=time_params.sound.max_hear_distance,
 			loop=true
 		}
-		self.attached_to.sound = minetest.sound_play(time_params.sound.name, sound_def)
+		self.attached_to.sound = core.sound_play(time_params.sound.name, sound_def)
 	end
 end
 
@@ -93,7 +93,7 @@ function multidecor.clock.stop(wheel)
 	self.object:set_animation({x=1, y=1}, 0.0)
 
 	if self.attached_to.sound then
-		minetest.sound_stop(self.attached_to.sound)
+		core.sound_stop(self.attached_to.sound)
 	end
 	self.attached_to.sound = nil
 end
@@ -103,19 +103,19 @@ function multidecor.clock.on_activate(self, staticdata)
 	if staticdata == "" then
 		local pos = self.object:get_pos()
 		self.object:remove()
-		minetest.set_node(pos, minetest.get_node(pos))
+		core.set_node(pos, core.get_node(pos))
 		return
 	-- end
 	else
-		self.attached_to = minetest.deserialize(staticdata)
+		self.attached_to = core.deserialize(staticdata)
 
 		if not self.attached_to then
 			self.object:remove()
 			return
 		end
 
-		if minetest.get_meta(self.attached_to.pos):get_string("is_activated") == "true" then
-			local time_params = minetest.registered_nodes[self.attached_to.name].add_properties.time_params
+		if core.get_meta(self.attached_to.pos):get_string("is_activated") == "true" then
+			local time_params = core.registered_nodes[self.attached_to.name].add_properties.time_params
 
 			if time_params.animation then
 				self.object:set_animation(
@@ -134,16 +134,16 @@ function multidecor.clock.on_step(self, dtime)
 		return
 	end
 
-	local cur_node = minetest.get_node(self.attached_to.pos)
+	local cur_node = core.get_node(self.attached_to.pos)
 
 	if cur_node.name ~= self.attached_to.name then
 		multidecor.clock.remove_wheel(self.object)
 		return
 	end
 
-	local cur_meta = minetest.get_meta(self.attached_to.pos)
+	local cur_meta = core.get_meta(self.attached_to.pos)
 
-	local time_params = minetest.registered_nodes[self.attached_to.name].add_properties.time_params
+	local time_params = core.registered_nodes[self.attached_to.name].add_properties.time_params
 	if cur_meta:get_string("is_activated") == "true" then
 		multidecor.clock.start(self.object, time_params)
 
@@ -155,5 +155,5 @@ function multidecor.clock.on_step(self, dtime)
 end
 
 function multidecor.clock.get_staticdata(self)
-	return minetest.serialize(self.attached_to)
+	return core.serialize(self.attached_to)
 end

@@ -79,7 +79,7 @@ local doors_hands_metals = {
 	"default:gold_ingot"
 }
 
-if minetest.get_modpath("ethereal") then
+if core.get_modpath("ethereal") then
 	table.insert(woods, {name="redwood", texture="ethereal_redwood_wood"})
 end
 
@@ -607,7 +607,7 @@ multidecor.register.register_door("metallic_locked_door", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-if minetest.get_modpath("ethereal") then
+if core.get_modpath("ethereal") then
 	multidecor.register.register_door("redwood_locked_door", {
 		style = "modern",
 		material = "metal",
@@ -842,10 +842,10 @@ multidecor.register.register_furniture_unit("sliding_door_wooden_cornice", {
 	bounding_boxes = sliding_door_cornices_bbox
 })]]
 
-minetest.register_alias("multidecor:wooden_door", "multidecor:patterned_wooden_door")
-minetest.register_alias("multidecor:pine_door", "multidecor:patterned_aspen_door")
-minetest.register_alias("multidecor:technical_door", "multidecor:technical_locked_door")
+core.register_alias("multidecor:wooden_door", "multidecor:patterned_wooden_door")
+core.register_alias("multidecor:pine_door", "multidecor:patterned_aspen_door")
+core.register_alias("multidecor:technical_door", "multidecor:technical_locked_door")
 
-minetest.register_alias("multidecor:wooden_door_open", "multidecor:patterned_wooden_door_open")
-minetest.register_alias("multidecor:pine_door_open", "multidecor:patterned_aspen_door_open")
-minetest.register_alias("multidecor:technical_door_open", "multidecor:technical_locked_door_open")
+core.register_alias("multidecor:wooden_door_open", "multidecor:patterned_wooden_door_open")
+core.register_alias("multidecor:pine_door_open", "multidecor:patterned_aspen_door_open")
+core.register_alias("multidecor:technical_door_open", "multidecor:technical_locked_door_open")

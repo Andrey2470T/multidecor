@@ -1,6 +1,6 @@
 multidecor = {}
 
-multidecor.S = minetest.get_translator("decor_api")
+multidecor.S = core.get_translator("decor_api")
 
 multidecor.colors = {
 	"white",
@@ -13,7 +13,7 @@ multidecor.colors = {
 	"grey"
 }
 
-local modpath = minetest.get_modpath("decor_api")
+local modpath = core.get_modpath("decor_api")
 
 dofile(modpath .. "/common_helpers.lua")
 dofile(modpath .. "/connecting.lua")

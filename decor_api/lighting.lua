@@ -1,15 +1,15 @@
 multidecor.lighting = {}
 
 function multidecor.lighting.on_rightclick(pos)
-	local node = minetest.get_node(pos)
-	local add_props = minetest.registered_nodes[node.name].add_properties
+	local node = core.get_node(pos)
+	local add_props = core.registered_nodes[node.name].add_properties
 
 	if not add_props or not add_props.swap_light then
 		return
 	end
 
-	minetest.set_node(pos, {name="multidecor:" .. add_props.swap_light.name, param2=node.param2})
-	minetest.sound_play({name=add_props.swap_light.sound, gain=0.2}, {
+	core.set_node(pos, {name="multidecor:" .. add_props.swap_light.name, param2=node.param2})
+	core.sound_play({name=add_props.swap_light.sound, gain=0.2}, {
 		pos = pos,
 		max_hear_distance = 8
 	})

@@ -15,7 +15,7 @@ multidecor.sitting.players_seats_objs = {}
 
 function multidecor.sitting.attach_player_to_node(attacher, seat_data)
 
-	local seat = minetest.add_entity(seat_data.pos, "decor_api:seat_entity", "")
+	local seat = core.add_entity(seat_data.pos, "decor_api:seat_entity", "")
 	seat:set_rotation(seat_data.rot)
 	multidecor.sitting.players_seats_objs[attacher:get_player_name()] = seat
 
@@ -55,7 +55,7 @@ function multidecor.sitting.is_player_attached_to_anything(player)
 end
 
 function multidecor.sitting.is_seat_busy(node_pos)
-	local is_busy = minetest.get_meta(node_pos):get_string("is_busy")
+	local is_busy = core.get_meta(node_pos):get_string("is_busy")
 
 	return is_busy ~= ""
 end
@@ -71,7 +71,7 @@ function multidecor.sitting.sit_player(player, node_pos)
 
 	local playername = player:get_player_name()
 	if multidecor.sitting.is_seat_busy(node_pos) then
-		minetest.chat_send_player(playername, multidecor.S("This seat is busy!"))
+		core.chat_send_player(playername, multidecor.S("This seat is busy!"))
 		return false
 	end
 
@@ -81,17 +81,17 @@ function multidecor.sitting.sit_player(player, node_pos)
 		attached_to = node_pos,
 		physics = {speed = physics.speed, jump = physics.jump}
 	}
-	local node = minetest.get_node(node_pos)
-	local seat_data = table.copy(minetest.registered_nodes[node.name].add_properties.seat_data)
+	local node = core.get_node(node_pos)
+	local seat_data = table.copy(core.registered_nodes[node.name].add_properties.seat_data)
 
 	local rand_anim
 	if seat_data.model then
 		prev_pdata.model = player_api.get_animation(player)
 
 		local node_dir = multidecor.helpers.get_dir(node_pos)
-		local near_node = minetest.get_node(vector.add(node_pos, node_dir))
+		local near_node = core.get_node(vector.add(node_pos, node_dir))
 
-		if minetest.get_item_group(near_node.name, "table") ~= 1 then
+		if core.get_item_group(near_node.name, "table") ~= 1 then
 			local anims2 = {}
 			for i=1, #seat_data.anims do
 				if not player_api.registered_models[seat_data.model].animations[seat_data.anims[i]].is_near_block_required then
@@ -108,7 +108,7 @@ function multidecor.sitting.sit_player(player, node_pos)
 
 	local player_meta = player:get_meta()
 
-	player:get_meta():set_string("previous_player_data", minetest.serialize(prev_pdata))
+	player:get_meta():set_string("previous_player_data", core.serialize(prev_pdata))
 
 	local dir_rot = vector.dir_to_rotation(multidecor.helpers.get_dir(node_pos))
 	local rot_seat_pos = vector.rotate_around_axis(multidecor.helpers.rotate_to_node_dir(node_pos, seat_data.pos), vector.new(0, 1, 0), math.pi)
@@ -122,7 +122,7 @@ function multidecor.sitting.sit_player(player, node_pos)
 
 	multidecor.sitting.attach_player_to_node(player, data)
 
-	minetest.get_meta(node_pos):set_string("is_busy", playername)
+	core.get_meta(node_pos):set_string("is_busy", playername)
 
 	return true
 end
@@ -131,14 +131,14 @@ function multidecor.sitting.standup_player(player, node_pos)
 	if not player then
 		return
 	end
-	local meta = minetest.get_meta(node_pos)
+	local meta = core.get_meta(node_pos)
 
 	if player:get_player_name() ~= meta:get_string("is_busy") then
 		return false
 	end
 
 	local player_meta = player:get_meta()
-	multidecor.sitting.detach_player_from_node(player, minetest.deserialize(player_meta:get_string("previous_player_data")))
+	multidecor.sitting.detach_player_from_node(player, core.deserialize(player_meta:get_string("previous_player_data")))
 
 	player_meta:set_string("previous_player_data", "")
 	meta:set_string("is_busy", "")
@@ -167,11 +167,11 @@ player_api.register_model(multidecor.sitting.standard_model, {
 })
 
 multidecor.sitting.on_construct = function(pos)
-	minetest.get_meta(pos):set_string("is_busy", "")
+	core.get_meta(pos):set_string("is_busy", "")
 end
 
 multidecor.sitting.on_destruct = function(pos)
-	multidecor.sitting.standup_player(minetest.get_player_by_name(minetest.get_meta(pos):get_string("is_busy")), pos)
+	multidecor.sitting.standup_player(core.get_player_by_name(core.get_meta(pos):get_string("is_busy")), pos)
 end
 
 multidecor.sitting.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
@@ -182,7 +182,7 @@ multidecor.sitting.on_rightclick = function(pos, node, clicker, itemstack, point
 	end
 end
 
-minetest.register_entity("decor_api:seat_entity", {
+core.register_entity("decor_api:seat_entity", {
 	visual = "cube",
 	textures = {
 		"multidecor_transparency.png",
@@ -198,8 +198,8 @@ minetest.register_entity("decor_api:seat_entity", {
 	static_save = true
 })
 
-minetest.register_on_leaveplayer(function(player)
-	local prev_pdata = minetest.deserialize(player:get_meta():get_string("previous_player_data"))
+core.register_on_leaveplayer(function(player)
+	local prev_pdata = core.deserialize(player:get_meta():get_string("previous_player_data"))
 
 	if prev_pdata and prev_pdata.attached_to then
 		multidecor.sitting.standup_player(player, prev_pdata.attached_to)

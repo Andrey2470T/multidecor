@@ -162,7 +162,7 @@ local spiral_stairs_data = {
 	}
 }
 
-if minetest.get_modpath("ethereal") then
+if core.get_modpath("ethereal") then
 	table.insert(spiral_stairs_data, {
 		name="redwood",
 		tex={"ethereal_redwood_wood.png", "ethereal_redwood_wood.png"},

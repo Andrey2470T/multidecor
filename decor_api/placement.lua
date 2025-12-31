@@ -1,7 +1,7 @@
 multidecor.placement = {}
 
 function multidecor.placement.is_free_space(pos)
-	local def = minetest.registered_nodes[minetest.get_node(pos).name]
+	local def = core.registered_nodes[core.get_node(pos).name]
 
 	return def.drawtype == "airlike"
 end
@@ -80,7 +80,7 @@ function multidecor.placement.calc_place_space_size(bboxes)
 end
 
 function multidecor.placement.check_for_placement(pos, name)
-	local def = minetest.registered_nodes[name]
+	local def = core.registered_nodes[name]
 
 	if def.drawtype ~= "mesh" and def.drawtype ~= "nodebox" then
 		return true

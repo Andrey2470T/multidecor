@@ -24,7 +24,7 @@ local function check_for_dye_in_inv(player)
 	local next_itemname = dye:get_name()
 
 	if not dye or dye:is_empty() or
-		minetest.get_item_group(next_itemname, "dye") ~= 1 then -- no any dye next to the brush or the slot is empty
+		core.get_item_group(next_itemname, "dye") ~= 1 then -- no any dye next to the brush or the slot is empty
 		return
 	end
 
@@ -32,7 +32,7 @@ local function check_for_dye_in_inv(player)
 
 	-- Checks if the color of the given dye is supported for painting
 	for colorindex, colorname in ipairs(multidecor.colors) do
-		if minetest.get_item_group(next_itemname, "color_" .. colorname) == 1 then
+		if core.get_item_group(next_itemname, "color_" .. colorname) == 1 then
 			index = colorindex - 1
 
 			break
@@ -42,7 +42,7 @@ local function check_for_dye_in_inv(player)
 	return index
 end
 
-minetest.register_entity(":multidecor:cover", {
+core.register_entity(":multidecor:cover", {
 	visual = "upright_sprite",
 	physical = false,
 	pointable = true,
@@ -55,7 +55,7 @@ minetest.register_entity(":multidecor:cover", {
 			return
 		end
 
-		local data = minetest.deserialize(staticdata)
+		local data = core.deserialize(staticdata)
 
 		if not data then
 			self.object:remove()
@@ -95,7 +95,7 @@ minetest.register_entity(":multidecor:cover", {
 			return
 		end
 
-		if minetest.is_protected(pos, clicker:get_player_name()) then
+		if core.is_protected(pos, clicker:get_player_name()) then
 			return
 		end
 
@@ -120,7 +120,7 @@ minetest.register_entity(":multidecor:cover", {
 			return
 		end
 
-		if minetest.is_protected(self.object:get_pos(), puncher:get_player_name()) then
+		if core.is_protected(self.object:get_pos(), puncher:get_player_name()) then
 			return
 		end
 
@@ -132,7 +132,7 @@ minetest.register_entity(":multidecor:cover", {
 		multidecor.tools_sounds.play(puncher:get_player_name(), 4)
 	end,
 	get_staticdata = function(self)
-		return minetest.serialize({cover_name=self.cover_name, box=self.box, color=self.color})
+		return core.serialize({cover_name=self.cover_name, box=self.box, color=self.color})
 	end
 })
 
@@ -145,7 +145,7 @@ local function on_place_cover(pointed_thing, cover_stack, cover_name, placer)
 		return cover_stack
 	end
 
-	if minetest.is_protected(pointed_thing.above, placer:get_player_name()) then
+	if core.is_protected(pointed_thing.above, placer:get_player_name()) then
 		return cover_stack
 	end
 
@@ -157,7 +157,7 @@ local function on_place_cover(pointed_thing, cover_stack, cover_name, placer)
 	local target_rot = vector.dir_to_rotation(dir_to_pos)
 	local target_sbox = hlpfuncs.rotate_bbox(cover_sbox, dir_to_pos)
 
-	local obj = minetest.add_entity(target_pos, "multidecor:cover", minetest.serialize({cover_name=cover_name, box=target_sbox}))
+	local obj = core.add_entity(target_pos, "multidecor:cover", core.serialize({cover_name=cover_name, box=target_sbox}))
 
 	obj:set_rotation(target_rot)
 
@@ -168,7 +168,7 @@ end
 
 for _, wallpaper_sort in ipairs(wallpapers) do
 	local itemname = wallpaper_sort.name .. "_wallpaper"
-	minetest.register_craftitem(":multidecor:" .. itemname, {
+	core.register_craftitem(":multidecor:" .. itemname, {
 		description = modern.S(hlpfuncs.upper_first_letters(itemname) .. " (see the guide paper on how to use)"),
 		inventory_image = "multidecor_" .. itemname .. ".png",
 		on_place = function(itemstack, placer, pointed_thing)
@@ -180,7 +180,7 @@ for _, wallpaper_sort in ipairs(wallpapers) do
 	table.insert(recipe, "default:paper")
 	table.insert(recipe, "multidecor:paint_brush")
 
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = "multidecor:" .. itemname,
 		recipe = recipe,
@@ -188,23 +188,23 @@ for _, wallpaper_sort in ipairs(wallpapers) do
 	})
 end
 
-minetest.register_tool(":multidecor:scraper", {
+core.register_tool(":multidecor:scraper", {
 	description = modern.S("Scraper (see the guide paper on how to use)"),
 	inventory_image = "multidecor_scraper.png"
 })
 
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "multidecor:scraper",
 	recipe = {"multidecor:steel_stripe", "multidecor:plastic_strip"}
 })
 
-minetest.register_craftitem(":multidecor:plaster_lump", {
+core.register_craftitem(":multidecor:plaster_lump", {
 	description = modern.S("Plaster Lump"),
 	inventory_image = "multidecor_plaster_lump.png"
 })
 
-minetest.register_craft({
+core.register_craft({
 	type = "cooking",
 	output = "multidecor:plaster_lump",
 	recipe = "default:clay",
@@ -212,7 +212,7 @@ minetest.register_craft({
 })
 
 
-minetest.register_tool(":multidecor:paint_brush", {
+core.register_tool(":multidecor:paint_brush", {
 	description = modern.S("Paint Brush (see the guide paper on how to use)"),
 	inventory_image = "multidecor_paint_brush.png",
 	on_place = function(itemstack, placer, pointed_thing)
@@ -223,7 +223,7 @@ minetest.register_tool(":multidecor:paint_brush", {
 			return
 		end
 
-		local node = minetest.get_node(pos)
+		local node = core.get_node(pos)
 
 		local mul = def.paramtype2 == "colorwallmounted" and 8 or 32
 		local palette_index = math.floor(node.param2 / mul)
@@ -238,12 +238,12 @@ minetest.register_tool(":multidecor:paint_brush", {
 			return
 		end
 
-		if minetest.is_protected(pos, placer:get_player_name()) then
+		if core.is_protected(pos, placer:get_player_name()) then
 			return
 		end
 
 		local rot = node.param2 % mul
-		minetest.swap_node(pos, {name=node.name, param2=color_index*mul+rot})
+		core.swap_node(pos, {name=node.name, param2=color_index*mul+rot})
 
 		local dye_index = placer:get_wield_index() + 1
 		local inv = placer:get_inventory()
@@ -253,7 +253,7 @@ minetest.register_tool(":multidecor:paint_brush", {
 	end
 })
 
-minetest.register_craft({
+core.register_craft({
 	output = "multidecor:paint_brush",
 	recipe = {
 		{"default:stick", "multidecor:wool_cloth", "multidecor:steel_scissors"},
@@ -263,7 +263,7 @@ minetest.register_craft({
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-minetest.register_tool(":multidecor:spatula", {
+core.register_tool(":multidecor:spatula", {
 	description = modern.S("Spatula (see the guide paper on how to use)"),
 	inventory_image = "multidecor_spatula.png",
 	on_place = function(itemstack, placer, pointed_thing)
@@ -281,7 +281,7 @@ minetest.register_tool(":multidecor:spatula", {
 	end
 })
 
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "multidecor:spatula",
 	recipe = {"multidecor:steel_strip", "multidecor:coarse_steel_sheet"}

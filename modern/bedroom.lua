@@ -202,7 +202,7 @@ multidecor.register.register_table("dresser_with_mirror", {
 	}
 })
 
-minetest.register_entity("modern:wooden_drawer_with_round_handle", {
+core.register_entity("modern:wooden_drawer_with_round_handle", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_wooden_drawer_with_round_handle.b3d",

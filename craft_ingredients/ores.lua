@@ -1,7 +1,7 @@
-local S = minetest.get_translator(minetest.get_current_modname())
-local tw_modpath = minetest.get_modpath("technic_worldgen")
+local S = core.get_translator(core.get_current_modname())
+local tw_modpath = core.get_modpath("technic_worldgen")
 
-minetest.register_node(":multidecor:wolfram_ore", {
+core.register_node(":multidecor:wolfram_ore", {
     description = S("Wolfram Ore"),
     tiles = {"default_stone.png^multidecor_wolfram_mineral.png"},
     is_ground_content = true,
@@ -19,7 +19,7 @@ minetest.register_node(":multidecor:wolfram_ore", {
     sounds = default.node_sound_stone_defaults()
 })
 
-minetest.register_node(":multidecor:desert_wolfram_ore", {
+core.register_node(":multidecor:desert_wolfram_ore", {
     description = S("Desert Wolfram Ore"),
     tiles = {"default_desert_stone.png^multidecor_wolfram_mineral.png"},
     is_ground_content = true,
@@ -37,7 +37,7 @@ minetest.register_node(":multidecor:desert_wolfram_ore", {
     sounds = default.node_sound_stone_defaults()
 })
 
-minetest.register_ore({
+core.register_ore({
     ore_type = "scatter",
     ore = "multidecor:wolfram_ore",
     wherein = "default:stone",
@@ -48,7 +48,7 @@ minetest.register_ore({
     y_max = -400
 })
 
-minetest.register_ore({
+core.register_ore({
     ore_type = "scatter",
     ore = "multidecor:desert_wolfram_ore",
     wherein = "default:desert_stone",
@@ -59,19 +59,19 @@ minetest.register_ore({
     y_max = -400
 })
 
-minetest.register_craftitem(":multidecor:wolfram_lump",
+core.register_craftitem(":multidecor:wolfram_lump",
 {
 	description = S("Wolfram Lump"),
 	inventory_image = "multidecor_wolfram_lump.png"
 })
 
-minetest.register_craftitem(":multidecor:wolfram_ingot",
+core.register_craftitem(":multidecor:wolfram_ingot",
 {
 	description = S("Wolfram Ingot"),
 	inventory_image = "multidecor_wolfram_ingot.png"
 })
 
-minetest.register_craft({
+core.register_craft({
 	type = "cooking",
 	output = "multidecor:wolfram_ingot",
 	recipe = "multidecor:wolfram_lump",
@@ -79,12 +79,12 @@ minetest.register_craft({
 })
 
 if tw_modpath then
-    minetest.register_alias("multidecor:zinc_ore", "technic:mineral_zinc")
-    minetest.register_alias("multidecor:desert_zinc_ore", "technic:mineral_zinc")
-    minetest.register_alias("multidecor:zinc_ingot", "technic:zinc_ingots")
-    minetest.register_alias("multidecor:zinc_fragment", "technic:zinc_lump")
+    core.register_alias("multidecor:zinc_ore", "technic:mineral_zinc")
+    core.register_alias("multidecor:desert_zinc_ore", "technic:mineral_zinc")
+    core.register_alias("multidecor:zinc_ingot", "technic:zinc_ingots")
+    core.register_alias("multidecor:zinc_fragment", "technic:zinc_lump")
 else
-    minetest.register_node(":multidecor:zinc_ore", {
+    core.register_node(":multidecor:zinc_ore", {
         description = S("Zinc Ore"),
         tiles = {"default_stone.png^multidecor_zinc_mineral.png"},
         is_ground_content = true,
@@ -102,7 +102,7 @@ else
         sounds = default.node_sound_stone_defaults()
     })
 
-    minetest.register_node(":multidecor:desert_zinc_ore", {
+    core.register_node(":multidecor:desert_zinc_ore", {
         description = S("Desert Zinc Ore"),
         tiles = {"default_desert_stone.png^multidecor_zinc_mineral.png"},
         is_ground_content = true,
@@ -120,7 +120,7 @@ else
         sounds = default.node_sound_stone_defaults()
     })
 
-    minetest.register_ore({
+    core.register_ore({
         ore_type = "scatter",
         ore = "multidecor:zinc_ore",
         wherein = "default:stone",
@@ -131,7 +131,7 @@ else
         y_max = -200
     })
 
-    minetest.register_ore({
+    core.register_ore({
         ore_type = "scatter",
         ore = "multidecor:desert_zinc_ore",
         wherein = "default:desert_stone",
@@ -142,20 +142,20 @@ else
         y_max = -200
     })
 
-    minetest.register_craftitem(":multidecor:zinc_ingot",
+    core.register_craftitem(":multidecor:zinc_ingot",
     {
 	    description = S("Zinc Ingot"),
 	        inventory_image = "multidecor_zinc_ingot.png"
 })
 
-    minetest.register_craft({
+    core.register_craft({
 	    type = "cooking",
 	    output = "multidecor:zinc_ingot",
 	    recipe = "multidecor:zinc_fragment",
 	    cooktime = 5
     })
 
-    minetest.register_craftitem(":multidecor:zinc_fragment",
+    core.register_craftitem(":multidecor:zinc_fragment",
     {
 	    description = S("Zinc Fragment"),
 	    inventory_image = "multidecor_zinc_fragment.png"
@@ -163,7 +163,7 @@ else
 end
 
 
-minetest.register_node(":multidecor:granite_block", {
+core.register_node(":multidecor:granite_block", {
 	description = S("Granite Block"),
 	paramtype = "light",
 	paramtype2 = "none",
@@ -173,7 +173,7 @@ minetest.register_node(":multidecor:granite_block", {
 	sounds = default.node_sound_stone_defaults()
 })
 
-minetest.register_ore({
+core.register_ore({
     ore_type = "sheet",
     ore = "multidecor:granite_block",
     wherein = "default:stone",
@@ -184,7 +184,7 @@ minetest.register_ore({
     y_max = 0
 })
 
-minetest.register_ore({
+core.register_ore({
     ore_type = "sheet",
     ore = "multidecor:granite_block",
     wherein = "default:desert_stone",
@@ -196,7 +196,7 @@ minetest.register_ore({
 })
 
 
-minetest.register_node(":multidecor:consolidated_oil", {
+core.register_node(":multidecor:consolidated_oil", {
     description = S("Consolidated Oil (use furnace to melt)"),
     tiles = {"multidecor_consolidated_oil.png"},
     paramtype = "light",
@@ -241,7 +241,7 @@ oil_src_def.tiles = {table.copy(oil_anim_def)}
 oil_src_def.tiles[1].name = "multidecor_oil_source_animated.png"
 oil_src_def.liquidtype = "source"
 
-minetest.register_node(":multidecor:oil_source", oil_src_def)
+core.register_node(":multidecor:oil_source", oil_src_def)
 
 local oil_flow_def = table.copy(oil_def)
 
@@ -255,19 +255,19 @@ oil_flow_def.special_tiles[2].name = "multidecor_oil_flowing_animated.png"
 oil_flow_def.liquidtype = "flowing"
 oil_flow_def.on_rightclick = function (pos, node, player, itemstack, pointed_thing)
     if itemstack:get_name() == "bucket:bucket_empty" then
-        minetest.remove_node(pos)
+        core.remove_node(pos)
         itemstack:take_item()
         local stack = ItemStack("craft_ingredients:oil_bucket")
-	    local inv = minetest.get_inventory({type="player", name=player:get_player_name()})
+	    local inv = core.get_inventory({type="player", name=player:get_player_name()})
 	    inv:add_item("main", stack)
     end
 
     return itemstack
 end
 
-minetest.register_node(":multidecor:oil_flowing", oil_flow_def)
+core.register_node(":multidecor:oil_flowing", oil_flow_def)
 
-minetest.register_ore({
+core.register_ore({
     ore_type = "scatter",
     ore = "multidecor:consolidated_oil",
     wherein = {"default:stone", "default:desert_stone"},
@@ -278,7 +278,7 @@ minetest.register_ore({
     y_max = -100
 })
 
-minetest.register_ore({
+core.register_ore({
     ore_type = "blob",
     ore = "multidecor:oil_source",
     wherein = "multidecor:consolidated_oil",

@@ -122,12 +122,12 @@ for _, img in ipairs(images) do
 end
 
 
-minetest.register_craftitem(":multidecor:painting_frame", {
+core.register_craftitem(":multidecor:painting_frame", {
 	description = modern.S("Painting Frame"),
 	inventory_image = "multidecor_painting_frame.png"
 })
 
-minetest.register_craft({
+core.register_craft({
 	output = "multidecor:painting_frame",
 	recipe = {
 		{"default:paper", "multidecor:plank", "multidecor:saw"},

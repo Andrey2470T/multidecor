@@ -1,13 +1,13 @@
-local modpath = minetest.get_modpath("craft_ingredients")
-local S = minetest.get_translator(minetest.get_current_modname())
+local modpath = core.get_modpath("craft_ingredients")
+local S = core.get_translator(core.get_current_modname())
 
-local bm_modpath = minetest.get_modpath("basic_materials")
+local bm_modpath = core.get_modpath("basic_materials")
 
 dofile(modpath .. "/ores.lua")
 
 local woods = {"", "jungle", "aspen", "pine"}
 
-if minetest.get_modpath("ethereal") then
+if core.get_modpath("ethereal") then
 	table.insert(woods, "redwood")
 end
 
@@ -63,7 +63,7 @@ for _, wood in ipairs(woods) do
 	local to_capital_l = wood ~= "" and wood:sub(1,1):upper() .. wood:sub(2, -2) .. " " or ""
 
 	for item, recipes in pairs(items_and_crafts) do
-		minetest.register_craftitem(":multidecor:" .. wood .. item,
+		core.register_craftitem(":multidecor:" .. wood .. item,
 		{
 			description = S(to_capital_l .. item:sub(1,1):upper() .. item:sub(2)),
 			inventory_image = "multidecor_" .. (wood == "jungle" and wood .. "_" or wood) .. item .. ".png"
@@ -85,7 +85,7 @@ for _, wood in ipairs(woods) do
 				recipe = recipe_c.recipe,
 				replacements = recipe_c.type == "shapeless" and {{"multidecor:saw", "multidecor:saw"}} or nil
 			}
-			minetest.register_craft(def)
+			core.register_craft(def)
 		end
 	end
 end
@@ -100,7 +100,7 @@ bucket.register_liquid(
 	true
 )
 
-minetest.register_node(":multidecor:marble_block", {
+core.register_node(":multidecor:marble_block", {
 	description = S("Marble Block"),
 	paramtype = "light",
 	paramtype2 = "none",
@@ -128,21 +128,21 @@ function multidecor.craft.register(name, recipe)
 	if bm_modpath then
 		for _, items_map in ipairs(to_bm_items_map) do
 			if items_map[1] == name then
-				minetest.register_alias(
+				core.register_alias(
 					"multidecor:" .. items_map[1], "basic_materials:" .. items_map[2])
 				break;
 			end
 		end
 	else
 		local register_name = "multidecor:" .. name
-		minetest.register_craftitem(":" .. register_name,
+		core.register_craftitem(":" .. register_name,
 		{
 			description = S(multidecor.helpers.upper_first_letters(name)),
 			inventory_image = "multidecor_" .. name .. ".png"
 		})
 
 		local count = type(recipe.count) == "number" and " " .. tostring(recipe.count) or ""
-		minetest.register_craft({
+		core.register_craft({
 			output = register_name .. count,
 			type = recipe.type,
 			recipe = recipe.recipe,
@@ -201,8 +201,8 @@ multidecor.craft.register("metal_bar",
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-if minetest.get_modpath("moreores") then
-	minetest.register_craftitem(":multidecor:silver_sheet",
+if core.get_modpath("moreores") then
+	core.register_craftitem(":multidecor:silver_sheet",
 	{
 		description = S("Silver Sheet"),
 		inventory_image = "multidecor_silver_sheet.png"
@@ -443,8 +443,8 @@ multidecor.craft.register("syphon",
 	}
 })
 
-if minetest.get_modpath("moreores") then
-	minetest.register_craft(
+if core.get_modpath("moreores") then
+	core.register_craft(
 	{
 		type = "shapeless",
 		output = "multidecor:silver_sheet 5",
@@ -452,14 +452,14 @@ if minetest.get_modpath("moreores") then
 		replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 	})
 
-	minetest.register_craft(
+	core.register_craft(
 	{
 		type = "shapeless",
 		output = "multidecor:silver_chain",
 		recipe = {"multidecor:metal_chain", "moreores:silver_ingot"}
 	})
 
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = "multidecor:silver_wire 4",
 		recipe = {"multidecor:silver_sheet", "multidecor:steel_scissors"},

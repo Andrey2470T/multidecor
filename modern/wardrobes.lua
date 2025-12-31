@@ -52,7 +52,7 @@ multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 	}
 })
 
-minetest.register_entity("modern:wardrobe_wooden_glass_door", {
+core.register_entity("modern:wardrobe_wooden_glass_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_wardrobe_wooden_glass_door.b3d",
@@ -69,7 +69,7 @@ minetest.register_entity("modern:wardrobe_wooden_glass_door", {
 	on_deactivate = multidecor.shelves.on_deactivate
 })
 
-minetest.register_entity("modern:wardrobe_wooden_door", {
+core.register_entity("modern:wardrobe_wooden_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_wardrobe_wooden_door.b3d",

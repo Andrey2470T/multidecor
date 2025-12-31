@@ -1,7 +1,7 @@
 multidecor.bed = {}
 
 function multidecor.bed.on_rightclick(pos, node, clicker, itemstack, pointed_thing)
-	local add_props = minetest.registered_nodes[node.name].add_properties
+	local add_props = core.registered_nodes[node.name].add_properties
 
 	if not add_props then
 		return
@@ -29,7 +29,7 @@ function multidecor.bed.on_rightclick(pos, node, clicker, itemstack, pointed_thi
 	local tpos = is_lpos_fr and lpos or is_lpos2_fr and lpos2
 
 	if not tpos then
-		minetest.chat_send_player(clicker:get_player_name(), multidecor.S("This bed is already occupied!"))
+		core.chat_send_player(clicker:get_player_name(), multidecor.S("This bed is already occupied!"))
 		return
 	end
 
@@ -71,7 +71,7 @@ function multidecor.register.register_bed(name, base_def, add_def, craft_def)
 		end
 	end
 
-	local mtg_bed_def = minetest.registered_nodes["beds:bed_bottom"]
+	local mtg_bed_def = core.registered_nodes["beds:bed_bottom"]
 	
 	if not def.callbacks then
 		def.callbacks = {}

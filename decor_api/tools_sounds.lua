@@ -29,10 +29,10 @@ function multidecor.tools_sounds.play(playername, sound_index)
 		durability = sound.durability
 	}
 
-	minetest.sound_play("multidecor_" .. sound.name, {to_player=playername})
+	core.sound_play("multidecor_" .. sound.name, {to_player=playername})
 end
 
-minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
+core.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
 	local sound_index
 
 	local function check_for_item(itemname)
@@ -58,8 +58,8 @@ minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv
 	return
 end)
 
-minetest.register_globalstep(function(dtime)
-	for _, player in ipairs(minetest.get_connected_players()) do
+core.register_globalstep(function(dtime)
+	for _, player in ipairs(core.get_connected_players()) do
 		local playername = player:get_player_name()
 		local cur_sound = multidecor.tools_sounds.current_sounds[playername]
 

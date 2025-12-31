@@ -168,7 +168,7 @@ multidecor.register.register_table("modern_wooden_desk", {
 	}
 })
 
-minetest.register_entity("modern:wooden_drawer", {
+core.register_entity("modern:wooden_drawer", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_wooden_drawer.b3d",
@@ -183,7 +183,7 @@ minetest.register_entity("modern:wooden_drawer", {
 	on_deactivate = multidecor.shelves.on_deactivate
 })
 
-minetest.register_entity("modern:wooden_door", {
+core.register_entity("modern:wooden_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_wooden_door.b3d",

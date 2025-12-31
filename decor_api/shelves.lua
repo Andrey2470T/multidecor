@@ -63,13 +63,13 @@ function multidecor.shelves.rotate_shelf_bbox(obj)
 	if not self then return end
 
 	local dir = multidecor.helpers.get_dir(self.connected_to.pos)
-	local shelf = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data[self.shelf_data_i]
+	local shelf = core.registered_nodes[self.connected_to.name].add_properties.shelves_data[self.shelf_data_i]
 
 	if shelf.type == "sym_doors" and
 			vector.round(vector.subtract(obj:get_pos(), self.connected_to.pos)) == vector.round(shelf.pos2) or self.is_flip_x_scale then
 		dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi)
 	end
-	local def = minetest.registered_entities[self.name]
+	local def = core.registered_entities[self.name]
 	local sbox = hlpfuncs.rotate_bbox(def.selectionbox, dir)
 	obj:set_properties({
 		selectionbox = sbox
@@ -160,7 +160,7 @@ function multidecor.shelves.build_share_formspec(members)
 
 	local cur_h = 0.25
 	for _, member in ipairs(members) do
-		local player = minetest.get_player_by_name(member)
+		local player = core.get_player_by_name(member)
 
 		local member_img = ""
 		if player then
@@ -205,7 +205,7 @@ function multidecor.shelves.get_opposite_symdoor(self, shelf)
 	local tpos = self.is_flip_x_scale and shelf.pos or shelf.pos2
 	tpos = self.connected_to.pos + multidecor.helpers.rotate_to_node_dir(self.connected_to.pos, tpos)
 
-	local tobj = minetest.get_objects_inside_radius(tpos, 0.05)[1]
+	local tobj = core.get_objects_inside_radius(tpos, 0.05)[1]
 
 	if not tobj then return end
 
@@ -225,7 +225,7 @@ function multidecor.shelves.open_shelf(obj, dir_sign)
 	end
 
 	local node_name = self.connected_to.name
-	local shelf = minetest.registered_nodes[node_name].add_properties.shelves_data[self.shelf_data_i]
+	local shelf = core.registered_nodes[node_name].add_properties.shelves_data[self.shelf_data_i]
 	local dir = multidecor.helpers.get_dir(self.connected_to.pos)
 
 	self.dir = dir_sign
@@ -243,21 +243,21 @@ function multidecor.shelves.open_shelf(obj, dir_sign)
 	if shelf.sounds then
 		local play_sound = dir_sign == 1 and shelf.sounds.open or shelf.sounds.close
 
-		minetest.sound_play(play_sound, {pos=obj:get_pos(), fade=1.0, max_hear_distance=10})
+		core.sound_play(play_sound, {pos=obj:get_pos(), fade=1.0, max_hear_distance=10})
 	end
 end
 
 -- Adds shelf objects for the node with 'pos' position. They should save formspec inventory and position of the node which they are connected to
 function multidecor.shelves.set_shelves(pos)
-	local node = minetest.get_node(pos)
-	local def = minetest.registered_nodes[node.name]
+	local node = core.get_node(pos)
+	local def = core.registered_nodes[node.name]
 
 	if not def.add_properties or not def.add_properties.shelves_data then
 		return
 	end
 
 	for i, shelf_data in ipairs(def.add_properties.shelves_data) do
-		local obj = minetest.add_entity(vector.add(pos, shelf_data.pos), shelf_data.object, minetest.serialize({{name=node.name, pos=pos}, 0, i}))
+		local obj = core.add_entity(vector.add(pos, shelf_data.pos), shelf_data.object, core.serialize({{name=node.name, pos=pos}, 0, i}))
 
 		local move_dist
 
@@ -271,7 +271,7 @@ function multidecor.shelves.set_shelves(pos)
 		multidecor.shelves.rotate_shelf(pos, obj, shelf_data.type == "drawer", shelf_data.side, move_dist, shelf_data.orig_angle)
 
 		if shelf_data.type == "sym_doors" then
-			local obj2 = minetest.add_entity(vector.add(pos, shelf_data.pos2), shelf_data.object, minetest.serialize({{name=node.name, pos=pos}, 0, i}))
+			local obj2 = core.add_entity(vector.add(pos, shelf_data.pos2), shelf_data.object, core.serialize({{name=node.name, pos=pos}, 0, i}))
 
 			local vis_size = obj2:get_properties().visual_size
 			obj2:set_properties({visual_size={x=vis_size.x*-1, y=vis_size.y, z=vis_size.z}})
@@ -290,7 +290,7 @@ multidecor.shelves.check_for_formname = function(formname)
 	end
 
 	local name = formname:sub(1, shelf_i-2)
-	local def = minetest.registered_nodes[name]
+	local def = core.registered_nodes[name]
 
 	if not def then
 		return false
@@ -337,11 +337,11 @@ end
 
 multidecor.shelves.create_detached_inventory = function(pos, shelf_i, shelves_data, obj)
 	local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", shelf_i, pos)
-	local inv = minetest.get_inventory({type="detached", name=inv_name})
+	local inv = core.get_inventory({type="detached", name=inv_name})
 
 	if not inv then
 		local shelf_data = shelves_data[shelf_i]
-		inv = minetest.create_detached_inventory(inv_name, {
+		inv = core.create_detached_inventory(inv_name, {
 			allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
 				return count
 			end,
@@ -349,7 +349,7 @@ multidecor.shelves.create_detached_inventory = function(pos, shelf_i, shelves_da
 				local c = stack:get_count()
 
 				if shelf_data.invlist_type == "cooker" then
-					local output = minetest.get_craft_result({method="cooking", width=1, items={stack}})
+					local output = core.get_craft_result({method="cooking", width=1, items={stack}})
 
 					if not output or output.time == 0 then
 						c = 0
@@ -364,11 +364,11 @@ multidecor.shelves.create_detached_inventory = function(pos, shelf_i, shelves_da
 				local playername = player:get_player_name()
 				if shelf_data.invlist_type == "trash" then
 					inv:remove_item(listname, inv:get_stack(listname, 1))
-					minetest.sound_play("multidecor_trash", {to_player=playername})
+					core.sound_play("multidecor_trash", {to_player=playername})
 				elseif shelf_data.invlist_type == "cooker" then
 					local name = stack:get_name()
 
-					local output = minetest.get_craft_result({method="cooking", width=1, items=inv:get_list(listname)})
+					local output = core.get_craft_result({method="cooking", width=1, items=inv:get_list(listname)})
 					output.item = {
 						name=output.item:get_name(),
 						count=output.item:get_count()*stack:get_count(),
@@ -376,12 +376,12 @@ multidecor.shelves.create_detached_inventory = function(pos, shelf_i, shelves_da
 					}
 					local total_time = output.time*stack:get_count()
 
-					minetest.swap_node(pos, {
+					core.swap_node(pos, {
 						name="multidecor:" ..shelves_data.common_name .. "_activated",
-						param2=minetest.get_node(pos).param2
+						param2=core.get_node(pos).param2
 					})
 
-					local meta = minetest.get_meta(pos)
+					local meta = core.get_meta(pos)
 					local cook_data = {output, 0, total_time, 0}
 
 					if open_shelves[playername] then
@@ -394,9 +394,9 @@ multidecor.shelves.create_detached_inventory = function(pos, shelf_i, shelves_da
 							self2.cook_info = cook_data
 						end
 					else
-						meta:set_string("cook_info", minetest.serialize(cook_data))
+						meta:set_string("cook_info", core.serialize(cook_data))
 					end
-					meta:set_string("sound_handle", minetest.serialize(minetest.sound_play(
+					meta:set_string("sound_handle", core.serialize(core.sound_play(
 						"multidecor_hum",
 						{pos=pos, fade=1.0, max_hear_distance=10, loop=true}
 					)))
@@ -413,7 +413,7 @@ multidecor.shelves.create_detached_inventory = function(pos, shelf_i, shelves_da
 			local self = obj:get_luaentity()
 			cur_inv_list = self.inv_list
 		else
-			cur_inv_list = minetest.deserialize(minetest.get_meta(pos):get_string("inv_list"))
+			cur_inv_list = core.deserialize(core.get_meta(pos):get_string("inv_list"))
 		end
 
 		for _, stack_t in ipairs(cur_inv_list) do
@@ -439,7 +439,7 @@ end
 -- Callbacks for shelves having objects attached (doors, drawers)
 multidecor.shelves.on_activate = function(self, staticdata)
 	if staticdata ~= "" then
-		local data = minetest.deserialize(staticdata)
+		local data = core.deserialize(staticdata)
 
 		-- The code below is for backwards compatibility with versions < 1.2.5
 		local ind_incr = 0
@@ -459,9 +459,9 @@ multidecor.shelves.on_activate = function(self, staticdata)
 		self.lock_info = data[10+ind_incr]		-- table containing name of the owner locked the shelf and share group members
 	end
 
-	local node = minetest.get_node(self.connected_to.pos)
+	local node = core.get_node(self.connected_to.pos)
 
-	local shelves_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data
+	local shelves_data = core.registered_nodes[self.connected_to.name].add_properties.shelves_data
 	if not node.name:match(shelves_data.common_name) then
 		self.object:remove()
 		return
@@ -496,7 +496,7 @@ multidecor.shelves.on_activate = function(self, staticdata)
 end
 
 multidecor.shelves.get_staticdata = function(self)
-	return minetest.serialize({
+	return core.serialize({
 		self.connected_to, self.dir,
 		self.shelf_data_i, self.inv_list,
 		self.start_v, self.end_v, self.is_flip_x_scale,
@@ -511,7 +511,7 @@ multidecor.shelves.on_rightclick = function(self, clicker)
 	if not has then return end
 
 	open_shelves[playername] = self.object
-	local shelves_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data
+	local shelves_data = core.registered_nodes[self.connected_to.name].add_properties.shelves_data
 
 	local fs = multidecor.shelves.build_main_formspec(
 		self.connected_to.pos,
@@ -522,7 +522,7 @@ multidecor.shelves.on_rightclick = function(self, clicker)
 		multidecor.shelves.show_lock_buttons(self.lock_info, playername),
 		self.cook_info and self.cook_info[4] or 0.0
 	)
-	minetest.show_formspec(playername,
+	core.show_formspec(playername,
 		multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "fs", self.shelf_data_i, self.connected_to.pos), fs)
 
 	if self.dir == 0 then
@@ -537,7 +537,7 @@ local function cook_step(pos, shelf_i, lock_info, dtime, obj)
 	if obj then
 		cook_info = obj:get_luaentity().cook_info
 	else
-		cook_info = minetest.deserialize(minetest.get_meta(pos):get_string("cook_info"))
+		cook_info = core.deserialize(core.get_meta(pos):get_string("cook_info"))
 	end
 
 	if not cook_info then
@@ -547,14 +547,14 @@ local function cook_step(pos, shelf_i, lock_info, dtime, obj)
 	cook_info[2] = cook_info[2] + dtime
 	cook_info[4] = cook_info[2]/cook_info[3]*100
 
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	meta:set_string("infotext", multidecor.S("Cooked to: ") .. tostring(math.round(cook_info[4])) .. " %")
 
-	local name = minetest.get_node(pos).name
-	local shelves_data = minetest.registered_nodes[name].add_properties.shelves_data
+	local name = core.get_node(pos).name
+	local shelves_data = core.registered_nodes[name].add_properties.shelves_data
 	local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", shelf_i, pos)
 	local inv_list = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", shelf_i, pos)
-	local inv = minetest.get_inventory({type="detached", name=inv_name})
+	local inv = core.get_inventory({type="detached", name=inv_name})
 
 
 	local time_elapsed = cook_info[2] >= cook_info[3]
@@ -572,14 +572,14 @@ local function cook_step(pos, shelf_i, lock_info, dtime, obj)
 		if obj then
 			obj:get_luaentity().cook_info = nil
 		else
-			minetest.get_meta(pos):set_string("cook_info", "")
+			core.get_meta(pos):set_string("cook_info", "")
 		end
 		meta:set_string("infotext", "")
-		local sound_handle = minetest.deserialize(minetest.get_meta(pos):get_string("sound_handle"))
-		minetest.sound_stop(sound_handle)
-		minetest.swap_node(pos, {
+		local sound_handle = core.deserialize(core.get_meta(pos):get_string("sound_handle"))
+		core.sound_stop(sound_handle)
+		core.swap_node(pos, {
 			name="multidecor:" .. shelves_data.common_name,
-			param2=minetest.get_node(pos).param2
+			param2=core.get_node(pos).param2
 		})
 	end
 
@@ -603,17 +603,17 @@ local function cook_step(pos, shelf_i, lock_info, dtime, obj)
 		if obj then
 			for pl_name, o in pairs(open_shelves) do
 				if o == obj then
-					minetest.show_formspec(pl_name, fs_name, fs)
+					core.show_formspec(pl_name, fs_name, fs)
 				end
 			end
 		else
-			local players = minetest.get_connected_players()
+			local players = core.get_connected_players()
 
 			for _, player in ipairs(players) do
 				local open_shelf = vector.from_string(player:get_meta():get_string("open_shelf"))
 
 				if vector.equals(open_shelf, pos) then
-					minetest.show_formspec(player:get_player_name(), fs_name, fs)
+					core.show_formspec(player:get_player_name(), fs_name, fs)
 				end
 			end
 		end
@@ -621,8 +621,8 @@ local function cook_step(pos, shelf_i, lock_info, dtime, obj)
 end
 
 multidecor.shelves.drawer_on_step = function(self, dtime)
-	local node = minetest.get_node(self.connected_to.pos)
-	local data = minetest.registered_nodes[node.name].add_properties and minetest.registered_nodes[node.name].add_properties.shelves_data
+	local node = core.get_node(self.connected_to.pos)
+	local data = core.registered_nodes[node.name].add_properties and core.registered_nodes[node.name].add_properties.shelves_data
 
 	if not data or not self.connected_to.name:match(data.common_name) then
 		self.object:remove()
@@ -648,15 +648,15 @@ multidecor.shelves.drawer_on_step = function(self, dtime)
 end
 
 multidecor.shelves.door_on_step = function(self, dtime)
-	local node = minetest.get_node(self.connected_to.pos)
-	local data = minetest.registered_nodes[node.name].add_properties and minetest.registered_nodes[node.name].add_properties.shelves_data
+	local node = core.get_node(self.connected_to.pos)
+	local data = core.registered_nodes[node.name].add_properties and core.registered_nodes[node.name].add_properties.shelves_data
 
 	if not data or not self.connected_to.name:match(data.common_name) then
 		self.object:remove()
 		return
 	end
 
-	local shelf_data = minetest.registered_nodes[node.name].add_properties.shelves_data[self.shelf_data_i]
+	local shelf_data = core.registered_nodes[node.name].add_properties.shelves_data[self.shelf_data_i]
 	multidecor.doors.smooth_rotate_step(self, dtime, shelf_data.vel or 30, shelf_data.acc or 0)
 
 	cook_step(self.connected_to.pos, self.shelf_data_i, self.lock_info, dtime, self.object)
@@ -665,58 +665,58 @@ end
 multidecor.shelves.on_deactivate = function(self, removal)
 	if not removal then return end
 
-	local shelves_data = minetest.registered_nodes[self.connected_to.name].add_properties.shelves_data
+	local shelves_data = core.registered_nodes[self.connected_to.name].add_properties.shelves_data
 
 	local inv_name = multidecor.helpers.build_name_from_tmp(
 		shelves_data.common_name, "inv",
 		self.shelf_data_i, self.connected_to.pos)
-	minetest.remove_detached_inventory(inv_name)
+	core.remove_detached_inventory(inv_name)
 end
 
 
 -- Callbacks for nodes having one shelf (without doors, drawers)
 multidecor.shelves.on_construct = function(pos)
-	local node = minetest.get_node(pos)
-	local meta = minetest.get_meta(pos)
-	meta:set_string("connected_to", minetest.serialize({pos=pos,name=node.name}))
-	meta:set_string("inv_list", minetest.serialize({}))
-	local shelves_data = minetest.registered_nodes[node.name].add_properties.shelves_data
+	local node = core.get_node(pos)
+	local meta = core.get_meta(pos)
+	meta:set_string("connected_to", core.serialize({pos=pos,name=node.name}))
+	meta:set_string("inv_list", core.serialize({}))
+	local shelves_data = core.registered_nodes[node.name].add_properties.shelves_data
 
 	multidecor.shelves.create_detached_inventory(pos, 1, shelves_data)
 end
 
 multidecor.shelves.on_destruct = function(pos)
-	local meta = minetest.get_meta(pos)
-	local connected_to = minetest.deserialize(meta:get_string("connected_to"))
+	local meta = core.get_meta(pos)
+	local connected_to = core.deserialize(meta:get_string("connected_to"))
 
 	if not connected_to then return end
-	local shelves_data = minetest.registered_nodes[connected_to.name].add_properties.shelves_data
+	local shelves_data = core.registered_nodes[connected_to.name].add_properties.shelves_data
 
 	local inv_name = multidecor.helpers.build_name_from_tmp(
 		shelves_data.common_name, "inv",1, pos)
-	minetest.remove_detached_inventory(inv_name)
+	core.remove_detached_inventory(inv_name)
 
 end
 
 multidecor.shelves.node_on_rightclick = function(pos, node, clicker)
 	local playername = clicker:get_player_name()
 
-	local meta = minetest.get_meta(pos)
-	local lock_info = minetest.deserialize(meta:get_string("lock_info"))
+	local meta = core.get_meta(pos)
+	local lock_info = core.deserialize(meta:get_string("lock_info"))
 	local has = multidecor.shelves.has_access(lock_info, playername)
 
 	if not has then return end
 
-	local connected_to = minetest.deserialize(meta:get_string("connected_to"))
+	local connected_to = core.deserialize(meta:get_string("connected_to"))
 
 	if not connected_to then
-		minetest.set_node(pos, minetest.get_node(pos))
+		core.set_node(pos, core.get_node(pos))
 		return
 	end
 	clicker:get_meta():set_string("open_shelf", vector.to_string(pos))
 
-	local cook_info = minetest.deserialize(meta:get_string("cook_info"))
-	local shelves_data = minetest.registered_nodes[connected_to.name].add_properties.shelves_data
+	local cook_info = core.deserialize(meta:get_string("cook_info"))
+	local shelves_data = core.registered_nodes[connected_to.name].add_properties.shelves_data
 
 	multidecor.shelves.create_detached_inventory(pos, 1, shelves_data)
 	local fs = multidecor.shelves.build_main_formspec(
@@ -728,7 +728,7 @@ multidecor.shelves.node_on_rightclick = function(pos, node, clicker)
 		multidecor.shelves.show_lock_buttons(lock_info, playername),
 		cook_info and cook_info[4] or 0.0
 	)
-	minetest.show_formspec(playername,
+	core.show_formspec(playername,
 		multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "fs", 1, connected_to.pos), fs)
 end
 
@@ -755,17 +755,17 @@ multidecor.shelves.on_receive_fields = function(player, formname, fields)
 
 		if not shelf then return end
 
-		local meta = minetest.get_meta(shelf)
-		connected_to = minetest.deserialize(meta:get_string("connected_to"))
+		local meta = core.get_meta(shelf)
+		connected_to = core.deserialize(meta:get_string("connected_to"))
 		shelf_i = 1
-		lock_info = minetest.deserialize(meta:get_string("lock_info"))
-		cook_info = minetest.deserialize(meta:get_string("cook_info"))
+		lock_info = core.deserialize(meta:get_string("lock_info"))
+		cook_info = core.deserialize(meta:get_string("cook_info"))
 	end
 
-	local shelves_data = minetest.registered_nodes[connected_to.name].add_properties.shelves_data
+	local shelves_data = core.registered_nodes[connected_to.name].add_properties.shelves_data
 	if fields.quit == "true" then
 		local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", shelf_i, connected_to.pos)
-		local inv = minetest.get_inventory({type="detached", name=inv_name})
+		local inv = core.get_inventory({type="detached", name=inv_name})
 		local list = inv:get_list(multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", shelf_i, connected_to.pos))
 
 		open_shelves[playername] = nil
@@ -788,7 +788,7 @@ multidecor.shelves.on_receive_fields = function(player, formname, fields)
 			multidecor.shelves.open_shelf(shelf, -1)
 		else
 			player:get_meta():set_string("open_shelf", "")
-			minetest.get_meta(shelf):set_string("inv_list", minetest.serialize(inv_list))
+			core.get_meta(shelf):set_string("inv_list", core.serialize(inv_list))
 		end
 
 		return true
@@ -829,12 +829,12 @@ multidecor.shelves.on_receive_fields = function(player, formname, fields)
 				self2.object:set_properties({infotext=infotext})
 			end
 		else
-			local meta = minetest.get_meta(shelf)
+			local meta = core.get_meta(shelf)
 			meta:set_string("infotext", infotext)
-			meta:set_string("lock_info", minetest.serialize(lock_info))
+			meta:set_string("lock_info", core.serialize(lock_info))
 		end
 
-		minetest.show_formspec(playername, fs_name, new_fs)
+		core.show_formspec(playername, fs_name, new_fs)
 
 		return true
 	end
@@ -842,7 +842,7 @@ multidecor.shelves.on_receive_fields = function(player, formname, fields)
 	if fields.share_button then
 		local new_fs = multidecor.shelves.build_share_formspec(lock_info.share)
 
-		minetest.show_formspec(playername, fs_name, new_fs)
+		core.show_formspec(playername, fs_name, new_fs)
 
 		return true
 	end
@@ -858,7 +858,7 @@ multidecor.shelves.on_receive_fields = function(player, formname, fields)
 			cook_info and cook_info[4] or 0.0
 		)
 
-		minetest.show_formspec(playername, fs_name, new_fs)
+		core.show_formspec(playername, fs_name, new_fs)
 
 		return true
 	end
@@ -878,14 +878,14 @@ multidecor.shelves.on_receive_fields = function(player, formname, fields)
 				self2.object:set_properties({infotext=infotext})
 			end
 		else
-			local meta = minetest.get_meta(shelf)
+			local meta = core.get_meta(shelf)
 			meta:set_string("infotext", infotext)
-			meta:set_string("lock_info", minetest.serialize(lock_info))
+			meta:set_string("lock_info", core.serialize(lock_info))
 		end
 
 		local new_fs = multidecor.shelves.build_share_formspec(lock_info.share)
 
-		minetest.show_formspec(playername, fs_name, new_fs)
+		core.show_formspec(playername, fs_name, new_fs)
 
 		return true
 	end
@@ -906,14 +906,14 @@ multidecor.shelves.on_receive_fields = function(player, formname, fields)
 					self2.object:set_properties({infotext=infotext})
 				end
 			else
-				local meta = minetest.get_meta(shelf)
+				local meta = core.get_meta(shelf)
 				meta:set_string("infotext", infotext)
-				meta:set_string("lock_info", minetest.serialize(lock_info))
+				meta:set_string("lock_info", core.serialize(lock_info))
 			end
 
 			local new_fs = multidecor.shelves.build_share_formspec(lock_info.share)
 
-			minetest.show_formspec(playername, fs_name, new_fs)
+			core.show_formspec(playername, fs_name, new_fs)
 
 			return true
 		end
@@ -922,14 +922,14 @@ end
 
 
 multidecor.shelves.can_dig = function(pos)
-	local name = minetest.get_node(pos).name
-	local shelves_data = minetest.registered_nodes[name].add_properties.shelves_data
+	local name = core.get_node(pos).name
+	local shelves_data = core.registered_nodes[name].add_properties.shelves_data
 
 	local is_all_empty = true
 	for i, shelf in ipairs(shelves_data) do
 		local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", i, pos)
 		local list_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", i, pos)
-		local inv = minetest.get_inventory({type="detached", name=inv_name})
+		local inv = core.get_inventory({type="detached", name=inv_name})
 
 		if inv then
 			is_all_empty = is_all_empty and inv:is_empty(list_name)
@@ -939,4 +939,4 @@ multidecor.shelves.can_dig = function(pos)
 	return is_all_empty
 end
 
-minetest.register_on_player_receive_fields(multidecor.shelves.on_receive_fields)
+core.register_on_player_receive_fields(multidecor.shelves.on_receive_fields)

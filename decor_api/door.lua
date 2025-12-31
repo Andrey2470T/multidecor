@@ -83,17 +83,17 @@ function multidecor.doors.track_movement(self)
 end
 
 function multidecor.doors.convert_to_entity(pos)
-	local node = minetest.get_node(pos)
+	local node = core.get_node(pos)
 	local dir = hlpfuncs.get_dir(pos)
 
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local is_mir_cpart = meta:get_string("mirrored_counterpart") == "true"
 
 	local mode = meta:get_string("door_mode")
 
 	local is_open
 
-	local door_data = minetest.registered_nodes[node.name].add_properties.door
+	local door_data = core.registered_nodes[node.name].add_properties.door
 	if door_data.type == "regular" then
 		-- here 'is_open' means the open model version of the door
 		is_open = (not is_mir_cpart and mode == "open") or (is_mir_cpart and mode == "closed")
@@ -101,7 +101,7 @@ function multidecor.doors.convert_to_entity(pos)
 		is_open = mode == "open"
 	end
 
-	minetest.remove_node(pos)
+	core.remove_node(pos)
 
 	local obj_name = node.name
 
@@ -118,7 +118,7 @@ function multidecor.doors.convert_to_entity(pos)
 	local shift = pos + offset
 	local new_pos, rot = multidecor.doors.rotate(shift, dir, pos)
 
-	local def = minetest.registered_entities[obj_name]
+	local def = core.registered_entities[obj_name]
 
 	local sbox, cbox
 	local inv_dir = door_data.type == "sliding" and dir * -1 or dir
@@ -165,10 +165,10 @@ function multidecor.doors.convert_to_entity(pos)
 	end
 
 	if door_data.sounds and not is_open then
-		minetest.sound_play(door_data.sounds.open, {pos=pos, max_hear_distance=10})
+		core.sound_play(door_data.sounds.open, {pos=pos, max_hear_distance=10})
 	end
 
-	local obj = minetest.add_entity(new_pos, obj_name)
+	local obj = core.add_entity(new_pos, obj_name)
 
 	obj:set_rotation(rot)
 	obj:set_properties({
@@ -197,12 +197,12 @@ function multidecor.doors.convert_from_entity(obj)
 	local dir = get_dir_from_object_rot(obj)
 
 	local self = obj:get_luaentity()
-	local door_data = minetest.registered_nodes[self.name].add_properties.door
+	local door_data = core.registered_nodes[self.name].add_properties.door
 
 	if door_data.type == "regular" then
 		dir = dir * -1
 	end
-	local param2 = minetest.dir_to_facedir(dir)
+	local param2 = core.dir_to_facedir(dir)
 
 	local pos = obj:get_pos()
 
@@ -211,7 +211,7 @@ function multidecor.doors.convert_from_entity(obj)
 	local is_mir_cpart = self.mirrored_counterpart
 
 	if door_data.sounds and is_closed then
-		minetest.sound_play(door_data.sounds.close, {pos=pos, max_hear_distance=10})
+		core.sound_play(door_data.sounds.close, {pos=pos, max_hear_distance=10})
 	end
 
 	local action = self.action
@@ -230,9 +230,9 @@ function multidecor.doors.convert_from_entity(obj)
 		name = name .. "_mirrored"
 	end
 
-	minetest.set_node(pos, {name=name, param2=param2})
+	core.set_node(pos, {name=name, param2=param2})
 
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	if is_mir_cpart then
 		meta:set_string("mirrored_counterpart", "true")
 	end
@@ -249,7 +249,7 @@ end
 function multidecor.doors.node_on_rightclick(pos, node, clicker)
 	local door_data = hlpfuncs.ndef(pos).add_properties.door
 
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local owner = meta:get_string("owner")
 	local cur_mode = meta:get_string("door_mode")
 	local is_mir_cpart = meta:get_string("mirrored_counterpart") == "true"
@@ -257,7 +257,7 @@ function multidecor.doors.node_on_rightclick(pos, node, clicker)
 	if door_data.has_lock then
 		local playername = clicker:get_player_name()
 		if owner ~= playername then
-			minetest.chat_send_player(playername, multidecor.S("This door has locked!"))
+			core.chat_send_player(playername, multidecor.S("This door has locked!"))
 			return
 		end
 	end
@@ -285,7 +285,7 @@ function multidecor.doors.node_on_rightclick(pos, node, clicker)
 		local place_check = multidecor.placement.check_for_placement(pos + move_dir, node.name)
 		local next_node_free = multidecor.placement.is_free_space(pos + move_dir)
 		if not place_check or not next_node_free then
-			minetest.chat_send_player(clicker:get_player_name(), "Not enough free place to move the door!")
+			core.chat_send_player(clicker:get_player_name(), "Not enough free place to move the door!")
 			return
 		end
 	end
@@ -310,7 +310,7 @@ end
 function multidecor.doors.after_place_node(pos, placer)
 	local add_props = hlpfuncs.ndef(pos).add_properties
 
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	meta:set_string("door_mode", "closed")
 
 	if add_props.door.has_mirrored_counterpart then
@@ -326,9 +326,9 @@ function multidecor.doors.after_place_node(pos, placer)
 			local mirrored_door_name = add_props.door.type == "regular" and add_props.common_name .. "_open" or
 				add_props.common_name .. "_mirrored"
 			dir = add_props.door.type == "sliding" and dir*-1 or dir
-			local mirrored_door_param2 = minetest.dir_to_facedir(dir)
+			local mirrored_door_param2 = core.dir_to_facedir(dir)
 
-			minetest.swap_node(pos, {name="multidecor:" .. mirrored_door_name, param2=mirrored_door_param2})
+			core.swap_node(pos, {name="multidecor:" .. mirrored_door_name, param2=mirrored_door_param2})
 			meta:set_string("mirrored_counterpart", "true")
 		end
 	end
@@ -343,7 +343,7 @@ end
 function multidecor.doors.entity_on_rightclick(self, clicker)
 	local playername = clicker:get_player_name()
 	if self.owner and self.owner ~= playername then
-		minetest.chat_send_player(playername, multidecor.S("This door has locked!"))
+		core.chat_send_player(playername, multidecor.S("This door has locked!"))
 		return
 	end
 
@@ -358,7 +358,7 @@ function multidecor.doors.entity_on_rightclick(self, clicker)
 
 	multidecor.doors.set_dir(self.object, dir_sign)
 
-	local door_data = minetest.registered_nodes[self.name].add_properties.door
+	local door_data = core.registered_nodes[self.name].add_properties.door
 
 	if door_data.type == "sliding" then
 		multidecor.doors.smooth_movement(self.object, get_dir_from_object_rot(self.object)*-1,
@@ -368,7 +368,7 @@ end
 
 function multidecor.doors.entity_on_activate(self, staticdata)
 	if staticdata ~= "" then
-		local data = minetest.deserialize(staticdata)
+		local data = core.deserialize(staticdata)
 		self.dir = data[1]
 		self.bbox = data[2]
 		self.start_v = data[3]
@@ -395,7 +395,7 @@ function multidecor.doors.entity_on_activate(self, staticdata)
 end
 
 function multidecor.doors.entity_on_step(self, dtime)
-	local door_data = minetest.registered_nodes[self.name].add_properties.door
+	local door_data = core.registered_nodes[self.name].add_properties.door
 
 	if door_data.type == "regular" then
 		multidecor.doors.smooth_rotate_step(self, dtime, door_data.vel or 120, door_data.acc or 0)
@@ -409,7 +409,7 @@ function multidecor.doors.entity_on_step(self, dtime)
 end
 
 function multidecor.doors.entity_get_staticdata(self)
-	return minetest.serialize({
+	return core.serialize({
 		self.dir, self.bbox,
 		self.start_v, self.end_v, self.action,
 		self.mirrored_counterpart, self.owner,
@@ -473,7 +473,7 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 
 		mesh = mesh:gsub(mesh_format, "_activated" .. mesh_format)
 	end
-	minetest.register_entity(":multidecor:" .. name, {
+	core.register_entity(":multidecor:" .. name, {
 		visual = "mesh",
 		visual_size = c_def.add_properties.door.size or {x=5, y=5, z=5},
 		textures = base_def.tiles,

@@ -3,7 +3,7 @@ local gold_chandelier_recipe
 local silver_candlestick_recipe
 local silver_chain_recipe
 
-if minetest.get_modpath("moreores") then
+if core.get_modpath("moreores") then
 	silvered_lamp_recipe = {
 		recipe = {
 			{"multidecor:silver_sheet", "multidecor:bulb", ""},

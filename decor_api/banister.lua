@@ -1,10 +1,10 @@
 multidecor.banister = {}
 
 function multidecor.banister.check_for_foot_node(pos)
-	local foot_node = minetest.get_node({x=pos.x, y=pos.y-1, z=pos.z})
+	local foot_node = core.get_node({x=pos.x, y=pos.y-1, z=pos.z})
 
-	local stair = minetest.get_item_group(foot_node.name, "stair")
-	local spiral = minetest.get_item_group(foot_node.name, "spiral")
+	local stair = core.get_item_group(foot_node.name, "stair")
+	local spiral = core.get_item_group(foot_node.name, "spiral")
 
 	return stair == 1, spiral == 1
 end
@@ -37,7 +37,7 @@ function multidecor.banister.place_banister(pos, common_name, itemstack)
 
 	local name = "multidecor:" .. common_name .. (shape ~= "" and "_" .. shape or "")
 
-	minetest.remove_node(pos)
+	core.remove_node(pos)
 
 	if shape == "" then
 		local sides_fdirs_map = {
@@ -62,16 +62,16 @@ function multidecor.banister.place_banister(pos, common_name, itemstack)
 				local cname = name
 
 				if res2 then
-					param2 = minetest.dir_to_facedir(hlpfuncs.rot(fwd_dir, math.pi/2))
+					param2 = core.dir_to_facedir(hlpfuncs.rot(fwd_dir, math.pi/2))
 					cname = cname .. "_corner"
 				elseif res3 then
-					param2 = minetest.dir_to_facedir(fwd_dir)
+					param2 = core.dir_to_facedir(fwd_dir)
 					cname = cname .. "_corner"
 				else
-					param2 = minetest.dir_to_facedir(sides_fdirs_map[side])
+					param2 = core.dir_to_facedir(sides_fdirs_map[side])
 				end
 
-				minetest.set_node(bpos, {name=cname, param2=param2})
+				core.set_node(bpos, {name=cname, param2=param2})
 				itemstack:take_item()
 			end
 		end
@@ -82,24 +82,24 @@ function multidecor.banister.place_banister(pos, common_name, itemstack)
 		check_and_set_banister(pos, {x=0, y=0, z=-1}, "backward")
 	elseif shape == "raised" then
 		local dir = hlpfuncs.get_dir({x=pos.x, y=pos.y-1, z=pos.z})*-1
-		local dir_to_param2 = minetest.dir_to_facedir(dir)
+		local dir_to_param2 = core.dir_to_facedir(dir)
 
 		local left_pos = pos + hlpfuncs.rot(dir, math.pi/2)
 		local right_pos = pos + hlpfuncs.rot(dir, -math.pi/2)
 
 		if multidecor.banister.check_for_free_space(left_pos) then
-			minetest.set_node(left_pos, {name=name.."_left", param2=dir_to_param2})
+			core.set_node(left_pos, {name=name.."_left", param2=dir_to_param2})
 			itemstack:take_item()
 		end
 
 		if multidecor.banister.check_for_free_space(right_pos) then
-			minetest.set_node(right_pos, {name=name.."_right", param2=dir_to_param2})
+			core.set_node(right_pos, {name=name.."_right", param2=dir_to_param2})
 			itemstack:take_item()
 		end
 	elseif shape == "spiral" then
 		local dir = hlpfuncs.get_dir({x=pos.x, y=pos.y-1, z=pos.z})*-1
-		local dir_to_param2 = minetest.dir_to_facedir(dir)
-		minetest.set_node(pos, {name=name, param2=dir_to_param2})
+		local dir_to_param2 = core.dir_to_facedir(dir)
+		core.set_node(pos, {name=name, param2=dir_to_param2})
 		itemstack:take_item()
 	end
 end

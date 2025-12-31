@@ -3,21 +3,21 @@ multidecor.connecting = {}
 
 -- Checks if two nodes with 'pos1' and 'pos2' positions belongs to the same table
 function multidecor.connecting.are_nodes_identical(pos1, pos2)
-	local add_props1 = minetest.registered_nodes[minetest.get_node(pos1).name].add_properties
-	local add_props2 = minetest.registered_nodes[minetest.get_node(pos2).name].add_properties
+	local add_props1 = core.registered_nodes[core.get_node(pos1).name].add_properties
+	local add_props2 = core.registered_nodes[core.get_node(pos2).name].add_properties
 
 	return add_props1 and add_props2 and add_props1.common_name == add_props2.common_name
 end
 
 function multidecor.connecting.has_same_cmn_name(pos, cmn_name)
-	local add_props = minetest.registered_nodes[minetest.get_node(pos).name].add_properties
+	local add_props = core.registered_nodes[core.get_node(pos).name].add_properties
 
 	return add_props and add_props.common_name == cmn_name
 end
 
 function multidecor.connecting.are_nodes_codirectional(pos1, pos2)
-	local node1 = minetest.get_node(pos1)
-	local node2 = minetest.get_node(pos2)
+	local node1 = core.get_node(pos1)
+	local node2 = core.get_node(pos2)
 
 	local dir1 = hlpfuncs.get_dir_from_param2(node1.name, node1.param2)
 	local dir2 = hlpfuncs.get_dir_from_param2(node2.name, node2.param2)
@@ -26,7 +26,7 @@ function multidecor.connecting.are_nodes_codirectional(pos1, pos2)
 end
 
 function multidecor.connecting.has_same_dir(pos, dir)
-	local node = minetest.get_node(pos)
+	local node = core.get_node(pos)
 	local dir2 = hlpfuncs.get_dir_from_param2(node.name, node.param2)*-1
 
 	return vector.equals(dir, dir2)
@@ -95,9 +95,9 @@ function multidecor.connecting.replace_node_to(pos, disconnect, cmn_name)
 	end
 
 	local name = "multidecor:" .. cmn_name .. target_node
-	local old_param2 = minetest.get_node(pos).param2
+	local old_param2 = core.get_node(pos).param2
 	local param2 = hlpfuncs.from_dir_get_param2(name, old_param2, vector.rotate_around_axis({x=0, y=0, z=1}, {x=0, y=1, z=0}, math.rad(rel_rot))*-1)
-	minetest.set_node(pos, {name=name, param2=param2})
+	core.set_node(pos, {name=name, param2=param2})
 end
 
 -- Shift 'cur_val' in the range [0-3] by 'shift_val' taking into account the range limits.
@@ -210,14 +210,14 @@ function multidecor.connecting.replace_node_vertically(pos, disconnect, cmn_name
 
 	local axis = dir.x ~= 0 and "x"	or dir.y ~= 0 and "y" or dir.z ~= 0 and "z"
 	axis = dir[axis] > 0 and axis .. "-" or axis .. "+"
-	minetest.debug("axis: " .. axis)
+	core.debug("axis: " .. axis)
 
 	local axis_rot = math.floor(axis_rot/90)
 	local param2 = axis_dirs[axis]*4 + shift_val_in_range(axis_rot, axis_rot_shift[axis])
 
 	local name = "multidecor:" .. cmn_name .. target_node
 
-	minetest.set_node(pos, {name="multidecor:" .. cmn_name .. target_node, param2=param2})
+	core.set_node(pos, {name="multidecor:" .. cmn_name .. target_node, param2=param2})
 end
 
 -- Replaces the current sofa part at 'pos' position depending on the adjacent sofas parts.
@@ -227,8 +227,8 @@ end
 -- 'disconnect' - sofas should be disconnected or connected?
 -- 'cmn_name' - common name.
 function multidecor.connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_name, is_corner)
-	local node = minetest.get_node(pos)
-	local def = minetest.registered_nodes[node.name]
+	local node = core.get_node(pos)
+	local def = core.registered_nodes[node.name]
 	local add_props = def.add_properties
 
 	local modname = node.name:find("multidecor:")
@@ -311,7 +311,7 @@ function multidecor.connecting.directional_replace_node_to(pos, dir, side, disco
 
 		if is_left_node_identical then
 			local is_left_node_codir = multidecor.connecting.are_nodes_codirectional(left_pos, pos)
-			local left_node_def = minetest.registered_nodes[minetest.get_node(left_pos).name]
+			local left_node_def = core.registered_nodes[core.get_node(left_pos).name]
 			local is_left_node_corner = left_node_def.add_properties.connect_parts.corner == left_node_def.mesh
 
 			if is_left_node_codir or is_left_node_corner then
@@ -321,7 +321,7 @@ function multidecor.connecting.directional_replace_node_to(pos, dir, side, disco
 
 		if is_right_node_identical then
 			local is_right_node_codir = multidecor.connecting.are_nodes_codirectional(right_pos, pos)
-			local right_node_def = minetest.registered_nodes[minetest.get_node(right_pos).name]
+			local right_node_def = core.registered_nodes[core.get_node(right_pos).name]
 			local is_right_node_corner = right_node_def.add_properties.connect_parts.corner == right_node_def.mesh
 
 			if is_right_node_codir or is_right_node_corner then
@@ -342,16 +342,16 @@ function multidecor.connecting.directional_replace_node_to(pos, dir, side, disco
 	local rot_dir = vector.rotate_around_axis(t_dir, vector.new(0, 1, 0), rel_rot)
 	local param2 = hlpfuncs.from_dir_get_param2(name, node.param2, rot_dir*-1)
 
-	minetest.set_node(pos, {name=name, param2=param2})
+	core.set_node(pos, {name=name, param2=param2})
 end
 
 -- Connects or disconnects adjacent nodes around 'pos' position.
 -- If the identical table node was set at 'pos' as surrounding, connect them. On destroying it, disconnect.
 -- 'type' - "horizontal", "vertical", "pair", "directional"
 function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_node)
-	local node = disconnect and old_node or minetest.get_node(pos)
+	local node = disconnect and old_node or core.get_node(pos)
 
-	local def = minetest.registered_nodes[node.name]
+	local def = core.registered_nodes[node.name]
 	if not disconnect then
 		local add_props = def.add_properties
 		local modname = node.name:find("multidecor:")
@@ -399,8 +399,8 @@ function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disco
 			local left = pos+hlpfuncs.rot(dir, -math.pi/2)
 			local right = pos+hlpfuncs.rot(dir, math.pi/2)
 
-			local lnode = minetest.get_node(left)
-			local rnode = minetest.get_node(right)
+			local lnode = core.get_node(left)
+			local rnode = core.get_node(right)
 
 			local add_props = def.add_properties
 			local is_left_identical = lnode.name == "multidecor:" .. add_props.common_name and multidecor.connecting.are_nodes_codirectional(left, pos)
@@ -415,12 +415,12 @@ function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disco
 				return
 			end
 
-			minetest.set_node(place_pos, {name="multidecor:" .. add_props.common_name .. "_double", param2=hlpfuncs.from_dir_get_param2(node.name, node.param2, dir*-1)})
-			minetest.remove_node(place_pos+hlpfuncs.rot(dir, math.pi/2))
+			core.set_node(place_pos, {name="multidecor:" .. add_props.common_name .. "_double", param2=hlpfuncs.from_dir_get_param2(node.name, node.param2, dir*-1)})
+			core.remove_node(place_pos+hlpfuncs.rot(dir, math.pi/2))
 		else
 			local dir = hlpfuncs.get_dir_from_param2(old_node.name, old_node.param2)
-			local add_props = minetest.registered_nodes[old_node.name].add_properties
-			minetest.set_node(pos, {name="multidecor:" .. add_props.common_name, param2=hlpfuncs.from_dir_get_param2(old_node.name, old_node.param2, dir*-1)})
+			local add_props = core.registered_nodes[old_node.name].add_properties
+			core.set_node(pos, {name="multidecor:" .. add_props.common_name, param2=hlpfuncs.from_dir_get_param2(old_node.name, old_node.param2, dir*-1)})
 		end
 	elseif type == "directional" then
 		local dir

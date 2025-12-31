@@ -81,10 +81,10 @@ function multidecor.register.after_place_node(pos, placer, itemstack)
 	local name = placer and placer:get_player_name() or ""
 
 	if not place then
-		minetest.chat_send_player(placer:get_player_name(), "Not enough free place for the given node!")
-		minetest.remove_node(pos)
+		core.chat_send_player(placer:get_player_name(), "Not enough free place for the given node!")
+		core.remove_node(pos)
 	else
-		if not minetest.is_creative_enabled(name)
+		if not core.is_creative_enabled(name)
 		then
 			itemstack:set_count(itemstack:get_count()-1)
 		end
@@ -110,16 +110,16 @@ function multidecor.register.on_punch(pos, node, puncher)
 	if palette_index == 0 then return end
 
 	local playername = puncher:get_player_name()
-	if minetest.is_protected(pos, playername) then
+	if core.is_protected(pos, playername) then
 		return
 	end
 
 	local color = multidecor.colors[palette_index+1]
 	local rot = node.param2 % mul
 
-	minetest.swap_node(pos, {name=node.name, param2=rot})
+	core.swap_node(pos, {name=node.name, param2=rot})
 
-	minetest.item_drop(ItemStack("dye:" .. color), puncher, pos)
+	core.item_drop(ItemStack("dye:" .. color), puncher, pos)
 
 	wielded_item:set_wear(wielded_item:get_wear()+math.modf(65535/50))
 	puncher:set_wielded_item(wielded_item)
@@ -286,10 +286,10 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	f_def.add_properties = def.add_properties or {}
 
 	local f_name = "multidecor:" .. name
-	minetest.register_node(":" .. f_name, f_def)
+	core.register_node(":" .. f_name, f_def)
 
 	if craft_def then
-		minetest.register_craft({
+		core.register_craft({
 			type = craft_def.type,
 			output = f_name .. (craft_def.count and " " .. tostring(craft_def.count) or ""),
 			recipe = craft_def.recipe,
@@ -472,7 +472,7 @@ function multidecor.register.register_garniture(def)
 		cabdef.callbacks.can_dig = cabdef.callbacks.can_dig or multidecor.shelves.can_dig
 		cabdef.add_properties = {}
 
-		minetest.register_craft({
+		core.register_craft({
 			output = "multidecor:" .. def.common_name .. "_" .. name,
 			recipe = def.components[name].craft,
 			replacements = {{"multidecor:hammer", "multidecor:hammer"}}

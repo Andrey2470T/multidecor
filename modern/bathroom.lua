@@ -59,7 +59,7 @@ local tile_bboxes = {
 
 }
 
-minetest.register_node(":multidecor:ceramic_tile", {
+core.register_node(":multidecor:ceramic_tile", {
 	description = modern.S("Ceramic Tile"),
 	drawtype = "nodebox",
 	visual_scale = 1.0,
@@ -72,7 +72,7 @@ minetest.register_node(":multidecor:ceramic_tile", {
 	sounds = default.node_sound_stone_defaults()
 })
 
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "multidecor:ceramic_tile",
 	recipe = {"default:clay_lump", "default:clay_lump"}
@@ -83,7 +83,7 @@ for _, tile in ipairs(ceramic_tiles) do
 	local tex_name = "multidecor_bathroom_ceramic_" .. tile[1] .. "_tile.png"
 	local upper_tile = multidecor.helpers.upper_first_letters(tile[1])
 
-	minetest.register_node(":" .. tile_name, {
+	core.register_node(":" .. tile_name, {
 		description = modern.S("Bathroom Ceramic " .. upper_tile .. " Tile"),
 		drawtype = "nodebox",
 		visual_scale = 1.0,
@@ -100,7 +100,7 @@ for _, tile in ipairs(ceramic_tiles) do
 	table.copy_to(tile[2], recipe)
 	table.insert(recipe, "multidecor:paint_brush")
 
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = tile_name,
 		recipe = recipe,
@@ -108,7 +108,7 @@ for _, tile in ipairs(ceramic_tiles) do
 	})
 
 	local block_name = "multidecor:bathroom_ceramic_" .. tile[1] .. "_tiles_block"
-	minetest.register_node(":" .. block_name, {
+	core.register_node(":" .. block_name, {
 		description = modern.S("Bathroom Ceramic " .. upper_tile .. " Tiles Block"),
 		visual_scale = 0.5,
 		paramtype = "light",
@@ -118,19 +118,19 @@ for _, tile in ipairs(ceramic_tiles) do
 		sounds = default.node_sound_stone_defaults()
 	})
 
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = block_name,
 		recipe = {tile_name, tile_name, tile_name, tile_name, tile_name, tile_name}
 	})
 end
 
-minetest.register_alias("multidecor:bathroom_ceramic_darkceladon_marble_tile", "multidecor:bathroom_ceramic_darkceladon_patterned_tile")
-minetest.register_alias("multidecor:bathroom_ceramic_darkceladon_marble_tiles_block", "multidecor:bathroom_ceramic_darkceladon_patterned_tiles_block")
-minetest.register_alias("multidecor:bathroom_ceramic_darksea_marble_tile", "multidecor:bathroom_ceramic_darksea_patterned_tile")
-minetest.register_alias("multidecor:bathroom_ceramic_darksea_marble_tiles_block", "multidecor:bathroom_ceramic_darksea_patterned_tiles_block")
-minetest.register_alias("multidecor:bathroom_ceramic_marble_tile", "multidecor:bathroom_ceramic_grey_tile")
-minetest.register_alias("multidecor:bathroom_ceramic_marble_tiles_block", "multidecor:bathroom_ceramic_grey_tiles_block")
+core.register_alias("multidecor:bathroom_ceramic_darkceladon_marble_tile", "multidecor:bathroom_ceramic_darkceladon_patterned_tile")
+core.register_alias("multidecor:bathroom_ceramic_darkceladon_marble_tiles_block", "multidecor:bathroom_ceramic_darkceladon_patterned_tiles_block")
+core.register_alias("multidecor:bathroom_ceramic_darksea_marble_tile", "multidecor:bathroom_ceramic_darksea_patterned_tile")
+core.register_alias("multidecor:bathroom_ceramic_darksea_marble_tiles_block", "multidecor:bathroom_ceramic_darksea_patterned_tiles_block")
+core.register_alias("multidecor:bathroom_ceramic_marble_tile", "multidecor:bathroom_ceramic_grey_tile")
+core.register_alias("multidecor:bathroom_ceramic_marble_tiles_block", "multidecor:bathroom_ceramic_grey_tiles_block")
 
 
 local bathroom_styles = {1, 2, 3, 4, 5, 6}
@@ -142,7 +142,7 @@ for _, style in ipairs(bathroom_styles) do
 	local upper_tile = multidecor.helpers.upper_first_letters(style_name)
 
 	local panel_name = "multidecor:bathroom_wooden_" .. style_name .. "_panel"
-	minetest.register_craftitem(":" .. panel_name, {
+	core.register_craftitem(":" .. panel_name, {
 		description = modern.S("Bathroom Wooden " .. upper_tile .. " Panel"),
 		inventory_image = tex_name
 	})
@@ -151,7 +151,7 @@ for _, style in ipairs(bathroom_styles) do
 	table.copy_to(craft, panel_craft)
 	table.insert(panel_craft, "multidecor:paint_brush")
 
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = panel_name,
 		recipe = panel_craft,
@@ -481,7 +481,7 @@ multidecor.register.register_seat("toilet", {
 			local rel_pos_min = multidecor.helpers.rotate_to_node_dir(pos, vector.new(-0.125, -0.2, 0.05))
 			local rel_pos_max = multidecor.helpers.rotate_to_node_dir(pos, vector.new(0.125, -0.2, -0.175))
 
-			minetest.add_particlespawner({
+			core.add_particlespawner({
 				amount = 40,
 				time = 0.1,
 				minexptime = 3,
@@ -500,7 +500,7 @@ multidecor.register.register_seat("toilet", {
 				maxsize = 1.5
 			})
 
-			minetest.sound_play("multidecor_toilet_flush", {gain=1.0, pitch=1.0, pos=pos, max_hear_distance=15})
+			core.sound_play("multidecor_toilet_flush", {gain=1.0, pitch=1.0, pos=pos, max_hear_distance=15})
 		end
 	}
 },
@@ -616,7 +616,7 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_cap_flap", {
 		on_construct = function(pos)
 			--multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.15, z=0.0}, {x=0.0, y=-0.15, z=0.0}, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
 
-			minetest.get_node_timer(pos):start(1)
+			core.get_node_timer(pos):start(1)
 		end,
 		on_rightclick = multidecor.tap.on_rightclick,
 		on_destruct = multidecor.tap.on_destruct,
@@ -654,7 +654,7 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_side_flaps", {
 		on_construct = function(pos)
 			--multidecor.tap.register_water_stream(pos, {x=0.0, y=-0.275, z=-0.025}, {x=0.0, y=-0.275, z=-0.025}, 80, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
 
-			minetest.get_node_timer(pos):start(1)
+			core.get_node_timer(pos):start(1)
 		end,
 		on_rightclick = multidecor.tap.on_rightclick,
 		on_destruct = multidecor.tap.on_destruct,
@@ -693,7 +693,7 @@ multidecor.register.register_furniture_unit("shower_head", {
 			--multidecor.tap.register_water_stream(pos, {x=-0.15, y=0.05, z=0.0}, {x=0.15, y=0.2, z=0.0}, 150, 2,
 			--	vector.rotate_around_axis(vector.new(0, 1, 0), vector.new(1, 0, 0), -math.pi/3), "multidecor_tap", true)
 
-			minetest.get_node_timer(pos):start(1)
+			core.get_node_timer(pos):start(1)
 		end,
 		on_rightclick = multidecor.tap.on_rightclick,
 		on_destruct = multidecor.tap.on_destruct,
@@ -731,7 +731,7 @@ multidecor.register.register_furniture_unit("crooked_shower_head", {
 		on_construct = function(pos)
 			--multidecor.tap.register_water_stream(pos, {x=-0.25, y=-0.35, z=-0.25}, {x=0.25, y=-0.35, z=0.25}, 250, 2, {x=0, y=-1, z=0}, "multidecor_tap", true)
 
-			minetest.get_node_timer(pos):start(1)
+			core.get_node_timer(pos):start(1)
 		end,
 		on_rightclick = multidecor.tap.on_rightclick,
 		on_destruct = multidecor.tap.on_destruct,
@@ -832,7 +832,7 @@ multidecor.register.register_furniture_unit("underwear_tank", {
 })
 
 
-minetest.register_entity("modern:bathroom_washbasin_door", {
+core.register_entity("modern:bathroom_washbasin_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_bathroom_washbasin_door.b3d",
@@ -849,7 +849,7 @@ minetest.register_entity("modern:bathroom_washbasin_door", {
 	on_deactivate = multidecor.shelves.on_deactivate
 })
 
-minetest.register_entity("modern:bathroom_wall_cabinet_door", {
+core.register_entity("modern:bathroom_wall_cabinet_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_bathroom_wall_cabinet_door.b3d",
@@ -866,7 +866,7 @@ minetest.register_entity("modern:bathroom_wall_cabinet_door", {
 	on_deactivate = multidecor.shelves.on_deactivate
 })
 
-minetest.register_entity("modern:bathroom_wall_set_with_mirror_door", {
+core.register_entity("modern:bathroom_wall_set_with_mirror_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_bathroom_wall_set_with_mirror_door.b3d",
@@ -883,7 +883,7 @@ minetest.register_entity("modern:bathroom_wall_set_with_mirror_door", {
 	on_deactivate = multidecor.shelves.on_deactivate
 })
 
-minetest.register_entity("modern:underwear_tank_cover", {
+core.register_entity("modern:underwear_tank_cover", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_underwear_tank_cover.b3d",

@@ -1,5 +1,5 @@
 local function return_book_form(pos)
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local text = meta:get_string("text")
 
 	local formstr = "formspec_version[5]size[8,9]" ..
@@ -44,12 +44,12 @@ local louvers_parts = {
 
 local louvers_on_rightclick = function(pos)
 	local def = hlpfuncs.ndef(pos)
-	local node = minetest.get_node(pos)
+	local node = core.get_node(pos)
 
 	if def.groups.open == 1 then
-		minetest.set_node(pos, {name=node.name:gsub("_open", ""), param2=node.param2})
+		core.set_node(pos, {name=node.name:gsub("_open", ""), param2=node.param2})
 	else
-		minetest.set_node(pos, {name=node.name .. "_open", param2=node.param2})
+		core.set_node(pos, {name=node.name .. "_open", param2=node.param2})
 	end
 end
 
@@ -134,7 +134,7 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 })
 
 
-minetest.register_entity("modern:floor_clock_balance_wheel", {
+core.register_entity("modern:floor_clock_balance_wheel", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	physical = false,
@@ -160,13 +160,13 @@ multidecor.register.register_furniture_unit("book", {
 	bounding_boxes = {{-0.2, -0.5, -0.3, 0.2, -0.35, 0.3}},
 	callbacks = {
 		on_punch = function(pos, node, puncher, pointed_thing)
-			minetest.swap_node(pos, {name="multidecor:book_open", param1=node.param1, param2=node.param2})
+			core.swap_node(pos, {name="multidecor:book_open", param1=node.param1, param2=node.param2})
 		end,
 		preserve_metadata = book_save_meta_after_dig,
 		after_place_node = function(pos, placer, itemstack)
 			local text = itemstack:get_meta():get_string("text")
 
-			minetest.get_meta(pos):set_string("text", text)
+			core.get_meta(pos):set_string("text", text)
 		end
 	}
 },
@@ -194,17 +194,17 @@ multidecor.register.register_furniture_unit("book_open", {
 	bounding_boxes = {{-0.5, -0.5, -0.3, 0.5, -0.35, 0.3}},
 	callbacks = {
 		on_punch = function(pos, node, puncher, pointed_thing)
-			minetest.swap_node(pos, {name="multidecor:book", param1=node.param1, param2=node.param2})
+			core.swap_node(pos, {name="multidecor:book", param1=node.param1, param2=node.param2})
 		end,
 		on_rightclick = function(pos, node, clicker)
 			clicker:get_meta():set_string("open_book_at", vector.to_string(pos))
-			minetest.show_formspec(clicker:get_player_name(), "multidecor:book_form", return_book_form(pos))
+			core.show_formspec(clicker:get_player_name(), "multidecor:book_form", return_book_form(pos))
 		end,
 		preserve_metadata = book_save_meta_after_dig
 	}
 })
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= "multidecor:book_form" then
 		return
 	end
@@ -219,8 +219,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local pos = vector.from_string(player_meta:get_string("open_book_at"))
 
 		if pos then
-			minetest.get_meta(pos):set_string("text", fields.book_textarea)
-			minetest.sound_play("multidecor_book_writing", {gain=1.0, pitch=1.0, to_player=player:get_player_name()})
+			core.get_meta(pos):set_string("text", fields.book_textarea)
+			core.sound_play("multidecor_book_writing", {gain=1.0, pitch=1.0, to_player=player:get_player_name()})
 		end
 	end
 end)
@@ -285,7 +285,7 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-minetest.register_entity("modern:alarm_clock_dummy_wheel", {
+core.register_entity("modern:alarm_clock_dummy_wheel", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_alarm_clock.b3d",
@@ -323,7 +323,7 @@ local floors_defs = {
 
 for name, def in pairs(floors_defs) do
 	local tile_name = "multidecor:" .. name .. "_tile"
-	minetest.register_node(":" .. tile_name, {
+	core.register_node(":" .. tile_name, {
 		description = modern.S(def[1] .. " Tile"),
 		drawtype = "nodebox",
 		visual_scale = 1.0,
@@ -336,14 +336,14 @@ for name, def in pairs(floors_defs) do
 		sounds = default.node_sound_wood_defaults()
 	})
 
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = tile_name,
 		recipe = def[3]
 	})
 
 	local block_name = "multidecor:" .. name .. "_block"
-	minetest.register_node(":" .. block_name, {
+	core.register_node(":" .. block_name, {
 		description = modern.S(def[1] .. " Block"),
 		visual_scale = 0.5,
 		paramtype = "light",
@@ -353,7 +353,7 @@ for name, def in pairs(floors_defs) do
 		sounds = default.node_sound_wood_defaults()
 	})
 
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = block_name,
 		recipe = {
@@ -390,16 +390,16 @@ local on_rightclick_flowerpot = function(pos, node, clicker, itemstack)
 	local modname = itemname:sub(1, is_flowers_mod_i-1)
 	local flower = itemname:sub(is_flowers_mod_i+1)
 
-	if modname ~= "flowers" or minetest.get_item_group(itemname, "flower") == 0 or
+	if modname ~= "flowers" or core.get_item_group(itemname, "flower") == 0 or
 		table.indexof(flowers, flower) == -1 then
 		return
 	end
 
-	if minetest.is_protected(pos, clicker:get_player_name()) then
+	if core.is_protected(pos, clicker:get_player_name()) then
 		return
 	end
 
-	minetest.set_node(pos, {name=node.name .. "_with_flower_" .. flower, param2=node.param2})
+	core.set_node(pos, {name=node.name .. "_with_flower_" .. flower, param2=node.param2})
 
 	itemstack:take_item()
 
@@ -407,7 +407,7 @@ local on_rightclick_flowerpot = function(pos, node, clicker, itemstack)
 end
 
 local on_rightclick_flowerpot_with_flower = function(pos, node, clicker, itemstack)
-	local pot_groups = minetest.registered_nodes[node.name].groups
+	local pot_groups = core.registered_nodes[node.name].groups
 	local current_flower = flowers[pot_groups.flower_in_pot]
 
 	local itemname = itemstack:get_name()
@@ -421,21 +421,21 @@ local on_rightclick_flowerpot_with_flower = function(pos, node, clicker, itemsta
 		flower = itemname:sub(is_flowers_mod_i+1)
 	end
 
-	if minetest.is_protected(pos, clicker:get_player_name()) then
+	if core.is_protected(pos, clicker:get_player_name()) then
 		return
 	end
 
-	if modname == "flowers" and minetest.get_item_group(itemname, "flower") == 1 and
+	if modname == "flowers" and core.get_item_group(itemname, "flower") == 1 and
 			table.indexof(flowers, flower) ~= -1 and flower ~= current_flower then
-		minetest.set_node(pos, {name=node.name:gsub(current_flower, flower), param2=node.param2})
+		core.set_node(pos, {name=node.name:gsub(current_flower, flower), param2=node.param2})
 
 		itemstack:take_item()
 
 		clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
 	else
-		minetest.set_node(pos, {name=node.name:gsub("_with_flower_" .. current_flower, ""), param2=node.param2})
+		core.set_node(pos, {name=node.name:gsub("_with_flower_" .. current_flower, ""), param2=node.param2})
 
-		minetest.after(0, function()
+		core.after(0, function()
 			clicker:get_inventory():add_item("main", "flowers:" .. current_flower)
 		end)
 	end
@@ -444,7 +444,7 @@ local on_rightclick_flowerpot_with_flower = function(pos, node, clicker, itemsta
 end
 
 local after_destruct_flowerpot = function(pos, oldnode, oldmeta, digger)
-	local pot_groups = minetest.registered_nodes[oldnode.name].groups
+	local pot_groups = core.registered_nodes[oldnode.name].groups
 	local flower = flowers[pot_groups.flower_in_pot]
 
 	digger:get_inventory():add_item("main", "flowers:" .. flower)
@@ -530,10 +530,10 @@ for name, def in pairs(pots_defs) do
 
 	cdef.on_rightclick = on_rightclick_flowerpot
 
-	minetest.register_node(":multidecor:" .. name, cdef)
+	core.register_node(":multidecor:" .. name, cdef)
 
 	def.craft.output = "multidecor:" .. name
-	minetest.register_craft(def.craft)
+	core.register_craft(def.craft)
 	for i=1, #flowers do
 		local cdef2 = table.copy(cdef)
 		cdef2.mesh = def.mesh .. "_with_flower.b3d"
@@ -545,7 +545,7 @@ for name, def in pairs(pots_defs) do
 		cdef2.on_rightclick = on_rightclick_flowerpot_with_flower
 		cdef2.after_dig_node = after_destruct_flowerpot
 
-		minetest.register_node(":multidecor:" .. name .. "_with_flower_" .. flowers[i], cdef2)
+		core.register_node(":multidecor:" .. name .. "_with_flower_" .. flowers[i], cdef2)
 	end
 end
 

@@ -57,7 +57,7 @@ function multidecor.hanging.define_correct_hanger_parts(pos, cmn_name)
 end
 
 function multidecor.hanging.after_place_node(pos)
-	local node = minetest.get_node(pos)
+	local node = core.get_node(pos)
 	local def = hlpfuncs.ndef(pos)
 
 	if not def.add_properties or not def.add_properties.common_name then
@@ -75,14 +75,14 @@ function multidecor.hanging.after_place_node(pos)
 		local up_part, part = multidecor.hanging.define_correct_hanger_parts(up_pos, cmn_name)
 
 		if part == "" then
-			minetest.remove_node(pos)
+			core.remove_node(pos)
 		elseif multidecor.hanging.hangers[cmn_name] then
 			if multidecor.hanging.hangers[cmn_name][up_part] then
-				minetest.set_node(up_pos, {name=multidecor.hanging.hangers[cmn_name][up_part], param2=node.param2})
+				core.set_node(up_pos, {name=multidecor.hanging.hangers[cmn_name][up_part], param2=node.param2})
 			end
 
 			if multidecor.hanging.hangers[cmn_name][part] then
-				minetest.set_node(pos, {name=multidecor.hanging.hangers[cmn_name][part], param2=node.param2})
+				core.set_node(pos, {name=multidecor.hanging.hangers[cmn_name][part], param2=node.param2})
 			end
 		end
 	elseif is_medium or is_bottom then
@@ -90,7 +90,7 @@ function multidecor.hanging.after_place_node(pos)
 		local can_be_placed = multidecor.hanging.check_for_up_node(up_pos, place_part, cmn_name)
 
 		if not can_be_placed then
-			minetest.remove_node(pos)
+			core.remove_node(pos)
 		end
 	end
 end

@@ -1,4 +1,4 @@
-local mp = minetest.get_modpath("modern")
+local mp = core.get_modpath("modern")
 
 local settings = {
 	symbol_item = "multidecor:guide_paper",
@@ -28,7 +28,7 @@ doclib.add_to_manual("modern", "EN", content)
 content = dofile(mp .. "/doc/furniture_guide_taps_EN.lua")
 doclib.add_to_manual("modern", "EN", content)
 
-minetest.register_node(":multidecor:guide_paper", {
+core.register_node(":multidecor:guide_paper", {
     drawtype = "signlike",
     description = "Furniture Guide Paper",
     inventory_image = "multidecor_furniture_guide_paper.png",
@@ -46,19 +46,19 @@ minetest.register_node(":multidecor:guide_paper", {
     groups = {oddly_breakable_by_hand=1},
     sounds = default.node_sound_wood_defaults(),
     after_place_node = function(pos, placer, itemstack)
-        local meta = minetest.get_meta(pos)
+        local meta = core.get_meta(pos)
         meta:set_string("formspec", doclib.formspec(pos, "modern", "EN"))
     end,
     on_receive_fields = function(pos, formname, fields, player)
 		local player_name = player:get_player_name()
-		if minetest.is_protected(pos, player_name) then
+		if core.is_protected(pos, player_name) then
 			return
 		end
-		minetest.get_meta(pos):set_string("formspec", doclib.formspec(pos, "modern", "EN", fields))
+		core.get_meta(pos):set_string("formspec", doclib.formspec(pos, "modern", "EN", fields))
 	end,
 })
 
-minetest.register_craft({
+core.register_craft({
     recipe = {
         {"default:paper", "multidecor:brass_ingot", "dye:black"},
         {"", "", ""},

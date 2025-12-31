@@ -286,7 +286,7 @@ local objects = {
 }
 
 for name, props in pairs(objects) do
-	minetest.register_entity("modern:kitchen_cabinet_" .. name, {
+	core.register_entity("modern:kitchen_cabinet_" .. name, {
 		visual = "mesh",
 		visual_size = {x=5, y=5, z=5},
 		mesh = props.mesh,
@@ -314,8 +314,8 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 	bounding_boxes = {{-0.2, 0, -0.2, 0.2, 0.5, 0.2}},
 	callbacks = {
 		on_construct = function(pos)
-			local node = minetest.get_node(pos)
-			minetest.add_entity(pos, "modern:ceiling_fan_blades", minetest.serialize({pos=pos, name=node.name}))
+			local node = core.get_node(pos)
+			core.add_entity(pos, "modern:ceiling_fan_blades", core.serialize({pos=pos, name=node.name}))
 		end
 	}
 },
@@ -327,7 +327,7 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 	}
 })
 
-minetest.register_entity("modern:ceiling_fan_blades", {
+core.register_entity("modern:ceiling_fan_blades", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_ceiling_fan_blades.b3d",
@@ -345,12 +345,12 @@ minetest.register_entity("modern:ceiling_fan_blades", {
 
 			if attach then
 				self.object:remove()
-				minetest.set_node(attach, minetest.get_node(attach))
+				core.set_node(attach, core.get_node(attach))
 				return
 			end
 			-- end
 
-			self.attached_to = minetest.deserialize(staticdata)
+			self.attached_to = core.deserialize(staticdata)
 
 			if not attach and not self.attached_to then
 				self.object:remove()
@@ -358,10 +358,10 @@ minetest.register_entity("modern:ceiling_fan_blades", {
 			end
 
 			if self.attached_to.sound then
-				minetest.sound_stop(self.attached_to.sound)
+				core.sound_stop(self.attached_to.sound)
 			end
 
-			self.attached_to.sound = minetest.sound_play("multidecor_fan_noise", {object=self.object, fade=1.0, max_hear_distance=15, loop=true})
+			self.attached_to.sound = core.sound_play("multidecor_fan_noise", {object=self.object, fade=1.0, max_hear_distance=15, loop=true})
 		end
 
 		self.object:set_animation({x=1, y=40}, 30)
@@ -372,16 +372,16 @@ minetest.register_entity("modern:ceiling_fan_blades", {
 			return
 		end
 
-		local cur_node = minetest.get_node(self.attached_to.pos)
+		local cur_node = core.get_node(self.attached_to.pos)
 
 		if cur_node.name ~= self.attached_to.name then
 			self.object:remove()
-			minetest.sound_stop(self.attached_to.sound)
+			core.sound_stop(self.attached_to.sound)
 			return
 		end
 	end,
 	get_staticdata = function(self)
-		return minetest.serialize(self.attached_to)
+		return core.serialize(self.attached_to)
 	end
 })
 
@@ -469,7 +469,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker_activated", {
 	}
 })
 
-minetest.register_entity("modern:kitchen_cooker_oven_door", {
+core.register_entity("modern:kitchen_cooker_oven_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_kitchen_cooker_oven_door.b3d",
@@ -573,7 +573,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 	}
 })
 
-minetest.register_entity("modern:kitchen_fridge_upper_door", {
+core.register_entity("modern:kitchen_fridge_upper_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_fridge_upper_door.b3d",
@@ -590,7 +590,7 @@ minetest.register_entity("modern:kitchen_fridge_upper_door", {
 	on_deactivate = multidecor.shelves.on_deactivate
 })
 
-minetest.register_entity("modern:kitchen_fridge_lower_door", {
+core.register_entity("modern:kitchen_fridge_lower_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_fridge_lower_door.b3d",
@@ -794,13 +794,13 @@ multidecor.register.register_furniture_unit("porcelain_saucer_with_tea_cup", {
 	replacements = {{"bucker:bucker_water", "bucket:bucket_empty"}}
 })
 
-minetest.register_abm({
+core.register_abm({
 	label = "tea steam",
 	nodenames = "multidecor:porcelain_saucer_with_tea_cup",
 	interval = 2,
 	chance = 1,
 	action = function(pos)
-		minetest.add_particlespawner({
+		core.add_particlespawner({
 			amount = 1,
 			time = 1,
 			minpos = {x=pos.x-0.075, y=pos.y-0.2, z=pos.z-0.075},
@@ -908,7 +908,7 @@ local tiles = {
 
 for name, def in pairs(tiles) do
 	local tile_name = "multidecor:" .. name
-	minetest.register_node(":" .. tile_name, {
+	core.register_node(":" .. tile_name, {
 		description = modern.S(def[1]),
 		drawtype = "nodebox",
 		visual_scale = 1.0,
@@ -921,14 +921,14 @@ for name, def in pairs(tiles) do
 		sounds = default.node_sound_stone_defaults()
 	})
 
-	minetest.register_craft({
+	core.register_craft({
 		output = tile_name,
 		recipe = def[3],
 		replacements = {{"multidecor:paint_brush", "multidecor:paint_brush"}}
 	})
 
 	local block_name = "multidecor:" .. name .. "s_block"
-	minetest.register_node(":" .. block_name, {
+	core.register_node(":" .. block_name, {
 		description = modern.S(def[1] .. "s Block"),
 		visual_scale = 0.5,
 		paramtype = "light",
@@ -938,7 +938,7 @@ for name, def in pairs(tiles) do
 		sounds = default.node_sound_stone_defaults()
 	})
 
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = block_name,
 		recipe = {
@@ -1116,7 +1116,7 @@ multidecor.register.register_furniture_unit("microwave_activated", {
 	}
 })
 
-minetest.register_entity("modern:microwave_door", {
+core.register_entity("modern:microwave_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
 	mesh = "multidecor_microwave_door.b3d",
