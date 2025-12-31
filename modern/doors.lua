@@ -12,6 +12,7 @@ multidecor.register.register_door("high_dark_rusty_gate", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
 {
+	common_name = "high_dark_rusty_gate",
 	door = {
 		vel = 90, -- degrees per sec
 		sounds = {
@@ -43,6 +44,7 @@ multidecor.register.register_door("dark_rusty_gate", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.4}}
 },
 {
+	common_name = "dark_rusty_gate",
 	door = {
 		vel = 90, -- degrees per sec
 		sounds = {
@@ -104,7 +106,9 @@ for i, wood in ipairs(woods) do
 	end
 
 	local board = "multidecor:" .. material_name .. "board"
-	multidecor.register.register_door("simple_" .. wood.name .. "_door", {
+
+	local door_name = "simple_" .. wood.name .. "_door"
+	multidecor.register.register_door(door_name, {
 		style = "modern",
 		material = "wood",
 		description = modern.S("Simple " .. upper_name .. " Door"),
@@ -116,7 +120,7 @@ for i, wood in ipairs(woods) do
 		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.35}}
 	},
 	{
-		common_name = "simple_" .. wood.name .. "_door",
+		common_name = door_name,
 		door = {
 			has_mirrored_counterpart = true,
 			--vel = 100, -- degrees per sec
@@ -293,7 +297,9 @@ for i, wood in ipairs(woods) do
 	})
 
 	local window = "multidecor:" .. wood.name .. "_window_segment"
-	multidecor.register.register_door(wood.name .. "_window_door", {
+
+	local wnddoor_name = wood.name .. "_window_door"
+	multidecor.register.register_door(wnddoor_name, {
 		style = "modern",
 		material = "wood",
 		description = modern.S(upper_name .. "Window Door"),
@@ -306,6 +312,7 @@ for i, wood in ipairs(woods) do
 		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.38}}
 	},
 	{
+		common_name = wnddoor_name,
 		door = {
 			--vel = 100, -- degrees per sec
 			sounds = {
@@ -321,7 +328,9 @@ for i, wood in ipairs(woods) do
 	})
 
 	local window_with_thin_slats = "multidecor:" .. wood.name .. "_window_segment_with_thin_slats"
-	multidecor.register.register_door(wood.name .. "_window_door_with_thin_slats", {
+
+	local wnddoor_with_thin_slats_name = wood.name .. "_window_door_with_thin_slats"
+	multidecor.register.register_door(wnddoor_with_thin_slats_name, {
 		style = "modern",
 		material = "wood",
 		description = modern.S(upper_name .. "Window Door With Thin Slats"),
@@ -334,6 +343,7 @@ for i, wood in ipairs(woods) do
 		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.38}}
 	},
 	{
+		common_name = wnddoor_with_thin_slats_name,
 		door = {
 			--vel = 100, -- degrees per sec
 			sounds = {
@@ -558,6 +568,7 @@ multidecor.register.register_door("technical_locked_door", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
 {
+	common_name = "technical_locked_door",
 	door = {
 		has_lock = true,
 		vel = 70, -- degrees per sec
@@ -589,6 +600,7 @@ multidecor.register.register_door("metallic_locked_door", {
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
 {
+	common_name = "metallic_locked_door",
 	door = {
 		has_lock = true,
 		vel = 70, -- degrees per sec
@@ -622,6 +634,7 @@ if core.get_modpath("ethereal") then
 		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 	},
 	{
+		common_name = "redwood_locked_door",
 		door = {
 			has_lock = true,
 			vel = 70, -- degrees per sec
@@ -755,92 +768,6 @@ for _, door_n in ipairs(sliding_doors_data) do
 		bounding_boxes = sliding_door_cornices_bbox
 	}, sliding_doors_cornices_recipe_copy)
 end
-
---[[multidecor.register.register_door("sliding_glass_door", {
-	style = "modern",
-	material = "metallic",
-	visual_scale = 1.0,
-	description = modern.S("Sliding Glass Door"),
-	mesh = "multidecor_sliding_glass_door.obj",
-	tiles = {
-		"multidecor_metal_material5.png",
-		"multidecor_glass_material.png"
-	},
-	use_texture_alpha = "blend",
-	bounding_boxes = sliding_doors_bbox
-},
-{
-	common_name = "sliding_glass_door",
-	door = sliding_doors_data
-})
-
-multidecor.register.register_door("sliding_japanese_door", {
-	style = "modern",
-	material = "wood",
-	visual_scale = 1.0,
-	description = modern.S("Sliding Japanese Door"),
-	mesh = "multidecor_sliding_japanese_door.obj",
-	tiles = {
-		"multidecor_aspen_wood.png",
-		"multidecor_cloth.png"
-	},
-	use_texture_alpha = "blend",
-	bounding_boxes = sliding_doors_bbox
-},
-{
-	common_name = "sliding_japanese_door",
-	door = sliding_doors_data
-})
-
-multidecor.register.register_door("sliding_slotted_door", {
-	style = "modern",
-	material = "wood",
-	visual_scale = 1.0,
-	description = modern.S("Sliding Slotted Door"),
-	mesh = "multidecor_sliding_slotted_door.obj",
-	tiles = {
-		"multidecor_wood.png"
-	},
-	use_texture_alpha = "blend",
-	bounding_boxes = sliding_doors_bbox
-},
-{
-	common_name = "sliding_slotted_door",
-	door = sliding_doors_data
-})
-
-multidecor.register.register_furniture_unit("sliding_door_metal_cornice", {
-	type = "decoration",
-	style = "modern",
-	material = "metal",
-	visual_scale = 1.0,
-	description = modern.S("Metal Cornice For Sliding Door"),
-	mesh = "multidecor_sliding_door_cornice.obj",
-	tiles = {"multidecor_metal_material5.png"},
-	bounding_boxes = sliding_door_cornices_bbox
-})
-
-multidecor.register.register_furniture_unit("sliding_door_aspen_cornice", {
-	type = "decoration",
-	style = "modern",
-	material = "wood",
-	visual_scale = 1.0,
-	description = modern.S("Aspen Cornice For Sliding Door"),
-	mesh = "multidecor_sliding_door_cornice.obj",
-	tiles = {"multidecor_aspen_wood.png"},
-	bounding_boxes = sliding_door_cornices_bbox
-})
-
-multidecor.register.register_furniture_unit("sliding_door_wooden_cornice", {
-	type = "decoration",
-	style = "modern",
-	material = "wood",
-	visual_scale = 1.0,
-	description = modern.S("Wooden Cornice For Sliding Door"),
-	mesh = "multidecor_sliding_door_cornice.obj",
-	tiles = {"multidecor_wood.png"},
-	bounding_boxes = sliding_door_cornices_bbox
-})]]
 
 core.register_alias("multidecor:wooden_door", "multidecor:patterned_wooden_door")
 core.register_alias("multidecor:pine_door", "multidecor:patterned_aspen_door")

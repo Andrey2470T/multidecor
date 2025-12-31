@@ -1,8 +1,8 @@
 multidecor.helpers = {}
 
-hlpfuncs = multidecor.helpers
+local hlpfuncs = multidecor.helpers
 
-function multidecor.helpers.get_dir_from_param2(name, param2)
+function hlpfuncs.get_dir_from_param2(name, param2)
 	local def = core.registered_nodes[name]
 
 	local dir = vector.new(0, 0, 0)
@@ -23,13 +23,12 @@ function multidecor.helpers.get_dir_from_param2(name, param2)
 end
 
 -- Returns a direction of the node with 'pos' position
-function multidecor.helpers.get_dir(pos)
+function hlpfuncs.get_dir(pos)
 	local node = core.get_node(pos)
-
 	return hlpfuncs.get_dir_from_param2(node.name, node.param2)
 end
 
-function multidecor.helpers.from_dir_get_param2(name, old_param2, dir)
+function hlpfuncs.from_dir_get_param2(name, old_param2, dir)
 	local param2 = core.dir_to_facedir(dir)
 
 	local def = core.registered_nodes[name]
@@ -43,35 +42,35 @@ function multidecor.helpers.from_dir_get_param2(name, old_param2, dir)
 end
 
 -- Returns a node def of the node at 'pos'
-function multidecor.helpers.ndef(pos)
+function hlpfuncs.ndef(pos)
 	return core.registered_nodes[core.get_node(pos).name]
 end
 
 -- Rotates vertically 'pos' around (0, 1, 0) axis at 'angle'.
-function multidecor.helpers.rot(pos, angle)
+function hlpfuncs.rot_y(pos, angle)
 	return vector.rotate_around_axis(pos, vector.new(0, 1, 0), angle)
 end
 
 -- Rotates vertically 'pos' according to 'dir'
-function multidecor.helpers.rotate_to_dir(pos, dir)
+function hlpfuncs.rotate_to_dir(pos, dir)
 	if dir.x == 0 and dir.z == 0 then
 		return vector.zero()
 	end
 
 	local rot_y = vector.dir_to_rotation(dir).y
 
-	return hlpfuncs.rot(pos, rot_y)
+	return hlpfuncs.rot_y(pos, rot_y)
 end
 
 -- Rotates vertically 'rel_pos' which is relative to 'pos' of some node according to its param2 direction
-function multidecor.helpers.rotate_to_node_dir(pos, rel_pos)
+function hlpfuncs.rotate_to_node_dir(pos, rel_pos)
 	local dir = hlpfuncs.get_dir(pos)
 
 	return hlpfuncs.rotate_to_dir(rel_pos, dir)
 end
 
 -- Returns rotated 'bbox' bounding box (collision or selection) corresponding to 'dir'
-function multidecor.helpers.rotate_bbox(bbox, dir)
+function hlpfuncs.rotate_bbox(bbox, dir)
 	local box = {
 		min = {x=bbox[1], y=bbox[2], z=bbox[3]},
 		max = {x=bbox[4], y=bbox[5], z=bbox[6]}
@@ -89,7 +88,7 @@ function multidecor.helpers.rotate_bbox(bbox, dir)
 end
 
 -- Swaps two values if a > b
-function multidecor.helpers.swap(a, b, criteria)
+function hlpfuncs.swap(a, b, criteria)
 	if criteria == true or criteria == nil then
 		return b, a
 	else
@@ -98,14 +97,14 @@ function multidecor.helpers.swap(a, b, criteria)
 end
 
 -- Limits the 'v' value at the range [s, e]. If 'v' < 's', returns 's', 'v' > 'e', returns 'e'
-function multidecor.helpers.clamp(s, e, v)
+function hlpfuncs.clamp(s, e, v)
 	local start_v, end_v = hlpfuncs.swap(s, e, s > e)
 
 	return v < start_v and start_v or v > end_v and end_v or v
 end
 
 -- Makes the first letters of each word uppercase in 's' string
-function multidecor.helpers.upper_first_letters(s)
+function hlpfuncs.upper_first_letters(s)
 	local new_s = ""
 
 	for substr in s:gmatch("%a+") do
@@ -116,15 +115,15 @@ function multidecor.helpers.upper_first_letters(s)
 end
 
 -- Builds a inv/list/fs name in the template 'multidecor:<name>_<i>_<type>_<strpos>'
-function multidecor.helpers.build_name_from_tmp(name, type, i, pos)
-	local strpos = pos.x .. "_" .. pos.y .. "_" .. pos.z
-	local res = name .. "_" .. i .. "_".. type .. "_" .. strpos
+function hlpfuncs.build_name_from_tmp(name, type, i, pos)
+	local resname = ("%s_%d_%s_%d_%d_%d"):format(
+		name, i, type, pos.x, pos.y, pos.z)
 
 	if not name:match("multidecor:") then
-		res = "multidecor:" .. res
+		resname = "multidecor:" .. resname
 	end
 
-	return res
+	return resname
 end
 
 -- Copies all elements from 't1' array inserting them in 't2'
