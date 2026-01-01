@@ -46,8 +46,13 @@ function hlpfuncs.ndef(pos)
 	return core.registered_nodes[core.get_node(pos).name]
 end
 
+-- Gets the yaw rotation of 'dir'
+function hlpfuncs.get_rot_y(dir)
+	return vector.dir_to_rotation(dir).y
+end
+
 -- Rotates vertically 'pos' around (0, 1, 0) axis at 'angle'.
-function hlpfuncs.rot_y(pos, angle)
+function hlpfuncs.rotate_y(pos, angle)
 	return vector.rotate_around_axis(pos, vector.new(0, 1, 0), angle)
 end
 
@@ -57,9 +62,7 @@ function hlpfuncs.rotate_to_dir(pos, dir)
 		return vector.zero()
 	end
 
-	local rot_y = vector.dir_to_rotation(dir).y
-
-	return hlpfuncs.rot_y(pos, rot_y)
+	return hlpfuncs.rotate_y(pos, hlpfuncs.get_rot_y(dir))
 end
 
 -- Rotates vertically 'rel_pos' which is relative to 'pos' of some node according to its param2 direction
