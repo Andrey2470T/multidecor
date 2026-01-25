@@ -617,3 +617,36 @@ function multidecor.register.register_garniture(def)
 		multidecor.register.register_table(sink.add_properties.shelves_data.common_name, sink)
 	end
 end
+
+-- Check for craft recipes availability of each mod item
+function multidecor.register.check_craft_recipes(exclusions)
+	exclusions = exclusions or {}
+
+	local nonfound_items = {}
+
+	for name, def in pairs(core.registered_items) do
+		if name:match("^multidecor") then
+			local is_exclusion = false
+
+			for _, excl_name in ipairs(exclusions) do
+				if name:match(excl_name) then
+					is_exclusion = true
+					break
+				end
+			end
+
+			if not is_exclusion then
+				local recipe = core.get_craft_recipe(name)
+
+				if not recipe.items then
+					table.insert(nonfound_items, name)
+				end
+			end
+		end
+	end
+
+	if #nonfound_items > 0 then
+		local formatstr = "Multidecor has missing recipes for following items: %s"
+		core.log("warning", formatstr:format( table.concat(nonfound_items, "\n")))
+	end
+end

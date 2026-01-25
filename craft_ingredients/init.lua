@@ -125,24 +125,27 @@ local to_bm_items_map = {
 multidecor.craft = {}
 
 function multidecor.craft.register(name, recipe)
+	local found = false
 	if bm_modpath then
 		for _, items_map in ipairs(to_bm_items_map) do
 			if items_map[1] == name then
-				minetest.register_alias(
-					"multidecor:" .. items_map[1], "basic_materials:" .. items_map[2])
+				core.register_alias_force(
+				"multidecor:" .. items_map[1], "basic_materials:" .. items_map[2])
+				found = true
 				break;
 			end
 		end
-	else
+	end
+	if not found then
 		local register_name = "multidecor:" .. name
-		minetest.register_craftitem(":" .. register_name,
+		core.register_craftitem(":" .. register_name,
 		{
 			description = S(multidecor.helpers.upper_first_letters(name)),
 			inventory_image = "multidecor_" .. name .. ".png"
 		})
 
 		local count = type(recipe.count) == "number" and " " .. tostring(recipe.count) or ""
-		minetest.register_craft({
+		core.register_craft({
 			output = register_name .. count,
 			type = recipe.type,
 			recipe = recipe.recipe,
