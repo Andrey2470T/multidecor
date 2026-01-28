@@ -247,9 +247,15 @@ function multidecor.doors.convert_from_entity(obj)
 end
 
 function multidecor.doors.node_on_rightclick(pos, node, clicker)
-	local door_data = hlpfuncs.ndef(pos).add_properties.door
+    local def = hlpfuncs.ndef(pos)
+    -- Проверка на наличие add_properties и door
+    if not def.add_properties or not def.add_properties.door then
+        core.log("error", "Node at " .. core.pos_to_string(pos) .. " has no add_properties.door!")
+        return
+    end
 
-	local meta = minetest.get_meta(pos)
+    local door_data = def.add_properties.door
+    local meta = minetest.get_meta(pos)
 	local owner = meta:get_string("owner")
 	local cur_mode = meta:get_string("door_mode")
 	local is_mir_cpart = meta:get_string("mirrored_counterpart") == "true"
