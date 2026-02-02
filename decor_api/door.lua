@@ -118,7 +118,12 @@ function multidecor.doors.convert_to_entity(pos)
 	local shift = pos + offset
 	local new_pos, rot = multidecor.doors.rotate(shift, dir, pos)
 
+	-- Проверка, что сущность существует
 	local def = minetest.registered_entities[obj_name]
+	if not def then
+		minetest.log("error", "[multidecor] Entity definition not found for: " .. obj_name)
+		return nil
+	end
 
 	local sbox, cbox
 	local inv_dir = door_data.type == "sliding" and dir * -1 or dir
@@ -180,7 +185,7 @@ function multidecor.doors.convert_to_entity(pos)
 	self.start_v = start_v
 	self.end_v = end_v
 	self.move_axis = move_axis
-
+	
 	self.mirrored_counterpart = is_mir_cpart
 
 	return obj
