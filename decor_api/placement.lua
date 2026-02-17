@@ -81,6 +81,11 @@ end
 
 function multidecor.placement.check_for_placement(pos, name)
 	local def = minetest.registered_nodes[name]
+	
+	if not def then
+		minetest.log("error", "Node definition not found for: " .. name)
+		return true
+	end
 
 	if def.drawtype ~= "mesh" and def.drawtype ~= "nodebox" then
 		return true
@@ -91,7 +96,6 @@ function multidecor.placement.check_for_placement(pos, name)
 	end
 
 	local bboxes
-
 	if def.drawtype == "nodebox" then
 		bboxes = def.node_box.fixed
 	else
