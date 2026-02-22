@@ -292,6 +292,11 @@ function multidecor.doors.node_on_rightclick(pos, node, clicker)
 
 	local obj = multidecor.doors.convert_to_entity(pos)
 
+    if not obj then
+        minetest.log("error", "Failed to convert door at " .. minetest.pos_to_string(pos) .. " to entity")
+        return
+    end
+
 	local self = obj:get_luaentity()
 	self.action = action
 
