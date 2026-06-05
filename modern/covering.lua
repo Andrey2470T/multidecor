@@ -95,7 +95,7 @@ minetest.register_entity(":multidecor:cover", {
 			return
 		end
 
-		if minetest.is_protected(pos, clicker:get_player_name()) then
+		if minetest.is_protected(self.object:get_pos(), clicker:get_player_name()) then
 			return
 		end
 
