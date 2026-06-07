@@ -150,8 +150,9 @@ minetest.register_entity("modern:floor_clock_balance_wheel", {
 multidecor.register.register_furniture_unit("book", {
 	type = "decoration",
 	style = "modern",
-	material = "wood",
+	material = "paper",
 	description = modern.S("Book"),
+	groups = { book = 1, },
 	mesh = "multidecor_book.b3d",
 	tiles = {
 		"multidecor_book_envelope.png^[multiply:blue^multidecor_book_pattern.png",
@@ -178,10 +179,16 @@ multidecor.register.register_furniture_unit("book", {
 	}
 })
 
+minetest.register_craft({
+	type = "fuel",
+	recipe = "multidecor:book",
+	burntime = 3,
+})
+
 multidecor.register.register_furniture_unit("book_open", {
 	type = "decoration",
 	style = "modern",
-	material = "wood",
+	material = "paper",
 	description = modern.S("Book"),
 	mesh = "multidecor_book_open.b3d",
 	tiles = {
@@ -228,7 +235,7 @@ end)
 multidecor.register.register_furniture_unit("books_stack", {
 	type = "decoration",
 	style = "modern",
-	material = "wood",
+	material = "paper",
 	description = modern.S("Books Stack"),
 	mesh = "multidecor_books_stack.b3d",
 	tiles = {
@@ -246,6 +253,12 @@ multidecor.register.register_furniture_unit("books_stack", {
 		"multidecor:book", "multidecor:book",
 		"multidecor:book", "multidecor:book"
 	}
+})
+
+minetest.register_craft({
+	type = "fuel",
+	recipe = "multidecor:books_stack",
+	burntime = 12,
 })
 
 multidecor.register.register_furniture_unit("alarm_clock", {
