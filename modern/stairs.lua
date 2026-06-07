@@ -186,9 +186,9 @@ for _, sstair in ipairs(spiral_stairs_data) do
 	},
 	{
 		recipe = {
-			{sstair.base_craft_material, sstair.base_craft_material, sstair.base_craft_material},
+			{"", sstair.base_craft_material, sstair.base_craft_material},
 			{"", "", ""},
-			{"", "", ""}
+			{sstair.base_craft_material, sstair.base_craft_material, ""}
 		}
 	})
 
