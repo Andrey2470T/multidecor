@@ -76,6 +76,18 @@ function register.build_description(style, material, base_desc)
 	return desc:format(multidecor.S(style), multidecor.S(material))
 end
 
+local function clean_shapeless_recipe(recipe)
+	local clean_recipe = {}
+
+	for _, item in ipairs(recipe) do
+		if item ~= "" then
+			table.insert(clean_recipe, item)
+		end
+	end
+
+	return clean_recipe
+end
+
 function multidecor.register.after_place_node(pos, placer, itemstack)
 	local place = multidecor.placement.check_for_placement(pos, itemstack:get_name())
 
@@ -288,7 +300,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 		minetest.register_craft({
 			type = craft_def.type,
 			output = f_name .. (craft_def.count and " " .. tostring(craft_def.count) or ""),
-			recipe = craft_def.recipe,
+			recipe = (craft_def.type == "shapeless") and clean_shapeless_recipe(craft_def.recipe) or craft_def.recipe,
 			replacements = craft_def.replacements or nil
 		})
 	end
