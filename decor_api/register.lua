@@ -200,7 +200,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 		f_def.groups[def.material] = 1
 	end
 
-	if def.material == "wood" then
+	if def.material == "wood" or def.material == "paper" then
 		f_def.groups.choppy = 2
 	elseif def.material == "glass" then
 		f_def.groups.cracky = 2.5
@@ -234,7 +234,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	if def.sounds then
 		f_def.sounds = def.sounds
 	else
-		if def.material == "wood" then
+		if def.material == "wood" or def.material == "paper" then
 			f_def.sounds = default.node_sound_wood_defaults()
 		elseif def.material == "glass" then
 			f_def.sounds = default.node_sound_glass_defaults()
