@@ -186,9 +186,9 @@ for _, sstair in ipairs(spiral_stairs_data) do
 	},
 	{
 		recipe = {
-			{sstair.base_craft_material, sstair.base_craft_material, sstair.base_craft_material},
-			{"", "", ""},
-			{"", "", ""}
+			{"", "", sstair.base_craft_material},
+			{"", sstair.base_craft_material, ""},
+			{sstair.base_craft_material, "", ""}
 		}
 	})
 
@@ -204,7 +204,7 @@ for _, sstair in ipairs(spiral_stairs_data) do
 	},
 	{
 		recipe = {
-			{sstair.base_craft_material, sstair.base_craft_material, sstair.base_craft_material},
+			{"", sstair.base_craft_material, sstair.base_craft_material},
 			{sstair.base_craft_material, "multidecor:hammer", ""},
 			{"", "", ""}
 		},
@@ -222,7 +222,7 @@ for _, sstair in ipairs(spiral_stairs_data) do
 	},
 	{
 		recipe = {
-			{sstair.base_craft_material, sstair.base_craft_material, sstair.base_craft_material},
+			{"", sstair.base_craft_material, sstair.base_craft_material},
 			{sstair.base_craft_material, "multidecor:hammer", "multidecor:" .. sstair.name .. "_banister"},
 			{"", "", ""}
 		},

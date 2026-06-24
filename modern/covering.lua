@@ -19,12 +19,16 @@ end
 
 local function check_for_dye_in_inv(player)
 	local inv = player:get_inventory()
-	local dye_index = player:get_wield_index() + 1
+
+	local brush_index = player:get_wield_index()
+	local dye_index = math.min(brush_index + 1, inv:get_size("main"))
+
+	if brush_index == dye_index then return end
+
 	local dye = inv:get_stack("main", dye_index)
 	local next_itemname = dye:get_name()
 
-	if not dye or dye:is_empty() or
-		core.get_item_group(next_itemname, "dye") ~= 1 then -- no any dye next to the brush or the slot is empty
+	if dye:is_empty() or core.get_item_group(next_itemname, "dye") ~= 1 then -- no any dye next to the brush or the slot is empty
 		return
 	end
 
@@ -95,7 +99,7 @@ core.register_entity(":multidecor:cover", {
 			return
 		end
 
-		if core.is_protected(pos, clicker:get_player_name()) then
+		if core.is_protected(self.object:get_pos(), clicker:get_player_name()) then
 			return
 		end
 
