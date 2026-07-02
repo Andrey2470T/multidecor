@@ -82,6 +82,11 @@ end
 function multidecor.placement.check_for_placement(pos, name)
 	local def = core.registered_nodes[name]
 
+	if not def then
+		core.log("error", "Node definition not found for: " .. name)
+		return true
+	end
+
 	if def.drawtype ~= "mesh" and def.drawtype ~= "nodebox" then
 		return true
 	end
