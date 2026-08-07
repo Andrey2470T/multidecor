@@ -3,6 +3,12 @@ local bathtub_def = {{
 	material = "stone",
 	description = modern.S("Bathtub"),
 	mesh = "multidecor_bathtub.b3d",
+	materials = {
+		"md_marble",
+		"md_metal",
+		"",
+		"md_coarse_metal"
+	},
 	tiles = {
 		"multidecor_marble_material.png",
 		"multidecor_metal_material.png",
@@ -83,6 +89,14 @@ for _, tile in ipairs(ceramic_tiles) do
 	local tex_name = "multidecor_bathroom_ceramic_" .. tile[1] .. "_tile.png"
 	local upper_tile = multidecor.helpers.upper_first_letters(tile[1])
 
+	local materials
+
+	if tile[1] == "darksea" then
+		materials = {"md_bathroom_ceramic_darksea_tile"}
+	elseif tile[1] == "darksea_patterned" then
+		materials = {"md_bathroom_ceramic_darksea_patterned_tile"}
+	end
+
 	minetest.register_node(":" .. tile_name, {
 		description = modern.S("Bathroom Ceramic " .. upper_tile .. " Tile"),
 		drawtype = "nodebox",
@@ -90,6 +104,7 @@ for _, tile in ipairs(ceramic_tiles) do
 		paramtype = "light",
 		paramtype2 = "wallmounted",
 		tiles = {tex_name},
+		materials = materials,
 		groups = {cracky=3.5},
 		node_box = tile_bboxes,
 		selection_box = tile_bboxes,
@@ -114,6 +129,7 @@ for _, tile in ipairs(ceramic_tiles) do
 		paramtype = "light",
 		paramtype2 = "facedir",
 		tiles = {tex_name},
+		materials = materials,
 		groups = {cracky=2.5},
 		sounds = default.node_sound_stone_defaults()
 	})
@@ -359,6 +375,12 @@ multidecor.register.register_furniture_unit("bathroom_sink", {
 	description = modern.S("Bathroom Sink"),
 	mesh = "multidecor_bathroom_sink.b3d",
 	groups = {sink=1},
+	materials = {
+		"md_marble",
+		"md_metal",
+		"md_coarse_metal",
+		"md_metal"
+	},
 	tiles = {
 		"multidecor_marble_material.png",
 		"multidecor_metal_material.png",
@@ -389,6 +411,12 @@ multidecor.register.register_furniture_unit("bathroom_shower_base", {
 	description = modern.S("Bathroom Shower Base"),
 	mesh = "multidecor_shower_base.b3d",
 	groups = {sink=1},
+	materials = {
+		"md_marble",
+		"md_metal",
+		"md_marble",
+		"md_metal"
+	},
 	tiles = {
 		"multidecor_marble_material.png",
 		"multidecor_metal_material.png",
@@ -463,6 +491,11 @@ multidecor.register.register_seat("toilet", {
 	material = "stone",
 	description = modern.S("Toilet"),
 	mesh = "multidecor_toilet.b3d",
+	materials = {
+		"md_marble",
+		"md_metal",
+		"md_metal"
+	},
 	tiles = {
 		"multidecor_marble_material.png",
 		"multidecor_metal_material.png",
@@ -648,6 +681,7 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_side_flaps", {
 	material = "metal",
 	description = modern.S("Bathroom Tap With Side Flaps"),
 	mesh = "multidecor_bathroom_tap_with_side_flaps.b3d",
+	materials = {"md_coarse_metal"},
 	tiles = {"multidecor_metal_material.png"},
 	bounding_boxes = {{-0.3, -0.2, 0.0, 0.3, 0.1, 0.5}},
 	callbacks = {
@@ -725,6 +759,7 @@ multidecor.register.register_furniture_unit("crooked_shower_head", {
 	material = "metal",
 	description = modern.S("Crooked Shower Head"),
 	mesh = "multidecor_crooked_shower_head.b3d",
+	materials = {"md_coarse_metal", "md_coarse_metal"},
 	tiles = {"multidecor_coarse_metal_material.png", "multidecor_crooked_shower_head.png"},
 	bounding_boxes = {{-0.2, -0.3, -0.3, 0.2, 0.3, 0.5}},
 	callbacks = {

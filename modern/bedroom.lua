@@ -98,6 +98,7 @@ multidecor.register.register_table("dresser_with_mirror", {
 	material = "wood",
 	description = modern.S("Dresser With Mirror"),
 	mesh = "multidecor_dresser_with_mirror.b3d",
+	materials = {"md_aspen", "md_gloss"},
 	tiles = {"multidecor_aspen_wood.png", "multidecor_gloss.png"},
 	inventory_image = "multidecor_dresser_with_mirror_inv.png",
 	use_texture_alpha = "blend",

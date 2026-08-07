@@ -722,12 +722,19 @@ for _, door_n in ipairs(sliding_doors_data) do
 			end
 		end
 	end
+
+	local materials
+
+	if door_n.doorname == "sliding_slotted_door" then
+		materials = {"md_wood"}
+	end
 	multidecor.register.register_door(door_n.doorname, {
 		style = "modern",
 		material = door_n.material,
 		visual_scale = 1.0,
 		description = modern.S(hlpfuncs.upper_first_letters(door_n.doorname)),
 		mesh = "multidecor_" .. door_n.doorname ..  ".obj",
+		materials = materials,
 		tiles = door_n.tiles,
 		use_texture_alpha = "blend",
 		bounding_boxes = sliding_doors_bbox
