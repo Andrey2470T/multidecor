@@ -159,7 +159,7 @@ local function on_place_cover(pointed_thing, cover_stack, cover_name, placer)
 	target_pos = target_pos - dir_to_pos * 0.01
 
 	local target_rot = vector.dir_to_rotation(dir_to_pos)
-	local target_sbox = hlpfuncs.rotate_bbox(cover_sbox, dir_to_pos)
+	local target_sbox = multidecor.helpers.rotate_bbox(cover_sbox, dir_to_pos)
 
 	local obj = core.add_entity(target_pos, "multidecor:cover", core.serialize({cover_name=cover_name, box=target_sbox}))
 
@@ -173,7 +173,7 @@ end
 for _, wallpaper_sort in ipairs(wallpapers) do
 	local itemname = wallpaper_sort.name .. "_wallpaper"
 	core.register_craftitem(":multidecor:" .. itemname, {
-		description = modern.S(hlpfuncs.upper_first_letters(itemname) .. " (see the guide paper on how to use)"),
+		description = modern.S(multidecor.helpers.upper_first_letters(itemname) .. " (see the guide paper on how to use)"),
 		inventory_image = "multidecor_" .. itemname .. ".png",
 		on_place = function(itemstack, placer, pointed_thing)
 			return on_place_cover(pointed_thing, itemstack, itemname, placer)
@@ -221,7 +221,7 @@ core.register_tool(":multidecor:paint_brush", {
 	inventory_image = "multidecor_paint_brush.png",
 	on_place = function(itemstack, placer, pointed_thing)
 		local pos = pointed_thing.under
-		local def = hlpfuncs.ndef(pos)
+		local def = multidecor.helpers.ndef(pos)
 
 		if not def.is_colorable then -- not colorable
 			return

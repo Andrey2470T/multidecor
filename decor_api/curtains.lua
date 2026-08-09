@@ -1,5 +1,7 @@
 multidecor.curtains = {}
 
+local hlpfuncs = multidecor.helpers
+
 -- Defines if the given curtain node with 'nodename' name can be placed at the position 'pos'.
 -- Returns two values: 1 - can/can't, 2 - the curtain with rings should be placed or not
 function multidecor.curtains.can_place(pos, nodename)

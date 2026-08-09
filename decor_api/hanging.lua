@@ -1,6 +1,8 @@
 multidecor.hanging = {}
 multidecor.hanging.hangers = {}
 
+local hlpfuncs = multidecor.helpers
+
 function multidecor.hanging.check_for_up_node(pos, place_part, place_part_cmn_name)
 	local def = hlpfuncs.ndef(pos)
 

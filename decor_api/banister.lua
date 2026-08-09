@@ -1,5 +1,7 @@
 multidecor.banister = {}
 
+local hlpfuncs = multidecor.helpers
+
 function multidecor.banister.check_for_foot_node(pos)
 	local foot_node = core.get_node({x=pos.x, y=pos.y-1, z=pos.z})
 

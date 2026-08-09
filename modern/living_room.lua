@@ -43,7 +43,7 @@ local louvers_parts = {
 }
 
 local louvers_on_rightclick = function(pos)
-	local def = hlpfuncs.ndef(pos)
+	local def = multidecor.helpers.ndef(pos)
 	local node = core.get_node(pos)
 
 	if def.groups.open == 1 then
@@ -69,7 +69,7 @@ for louvers, part in pairs(louvers_parts) do
 		type = "decoration",
 		style = "modern",
 		material = "plastic",
-		description = modern.S(hlpfuncs.upper_first_letters(louvers)),
+		description = modern.S(multidecor.helpers.upper_first_letters(louvers)),
 		mesh = "multidecor_" .. louvers .. ".b3d",
 		tiles = {"multidecor_plastic_material.png", "multidecor_plastic_material.png"},
 		groups = groups,

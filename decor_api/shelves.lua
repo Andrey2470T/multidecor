@@ -70,7 +70,7 @@ function multidecor.shelves.rotate_shelf_bbox(obj)
 		dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi)
 	end
 	local def = core.registered_entities[self.name]
-	local sbox = hlpfuncs.rotate_bbox(def.selectionbox, dir)
+	local sbox = multidecor.helpers.rotate_bbox(def.selectionbox, dir)
 	obj:set_properties({
 		selectionbox = sbox
 	})

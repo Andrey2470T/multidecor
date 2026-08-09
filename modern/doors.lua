@@ -739,7 +739,7 @@ for _, door_n in ipairs(sliding_doors_data) do
 		style = "modern",
 		material = door_n.material,
 		visual_scale = 1.0,
-		description = modern.S(hlpfuncs.upper_first_letters(door_n.doorname)),
+		description = modern.S(multidecor.helpers.upper_first_letters(door_n.doorname)),
 		mesh = "multidecor_" .. door_n.doorname ..  ".obj",
 		tiles = door_n.tiles,
 		use_texture_alpha = "blend",
@@ -762,7 +762,7 @@ for _, door_n in ipairs(sliding_doors_data) do
 		style = "modern",
 		material = door_n.material,
 		visual_scale = 1.0,
-		description = modern.S(hlpfuncs.upper_first_letters(door_n.cornicename)),
+		description = modern.S(multidecor.helpers.upper_first_letters(door_n.cornicename)),
 		mesh = "multidecor_sliding_door_cornice.obj",
 		tiles = {door_n.tiles[1]},
 		bounding_boxes = sliding_door_cornices_bbox

@@ -1,5 +1,6 @@
 multidecor.connecting = {}
 
+local hlpfuncs = multidecor.helpers
 
 -- Checks if two nodes with 'pos1' and 'pos2' positions belongs to the same table
 function multidecor.connecting.are_nodes_identical(pos1, pos2)

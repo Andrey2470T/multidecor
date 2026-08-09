@@ -3,71 +3,14 @@ multidecor.doors = {}
 local doors = multidecor.doors
 local hlpfuncs = multidecor.helpers
 
--- Returns position, collision and selection boxes rotated according to "dir" and rotation itself
-function doors.rotate(nodepos, dir, add_data)
-	local offset = vector.new(add_data.door.object_offset or {x=0.495, y=0, z=0.45})
-	offset = hlpfuncs.rotate_to_dir(offset, dir)
-
-	local def = core.registered_entities[add_data.common_name]
-
-	local sbox, cbox
-	local inv_dir = add_data.door.type == "sliding" and dir * -1 or dir
-	sbox = hlpfuncs.rotate_bbox(def.selectionbox, inv_dir)
-
-	if def.collisionbox then
-		cbox = hlpfuncs.rotate_bbox(def.collisionbox, inv_dir)
-	end
-
-	return nodepos + offset, hlpfuncs.get_rot_y(dir), cbox, sbox
-end
-
--- Animates the door object (open/close) by moving the bone and running the timer in step()
-function doors.animate(bone_obj, door_type, velocity, target_offset, move_axis)
-	local anim_time = target_offset / velocity
-	local bone_override = door_type == "regular" and
-		{rotation={vec=target_offset, interpolation=anim_time}} or
-		{position={vec=target_offset, interpolation=anim_time}}
-	bone_obj:set_bone_override("Door", bone_override)
-
-	local bone_self = bone_obj:get_luaentity()
-	bone_self.timer = anim_time
-end
-
--- Adds the bone handling the open/close animation and door entity itself 
-function doors.add_door(doorname, pos, rot_y, cbox, sbox, mirrored, door_type, velocity, target_offset, move_axis, owner)
-	local bone_serialize_data = {
-		target_offset=target_offset,
-		move_axis=move_axis,
-		cur_time = 0,
-		timer=0
-	}
-	local bone_obj = core.add_entity(pos, "multidecor:door_dummy", core.serialize(bone_serialize_data))
-
-	bone_obj:set_rotation(vector.new(0, rot_y, 0))
-
-	local door_serialize_data = {
-		cbox=cbox, sbox=sbox,
-		mirrored=mirrored,
-		owner = owner,
-	}
-	local door_obj = core.add_entity(pos, doorname, core.serialize(door_serialize_data))
-	door_obj:set_attach(bone_obj, "Door")
-
-	if target_offset and target_offset ~= 0 then
-		doors.animate(bone_obj, door_type, velocity, target_offset, move_axis)
-	end
-
-	return bone_obj
-end
-
-function get_movement_dir(dir, is_open, is_mirrored)
+local function get_rotation_dir(dir, is_open, is_mirrored)
 	local movedir_rot = is_open and math.pi/2 or -math.pi/2
 	movedir_rot = is_mirrored and -movedir_rot or movedir_rot
 
-	return hlpfuncs.rot(dir, movedir_rot)
+	return hlpfuncs.rotate_y(dir, movedir_rot)
 end
 
-function get_target_offset(door_type, dir, is_open, is_mirrored)
+local function get_target_offset(door_type, dir, is_open, is_mirrored)
 	if door_type == "regular" then
 		local rot_offset = is_open and -math.pi/2 or math.pi/2
 		rot_offset = is_mirrored and -rot_offset or rot_offset
@@ -75,7 +18,7 @@ function get_target_offset(door_type, dir, is_open, is_mirrored)
 		return rot_offset
 	end
 
-	local movedir = get_movement_dir(dir, is_open, is_mirrored)
+	local movedir = get_rotation_dir(dir, is_open, is_mirrored)
 
 	local move_axis
 	if movedir.x ~= 0 then move_axis = "x"
@@ -119,7 +62,7 @@ function doors.convert_to_entity(pos, clickername)
 	end
 
 	return doors.add_door(add_data.common_name, new_pos, rot_y, cbox, sbox, is_mir_cpart,
-		add_data.door.type, add_data.door.vel, offset, move_axis, clickername)
+		add_data.door.type, add_data.door.vel, offset, clickername)
 end
 
 function get_dir_from_object_rot(obj)
@@ -209,7 +152,7 @@ function doors.node_on_rightclick(pos, node, clicker)
 	local is_open = cur_mode == "closed"
 
 	if door_data.type == "sliding" then
-		local move_dir = get_movement_dir(node_dir, is_open, is_mir_cpart)
+		local move_dir = get_rotation_dir(node_dir, is_open, is_mir_cpart)
 
 		local place_check = multidecor.placement.check_for_placement(pos + move_dir, node.name)
 		local next_node_free = multidecor.placement.is_free_space(pos + move_dir)
@@ -231,7 +174,7 @@ function doors.after_place_node(pos, placer)
 	if add_props.door.has_mirrored_counterpart then
 		local dir = hlpfuncs.get_dir(pos)
 
-		local to_left = hlpfuncs.rot(dir, -math.pi/2)
+		local to_left = hlpfuncs.rotate_y(dir, -math.pi/2)
 		local left_nodedef = hlpfuncs.ndef(pos + to_left)
 		local left_dir = hlpfuncs.get_dir(pos + to_left)
 
@@ -281,16 +224,6 @@ end
 	end
 end]]
 
-function doors.bone_entity_on_activate(self, staticdata)
-	if staticdata ~= "" then
-		local data = core.deserialize(staticdata)
-		self.target_offset = data.target_offset
-		self.move_axis = data.move_axis
-		self.cur_time = data.cur_time
-		self.timer = data.timer
-	end
-end
-
 function doors.door_entity_on_activate(self, staticdata)
 	if staticdata ~= "" then
 		local data = core.deserialize(staticdata)
@@ -311,27 +244,6 @@ function doors.door_entity_on_activate(self, staticdata)
 	end
 
 	self.object:set_armor_groups({immortal=1})
-end
-
-function doors.bone_entity_on_step(self, dtime)
-	if self.timer == 0 then
-		return
-	end
-
-	self.cur_time = self.cur_time + dtime
-
-	if self.cur_time >= self.timer then
-		doors.convert_from_entity(self.object)
-	end
-end
-
-function doors.bone_entity_get_staticdata(self)
-	return core.serialize({
-		target_offset = self.target_offset,
-		move_axis = self.move_axis,
-		cur_time = self.cur_time,
-		timer = self.timer
-	})
 end
 
 function doors.door_entity_get_staticdata(self)
@@ -421,13 +333,3 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 		get_staticdata = doors.door_entity_get_staticdata
 	})
 end
-
--- Registers the dummy entity (single bone) for attaching various kinds of doors/drawers
-core.register_entity(":multidecor:door_dummy", {
-	visual = "mesh",
-	mesh = "door_dummy.glb",
-	static_save = true,
-	on_activate = doors.bone_entity_on_activate,
-	on_step = doors.bone_entity_on_step,
-	get_staticdata = doors.bone_entity_get_staticdata
-})
