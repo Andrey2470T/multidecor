@@ -2,6 +2,9 @@ multidecor.helpers = {}
 
 local hlpfuncs = multidecor.helpers
 
+-- Direction op functions
+--------------------------------------------------------------
+
 function hlpfuncs.get_dir_from_param2(name, param2)
 	local def = core.registered_nodes[name]
 
@@ -72,23 +75,8 @@ function hlpfuncs.rotate_to_node_dir(pos, rel_pos)
 	return hlpfuncs.rotate_to_dir(rel_pos, dir)
 end
 
--- Returns rotated 'bbox' bounding box (collision or selection) corresponding to 'dir'
-function hlpfuncs.rotate_bbox(bbox, dir)
-	local box = {
-		min = {x=bbox[1], y=bbox[2], z=bbox[3]},
-		max = {x=bbox[4], y=bbox[5], z=bbox[6]}
-	}
-
-	box.min = hlpfuncs.rotate_to_dir(box.min, dir)
-	box.max = hlpfuncs.rotate_to_dir(box.max, dir)
-
-	local new_bbox = {
-		box.min.x, box.min.y, box.min.z,
-		box.max.x, box.max.y, box.max.z
-	}
-
-	return new_bbox
-end
+-- Misc functions
+------------------------------------------------------------
 
 -- Swaps two values if a > b
 function hlpfuncs.swap(a, b, criteria)
@@ -135,3 +123,58 @@ function table.copy_to(t1, t2)
 		table.insert(t2, val)
 	end
 end
+
+-- Box class
+------------------------------------------------------
+
+hlpfuncs.BBox = {
+	min_edge = vector.new(),
+	max_edge = vector.new()
+}
+
+hlpfuncs.BBox.__index = hlpfuncs.BBox
+
+function hlpfuncs.BBox.from_box(box)
+	local self = setmetatable({}, hlpfuncs.BBox)
+	self.min_edge = vector.new(box[1], box[2], box[3])
+	self.max_edge = vector.new(box[4], box[5], box[6])
+
+	return self
+end
+
+function hlpfuncs.BBox.from_edges(_min_edge, _max_edge)
+	local self = setmetatable({}, hlpfuncs.BBox)
+	self.min_edge = _min_edge
+	self.max_edge = _max_edge
+
+	return self
+end
+
+function hlpfuncs.BBox:width()
+	return self.max_edge.x - self.min_edge.x
+end
+
+function hlpfuncs.BBox:height()
+	return self.max_edge.y - self.min_edge.y
+end
+
+function hlpfuncs.BBox:depth()
+	return self.max_edge.z - self.min_edge.z
+end
+
+function hlpfuncs.BBox:repair()
+	local e1 = self.min_edge
+	local e2 = self.max_edge
+
+	e1.x, e2.x = hlpfuncs.swap(e1.x, e2.x, e1.x > e2.x)
+	e1.y, e2.y = hlpfuncs.swap(e1.y, e2.y, e1.y > e2.y)
+	e1.z, e2.z = hlpfuncs.swap(e1.z, e2.z, e1.z > e2.z)
+end
+
+-- Rotates 'bbox' bounding box (collision or selection) corresponding to 'dir'
+function hlpfuncs.BBox:rotate(dir)
+	self.min_edge = hlpfuncs.rotate_to_dir(self.min_edge, dir)
+	self.max_edge = hlpfuncs.rotate_to_dir(self.max_edge, dir)
+end
+
+

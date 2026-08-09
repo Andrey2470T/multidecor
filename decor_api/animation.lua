@@ -133,6 +133,10 @@ local function animator_on_step(self, dtime)
 		else
 			self.object:set_pos(self.object:get_pos()+data.target_offset)
 		end
+		self.object:set_properties({
+			collisionbox = data.box,
+			selectionbox = data.box
+		})
 		if data.callback then
 			data.callback(self.object)
 		end
