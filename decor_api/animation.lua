@@ -1,18 +1,97 @@
-multidecor.animation = {}
-
 local hlpfuncs = multidecor.helpers
 
-multidecor.animation.animator_name = "multidecor:animator"
-multidecor.animation.default_offset = {x=-0.495, y=0, z=-0.45}
+-- Door/drawer object animator class
+----------------------------------------------------------
+
+multidecor.DoorAnimator = {
+	obj_name = "multidecor:animator",
+	bone_name = "Door",
+	default_offset = {x=-0.495, y=0, z=-0.45},
+
+	model_params = {
+		mesh = "",
+		textures = {},
+		box = hlpfuncs.BBox.from_default(),
+		mirrored = false,
+	},
+	anim_params = {
+		rotate = true,
+		target_axis = "y",
+		target_offset = math.pi/2,
+		velocity = math.pi/3		-- within a sec
+	},
+	timer = hlpfuncs.Timer.new(0),
+
+	nodepos = vector.new(),
+	obj = nil,
+	cur_mode = "closed"
+}
+
+multidecor.DoorAnimator.__index = multidecor.DoorAnimator
+
+function multidecor.DoorAnimator.new(_nodepos, _offset, _rot, _model_params, _anim_params)
+	local self = setmetatable({}, multidecor.DoorAnimator)
+
+	self.offset = vector.new(_offset or self.default_offset)
+	self.rot = _rot or 0 
+	self.nodepos = _nodepos
+
+	local serialize_data = {model_params=self.model_params, anim_params=self.anim_params}
+	self.obj = core.add_entity(self.nodepos, self.obj_name, core.serialize(serialize_data))
+	self.obj:set_rotation(self.rot)
+
+	self.model_params.mesh = _model_params.mesh or self.model_params.mesh
+	self.model_params.textures = _model_params.textures or self.model_params.textures
+	self.model_params.box = _model_params.box or self.model_params.box
+	self.model_params.mirrored = _model_params.mirrored or self.model_params.mirrored
+	self.model_params.offset = vector.new(_model_params.offset or self.default_offset)
+	self.model_params.rot = 0
+
+	if _model_params.rot then self.model_params.rot = _model_params.rot end
+
+	self.anim_params.rotate = _anim_params.rotate or self.anim_params.rotate
+	self.anim_params.target_axis = _anim_params.target_axis or self.anim_params.target_axis
+	self.anim_params.target_offset = _anim_params.target_offset or self.anim_params.target_offset
+	self.anim_params.velocity = _anim_params.velocity or self.anim_params.velocity
+
+	self.cur_pos = self.nodepos + self.model_params.offset
+	self.cur_rot = vector.new()
+	self.cur_rot[self.anim_params.target_axis] = self.model_params.rot
+
+	return self
+end
+
+function multidecor.DoorAnimator:animate()
+	if self.cur_mode == "closed" then self:open()
+	else self:close()
+	end
+end
+
+function multidecor.DoorAnimator:open()
+	if self.cur_mode == "open" then return end
+
+
+end
+
+function multidecor.DoorAnimator:close()
+	if self.cur_mode == "closed" then return end
+end
 
 -- Returns position, collision and selection boxes rotated according to "dir" and rotation itself
-function multidecor.animation.rotate(nodepos, dir, box, offset)
-	offset = vector.new(offset or multidecor.animation.default_offset)
-	offset = hlpfuncs.rotate_to_dir(offset, dir)
+function multidecor.DoorAnimator:rotate()
+	local dir = hlpfuncs.get_dir(nodepos)
+	self.cur_pos = self.nodepos + hlpfuncs.rotate_to_dir(self.model_params.offset, dir)
+	self.cur_rot = vector.new(0, hlpfuncs.get_rot_y(dir), 0)
+	self.cur_rot[self.anim_params.target_axis] = self.cur_rot[self.anim_params.target_axis] + self.model_params.rot
 
-	box = hlpfuncs.rotate_bbox(box, dir)
+	self.model_params.box:rotate(dir)
 
-	return nodepos + offset, {x=0, y=hlpfuncs.get_rot_y(dir), z=0}, box
+	self.obj:set_pos(self.cur_pos)
+	self.obj:set_rotation(self.cur_rot)
+	self.obj:set_properties({
+		collisionbox=self.model_params.box:get_coords(),
+		selectionbox=self.model_params.box:get_coords()
+	})
 end
 
 -- Animates the door object (open/close) by moving the bone and running the anim_duration in step()
@@ -59,7 +138,7 @@ function multidecor.animation.add(nodepos, closed, rotate, move_dir, mirrored, a
 	local data = animator_data.object_data
 
 	local offset = data.offset
-	local box_length = data.box[4]-data.box[1]
+	local box_length = data.box:width()
 	offset.x = mirrored and offset.x+box_length or offset.x
 
 	local pos, rot, new_box = multidecor.animation.rotate(

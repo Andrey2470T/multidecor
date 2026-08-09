@@ -134,6 +134,10 @@ hlpfuncs.BBox = {
 
 hlpfuncs.BBox.__index = hlpfuncs.BBox
 
+function hlpfuncs.BBox.from_default()
+	return setmetatable({}, hlpfuncs.BBox)
+end
+
 function hlpfuncs.BBox.from_box(box)
 	local self = setmetatable({}, hlpfuncs.BBox)
 	self.min_edge = vector.new(box[1], box[2], box[3])
@@ -162,6 +166,13 @@ function hlpfuncs.BBox:depth()
 	return self.max_edge.z - self.min_edge.z
 end
 
+function hlpfuncs.BBox:get_coords()
+	return {
+		self.min_edge.x, self.min_edge.y, self.min_edge.z,
+		self.max_edge.x, self.max_edge.y, self.max_edge.z
+	}
+end
+
 function hlpfuncs.BBox:repair()
 	local e1 = self.min_edge
 	local e2 = self.max_edge
@@ -176,5 +187,43 @@ function hlpfuncs.BBox:rotate(dir)
 	self.min_edge = hlpfuncs.rotate_to_dir(self.min_edge, dir)
 	self.max_edge = hlpfuncs.rotate_to_dir(self.max_edge, dir)
 end
+
+-- Timer class
+------------------------------------------------
+
+hlpfuncs.Timer = {
+	started = false,
+	cur_time = 0,
+	duration = 0
+}
+
+hlpfuncs.Timer.__index = hlpfuncs.Timer
+
+function hlpfuncs.Timer.new(_duration)
+	local self = setmetatable({}, hlpfuncs.Timer)
+	self.duration = _duration
+
+	return self
+end
+
+function hlpfuncs.Timer:start()
+	self.started = true
+end
+
+function hlpfuncs.Timer:stop()
+	self.started = false
+end
+
+function hlpfuncs.Timer:cur_time()
+	return self.cur_time
+end
+
+function hlpfuncs.Timer:tick(dtime)
+	if not self.started then return end
+
+	self.cur_time = self.cur_time + dtime
+end
+
+
 
 
