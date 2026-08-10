@@ -194,24 +194,34 @@ end
 hlpfuncs.Timer = {
 	started = false,
 	cur_time = 0,
-	duration = 0
+	duration = 0,
+	callback = nil,
+	callback_data = nil
 }
 
 hlpfuncs.Timer.__index = hlpfuncs.Timer
 
-function hlpfuncs.Timer.new(_duration)
+function hlpfuncs.Timer.new(_duration, _callback, _callback_data)
 	local self = setmetatable({}, hlpfuncs.Timer)
 	self.duration = _duration
+	self.callback = _callback
+	self.callback_data = _callback_data
 
 	return self
 end
 
-function hlpfuncs.Timer:start()
+function hlpfuncs.Timer:start(_duration)
+	self.cur_time = 0
+	self.duration = _duration or self.duration
 	self.started = true
 end
 
 function hlpfuncs.Timer:stop()
 	self.started = false
+end
+
+function hlpfuncs.Timer:is_started()
+	return self.started
 end
 
 function hlpfuncs.Timer:cur_time()
@@ -222,6 +232,14 @@ function hlpfuncs.Timer:tick(dtime)
 	if not self.started then return end
 
 	self.cur_time = self.cur_time + dtime
+
+	if self.cur_time >= self.duration then
+		self:stop()
+		
+		if self.callback then
+			self.callback(self.callback_data)
+		end
+	end
 end
 
 

@@ -6,21 +6,37 @@ local hlpfuncs = multidecor.helpers
 multidecor.DoorAnimator = {
 	obj_name = "multidecor:animator",
 	bone_name = "Door",
-	default_offset = {x=-0.495, y=0, z=-0.45},
 
 	model_params = {
+		size = {x=5, y=5, z=5},
 		mesh = "",
 		textures = {},
 		box = hlpfuncs.BBox.from_default(),
 		mirrored = false,
+		pos = vector.new(-0.495, 0, -0.45),
+		rot = vector.new()
 	},
 	anim_params = {
 		rotate = true,
 		target_axis = "y",
 		target_offset = math.pi/2,
-		velocity = math.pi/3		-- within a sec
+		velocity = math.pi/1.5,		-- within a sec
+		rotate_dir = "inward"		-- the doors can be open inward or outward
 	},
-	timer = hlpfuncs.Timer.new(0),
+	timer = hlpfuncs.Timer.new(0, function (data)
+		if data.rotate then
+			data.obj:set_rotation(data.target)
+		else
+			data.obj:set_pos(data.target)
+		end
+		data.obj:set_properties({
+			collisionbox = data.box,
+			selectionbox = data.box
+		})
+		if data.callback then
+			data.callback(data.obj)
+		end
+	end, {}),
 
 	nodepos = vector.new(),
 	obj = nil,
@@ -29,206 +45,163 @@ multidecor.DoorAnimator = {
 
 multidecor.DoorAnimator.__index = multidecor.DoorAnimator
 
-function multidecor.DoorAnimator.new(_nodepos, _offset, _rot, _model_params, _anim_params)
+function multidecor.DoorAnimator.new(_nodepos, _model_params, _anim_params)
 	local self = setmetatable({}, multidecor.DoorAnimator)
 
-	self.offset = vector.new(_offset or self.default_offset)
-	self.rot = _rot or 0 
 	self.nodepos = _nodepos
 
-	local serialize_data = {model_params=self.model_params, anim_params=self.anim_params}
-	self.obj = core.add_entity(self.nodepos, self.obj_name, core.serialize(serialize_data))
-	self.obj:set_rotation(self.rot)
-
+	self.model_params.size = _model_params.size or self.model_params.size
 	self.model_params.mesh = _model_params.mesh or self.model_params.mesh
 	self.model_params.textures = _model_params.textures or self.model_params.textures
 	self.model_params.box = _model_params.box or self.model_params.box
 	self.model_params.mirrored = _model_params.mirrored or self.model_params.mirrored
-	self.model_params.offset = vector.new(_model_params.offset or self.default_offset)
-	self.model_params.rot = 0
-
-	if _model_params.rot then self.model_params.rot = _model_params.rot end
+	self.model_params.pos = _model_params.pos or self.model_params.pos
+	self.model_params.rot = _model_params.rot or self.model_params.rot
 
 	self.anim_params.rotate = _anim_params.rotate or self.anim_params.rotate
 	self.anim_params.target_axis = _anim_params.target_axis or self.anim_params.target_axis
 	self.anim_params.target_offset = _anim_params.target_offset or self.anim_params.target_offset
 	self.anim_params.velocity = _anim_params.velocity or self.anim_params.velocity
+	self.anim_params.rotate_dir = _anim_params.rotate_dir or self.anim_params.rotate_dir
 
-	self.cur_pos = self.nodepos + self.model_params.offset
-	self.cur_rot = vector.new()
-	self.cur_rot[self.anim_params.target_axis] = self.model_params.rot
+	self.cur_pos = self.nodepos + self.model_params.pos
+	self.cur_rot = self.model_params.rot
+
+	self.timer.callback_data.rotate = self.anim_params.rotate
+
+	local serialize_data = {model_params=self.model_params, anim_params=self.anim_params, timer=self.timer}
+	self.obj = core.add_entity(self.cur_pos, self.obj_name, core.serialize(serialize_data))
+	self.obj:set_rotation(self.cur_rot)
+
+	self.timer.callback_data.rotate = self.anim_params.rotate
+	self.timer.callback_data.box = self.model_params.box
+	self.timer.callback_data.obj = self.obj
+	self.timer.callback_data.callback = _anim_params.callback
+
+	self:update_mode("closed")
 
 	return self
 end
 
 function multidecor.DoorAnimator:animate()
-	if self.cur_mode == "closed" then self:open()
-	else self:close()
+	local anim_time = math.abs(self.target_offset[self.anim_params.target_axis]) / self.anim_params.velocity
+	local override
+
+	if self.anim_params.rotate then
+		self.target = self.cur_rot + self.target_offset
+		override = {rotation = {vec = self.target, interpolation=anim_time}}
+	else
+		self.target = self.cur_pos + self.target_offset
+		override = {position = {vec = self.target, interpolation=anim_time}}
 	end
+	self.obj:set_bone_override("Door", override)
+
+	self.timer.callback_data.target = self.target
+	self.timer:start(anim_time)
 end
 
-function multidecor.DoorAnimator:open()
-	if self.cur_mode == "open" then return end
+function multidecor.DoorAnimator:update_model()
+	local size = self.model_params.size
 
+	if self.model_params.mirrored then
+		size.x = -size.x
+	end
 
-end
-
-function multidecor.DoorAnimator:close()
-	if self.cur_mode == "closed" then return end
-end
-
--- Returns position, collision and selection boxes rotated according to "dir" and rotation itself
-function multidecor.DoorAnimator:rotate()
-	local dir = hlpfuncs.get_dir(nodepos)
-	self.cur_pos = self.nodepos + hlpfuncs.rotate_to_dir(self.model_params.offset, dir)
-	self.cur_rot = vector.new(0, hlpfuncs.get_rot_y(dir), 0)
-	self.cur_rot[self.anim_params.target_axis] = self.cur_rot[self.anim_params.target_axis] + self.model_params.rot
-
-	self.model_params.box:rotate(dir)
-
-	self.obj:set_pos(self.cur_pos)
-	self.obj:set_rotation(self.cur_rot)
 	self.obj:set_properties({
+		visual_size = size,
+		mesh = self.model_params.mesh,
+		textures = self.model_params.textures,
 		collisionbox=self.model_params.box:get_coords(),
 		selectionbox=self.model_params.box:get_coords()
 	})
 end
 
--- Animates the door object (open/close) by moving the bone and running the anim_duration in step()
-function multidecor.animation.animate(anim_obj, rotate, velocity, target_offset)
-	local anim_time = target_offset / velocity
-	local override = {vec=target_offset, interpolation=anim_time}
-	anim_obj:set_bone_override("Door", rotate and {rotation=override} or {position=override})
-
-	local self = anim_obj:get_luaentity()
-	self.anim_duration = anim_time
-end
-
--- Adds the bone handling the open/close animation and door entity itself 
-function multidecor.animation.add_and_animate(pos, rot, velocity, rotate, target_offset, animator_data)
-	local serialize_data = table.copy(animator_data)
-	serialize_data.rotate = rotate
-	serialize_data.target_offset = target_offset
-	serialize_data.cur_time = 0
-	serialize_data.anim_duration = 0
-
-	local anim_obj = core.add_entity(pos, multidecor.animation.animator_name, core.serialize(serialize_data))
-	anim_obj:set_rotation(rot)
-
-	if target_offset and target_offset ~= 0 then
-		multidecor.animation.animate(anim_obj, rotate, velocity, target_offset[animator_data.target_axis])
-	end
-
-	return anim_obj
-end
-
-local function get_rot_offset_dir(start_dir, closed, mirrored, move_dir, invert_dir)
-	local dir = start_dir
-	if not closed then dir = invert_dir end -- for the left door and inside animation
-	if mirrored then dir = -dir end -- for the right door and inside animation
-	if move_dir == "outside" then dir = -dir end -- invert if the animation is outside
+local function get_rot_offset_dir(closed, mirrored, rotate_dir)
+	local dir = 0
+	if not closed then dir = rotate_dir == "inward" and -1 or 1 end -- for the left door
+	if mirrored then dir = -dir end -- for the right door
 
 	return dir
 end
 
--- "move_dir" defines the move direction ("inside", "outside")
-function multidecor.animation.add(nodepos, closed, rotate, move_dir, mirrored, animator_data)
-	local dir = hlpfuncs.get_dir(nodepos)
+local function get_target_rot_offset_dir(closed, mirrored, rotate_dir)
+	local dir = 0
+	if not closed then dir = 1 else dir = -1 end -- for the left door and inward rotate dir
+	if rotate_dir == "outward" then dir = -dir end
+	if mirrored then dir = -dir end -- for the right door
 
-	local data = animator_data.object_data
+	return dir
+end
 
-	local offset = data.offset
-	local box_length = data.box:width()
-	offset.x = mirrored and offset.x+box_length or offset.x
+function multidecor.DoorAnimator:update_mode(new_mode)
+	local dir = hlpfuncs.get_dir(self.nodepos)
 
-	local pos, rot, new_box = multidecor.animation.rotate(
-		nodepos, dir, data.box, offset)
-	data.box = new_box
-	
-	local target_offset = data.target_offset
+	local mparams = self.model_params
+	local pos = mparams.pos
+	local box_length = mparams.box:width()
+	pos.x = mparams.mirrored and pos.x + box_length * 2 or pos.x
 
-	if rotate then
-		local start_rot_dir = 0
-		start_rot_dir = get_rot_offset_dir(start_rot_dir, closed, mirrored, move_dir, -1)
-		rot[data.target_axis] = rot[data.target_axis] + start_rot_dir * target_offset
+	self.cur_pos = self.nodepos + hlpfuncs.rotate_to_dir(pos, dir)
+	self.cur_rot = mparams.rot
+	self.cur_rot.y = self.cur_rot.y + hlpfuncs.get_rot_y(dir)
 
-		local rot_dir = -1
-		rot_dir = get_rot_offset_dir(rot_dir, closed, mirrored, move_dir, 1)
-		target_offset = target_offset * rot_dir
+	self.cur_mode = new_mode
+
+	local target_offset = self.anim_params.target_offset
+	local closed = new_mode == "closed"
+	local mirrored = mparams.mirrored
+	local rotate_dir = self.anim_params.rotate_dir
+
+	if self.anim_params.rotate then
+		local start_rot_dir = get_rot_offset_dir(closed, mirrored, rotate_dir)
+		self.cur_rot[mparams.target_axis] = self.cur_rot[mparams.target_axis] + start_rot_dir * target_offset
+
+		local target_rot_dir = get_target_rot_offset_dir(closed, mirrored, rotate_dir)
+		target_offset = target_offset * target_rot_dir
 	else
 		local start_shift_dir = 0
 		if not closed then start_shift_dir = 1 end
-		pos[data.target_axis] = pos[data.target_axis] + start_shift_dir * target_offset
+		self.cur_pos[mparams.target_axis] = self.cur_pos[mparams.target_axis] + start_shift_dir * target_offset
 
 		local shift_dir = closed and 1 or -1
 		target_offset = target_offset * shift_dir
 	end
 
-	local target_offset_v = vector.new()
-	target_offset_v[data.target_axis] = target_offset
+	self.target_offset = vector.new()
+	self.target_offset[self.anim_params.target_axis] = target_offset
 
-	return multidecor.animation.add_and_animate(pos, rot, data.velocity, rotate, target_offset_v, animator_data)
+	mparams.box:rotate(dir)
+
+	self.obj:set_pos(self.cur_pos)
+	self.obj:set_rotation(self.cur_rot)
+	
+	self:update_model()
 end
 
 local function animator_on_activate(self, staticdata)
 	if staticdata ~= "" then
 		local data = core.deserialize(staticdata)
-		self.object_data = data.object_data or {}
-		self.rotate = data.rotate
-		self.target_offset = data.target_offset
-		self.cur_time = data.cur_time
-		self.anim_duration = data.anim_duration
+		self.model_params = data.model_params
+		self.anim_params = data.anim_params
+		self.timer = data.timer
+		self.target = data.target
 	end
 
-	local size = self.object_data.size
-
-	if self.object_data.mirrored then
-		size.x = -size.x
-	end
-
-	self.object:set_properties({
-		visual_size = size,
-		mesh = self.object_data.mesh,
-		textures = self.object_data.textures,
-		collisionbox = self.object_data.box,
-		selectionbox = self.object_data.box
-	})
+	self:update_model()
 
 	self.object:set_armor_groups({immortal=1})
 end
 
 local function animator_on_step(self, dtime)
-	if self.anim_duration == 0 then
-		return
-	end
-
-	self.cur_time = self.cur_time + dtime
-
-	if self.cur_time >= self.anim_duration then
-		local data = self.object_data
-
-		if data.rotate then
-			self.object:set_rotation(self.object:get_rotation()+data.target_offset)
-		else
-			self.object:set_pos(self.object:get_pos()+data.target_offset)
-		end
-		self.object:set_properties({
-			collisionbox = data.box,
-			selectionbox = data.box
-		})
-		if data.callback then
-			data.callback(self.object)
-		end
-	end
+	self.timer:tick(dtime)
 end
 
 local function animator_get_staticdata(self)
 	return core.serialize({
-		object_data = self.object_data,
-		rotate = self.rotate,
-		target_offset = self.target_offset,
-		cur_time = self.cur_time,
-		anim_duration = self.anim_duration
+		model_params = self.model_params,
+		anim_params = self.anim_params,
+		timer = self.timer,
+		target = self.target
 	})
 end
 
