@@ -67,8 +67,6 @@ function multidecor.DoorAnimator.new(_nodepos, _model_params, _anim_params)
 	self.cur_pos = self.nodepos + self.model_params.pos
 	self.cur_rot = self.model_params.rot
 
-	self.timer.callback_data.rotate = self.anim_params.rotate
-
 	local serialize_data = {model_params=self.model_params, anim_params=self.anim_params, timer=self.timer}
 	self.obj = core.add_entity(self.cur_pos, self.obj_name, core.serialize(serialize_data))
 	self.obj:set_rotation(self.cur_rot)
@@ -174,47 +172,6 @@ function multidecor.DoorAnimator:update_mode(new_mode)
 
 	self.obj:set_pos(self.cur_pos)
 	self.obj:set_rotation(self.cur_rot)
-	
-	self:update_model()
-end
-
-local function animator_on_activate(self, staticdata)
-	if staticdata ~= "" then
-		local data = core.deserialize(staticdata)
-		self.model_params = data.model_params
-		self.anim_params = data.anim_params
-		self.timer = data.timer
-		self.target = data.target
-	end
 
 	self:update_model()
-
-	self.object:set_armor_groups({immortal=1})
 end
-
-local function animator_on_step(self, dtime)
-	self.timer:tick(dtime)
-end
-
-local function animator_get_staticdata(self)
-	return core.serialize({
-		model_params = self.model_params,
-		anim_params = self.anim_params,
-		timer = self.timer,
-		target = self.target
-	})
-end
-
--- Registers the dummy entity (single bone) for attaching various kinds of doors/drawers
-core.register_entity(":" .. multidecor.animation.animator_name, {
-	visual_size = {x=5, y=5, z=5},
-	visual = "mesh",
-	mesh = "door_dummy.glb",
-	physical = true,
-	use_texture_alpha = "blend",
-	backface_culling = false,
-	static_save = true,
-	on_activate = animator_on_activate,
-	on_step = animator_on_step,
-	get_staticdata = animator_get_staticdata
-})

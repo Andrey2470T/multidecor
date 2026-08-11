@@ -128,6 +128,7 @@ end
 ------------------------------------------------------
 
 hlpfuncs.BBox = {
+	orig_box = {min_edge = vector.new(), max_edge = vector.new()},
 	min_edge = vector.new(),
 	max_edge = vector.new()
 }
@@ -140,6 +141,8 @@ end
 
 function hlpfuncs.BBox.from_box(box)
 	local self = setmetatable({}, hlpfuncs.BBox)
+	self.orig_box.min_edge = vector.new(box[1], box[2], box[3])
+	self.orig_box.max_edge = vector.new(box[4], box[5], box[6])
 	self.min_edge = vector.new(box[1], box[2], box[3])
 	self.max_edge = vector.new(box[4], box[5], box[6])
 
@@ -148,6 +151,8 @@ end
 
 function hlpfuncs.BBox.from_edges(_min_edge, _max_edge)
 	local self = setmetatable({}, hlpfuncs.BBox)
+	self.orig_box.min_edge = _min_edge
+	self.orig_box.max_edge = _max_edge
 	self.min_edge = _min_edge
 	self.max_edge = _max_edge
 
@@ -155,15 +160,15 @@ function hlpfuncs.BBox.from_edges(_min_edge, _max_edge)
 end
 
 function hlpfuncs.BBox:width()
-	return self.max_edge.x - self.min_edge.x
+	return self.orig_box.max_edge.x - self.orig_box.min_edge.x
 end
 
 function hlpfuncs.BBox:height()
-	return self.max_edge.y - self.min_edge.y
+	return self.orig_box.max_edge.y - self.orig_box.min_edge.y
 end
 
 function hlpfuncs.BBox:depth()
-	return self.max_edge.z - self.min_edge.z
+	return self.orig_box.max_edge.z - self.orig_box.min_edge.z
 end
 
 function hlpfuncs.BBox:get_coords()
@@ -184,8 +189,8 @@ end
 
 -- Rotates 'bbox' bounding box (collision or selection) corresponding to 'dir'
 function hlpfuncs.BBox:rotate(dir)
-	self.min_edge = hlpfuncs.rotate_to_dir(self.min_edge, dir)
-	self.max_edge = hlpfuncs.rotate_to_dir(self.max_edge, dir)
+	self.min_edge = hlpfuncs.rotate_to_dir(self.orig_box.min_edge, dir)
+	self.max_edge = hlpfuncs.rotate_to_dir(self.orig_box.max_edge, dir)
 end
 
 -- Timer class
@@ -195,15 +200,17 @@ hlpfuncs.Timer = {
 	started = false,
 	cur_time = 0,
 	duration = 0,
+	cyclic = false,
 	callback = nil,
 	callback_data = nil
 }
 
 hlpfuncs.Timer.__index = hlpfuncs.Timer
 
-function hlpfuncs.Timer.new(_duration, _callback, _callback_data)
+function hlpfuncs.Timer.new(_duration, _cyclic, _callback, _callback_data)
 	local self = setmetatable({}, hlpfuncs.Timer)
 	self.duration = _duration
+	self.cyclic = _cyclic
 	self.callback = _callback
 	self.callback_data = _callback_data
 
@@ -233,12 +240,20 @@ function hlpfuncs.Timer:tick(dtime)
 
 	self.cur_time = self.cur_time + dtime
 
-	if self.cur_time >= self.duration then
-		self:stop()
-		
-		if self.callback then
-			self.callback(self.callback_data)
+	local call = false
+	if self.cyclic then
+		if self.duration == 0 then call = true
+		elseif self.cur_time >= self.duration then
+			self.cur_time = 0
+			call = true
 		end
+	elseif self.cur_time >= self.duration then
+		self:stop()
+		call = true
+	end
+
+	if call and self.callback then
+		self.callback(self.callback_data)
 	end
 end
 
