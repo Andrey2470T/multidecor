@@ -27,35 +27,36 @@ multidecor.register.register_seat("kitchen_modern_wooden_chair", {
 })
 
 multidecor.register.register_seat("soft_kitchen_modern_wooden_chair", {
-	style = "modern",
-	material = "wood",
-	description = modern.S("Soft Kitchen Modern Wooden Chair"),
-	paramtype2 = "colorfacedir",
-	visual_scale = 0.4,
-	mesh = "multidecor_soft_kitchen_modern_wooden_chair.b3d",
-	tiles = {{name="multidecor_wood.png", color=0xffffffff}, "multidecor_wool_material.png"},
-	bounding_boxes = {
-		{-0.29, -0.5, -0.29, 0.29, 0.145, 0.21},
-		{-0.29, -0.5, 0.21, 0.29, 0.9375, 0.285},
-		{-0.32, 0.145, -0.32, 0.32, 0.23, 0.21}
-	},
-	is_colorable = true
-},
-{
-	seat_data = {
-		pos = {x=0.0, y=0.225, z=0.0},
-		rot = {x=0, y=0, z=0},
-		model = multidecor.sitting.standard_model,
-		anims = {"sit1"}
-	}
-},
-{
-	recipe = {
-		{"multidecor:board", "multidecor:board", "wool:white"},
-		{"default:stick", "default:stick", "default:stick"},
-		{"", "default:stick", ""}
-	}
-})
+        style = "modern",
+        material = "wood",
+        description = modern.S("Soft Kitchen Modern Wooden Chair"),
+        paramtype2 = "facedir",
+        visual_scale = 0.4,
+        mesh = "multidecor_soft_kitchen_modern_wooden_chair.b3d",
+        tiles = {{name="multidecor_wood.png", color=0xffffffff}, "multidecor_wool_material.png"},
+        bounding_boxes = {
+            {-0.29, -0.5, -0.29, 0.29, 0.145, 0.21},
+            {-0.29, -0.5, 0.21, 0.29, 0.9375, 0.285},
+            {-0.32, 0.145, -0.32, 0.32, 0.23, 0.21}
+        },
+        is_colorable = true
+    },
+    {
+        seat_data = {
+            pos = {x=0.0, y=-0.8, z=0.0},
+            rot = {x=0, y=0, z=0},
+            model = multidecor.sitting.standard_model,
+            anims = {"sit1"},
+        }
+    },
+    {
+        recipe = {
+            {"multidecor:board", "multidecor:board", "wool:white"},
+            {"default:stick", "default:stick", "default:stick"},
+            {"", "default:stick", ""}
+        }
+    }
+)
 
 multidecor.register.register_seat("soft_modern_jungle_chair", {
 	style = "modern",
