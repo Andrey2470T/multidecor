@@ -106,6 +106,7 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 		"multidecor_dial.png",
 		"multidecor_glass_material.png"
 	},
+	materials = {"md_metal", "md_jungle_wood", "", "md_gloss"},
 	bounding_boxes = {{-0.4, -0.5, -0.3, 0.4, 2, 0.4}},
 	callbacks = {
 		on_construct = multidecor.clock.on_construct,

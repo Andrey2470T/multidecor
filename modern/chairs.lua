@@ -64,6 +64,7 @@ multidecor.register.register_seat("soft_modern_jungle_chair", {
 	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	mesh = "multidecor_soft_modern_jungle_chair.b3d",
+	materials = {"md_jungle_wood"},
 	tiles = {{name="multidecor_jungle_wood.png", color=0xffffffff}, "multidecor_wool_material.png"},
 	bounding_boxes = {
 		{-0.27, -0.5, -0.27, 0.27, 0.13, 0.225},
@@ -124,6 +125,7 @@ multidecor.register.register_seat("round_modern_metallic_stool", {
 	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
 	mesh = "multidecor_modern_round_metallic_stool.b3d",
+	materials = {"", "md_metal"},
 	tiles = {"multidecor_wool_material.png", {name="multidecor_metal_material.png", color=0xffffffff}},
 	bounding_boxes = {
 		{-0.3, -0.5, -0.3, 0.3, 0.175, 0.3}

@@ -84,6 +84,7 @@ multidecor.register.register_table("round_modern_metallic_table", {
 	visual_scale = 0.4,
 	mesh = "multidecor_round_metallic_table.b3d",
 	tiles = {"multidecor_metal_material.png", "multidecor_aspen_wood.png"},
+	materials = {"md_metal", "md_aspen"},
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}
 	}
@@ -121,6 +122,7 @@ multidecor.register.register_table("modern_wooden_desk", {
 	description = modern.S("Modern Wooden Desk"),
 	visual_scale = 0.4,
 	mesh = "multidecor_wooden_desk.obj",
+	materials = {"md_jungle_wood"},
 	tiles = {"multidecor_jungle_wood.png"},
 	bounding_boxes = {
 		{-0.5, -0.5, -0.5, 1.5, 0.5, 0.5}

@@ -30,6 +30,38 @@ gfx.register_material("md_metal", {
 	}
 })
 
+gfx.register_material("md_gloss", {
+	shader = {
+		vertex = "normal.vsh",
+		geometry = "normal.gsh",
+		fragment = "steel.fsh",
+		vertex_type = "vertex3dext",
+		apply_shadows = true
+	},
+	samplers = {
+		"multidecor_gloss_normal.png",
+		"multidecor_gloss_roughness.png",
+		"multidecor_gloss_metallic.png",
+		"multidecor_gloss_ao.png"
+	}
+})
+
+gfx.register_material("md_jungle_wood", {
+	shader = {
+		vertex = "normal.vsh",
+		geometry = "normal.gsh",
+		fragment = "steel.fsh",
+		vertex_type = "vertex3dext",
+		apply_shadows = true
+	},
+	samplers = {
+		"multidecor_jungle_wood_normal.png",
+		"multidecor_jungle_wood_roughness.png",
+		"multidecor_jungle_wood_metallic.png",
+		"multidecor_jungle_wood_ao.png"
+	}
+})
+
 gfx.register_material("md_coarse_metal", {
 	shader = {
 		vertex = "normal.vsh",
@@ -59,23 +91,6 @@ gfx.register_material("md_aspen", {
 		"multidecor_aspen_wood_roughness.png",
 		"multidecor_aspen_wood_metallic.png",
 		"multidecor_aspen_wood_ao.png"
-	}
-})
-
-gfx.register_material("md_gloss", {
-	blend = {enable=true, mode="subtract"},
-	shader = {
-		vertex = "normal.vsh",
-		geometry = "normal.gsh",
-		fragment = "steel.fsh",
-		vertex_type = "vertex3dext",
-		apply_shadows = true
-	},
-	samplers = {
-		"multidecor_gloss_normal.png",
-		"multidecor_gloss_roughness.png",
-		"multidecor_gloss_metallic.png",
-		"multidecor_gloss_ao.png"
 	}
 })
 

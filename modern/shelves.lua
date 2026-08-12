@@ -149,6 +149,7 @@ multidecor.register.register_table("three_level_wooden_rack", {
 	material = "wood",
 	description =  modern.S("Three Level Wooden Rack"),
 	mesh = "multidecor_three_level_wooden_rack.b3d",
+	materials = {"md_wood"},
 	tiles = {"multidecor_wood.png"},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}},
 	callbacks = {

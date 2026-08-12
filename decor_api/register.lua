@@ -72,7 +72,7 @@ end
 function register.build_description(style, material, base_desc)
 	material = material or "unknown"
 
-	local desc = base_desc .. multidecor.S("\nStyle: ") .. "%s" .. multidecor.S("\nMaterial: ") .. "%s" 
+	local desc = base_desc .. multidecor.S("\nStyle: ") .. "%s" .. multidecor.S("\nMaterial: ") .. "%s"
 	return desc:format(multidecor.S(style), multidecor.S(material))
 end
 
@@ -177,6 +177,7 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 	f_def.drop = def.drop
 	f_def.light_source = def.light_source
 	f_def.use_texture_alpha = def.use_texture_alpha
+	f_def.materials = def.materials
 
 	if f_def.drawtype == "mesh" then
 		f_def.mesh = def.mesh

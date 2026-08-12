@@ -643,6 +643,7 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_cap_flap", {
 	material = "metal",
 	description = modern.S("Bathroom Tap With Cap Flap"),
 	mesh = "multidecor_bathroom_tap_with_cap_flap.b3d",
+	materials = {"md_metal"},
 	tiles = {"multidecor_metal_material.png"},
 	bounding_boxes = {{-0.3, -0.1, 0.0, 0.3, 0.2, 0.5}},
 	callbacks = {
@@ -721,6 +722,7 @@ multidecor.register.register_furniture_unit("shower_head", {
 	description = modern.S("Shower Head"),
 	mesh = "multidecor_shower_head.b3d",
 	tiles = {"multidecor_metal_material5.png", "multidecor_shower_head.png"},
+	materials = {"md_metal", "md_metal"},
 	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0.35, 0.5}},
 	callbacks = {
 		on_construct = function(pos)
@@ -799,6 +801,7 @@ multidecor.register.register_furniture_unit("bathroom_mirror", {
 	description = modern.S("Bathroom Mirror"),
 	mesh = "multidecor_bathroom_mirror.b3d",
 	tiles = {"multidecor_gloss.png"},
+	materials = {"md_gloss"},
 	bounding_boxes = {{-0.4, -0.5, 0.4, 0.4, 0.5, 0.5}}
 },
 {

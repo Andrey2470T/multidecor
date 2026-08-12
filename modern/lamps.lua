@@ -219,7 +219,7 @@ multidecor.register.register_light("brass_candlestick", {
 	material = "metal",
 	description = modern.S("Brass Candlestick"),
 	use_texture_alpha = "clip",
-	light_source = 10,
+	light_source = 14,
 	mesh = "multidecor_brass_candlestick.b3d",
 	tiles = {
 		"multidecor_brass_material.png",
