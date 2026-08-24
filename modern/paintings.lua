@@ -112,7 +112,7 @@ for _, img in ipairs(images) do
 		style = "modern",
 		material = mat,
 		description = modern.S(multidecor.helpers.upper_first_letters(name)),
-		mesh = "multidecor_" .. mesh .. ".b3d",
+		mesh = "multidecor_" .. mesh .. ".obj",
 		tiles = {base_tile, "multidecor_image_" .. img[1] .. ".png"},
 		bounding_boxes = {img_bbox}
 	},

@@ -2,7 +2,7 @@ local bathtub_def = {{
 	style = "modern",
 	material = "stone",
 	description = modern.S("Bathtub"),
-	mesh = "multidecor_bathtub.b3d",
+	mesh = "multidecor_bathtub.obj",
 	tiles = {
 		"multidecor_marble_material.png",
 		"multidecor_metal_material.png",
@@ -160,7 +160,7 @@ for _, style in ipairs(bathroom_styles) do
 
 	local bathtub_with_shields_def = table.copy(bathtub_def)
 	bathtub_with_shields_def[1].description = modern.S("Bathtub With " .. upper_tile .. " Shields")
-	bathtub_with_shields_def[1].mesh = "multidecor_bathtub_with_shields.b3d"
+	bathtub_with_shields_def[1].mesh = "multidecor_bathtub_with_shields.obj"
 	table.insert(bathtub_with_shields_def[1].tiles, tex_name)
 
 	multidecor.register.register_seat("bathtub_with_shields_" .. style_name,
@@ -176,7 +176,7 @@ for _, style in ipairs(bathroom_styles) do
 		style = "modern",
 		material = "stone",
 		description = modern.S("Bathroom Washbasin With " .. upper_tile .. " Doors"),
-		mesh = "multidecor_bathroom_washbasin.b3d",
+		mesh = "multidecor_bathroom_washbasin.obj",
 		inventory_image = "multidecor_bathroom_" .. style_name .. "_washbasin_inv.png",
 		tiles = {
 			"multidecor_marble_material.png",
@@ -244,7 +244,7 @@ for _, style in ipairs(bathroom_styles) do
 		style = "modern",
 		material = "wood",
 		description = modern.S("Bathroom Wall Cabinet With " .. upper_tile .. " Doors"),
-		mesh = "multidecor_bathroom_wall_cabinet.b3d",
+		mesh = "multidecor_bathroom_wall_cabinet.obj",
 		tiles = {"multidecor_white_pine_wood.png"},
 		inventory_image = "multidecor_bathroom_" .. style_name .. "_wall_cabinet_inv.png",
 		bounding_boxes = {
@@ -288,7 +288,7 @@ for _, style in ipairs(bathroom_styles) do
 		style = "modern",
 		material = "wood",
 		description = modern.S("Bathroom " .. upper_tile .. "Wall Set With Mirror"),
-		mesh = "multidecor_bathroom_wall_set_with_mirror.b3d",
+		mesh = "multidecor_bathroom_wall_set_with_mirror.obj",
 		tiles = {
 			"multidecor_white_pine_wood.png",
 			"multidecor_gloss.png",
@@ -339,7 +339,7 @@ multidecor.register.register_furniture_unit("bathroom_fluffy_rug", {
 	style = "modern",
 	material = "plastic",
 	description = modern.S("Bathroom Fluffy Rug"),
-	mesh = "multidecor_bathroom_fluffy_rug.b3d",
+	mesh = "multidecor_bathroom_fluffy_rug.obj",
 	tiles = {
 		"multidecor_fluff_material.png"
 	},
@@ -357,7 +357,7 @@ multidecor.register.register_furniture_unit("bathroom_sink", {
 	style = "modern",
 	material = "stone",
 	description = modern.S("Bathroom Sink"),
-	mesh = "multidecor_bathroom_sink.b3d",
+	mesh = "multidecor_bathroom_sink.obj",
 	groups = {sink=1},
 	tiles = {
 		"multidecor_marble_material.png",
@@ -387,7 +387,7 @@ multidecor.register.register_furniture_unit("bathroom_shower_base", {
 	style = "modern",
 	material = "stone",
 	description = modern.S("Bathroom Shower Base"),
-	mesh = "multidecor_shower_base.b3d",
+	mesh = "multidecor_shower_base.obj",
 	groups = {sink=1},
 	tiles = {
 		"multidecor_marble_material.png",
@@ -417,7 +417,7 @@ multidecor.register.register_furniture_unit("bathroom_slatted_ceiling", {
 	style = "modern",
 	material = "plastic",
 	description = modern.S("Bathroom Slatted Ceiling"),
-	mesh = "multidecor_slatted_ceiling.b3d",
+	mesh = "multidecor_slatted_ceiling.obj",
 	groups = {sink=1},
 	tiles = {"multidecor_bathroom_slatted_ceiling.png"},
 	bounding_boxes = {{-0.5, 0.35, -0.5, 0.5, 0.5, 0.5}}
@@ -437,7 +437,7 @@ multidecor.register.register_furniture_unit("bathroom_slatted_ceiling_with_lamp"
 	material = "plastic",
 	light_source = 12,
 	description = modern.S("Bathroom Slatted Ceiling With Lamp"),
-	mesh = "multidecor_slatted_ceiling_with_lamp.b3d",
+	mesh = "multidecor_slatted_ceiling_with_lamp.obj",
 	groups = {sink=1},
 	tiles = {
 		"multidecor_bathroom_slatted_ceiling.png",
@@ -462,7 +462,7 @@ multidecor.register.register_seat("toilet", {
 	style = "modern",
 	material = "stone",
 	description = modern.S("Toilet"),
-	mesh = "multidecor_toilet.b3d",
+	mesh = "multidecor_toilet.obj",
 	tiles = {
 		"multidecor_marble_material.png",
 		"multidecor_metal_material.png",
@@ -538,7 +538,7 @@ multidecor.register.register_curtain("bathroom_curtain", {
 		curtain_with_rings = {
 			name = "bathroom_curtain_with_rings",
 			description = modern.S("Bathroom Curtain With Rings"),
-			mesh = "multidecor_curtain_with_rings.b3d",
+			mesh = "multidecor_curtain_with_rings.obj",
 			tiles = {"multidecor_cloth.png", {name="multidecor_metal_material.png",color=0xffffffff}},
 			craft = {
 				recipe = {
@@ -552,7 +552,7 @@ multidecor.register.register_curtain("bathroom_curtain", {
 		curtain = {
 			name = "bathroom_curtain",
 			description = modern.S("Bathroom Curtain"),
-			mesh = "multidecor_curtain.b3d",
+			mesh = "multidecor_curtain.obj",
 			tiles = {"multidecor_cloth.png"},
 			craft = {
 				recipe = {
@@ -570,7 +570,7 @@ multidecor.register.register_table("plastic_quadratic_cornice", {
 	style = "modern",
 	material = "plastic",
 	description = modern.S("Plastic Quadratic Cornice"),
-	mesh = "multidecor_quadratic_cornice.b3d",
+	mesh = "multidecor_quadratic_cornice.obj",
 	tiles = {"multidecor_plastic_material.png"},
 	groups = {hanger=1},
 	bounding_boxes = {
@@ -590,10 +590,10 @@ multidecor.register.register_table("plastic_quadratic_cornice", {
 {
 	common_name = "plastic_quadratic_cornice",
 	connect_parts = {
-		["left_side"] = "multidecor_quadratic_cornice_1.b3d",
-		["right_side"] = "multidecor_quadratic_cornice_2.b3d",
-		["middle"] = "multidecor_quadratic_cornice_3.b3d",
-		["corner"] = "multidecor_quadratic_cornice_4.b3d"
+		["left_side"] = "multidecor_quadratic_cornice_1.obj",
+		["right_side"] = "multidecor_quadratic_cornice_2.obj",
+		["middle"] = "multidecor_quadratic_cornice_3.obj",
+		["corner"] = "multidecor_quadratic_cornice_4.obj"
 	},
 },
 {
@@ -609,7 +609,7 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_cap_flap", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("Bathroom Tap With Cap Flap"),
-	mesh = "multidecor_bathroom_tap_with_cap_flap.b3d",
+	mesh = "multidecor_bathroom_tap_with_cap_flap.obj",
 	tiles = {"multidecor_metal_material.png"},
 	bounding_boxes = {{-0.3, -0.1, 0.0, 0.3, 0.2, 0.5}},
 	callbacks = {
@@ -647,7 +647,7 @@ multidecor.register.register_furniture_unit("bathroom_tap_with_side_flaps", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("Bathroom Tap With Side Flaps"),
-	mesh = "multidecor_bathroom_tap_with_side_flaps.b3d",
+	mesh = "multidecor_bathroom_tap_with_side_flaps.obj",
 	tiles = {"multidecor_metal_material.png"},
 	bounding_boxes = {{-0.3, -0.2, 0.0, 0.3, 0.1, 0.5}},
 	callbacks = {
@@ -685,7 +685,7 @@ multidecor.register.register_furniture_unit("shower_head", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("Shower Head"),
-	mesh = "multidecor_shower_head.b3d",
+	mesh = "multidecor_shower_head.obj",
 	tiles = {"multidecor_metal_material5.png", "multidecor_shower_head.png"},
 	bounding_boxes = {{-0.2, -0.5, -0.2, 0.2, 0.35, 0.5}},
 	callbacks = {
@@ -724,7 +724,7 @@ multidecor.register.register_furniture_unit("crooked_shower_head", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("Crooked Shower Head"),
-	mesh = "multidecor_crooked_shower_head.b3d",
+	mesh = "multidecor_crooked_shower_head.obj",
 	tiles = {"multidecor_coarse_metal_material.png", "multidecor_crooked_shower_head.png"},
 	bounding_boxes = {{-0.2, -0.3, -0.3, 0.2, 0.3, 0.5}},
 	callbacks = {
@@ -762,7 +762,7 @@ multidecor.register.register_furniture_unit("bathroom_mirror", {
 	style = "modern",
 	material = "glass",
 	description = modern.S("Bathroom Mirror"),
-	mesh = "multidecor_bathroom_mirror.b3d",
+	mesh = "multidecor_bathroom_mirror.obj",
 	tiles = {"multidecor_gloss.png"},
 	bounding_boxes = {{-0.4, -0.5, 0.4, 0.4, 0.5, 0.5}}
 },
@@ -778,7 +778,7 @@ multidecor.register.register_furniture_unit("toilet_paper_reel", {
 	style = "modern",
 	material = "plastic",
 	description = modern.S("Toilet Paper Reel"),
-	mesh = "multidecor_toilet_paper_reel.b3d",
+	mesh = "multidecor_toilet_paper_reel.obj",
 	tiles = {"multidecor_metal_material5.png", "multidecor_wool_material.png"},
 	bounding_boxes = {{-0.3, 0, 0.1, 0.3, 0.35, 0.5}}
 },
@@ -796,7 +796,7 @@ multidecor.register.register_furniture_unit("underwear_tank", {
 	style = "modern",
 	material = "plastic",
 	description = modern.S("Underwear Tank"),
-	mesh = "multidecor_underwear_tank.b3d",
+	mesh = "multidecor_underwear_tank.obj",
 	tiles = {"multidecor_shred.png"},
 	bounding_boxes = {{-0.4, -0.5, -0.3, 0.4, 0.35, 0.3}},
 	callbacks = {
@@ -835,7 +835,7 @@ multidecor.register.register_furniture_unit("underwear_tank", {
 core.register_entity("modern:bathroom_washbasin_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_bathroom_washbasin_door.b3d",
+	mesh = "multidecor_bathroom_washbasin_door.obj",
 	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
 	use_texture_alpha = true,
 	physical = false,
@@ -852,7 +852,7 @@ core.register_entity("modern:bathroom_washbasin_door", {
 core.register_entity("modern:bathroom_wall_cabinet_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_bathroom_wall_cabinet_door.b3d",
+	mesh = "multidecor_bathroom_wall_cabinet_door.obj",
 	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
 	use_texture_alpha = true,
 	physical = false,
@@ -869,7 +869,7 @@ core.register_entity("modern:bathroom_wall_cabinet_door", {
 core.register_entity("modern:bathroom_wall_set_with_mirror_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_bathroom_wall_set_with_mirror_door.b3d",
+	mesh = "multidecor_bathroom_wall_set_with_mirror_door.obj",
 	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
 	use_texture_alpha = true,
 	physical = false,
@@ -886,7 +886,7 @@ core.register_entity("modern:bathroom_wall_set_with_mirror_door", {
 core.register_entity("modern:underwear_tank_cover", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_underwear_tank_cover.b3d",
+	mesh = "multidecor_underwear_tank_cover.obj",
 	textures = {"multidecor_shred.png", "multidecor_metal_material.png"},
 	physical = false,
 	backface_culling = false,

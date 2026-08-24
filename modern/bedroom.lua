@@ -49,7 +49,7 @@ multidecor.register.register_bed("wooden_bed_with_legs", {
 	description = modern.S("Wooden bed with legs (single)"),
 	visual_scale = 0.4,
 	paramtype2 = "colorfacedir",
-	mesh = "multidecor_wooden_bed_with_legs.b3d",
+	mesh = "multidecor_wooden_bed_with_legs.obj",
 	tiles = {
 		{name="multidecor_wood.png", color=0xffffffff},
 		"multidecor_wool_material.png",
@@ -82,7 +82,7 @@ multidecor.register.register_bed("wooden_bed_with_legs", {
 		mutable_bounding_box_indices = {1, 2, 3},
 		description = modern.S("Wooden bed with legs (double)"),
 		inv_image = "multidecor_double_wooden_bed_inv.png",
-		mesh = "multidecor_double_wooden_bed_with_legs.b3d"
+		mesh = "multidecor_double_wooden_bed_with_legs.obj"
 	}
 },
 {
@@ -97,7 +97,7 @@ multidecor.register.register_table("dresser_with_mirror", {
 	style = "modern",
 	material = "wood",
 	description = modern.S("Dresser With Mirror"),
-	mesh = "multidecor_dresser_with_mirror.b3d",
+	mesh = "multidecor_dresser_with_mirror.obj",
 	tiles = {"multidecor_aspen_wood.png", "multidecor_gloss.png"},
 	inventory_image = "multidecor_dresser_with_mirror_inv.png",
 	use_texture_alpha = "blend",
@@ -205,7 +205,7 @@ multidecor.register.register_table("dresser_with_mirror", {
 core.register_entity("modern:wooden_drawer_with_round_handle", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_wooden_drawer_with_round_handle.b3d",
+	mesh = "multidecor_wooden_drawer_with_round_handle.obj",
 	textures = {"multidecor_jungle_wood.png", "multidecor_metal_material.png"},
 	physical = false,
 	selectionbox = {-0.5, -0.16, -0.45, 0.525, 0.16, 0.575},

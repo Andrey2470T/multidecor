@@ -2,7 +2,7 @@ multidecor.register.register_hedge("dark_rusty_fence", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("Dark Rusty Fence"),
-	mesh = "multidecor_dark_rusty_fence.b3d",
+	mesh = "multidecor_dark_rusty_fence.obj",
 	tiles = {
 		"multidecor_dark_metal_rusty_fence.png",
 		"multidecor_fence_chainlink.png",
@@ -15,10 +15,10 @@ multidecor.register.register_hedge("dark_rusty_fence", {
 {
 	common_name = "dark_rusty_fence",
 	connect_parts = {
-		["left_side"] = "multidecor_dark_rusty_fence_2.b3d",
-		["right_side"] = "multidecor_dark_rusty_fence_1.b3d",
-		["middle"] = "multidecor_dark_rusty_fence_3.b3d",
-		["corner"] = "multidecor_dark_rusty_fence_4.b3d"
+		["left_side"] = "multidecor_dark_rusty_fence_2.obj",
+		["right_side"] = "multidecor_dark_rusty_fence_1.obj",
+		["middle"] = "multidecor_dark_rusty_fence_3.obj",
+		["corner"] = "multidecor_dark_rusty_fence_4.obj"
 	},
 	corner_bounding_boxes = {
 		{-0.5, -0.5, 0.4, 0.5, 0.5, 0.5},
@@ -37,7 +37,7 @@ multidecor.register.register_hedge("high_dark_rusty_fence", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("High Dark Rusty Fence"),
-	mesh = "multidecor_high_dark_rusty_fence.b3d",
+	mesh = "multidecor_high_dark_rusty_fence.obj",
 	tiles = {
 		"multidecor_dark_metal_rusty_fence.png",
 		"multidecor_fence_chainlink.png",
@@ -52,7 +52,7 @@ multidecor.register.register_hedge("high_dark_rusty_fence", {
 	double = {
 		mutable_bounding_box_indices = {1},
 		description = "High Dark Rusty Fence (extended)",
-		mesh = "multidecor_high_ext_dark_rusty_fence.b3d"
+		mesh = "multidecor_high_ext_dark_rusty_fence.obj"
 	}
 },
 {
@@ -66,7 +66,7 @@ multidecor.register.register_furniture_unit("slatted_wooden_fence", {
 	material = "wood",
 	description = modern.S("Slatted Wooden Fence"),
 	use_texture_alpha = "blend",
-	mesh = "multidecor_slatted_wooden_fence.b3d",
+	mesh = "multidecor_slatted_wooden_fence.obj",
 	tiles = {"multidecor_wood.png^multidecor_fence_nail_knob.png"},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.4}}
 },
@@ -85,7 +85,7 @@ multidecor.register.register_furniture_unit("high_slatted_wooden_fence", {
 	material = "wood",
 	description = modern.S("High Slatted Wooden Fence"),
 	use_texture_alpha = "blend",
-	mesh = "multidecor_high_slatted_wooden_fence.b3d",
+	mesh = "multidecor_high_slatted_wooden_fence.obj",
 	tiles = {"multidecor_wood.png^multidecor_fence_nail_knob2.png"},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },
@@ -99,7 +99,7 @@ multidecor.register.register_furniture_unit("corrugated_fence", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("Corrugated Fence"),
-	mesh = "multidecor_corrugated_fence.b3d",
+	mesh = "multidecor_corrugated_fence.obj",
 	tiles = {"multidecor_plastic_material.png^[multiply:darkgreen"},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, -0.4}}
 },
@@ -117,7 +117,7 @@ multidecor.register.register_furniture_unit("high_corrugated_fence", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("High Corrugated Fence"),
-	mesh = "multidecor_high_corrugated_fence.b3d",
+	mesh = "multidecor_high_corrugated_fence.obj",
 	tiles = {"multidecor_plastic_material.png^[multiply:darkgreen"},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 1.5, -0.4}}
 },

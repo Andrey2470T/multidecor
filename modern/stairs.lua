@@ -79,7 +79,7 @@ for _, stair in ipairs(stairs_data) do
 		style = "modern",
 		material = "stone",
 		description = modern.S(upper_name .. " Ledged Stair Segment"),
-		mesh = "multidecor_ledged_stair_segment.b3d",
+		mesh = "multidecor_ledged_stair_segment.obj",
 		tiles = {stair.tex},
 		groups = {stair=1},
 		bounding_boxes = stair_ledged_bboxes
@@ -97,7 +97,7 @@ for _, stair in ipairs(stairs_data) do
 		style = "modern",
 		material = "stone",
 		description = modern.S("Spiral " .. upper_name .. " Stair Base"),
-		mesh = "multidecor_spiral_stair_base.b3d",
+		mesh = "multidecor_spiral_stair_base.obj",
 		tiles = {stair.tex},
 		bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}}
 	},
@@ -112,7 +112,7 @@ for _, stair in ipairs(stairs_data) do
 		style = "modern",
 		material = "stone",
 		description = modern.S("Spiral " .. upper_name .. " Stair Segment"),
-		mesh = "multidecor_spiral_stair_segment.b3d",
+		mesh = "multidecor_spiral_stair_segment.obj",
 		tiles = {stair.tex},
 		groups = {stair=1, spiral=1},
 		bounding_boxes = sstair_bboxes
@@ -132,7 +132,7 @@ for _, stair in ipairs(stairs_data) do
 		style = "modern",
 		material = "stone",
 		description = modern.S("Spiral " .. upper_name .. " Ledged Stair Segment"),
-		mesh = "multidecor_spiral_ledged_stair_segment.b3d",
+		mesh = "multidecor_spiral_ledged_stair_segment.obj",
 		tiles = {stair.tex},
 		groups = {stair=1, spiral=1},
 		bounding_boxes = sstair_bboxes
@@ -179,7 +179,7 @@ for _, sstair in ipairs(spiral_stairs_data) do
 		style = "modern",
 		material = sstair.name == "redwood" and "wood" or sstair.name,
 		description =modern.S(upper_name .. "Plank Stair Segment"),
-		mesh = "multidecor_plank_stair_segment.b3d",
+		mesh = "multidecor_plank_stair_segment.obj",
 		tiles = sstair.tex,
 		groups = {stair=1},
 		bounding_boxes = stair_plank_bboxes
@@ -197,7 +197,7 @@ for _, sstair in ipairs(spiral_stairs_data) do
 		style = "modern",
 		material = sstair.name == "redwood" and "wood" or sstair.name,
 		description = modern.S("Spiral " .. upper_name .. "Plank Stair Segment"),
-		mesh = "multidecor_spiral_plank_stair_segment.b3d",
+		mesh = "multidecor_spiral_plank_stair_segment.obj",
 		tiles = sstair.tex,
 		groups = {stair=1, spiral=1},
 		bounding_boxes = sstair_plank_bboxes
@@ -216,7 +216,7 @@ for _, sstair in ipairs(spiral_stairs_data) do
 		style = "modern",
 		material = sstair.name == "redwood" and "wood" or sstair.name,
 		description = modern.S("Spiral " .. upper_name .. "Plank Stair Segment With Banister"),
-		mesh = "multidecor_spiral_plank_stair_segment_with_banister.b3d",
+		mesh = "multidecor_spiral_plank_stair_segment_with_banister.obj",
 		tiles = sstair.tex,
 		bounding_boxes = sstair_plank_bboxes_wban
 	},
@@ -234,7 +234,7 @@ for _, sstair in ipairs(spiral_stairs_data) do
 		style = "modern",
 		material = sstair.name == "redwood" and "wood" or sstair.name,
 		description = modern.S(upper_name .. " Banister"),
-		mesh = "multidecor_banister.b3d",
+		mesh = "multidecor_banister.obj",
 		tiles = sstair.tex,
 		bounding_boxes = banister_bboxes,
 		prevent_placement_check = true
@@ -242,10 +242,10 @@ for _, sstair in ipairs(spiral_stairs_data) do
 	{
 		common_name = banister_common_name,
 		banister_shapes = {
-			["raised_left"] = {mesh="multidecor_banister_raised_left.b3d", bboxes=banister_bboxes},
-			["raised_right"] = {mesh="multidecor_banister_raised_right.b3d", bboxes=right_banister_bbox},
-			["spiral"] = {mesh="multidecor_spiral_banister.b3d", bboxes=spiral_banister_bboxes},
-			["corner"] = {mesh="multidecor_banister_corner.b3d", bboxes=corner_banister_bboxes}
+			["raised_left"] = {mesh="multidecor_banister_raised_left.obj", bboxes=banister_bboxes},
+			["raised_right"] = {mesh="multidecor_banister_raised_right.obj", bboxes=right_banister_bbox},
+			["spiral"] = {mesh="multidecor_spiral_banister.obj", bboxes=spiral_banister_bboxes},
+			["corner"] = {mesh="multidecor_banister_corner.obj", bboxes=corner_banister_bboxes}
 		}
 	},
 	{

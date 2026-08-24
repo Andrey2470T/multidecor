@@ -102,7 +102,7 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		material = "wood",
 		paramtype2 = "wallmounted",
 		description = modern.S("Modern Corner Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf"),
-		mesh = "multidecor_corner_wall_shelf.b3d",
+		mesh = "multidecor_corner_wall_shelf.obj",
 		tiles = {tex},
 		bounding_boxes = {
 			{-0.5, 0, 0.4, 0.5, -0.5, 0.5},
@@ -122,7 +122,7 @@ for _, wood_n in ipairs({"", "jungle", "pine", "aspen"}) do
 		material = "wood",
 		paramtype2 = "wallmounted",
 		description = modern.S("Modern Wooden " .. wood_n:sub(1, 1):upper() .. wood_n:sub(2, -1) .. " Wall Shelf With Books"),
-		mesh = "multidecor_wall_shelf_with_books.b3d",
+		mesh = "multidecor_wall_shelf_with_books.obj",
 		tiles = { -- Red, blue, green, darkmagenta, darkorange
 			tex,
 			"multidecor_book_envelope.png^[multiply:red^multidecor_book.png",
@@ -148,7 +148,7 @@ multidecor.register.register_table("three_level_wooden_rack", {
 	style = "modern",
 	material = "wood",
 	description =  modern.S("Three Level Wooden Rack"),
-	mesh = "multidecor_three_level_wooden_rack.b3d",
+	mesh = "multidecor_three_level_wooden_rack.obj",
 	tiles = {"multidecor_wood.png"},
 	bounding_boxes = {{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}},
 	callbacks = {

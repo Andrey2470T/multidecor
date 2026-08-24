@@ -2,7 +2,7 @@ multidecor.register.register_door("high_dark_rusty_gate", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("High Dark Rusty Gate"),
-	mesh = "multidecor_high_dark_rusty_gate.b3d",
+	mesh = "multidecor_high_dark_rusty_gate.obj",
 	tiles = {
 		"multidecor_fence_chainlink.png",
 		"multidecor_dark_metal_rusty_fence.png",
@@ -34,7 +34,7 @@ multidecor.register.register_door("dark_rusty_gate", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("Dark Rusty Gate"),
-	mesh = "multidecor_dark_rusty_gate.b3d",
+	mesh = "multidecor_dark_rusty_gate.obj",
 	tiles = {
 		"multidecor_fence_chainlink.png",
 		"multidecor_dark_metal_rusty_fence.png",
@@ -112,7 +112,7 @@ for i, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		description = modern.S("Simple " .. upper_name .. " Door"),
-		mesh = "multidecor_modern_wooden_door.b3d",
+		mesh = "multidecor_modern_wooden_door.obj",
 		tiles = {
 			base_texture .. "^multidecor_door_hinges.png",
 			doors_hands_texs[i] .. ".png"
@@ -145,7 +145,7 @@ for i, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		description = modern.S(upper_name .. "Doorjamb"),
-		mesh = "multidecor_wooden_doorjamb.b3d",
+		mesh = "multidecor_wooden_doorjamb.obj",
 		tiles = {base_texture},
 		bounding_boxes = {
 			{-0.725, -0.5, 0.4, -0.5, 1.725, 0.5},-- left
@@ -168,7 +168,7 @@ for i, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		description = modern.S(upper_name .. "Plinth"),
-		mesh = "multidecor_wooden_plinth.b3d",
+		mesh = "multidecor_wooden_plinth.obj",
 		tiles = {base_texture},
 		bounding_boxes = {{-0.5, -0.5, 0.4, 0.5, -0.2, 0.5}}
 	},
@@ -184,7 +184,7 @@ for i, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		description = modern.S(upper_name .. "Corner Plinth"),
-		mesh = "multidecor_wooden_corner_plinth.b3d",
+		mesh = "multidecor_wooden_corner_plinth.obj",
 		tiles = {base_texture},
 		bounding_boxes = {
 			{-0.5, -0.5, 0.4, 0.5, -0.2, 0.5},
@@ -202,7 +202,7 @@ for i, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		description = modern.S(upper_name .. "Window Segment"),
-		mesh = "multidecor_window_segment.b3d",
+		mesh = "multidecor_window_segment.obj",
 		tiles = {
 			base_texture,
 			"multidecor_glass_material.png"
@@ -224,7 +224,7 @@ for i, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		description = upper_name .. "Window Segment (Connectable)",
-		mesh = "multidecor_window_segment.b3d",
+		mesh = "multidecor_window_segment.obj",
 		tiles = {
 			base_texture,
 			"multidecor_glass_material.png"
@@ -243,11 +243,11 @@ for i, wood in ipairs(woods) do
 	{
 		common_name = wood.name .. "_window_segment_connectable",
 		connect_parts = {
-			["edge"] = "multidecor_window_segment_1.b3d",
-			["corner"] = "multidecor_window_segment_2.b3d",
-			["middle"] = "multidecor_window_segment_5.b3d",
-			["edge_middle"] = "multidecor_window_segment_3.b3d",
-			["off_edge"] = "multidecor_window_segment_4.b3d"
+			["edge"] = "multidecor_window_segment_1.obj",
+			["corner"] = "multidecor_window_segment_2.obj",
+			["middle"] = "multidecor_window_segment_5.obj",
+			["edge_middle"] = "multidecor_window_segment_3.obj",
+			["off_edge"] = "multidecor_window_segment_4.obj"
 		}
 	})]]
 
@@ -256,7 +256,7 @@ for i, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		description = modern.S(upper_name .. "Window Segment With Thick Slats"),
-		mesh = "multidecor_window_segment_with_thick_slats.b3d",
+		mesh = "multidecor_window_segment_with_thick_slats.obj",
 		tiles = {
 			base_texture,
 			"multidecor_glass_material.png"
@@ -279,7 +279,7 @@ for i, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		description = modern.S(upper_name .. "Window Segment With Thin Slats"),
-		mesh = "multidecor_window_segment_with_thin_slats.b3d",
+		mesh = "multidecor_window_segment_with_thin_slats.obj",
 		tiles = {
 			base_texture,
 			"multidecor_glass_material.png"
@@ -303,7 +303,7 @@ for i, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		description = modern.S(upper_name .. "Window Door"),
-		mesh = "multidecor_window_door.b3d",
+		mesh = "multidecor_window_door.obj",
 		tiles = {
 			base_texture,
 			"multidecor_glass_material.png"
@@ -334,7 +334,7 @@ for i, wood in ipairs(woods) do
 		style = "modern",
 		material = "wood",
 		description = modern.S(upper_name .. "Window Door With Thin Slats"),
-		mesh = "multidecor_window_door_with_thin_slats.b3d",
+		mesh = "multidecor_window_door_with_thin_slats.obj",
 		tiles = {
 			base_texture,
 			"multidecor_glass_material.png"
@@ -363,7 +363,7 @@ multidecor.register.register_door("patterned_wooden_door", {
 	style = "modern",
 	material = "wood",
 	description = modern.S("Patterned Wooden Door"),
-	mesh = "multidecor_modern_wooden_door.b3d",
+	mesh = "multidecor_modern_wooden_door.obj",
 	tiles = {
 		"multidecor_modern_wooden_door_base.png^multidecor_door_hinges.png",
 		"multidecor_jungle_wood.png"
@@ -394,7 +394,7 @@ multidecor.register.register_door("bathroom_door", {
 	style = "modern",
 	material = "wood",
 	description = modern.S("Bathroom Door"),
-	mesh = "multidecor_bathroom_door.b3d",
+	mesh = "multidecor_bathroom_door.obj",
 	tiles = {
 		"multidecor_white_pine_wood.png^multidecor_door_hinges.png",
 		"multidecor_pine_wood2.png"
@@ -426,7 +426,7 @@ multidecor.register.register_door("white_pine_glass_door", {
 	material = "wood",
 	visual_scale = 0.5,
 	description = modern.S("White Pine Glass Door"),
-	mesh = "multidecor_white_pine_glass_door.b3d",
+	mesh = "multidecor_white_pine_glass_door.obj",
 	tiles = {
 		"multidecor_white_pine_wood.png^(multidecor_door_hinges.png^[transform2)",
 		"multidecor_gold_material.png",
@@ -459,7 +459,7 @@ multidecor.register.register_door("patterned_aspen_glass_door", {
 	style = "modern",
 	material = "wood",
 	description = modern.S("Patterned Aspen Glass Door"),
-	mesh = "multidecor_pine_glass_door.b3d",
+	mesh = "multidecor_pine_glass_door.obj",
 	tiles = {
 		"multidecor_pine_glass_door_base2.png^multidecor_door_hinges.png",
 		"multidecor_metal_material.png",
@@ -493,7 +493,7 @@ multidecor.register.register_door("patterned_aspen_door", {
 	material = "wood",
 	visual_scale = 0.5,
 	description = modern.S("Patterned Aspen Door"),
-	mesh = "multidecor_pine_door.b3d",
+	mesh = "multidecor_pine_door.obj",
 	tiles = {
 		"multidecor_pine_door.png^multidecor_door_hinges.png",
 		"multidecor_metal_material.png"
@@ -525,7 +525,7 @@ multidecor.register.register_door("pine_glass_door", {
 	material = "wood",
 	visual_scale = 0.5,
 	description = modern.S("Pine Glass Door"),
-	mesh = "multidecor_dark_pine_glass_door.b3d",
+	mesh = "multidecor_dark_pine_glass_door.obj",
 	tiles = {
 		"multidecor_dark_pine_door_base.png",
 		"multidecor_metal_material.png",
@@ -558,7 +558,7 @@ multidecor.register.register_door("technical_locked_door", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("Technical Locked Door"),
-	mesh = "multidecor_technical_door.b3d",
+	mesh = "multidecor_technical_door.obj",
 	use_texture_alpha = "blend",
 	tiles = {
 		"multidecor_metal_material2.png",
@@ -590,7 +590,7 @@ multidecor.register.register_door("metallic_locked_door", {
 	style = "modern",
 	material = "metal",
 	description = modern.S("Metallic Locked Door"),
-	mesh = "multidecor_door_with_lock.b3d",
+	mesh = "multidecor_door_with_lock.obj",
 	use_texture_alpha = "blend",
 	tiles = {
 		"multidecor_coarse_metal_material.png^multidecor_door_hinges.png",
@@ -624,7 +624,7 @@ if core.get_modpath("ethereal") then
 		style = "modern",
 		material = "metal",
 		description = modern.S("Redwood Locked Door"),
-		mesh = "multidecor_door_with_lock.b3d",
+		mesh = "multidecor_door_with_lock.obj",
 		use_texture_alpha = "blend",
 		tiles = {
 			"ethereal_redwood_wood.png^[transform1^multidecor_door_hinges.png",
@@ -752,7 +752,7 @@ for _, door_n in ipairs(sliding_doors_data) do
 
 	local sliding_doors_cornices_recipe_copy = table.copy(sliding_doors_cornices_recipe)
 
-	
+
 	for cmp_n = 1, #sliding_doors_cornices_recipe_copy.recipe[1] do
 		sliding_doors_cornices_recipe_copy.recipe[1][cmp_n] = door_n.craft_cmp
 	end

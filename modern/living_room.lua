@@ -70,7 +70,7 @@ for louvers, part in pairs(louvers_parts) do
 		style = "modern",
 		material = "plastic",
 		description = modern.S(multidecor.helpers.upper_first_letters(louvers)),
-		mesh = "multidecor_" .. louvers .. ".b3d",
+		mesh = "multidecor_" .. louvers .. ".obj",
 		tiles = {"multidecor_plastic_material.png", "multidecor_plastic_material.png"},
 		groups = groups,
 		bounding_boxes = {{-0.5, -0.5, -0.2, 0.5, 0.5, 0.2}},
@@ -99,7 +99,7 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 	description = modern.S("Floor Clock"),
 	inventory_image = "multidecor_floor_clock_inv.png",
 	use_texture_alpha = "blend",
-	mesh = "multidecor_floor_clock.b3d",
+	mesh = "multidecor_floor_clock.obj",
 	tiles = {
 		"multidecor_gold_material.png",
 		"multidecor_jungle_wood.png",
@@ -152,7 +152,7 @@ multidecor.register.register_furniture_unit("book", {
 	style = "modern",
 	material = "wood",
 	description = modern.S("Book"),
-	mesh = "multidecor_book.b3d",
+	mesh = "multidecor_book.obj",
 	tiles = {
 		"multidecor_book_envelope.png^[multiply:blue^multidecor_book_pattern.png",
 		"multidecor_book.png"
@@ -183,7 +183,7 @@ multidecor.register.register_furniture_unit("book_open", {
 	style = "modern",
 	material = "wood",
 	description = modern.S("Book"),
-	mesh = "multidecor_book_open.b3d",
+	mesh = "multidecor_book_open.obj",
 	tiles = {
 		"multidecor_book_envelope.png^[multiply:blue^multidecor_book_pattern.png",
 		"multidecor_book.png",
@@ -230,7 +230,7 @@ multidecor.register.register_furniture_unit("books_stack", {
 	style = "modern",
 	material = "wood",
 	description = modern.S("Books Stack"),
-	mesh = "multidecor_books_stack.b3d",
+	mesh = "multidecor_books_stack.obj",
 	tiles = {
 		"multidecor_book_envelope.png^[multiply:green^multidecor_book_pattern.png",
 		"multidecor_book.png",
@@ -288,7 +288,7 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 core.register_entity("modern:alarm_clock_dummy_wheel", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_alarm_clock.b3d",
+	mesh = "multidecor_alarm_clock.obj",
 	is_visible = false,
 	physical = false,
 	pointable = false,
@@ -514,7 +514,7 @@ local pots_defs = {
 for name, def in pairs(pots_defs) do
 	local cdef = table.copy(flowerpot_tmp_def)
 	cdef.description = def.description
-	cdef.mesh = def.mesh .. ".b3d"
+	cdef.mesh = def.mesh .. ".obj"
 	cdef.tiles = def.tiles
 	cdef.inventory_image = def.inventory_image
 	cdef.wield_image = def.wield_image
@@ -536,7 +536,7 @@ for name, def in pairs(pots_defs) do
 	core.register_craft(def.craft)
 	for i=1, #flowers do
 		local cdef2 = table.copy(cdef)
-		cdef2.mesh = def.mesh .. "_with_flower.b3d"
+		cdef2.mesh = def.mesh .. "_with_flower.obj"
 		table.insert(cdef2.tiles, "flowers_" .. flowers[i] .. ".png")
 
 		cdef2.drop = "multidecor:" .. name
@@ -555,7 +555,7 @@ multidecor.register.register_furniture_unit("white_plastic_flowerpot", {
 	style = "modern",
 	material = "plastic",
 	description = modern.S("White Plastic Flowerpot"),
-	mesh = "multidecor_white_plastic_flowerpot.b3d",
+	mesh = "multidecor_white_plastic_flowerpot.obj",
 	tiles = {
 		"multidecor_white_plastic_pot.png",
 		"default_dirt.png"

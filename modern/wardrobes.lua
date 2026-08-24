@@ -2,7 +2,7 @@ multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 	style = "modern",
 	material = "wood",
 	description = modern.S("Wooden cupboard with glass doors"),
-	mesh = "multidecor_cupboard_with_glass_doors.b3d",
+	mesh = "multidecor_cupboard_with_glass_doors.obj",
 	tiles = {"multidecor_jungle_wood.png", "multidecor_glass_material.png", "multidecor_metal_material.png"},
 	inventory_image = "multidecor_cupboard_inv.png",
 	bounding_boxes = {
@@ -55,7 +55,7 @@ multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 core.register_entity("modern:wardrobe_wooden_glass_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_wardrobe_wooden_glass_door.b3d",
+	mesh = "multidecor_wardrobe_wooden_glass_door.obj",
 	textures = {"multidecor_metal_material.png", "multidecor_jungle_wood.png^[resize:32x32", "multidecor_glass_material.png"},
 	use_texture_alpha = true,
 	physical = false,
@@ -72,7 +72,7 @@ core.register_entity("modern:wardrobe_wooden_glass_door", {
 core.register_entity("modern:wardrobe_wooden_door", {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_wardrobe_wooden_door.b3d",
+	mesh = "multidecor_wardrobe_wooden_door.obj",
 	textures = {"multidecor_metal_material.png", "multidecor_jungle_wood.png^[resize:32x32"},
 	physical = false,
 	selectionbox = {-0.5, -0.53, 0, 0, 0.53, 0.075},
