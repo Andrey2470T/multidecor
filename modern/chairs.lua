@@ -3,7 +3,7 @@ multidecor.register.register_seat("kitchen_modern_wooden_chair", {
 	material = "wood",
 	description = modern.S("Kitchen Modern Wooden Chair"),
 	visual_scale = 0.4,
-	mesh = "multidecor_kitchen_modern_wooden_chair.b3d",
+	mesh = "multidecor_kitchen_modern_wooden_chair.obj",
 	tiles = {"multidecor_wood.png"},
 	bounding_boxes = {
 		{-0.29, -0.5, -0.29, 0.29, 0.145, 0.21},
@@ -32,7 +32,7 @@ multidecor.register.register_seat("soft_kitchen_modern_wooden_chair", {
 	description = modern.S("Soft Kitchen Modern Wooden Chair"),
 	paramtype2 = "colorfacedir",
 	visual_scale = 0.4,
-	mesh = "multidecor_soft_kitchen_modern_wooden_chair.b3d",
+	mesh = "multidecor_soft_kitchen_modern_wooden_chair.obj",
 	tiles = {{name="multidecor_wood.png", color=0xffffffff}, "multidecor_wool_material.png"},
 	bounding_boxes = {
 		{-0.29, -0.5, -0.29, 0.29, 0.145, 0.21},
