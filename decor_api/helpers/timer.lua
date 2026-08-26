@@ -5,17 +5,23 @@ local Timer = {
 	started = false,
 	cur_time = 0,
 	duration = 0,
-	callback = nil,
-	callback_data = nil
+    cyclic = false,
+    tick_callback = nil,
+    tick_callback_data = nil,
+	end_callback = nil,
+	end_callback_data = nil
 }
 
 Timer.__index = Timer
 
-function Timer.new(_duration, _callback, _callback_data)
+function Timer.new(_duration, _cyclic, callbacks)
 	local self = setmetatable({}, Timer)
 	self.duration = _duration
-	self.callback = _callback
-	self.callback_data = _callback_data
+	self.cyclic = _cyclic
+	self.end_callback = callbacks.end_callback
+	self.end_callback_data = callbacks.end_callback_data
+	self.tick_callback = callbacks.tick_callback
+	self.tick_callback_data = callbacks.tick_callback_data
 
 	return self
 end
@@ -28,6 +34,10 @@ end
 
 function Timer:stop()
 	self.started = false
+end
+
+function Timer:reset()
+    self.cur_time = 0
 end
 
 function Timer:is_started()
@@ -43,11 +53,19 @@ function Timer:tick(dtime)
 
 	self.cur_time = self.cur_time + dtime
 
-	if self.cur_time >= self.duration then
-		self:stop()
+    if self.tick_callback then
+        self.tick_callback(self.tick_callback_data)
+    end
 
-		if self.callback then
-			self.callback(self.callback_data)
+	if self.cur_time >= self.duration then
+        if self.cyclic then
+            self:reset()
+        else
+            self:stop()
+        end
+
+		if self.end_callback then
+			self.end_callback(self.end_callback_data)
 		end
 	end
 end
