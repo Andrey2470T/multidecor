@@ -1,11 +1,12 @@
 -- Direction op functions
 --------------------------------------------------------------
 
+require("decor_api.helpers.common")
+
 local dir_ops = {}
 
 function dir_ops.get_dir_from_param2(name, param2)
 	local def = core.registered_nodes[name]
-
 	local dir = vector.new(0, 0, 0)
 
 	if def.paramtype2 == "facedir" then
@@ -30,13 +31,19 @@ function dir_ops.get_dir(pos)
 end
 
 function dir_ops.from_dir_get_param2(name, old_param2, dir)
-	local param2 = core.dir_to_facedir(dir)
-
+	local param2 = 0
 	local def = core.registered_nodes[name]
 
-	if def.paramtype2 == "colorfacedir" then
+	if def.paramtype2 == "facedir" then
+		param2 = core.dir_to_facedir(dir)
+	elseif def.paramtype2 == "wallmounted" then
+		param2 = core.dir_to_wallmounted(dir)
+	elseif def.paramtype2 == "colorfacedir" then
 		local palette_index = math.floor(old_param2 / 32)
-		param2 = param2 + palette_index * 32
+		param2 = core.dir_to_facedir(dir) + palette_index * 32
+	elseif def.paramtype2 == "colorwallmounted" then
+		local palette_index = math.floor(old_param2 / 8)
+		param2 = core.dir_to_wallmounted(dir) + palette_index * 8
 	end
 
 	return param2
@@ -49,7 +56,7 @@ end
 
 -- Rotates vertically 'pos' around (0, 1, 0) axis at 'angle'.
 function dir_ops.rotate_y(pos, angle)
-	return vector.rotate_around_axis(pos, vector.new(0, 1, 0), angle)
+	return vector.rotate_around_axis(pos, vector.up, angle)
 end
 
 -- Rotates vertically 'pos' according to 'dir'

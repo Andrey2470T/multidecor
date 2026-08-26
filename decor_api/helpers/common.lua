@@ -44,6 +44,16 @@ function common.build_name_from_tmp(name, type, i, pos)
 	return resname
 end
 
+-- Basic colors names
+common.colors.white = "white"
+common.colors.red = "red"
+common.colors.blue = "blue"
+common.colors.yellow = "yellow"
+common.colors.green = "green"
+common.colors.cyan = "cyan"
+common.colors.magenta = "magenta"
+common.colors.grey = "grey"
+
 -- Basic direction vectors
 vector.up = vector.new(0, 1, 0)
 vector.down = vector.new(0, -1, 0)

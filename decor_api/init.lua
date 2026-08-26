@@ -2,24 +2,18 @@ multidecor = {}
 
 multidecor.S = core.get_translator("decor_api")
 
-multidecor.colors = {
-	"white",
-	"red",
-	"blue",
-	"yellow",
-	"green",
-	"cyan",
-	"magenta",
-	"grey"
-}
-
 local modpath = core.get_modpath("decor_api")
 
+package.path = modpath .. "/?.lua;" .. package.path
+
 -- Helpers
-dofile(modpath .. "/helpers/common_helpers.lua")
+multidecor.BBox = require("decor_api.helpers.box")
+multidecor.common = require("decor_api.helpers.common")
+multidecor.dir_ops = require("decor_api.helpers.dir_ops")
+multidecor.Timer = require("decor_api.helpers.timer")
 
 -- Common
-dofile(modpath .. "/common/animation.lua")
+multidecor.DoorAnimator = require("decor_api.common.animation")
 dofile(modpath .. "/common/connecting.lua")
 dofile(modpath .. "/common/placement.lua")
 dofile(modpath .. "/common/register.lua")
