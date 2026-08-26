@@ -1,9 +1,11 @@
-local hlpfuncs = multidecor.helpers
-
 -- Door/drawer object animator class
 ----------------------------------------------------------
 
-multidecor.DoorAnimator = {
+local dir_ops = require("decor_api.helpers.dir_ops")
+local bbox = require("decor_api.helpers.box")
+local timer = require("decor_api.helpers.timer")
+
+local DoorAnimator = {
 	obj_name = "multidecor:animator",
 	bone_name = "Door",
 
@@ -11,7 +13,7 @@ multidecor.DoorAnimator = {
 		size = {x=5, y=5, z=5},
 		mesh = "",
 		textures = {},
-		box = hlpfuncs.BBox.from_default(),
+		box = bbox.from_default(),
 		mirrored = false,
 		pos = vector.new(-0.495, 0, -0.45),
 		rot = vector.new()
@@ -23,7 +25,7 @@ multidecor.DoorAnimator = {
 		velocity = math.pi/1.5,		-- within a sec
 		rotate_dir = "inward"		-- the doors can be open inward or outward
 	},
-	timer = hlpfuncs.Timer.new(0, function (data)
+	timer = timer.new(0, function (data)
 		if data.rotate then
 			data.obj:set_rotation(data.target)
 		else
@@ -43,10 +45,10 @@ multidecor.DoorAnimator = {
 	cur_mode = "closed"
 }
 
-multidecor.DoorAnimator.__index = multidecor.DoorAnimator
+DoorAnimator.__index = DoorAnimator
 
-function multidecor.DoorAnimator.new(_nodepos, _model_params, _anim_params)
-	local self = setmetatable({}, multidecor.DoorAnimator)
+function DoorAnimator.new(_nodepos, _model_params, _anim_params)
+	local self = setmetatable({}, DoorAnimator)
 
 	self.nodepos = _nodepos
 
@@ -83,7 +85,7 @@ function multidecor.DoorAnimator.new(_nodepos, _model_params, _anim_params)
 	return self
 end
 
-function multidecor.DoorAnimator:animate()
+function DoorAnimator:animate()
 	local anim_time = math.abs(self.target_offset[self.anim_params.target_axis]) / self.anim_params.velocity
 	local override
 
@@ -100,7 +102,7 @@ function multidecor.DoorAnimator:animate()
 	self.timer:start(anim_time)
 end
 
-function multidecor.DoorAnimator:update_model()
+function DoorAnimator:update_model()
 	local size = self.model_params.size
 
 	if self.model_params.mirrored then
@@ -133,7 +135,7 @@ local function get_target_rot_offset_dir(closed, mirrored, rotate_dir)
 	return dir
 end
 
-function multidecor.DoorAnimator:update_mode(new_mode)
+function DoorAnimator:update_mode(new_mode)
 	local dir = hlpfuncs.get_dir(self.nodepos)
 
 	local mparams = self.model_params
@@ -141,9 +143,9 @@ function multidecor.DoorAnimator:update_mode(new_mode)
 	local box_length = mparams.box:width()
 	pos.x = mparams.mirrored and pos.x + box_length * 2 or pos.x
 
-	self.cur_pos = self.nodepos + hlpfuncs.rotate_to_dir(pos, dir)
+	self.cur_pos = self.nodepos + dir_ops.rotate_to_dir(pos, dir)
 	self.cur_rot = mparams.rot
-	self.cur_rot.y = self.cur_rot.y + hlpfuncs.get_rot_y(dir)
+	self.cur_rot.y = self.cur_rot.y + dir_ops.get_rot_y(dir)
 
 	self.cur_mode = new_mode
 
@@ -174,7 +176,7 @@ function multidecor.DoorAnimator:update_mode(new_mode)
 
 	self.obj:set_pos(self.cur_pos)
 	self.obj:set_rotation(self.cur_rot)
-	
+
 	self:update_model()
 end
 
@@ -218,3 +220,5 @@ core.register_entity(":" .. multidecor.animation.animator_name, {
 	on_step = animator_on_step,
 	get_staticdata = animator_get_staticdata
 })
+
+return DoorAnimator
