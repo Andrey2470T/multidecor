@@ -45,6 +45,7 @@ function common.build_name_from_tmp(name, type, i, pos)
 end
 
 -- Basic colors names
+common.colors = {}
 common.colors.white = "white"
 common.colors.red = "red"
 common.colors.blue = "blue"
