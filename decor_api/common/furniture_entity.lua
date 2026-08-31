@@ -1,28 +1,5 @@
 require("decor_api.helpers.common")
-
-local FurnitureDescriptor = {}
-FurnitureDescriptor.__index = FurnitureDescriptor
-
-function FurnitureDescriptor.new(lua_entity, entity_name, pos, node_name, model_params, anim_params)
-	local self = setmetatable({}, FurnitureDescriptor)
-
-	self.entity_name = entity_name
-	self.nodepos = vector.new(pos)
-	self.node_name = node_name
-
-	self.model_params = table.copy(model_params or {})
-	self.anim_params = table.copy(anim_params or {})
-
-	self.lua_entity = lua_entity
-	self.object = lua_entity.object
-
-	return self
-end
-
-function FurnitureDescriptor:update_entity(lua_entity)
-	self.lua_entity = lua_entity
-	self.object = lua_entity.object
-end
+local Timer = require("decor_api.helpers.timer")
 
 local FurnitureEntity = {
 	name = "decor_api:base_furniture",
@@ -30,22 +7,30 @@ local FurnitureEntity = {
 }
 FurnitureEntity.__index = FurnitureEntity
 
-function FurnitureEntity.new(pos, node_name, data)
+function FurnitureEntity.new(node_pos, node_name, data)
 	local self = setmetatable({}, FurnitureEntity)
-	self.attached_to = { pos = vector.new(pos), name = node_name }
-    self.data = data or {}
+	self.attached_to = { pos = vector.new(node_pos), name = node_name }
+    if data then
+		table.copy_to(data, self)
+	end
 
 	return self
+end
+
+function FurnitureEntity.spawn(node_pos, node_name, pos, rot, data)
+	local serialize_t = FurnitureEntity.new(node_pos, node_name, data)
+	local entity = core.add_entity(pos, FurnitureEntity.name, core.serialize(serialize_t))
+	entity:set_rotation(rot)
+
+	return entity
 end
 
 function FurnitureEntity:on_activate(staticdata)
 	if staticdata and staticdata ~= "" then
 		local data = core.deserialize(staticdata)
 		if data and data.attached_to then
-            self.attached_to = data.attached_to
-            self.model_params = data.model_params
-			self.anim_params = data.anim_params
-            self.data = data.data or {}
+			table.copy_to(data, self)
+
 			return true
 		end
 	end
@@ -56,10 +41,13 @@ function FurnitureEntity:on_activate(staticdata)
 end
 
 function FurnitureEntity:get_staticdata()
-	return core.serialize({
-        attached_to = self.attached_to, model_params = self.model_params,
-        anim_params = self.anim_params, data = self.data
-    })
+	local serialize_t = {}
+
+	table.copy_to(self, serialize_t)
+	serialize_t.name = nil
+	serialize_t.object = nil
+
+	return core.serialize(serialize_t)
 end
 
 -- Check if the attaching node still exists, remove the object if doesn't
@@ -75,6 +63,7 @@ function FurnitureEntity:check_node_valid()
 	return true
 end
 
+-- Creates and fills the entity registration table for "core.register_entity"
 function FurnitureEntity.build_definition(class_table, override_def)
 	local def = {
 		physical = false,
@@ -97,4 +86,101 @@ function FurnitureEntity.build_definition(class_table, override_def)
 	end
 	return def
 end
+
+local FurnitureDescriptor = {}
+FurnitureDescriptor.__index = FurnitureDescriptor
+
+function FurnitureDescriptor.new(entity_name, node_pos, node_name)
+	local self = setmetatable({}, FurnitureDescriptor)
+
+	self.entity_name = entity_name
+	self.node_pos = vector.new(node_pos)
+	self.node_name = node_name
+
+	self.object = FurnitureManager.registered_entities[entity_name].spawn(self.node_pos, self.node_name)
+
+	return self
+end
+
+function FurnitureDescriptor:exists()
+	return self.removed == false or self.object and self.object:get_luaentity()
+end
+
+function FurnitureDescriptor:validate_entity()
+	if self:exists() then
+		if not self.object:get_luaentity():check_node_valid() then
+			self.object:remove()
+			return false
+		end
+	else
+		self.object = FurnitureManager.registered_entities[entity_name].spawn(self.node_pos, self.node_name)
+	end
+	self.removed = nil
+
+	return true
+end
+
+local FurnitureManager = {
+	registered_entities = {},
+	descriptors = {}, -- table in view: [pos_string] = FurnitureDescriptor
+	CHECK_INTERVAL = 3.0 -- Check for entity validity per 3 seconds
+}
+
+function FurnitureManager.register(name, class)
+	FurnitureManager.registered_entities[name] = class
+	core.register_entity(name, FurnitureEntity.build_definition(class))
+end
+
+-- Adds the descriptor (called when the node was added to which its entity was attached)
+function FurnitureManager.add(entity_name, node_pos, node_name)
+	local pos_str = core.pos_to_string(node_pos)
+	local desc = FurnitureDescriptor.new(entity_name, node_pos, node_name)
+	FurnitureManager.descriptors[pos_str] = desc
+end
+
+-- Removes the descriptor (called when the node was removed to which its entity was attached or in on_step)
+function FurnitureManager.remove(node_pos)
+	local pos_str = core.pos_to_string(node_pos)
+	local desc = FurnitureManager.descriptors[pos_str]
+	if desc then
+		desc.object:remove()
+		FurnitureManager.descriptors[pos_str] = nil
+	end
+end
+
+function FurnitureManager.get(node_pos)
+	local pos_str = core.pos_to_string(node_pos)
+	return FurnitureManager.descriptors[pos_str]
+end
+
+function FurnitureManager.on_step()
+	for _, desc in pairs(FurnitureManager.descriptors) do
+		local result = desc:validate_entity()
+		if not result then FurnitureManager.remove(desc.node_pos) end
+	end
+end
+
+function FurnitureEntity:on_deactivate(removal)
+	local desc = FurnitureManager.get(self.node_pos)
+	-- if removed=true, the entity is entirely removed, if removed=false it was unloaded,
+	-- otherwise it means the callback wasnt called (in case of core.clear_objects it may stay nil)
+	desc.removed = removal
+end
+
+-- Registers the "decor_api:base_furniture" entity
+FurnitureManager.register(FurnitureEntity.name, FurnitureEntity)
+
+FurnitureManager.timer = Timer.new(
+	FurnitureManager.CHECK_INTERVAL, true, {end_callback=FurnitureManager.on_step})
+FurnitureManager.timer:start()
+
+core.register_globalstep(function (dtime)
+	FurnitureManager.timer:tick(dtime)
+end)
+
+return {
+	FurnitureEntity = FurnitureEntity,
+	FurnitureDescriptor = FurnitureDescriptor,
+	FurnitureManager = FurnitureManager
+}
 

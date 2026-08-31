@@ -73,10 +73,17 @@ function table.len(t)
     return count
 end
 
--- Copies all elements from 't1' array inserting them in 't2'
-function table.copy_to(t1, t2)
+-- Shallow copies all elements from 't1' array inserting them in 't2'
+function table.copy_arr_to(t1, t2)
 	for _, val in ipairs(t1) do
 		table.insert(t2, val)
+	end
+end
+
+-- Shallow copies all key-value pairs from 't1' table to 't2'
+function table.copy_to(t1, t2)
+	for key, val in pairs(t1) do
+		rawset(t2, key, val)
 	end
 end
 

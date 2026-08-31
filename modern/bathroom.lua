@@ -97,7 +97,7 @@ for _, tile in ipairs(ceramic_tiles) do
 	})
 
 	local recipe = {"multidecor:ceramic_tile"}
-	table.copy_to(tile[2], recipe)
+	table.copy_arr_to(tile[2], recipe)
 	table.insert(recipe, "multidecor:paint_brush")
 
 	core.register_craft({
@@ -148,7 +148,7 @@ for _, style in ipairs(bathroom_styles) do
 	})
 
 	local panel_craft = {"multidecor:pine_board"}
-	table.copy_to(craft, panel_craft)
+	table.copy_arr_to(craft, panel_craft)
 	table.insert(panel_craft, "multidecor:paint_brush")
 
 	core.register_craft({
