@@ -1,224 +1,183 @@
--- Door/drawer object animator class
-----------------------------------------------------------
+local BBox = require("decor_api.helpers.box")
+local Timer = require("decor_api.helpers.timer")
+local FurnitureEntity, _, FurnitureManager = unpack(require("decor_api.common.furniture_entity"))
 
-local dir_ops = require("decor_api.helpers.dir_ops")
-local bbox = require("decor_api.helpers.box")
-local timer = require("decor_api.helpers.timer")
+-- AnimatedEntity
+----------------------------------------------------
+local AnimatedEntity = setmetatable({}, { __index = FurnitureEntity })
+AnimatedEntity.__index = AnimatedEntity
+AnimatedEntity.name = "decor_api:animated_furniture"
 
-local DoorAnimator = {
-	obj_name = "multidecor:animator",
-	bone_name = "Door",
+function AnimatedEntity:on_activate(staticdata)
+	if not FurnitureEntity.on_activate(self, staticdata) then
+		return false
+	end
 
-	model_params = {
-		size = {x=5, y=5, z=5},
-		mesh = "",
-		textures = {},
-		box = bbox.from_default(),
-		mirrored = false,
-		pos = vector.new(-0.495, 0, -0.45),
-		rot = vector.new()
-	},
-	anim_params = {
-		rotate = true,
-		target_axis = "y",
-		target_offset = math.pi/2,
-		velocity = math.pi/1.5,		-- within a sec
-		rotate_dir = "inward"		-- the doors can be open inward or outward
-	},
-	timer = timer.new(0, function (data)
-		if data.rotate then
-			data.obj:set_rotation(data.target)
-		else
-			data.obj:set_pos(data.target)
+	self.model_params = self.model_params or {}
+	self.model_params.size = self.model_params.size or {x=5, y=5, z=5}
+	self.model_params.mesh = self.model_params.mesh or ""
+	self.model_params.textures = self.model_params.textures or {}
+	self.model_params.box = self.model_params.box or BBox.from_default()
+	self.sound_handle = nil
+
+	local cb_data = { node_pos = self.attached_to.pos }
+	self.anim_timer = Timer.new(0, false, {
+		end_callback = function(data)
+			local desc = FurnitureManager.get(data.node_pos)
+			if desc:exists() then
+				local desc_self = desc.object:get_luaentity()
+
+				if desc_self.on_animation_end then
+					desc_self:on_animation_end()
+				end
+			end
+		end,
+		end_callback_data = cb_data
+	})
+
+	if staticdata and staticdata ~= "" then
+		self:create_dummy_model()
+	end
+
+	return true
+end
+
+function AnimatedEntity:create_dummy_model()
+	if not self.object then return end
+
+	-- Prevents the entity duplication
+	if self.dummy_entity and self.dummy_entity:is_valid() then return end
+
+	local p = self.object:get_pos()
+	self.dummy_entity = core.add_entity(p, "decor_api:animator_dummy")
+
+	if self.dummy_entity then
+		-- Attaches the dummy entity with some model to the bone-entity
+		self.dummy_entity:set_attach(self.object, "Door", {x=0, y=0, z=0}, {x=0, y=0, z=0}, true)
+
+		local size = vector.new(self.model_params.size)
+		if self.model_params.mirrored then
+			size.x = -size.x
 		end
-		data.obj:set_properties({
-			collisionbox = data.box,
-			selectionbox = data.box
+
+		self.dummy_entity:set_properties({
+			visual_size = size,
+			mesh = self.model_params.mesh,
+			textures = self.model_params.textures,
+			collisionbox = self.model_params.box,
+			selectionbox = self.model_params.box
 		})
-		if data.callback then
-			data.callback(data.obj)
-		end
-	end, {}),
-
-	nodepos = vector.new(),
-	obj = nil,
-	cur_mode = "closed"
-}
-
-DoorAnimator.__index = DoorAnimator
-
-function DoorAnimator.new(_nodepos, _model_params, _anim_params)
-	local self = setmetatable({}, DoorAnimator)
-
-	self.nodepos = _nodepos
-
-	self.model_params.size = _model_params.size or self.model_params.size
-	self.model_params.mesh = _model_params.mesh or self.model_params.mesh
-	self.model_params.textures = _model_params.textures or self.model_params.textures
-	self.model_params.box = _model_params.box or self.model_params.box
-	self.model_params.mirrored = _model_params.mirrored or self.model_params.mirrored
-	self.model_params.pos = _model_params.pos or self.model_params.pos
-	self.model_params.rot = _model_params.rot or self.model_params.rot
-
-	self.anim_params.rotate = _anim_params.rotate or self.anim_params.rotate
-	self.anim_params.target_axis = _anim_params.target_axis or self.anim_params.target_axis
-	self.anim_params.target_offset = _anim_params.target_offset or self.anim_params.target_offset
-	self.anim_params.velocity = _anim_params.velocity or self.anim_params.velocity
-	self.anim_params.rotate_dir = _anim_params.rotate_dir or self.anim_params.rotate_dir
-
-	self.cur_pos = self.nodepos + self.model_params.pos
-	self.cur_rot = self.model_params.rot
-
-	self.timer.callback_data.rotate = self.anim_params.rotate
-
-	local serialize_data = {model_params=self.model_params, anim_params=self.anim_params, timer=self.timer}
-	self.obj = core.add_entity(self.cur_pos, self.obj_name, core.serialize(serialize_data))
-	self.obj:set_rotation(self.cur_rot)
-
-	self.timer.callback_data.rotate = self.anim_params.rotate
-	self.timer.callback_data.box = self.model_params.box
-	self.timer.callback_data.obj = self.obj
-	self.timer.callback_data.callback = _anim_params.callback
-
-	self:update_mode("closed")
-
-	return self
+	end
 end
 
-function DoorAnimator:animate()
-	local anim_time = math.abs(self.target_offset[self.anim_params.target_axis]) / self.anim_params.velocity
+function AnimatedEntity:animate(rotate, target_offset, offset_axis, velocity)
+	local time = math.abs(target_offset) / math.max(0.001, velocity)
+
+	local target_pos = vector.new()
+	target_pos[offset_axis] = target_offset
+
 	local override
-
-	if self.anim_params.rotate then
-		self.target = self.cur_rot + self.target_offset
-		override = {rotation = {vec = self.target, interpolation=anim_time}}
+	if rotate then
+		override = {rotation = {vec = target_pos, interpolation = time}}
 	else
-		self.target = self.cur_pos + self.target_offset
-		override = {position = {vec = self.target, interpolation=anim_time}}
-	end
-	self.obj:set_bone_override("Door", override)
-
-	self.timer.callback_data.target = self.target
-	self.timer:start(anim_time)
-end
-
-function DoorAnimator:update_model()
-	local size = self.model_params.size
-
-	if self.model_params.mirrored then
-		size.x = -size.x
+		override = {position = {vec = target_pos, interpolation = time}}
 	end
 
-	self.obj:set_properties({
-		visual_size = size,
-		mesh = self.model_params.mesh,
-		textures = self.model_params.textures,
-		collisionbox=self.model_params.box:get_coords(),
-		selectionbox=self.model_params.box:get_coords()
-	})
+	self.object:set_bone_override("Door", override)
+	self.anim_timer:start(time)
 end
 
-local function get_rot_offset_dir(closed, mirrored, rotate_dir)
-	local dir = 0
-	if not closed then dir = rotate_dir == "inward" and -1 or 1 end -- for the left door
-	if mirrored then dir = -dir end -- for the right door
-
-	return dir
-end
-
-local function get_target_rot_offset_dir(closed, mirrored, rotate_dir)
-	local dir = 0
-	if not closed then dir = 1 else dir = -1 end -- for the left door and inward rotate dir
-	if rotate_dir == "outward" then dir = -dir end
-	if mirrored then dir = -dir end -- for the right door
-
-	return dir
-end
-
-function DoorAnimator:update_mode(new_mode)
-	local dir = hlpfuncs.get_dir(self.nodepos)
-
-	local mparams = self.model_params
-	local pos = mparams.pos
-	local box_length = mparams.box:width()
-	pos.x = mparams.mirrored and pos.x + box_length * 2 or pos.x
-
-	self.cur_pos = self.nodepos + dir_ops.rotate_to_dir(pos, dir)
-	self.cur_rot = mparams.rot
-	self.cur_rot.y = self.cur_rot.y + dir_ops.get_rot_y(dir)
-
-	self.cur_mode = new_mode
-
-	local target_offset = self.anim_params.target_offset
-	local closed = new_mode == "closed"
-	local mirrored = mparams.mirrored
-	local rotate_dir = self.anim_params.rotate_dir
-
-	if self.anim_params.rotate then
-		local start_rot_dir = get_rot_offset_dir(closed, mirrored, rotate_dir)
-		self.cur_rot[mparams.target_axis] = self.cur_rot[mparams.target_axis] + start_rot_dir * target_offset
-
-		local target_rot_dir = get_target_rot_offset_dir(closed, mirrored, rotate_dir)
-		target_offset = target_offset * target_rot_dir
-	else
-		local start_shift_dir = 0
-		if not closed then start_shift_dir = 1 end
-		self.cur_pos[mparams.target_axis] = self.cur_pos[mparams.target_axis] + start_shift_dir * target_offset
-
-		local shift_dir = closed and 1 or -1
-		target_offset = target_offset * shift_dir
+function AnimatedEntity:play_sound(sound_name, gain, max_dist, loop)
+	self:stop_sound()
+	if sound_name and self.object then
+		self.sound_handle = core.sound_play(sound_name, {
+			object = self.object,
+			gain = gain or 1.0,
+			max_hear_distance = max_dist or 15,
+			loop = loop
+		})
 	end
-
-	self.target_offset = vector.new()
-	self.target_offset[self.anim_params.target_axis] = target_offset
-
-	mparams.box:rotate(dir)
-
-	self.obj:set_pos(self.cur_pos)
-	self.obj:set_rotation(self.cur_rot)
-
-	self:update_model()
 end
 
-local function animator_on_activate(self, staticdata)
-	if staticdata ~= "" then
-		local data = core.deserialize(staticdata)
-		self.model_params = data.model_params
-		self.anim_params = data.anim_params
-		self.timer = data.timer
-		self.target = data.target
+function AnimatedEntity:stop_sound()
+	if self.sound_handle then
+		core.sound_stop(self.sound_handle)
+		self.sound_handle = nil
 	end
-
-	self:update_model()
-
-	self.object:set_armor_groups({immortal=1})
 end
 
-local function animator_on_step(self, dtime)
-	self.timer:tick(dtime)
+function AnimatedEntity:on_step(dtime)
+	if self.anim_timer then
+		self.anim_timer:tick(dtime)
+	end
 end
 
-local function animator_get_staticdata(self)
-	return core.serialize({
-		model_params = self.model_params,
-		anim_params = self.anim_params,
-		timer = self.timer,
-		target = self.target
-	})
+function AnimatedEntity:on_deactivate(removal)
+	self:stop_sound()
+	if self.dummy_entity and self.dummy_entity:is_valid() then
+		self.dummy_entity:remove()
+	end
+	multidecor.FurnitureEntity.on_deactivate(self, removal)
 end
 
--- Registers the dummy entity (single bone) for attaching various kinds of doors/drawers
-core.register_entity(":" .. multidecor.animation.animator_name, {
-	visual_size = {x=5, y=5, z=5},
+-- Registers the "decor_api:animated_furniture" entity
+FurnitureManager.register(AnimatedEntity.name, AnimatedEntity)
+
+core.register_entity("decor_api:animator_dummy", {
 	visual = "mesh",
-	mesh = "door_dummy.glb",
 	physical = true,
-	use_texture_alpha = "blend",
-	backface_culling = false,
-	static_save = true,
-	on_activate = animator_on_activate,
-	on_step = animator_on_step,
-	get_staticdata = animator_get_staticdata
+	pointable = true,
+	static_save = false,
 })
 
-return DoorAnimator
+-- CyclicEntity
+------------------------------------------------
+local CyclicEntity = setmetatable({}, { __index = AnimatedEntity })
+CyclicEntity.__index = CyclicEntity
+CyclicEntity.name = "decor_api:cyclic_furniture"
+
+function CyclicEntity:cycle()
+	local anim = self.cyclic_animation
+
+	if anim then
+		self:animate(true, anim.angle * anim.direction, anim.axis, anim.velocity)
+	end
+
+	local sound = self.cyclic_sound
+	if sound then
+		self:play_sound(sound.name, sound.volume, sound.max_distance, true)
+	end
+end
+
+function CyclicEntity:on_activate(staticdata)
+	if not AnimatedEntity.on_activate(self, staticdata) then
+		return false
+	end
+
+	self.cyclic_animation = self.cyclic_animation or {}
+	self.cyclic_animation.angle = self.cyclic_animation.angle or math.pi/2
+	self.cyclic_animation.axis = self.cyclic_animation.axis or "y"
+	self.cyclic_animation.velocity = self.cyclic_animation.velocity or math.pi/4
+	self.cyclic_animation.direction = self.cyclic_animation.direction or 1
+
+	self.cyclic_sound = self.cyclic_sound or {}
+	self.cyclic_sound.volume = self.cyclic_sound.volume or 1.0
+	self.cyclic_sound.max_distance = self.cyclic_sound.max_distance or 10
+
+	self:cycle()
+
+	return true
+end
+
+function CyclicEntity:on_animation_end()
+	if self.swap_direction then
+		self.cyclic_animation.direction = self.cyclic_animation.direction * -1
+	end
+
+	self:cycle()
+end
+
+-- Registers the "decor_api:cyclic_furniture" entity
+FurnitureManager.register(CyclicEntity.name, CyclicEntity)
+
+return AnimatedEntity, CyclicEntity

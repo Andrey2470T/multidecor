@@ -3,6 +3,8 @@ local Timer = require("decor_api.helpers.timer")
 
 local FurnitureManager
 
+-- FurnitureEntity
+--------------------------------------
 local FurnitureEntity = {
 	name = "decor_api:base_furniture",
 	attached_to = nil, -- table {pos = vector, name = string}
@@ -96,6 +98,8 @@ function FurnitureEntity.build_definition(class_table, override_def)
 	return def
 end
 
+-- FurnitureDescriptor
+-------------------------------------------------
 local FurnitureDescriptor = {}
 FurnitureDescriptor.__index = FurnitureDescriptor
 
@@ -139,6 +143,8 @@ function FurnitureDescriptor:validate_entity()
 	return true
 end
 
+-- FurnitureManager
+------------------------------------------------------
 FurnitureManager = {
 	registered_entities = {},
 	descriptors = {}, -- table in view: [pos_string] = FurnitureDescriptor
@@ -195,9 +201,5 @@ core.register_globalstep(function (dtime)
 	FurnitureManager.timer:tick(dtime)
 end)
 
-return {
-	FurnitureEntity,
-	FurnitureDescriptor,
-	FurnitureManager
-}
+return FurnitureEntity, FurnitureDescriptor, FurnitureManager
 
