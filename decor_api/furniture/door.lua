@@ -1,3 +1,108 @@
+local AnimatedEntity = require("decor_api.common.animation")[1]
+local FurnitureManager = require("decor_api.common.furniture_entity")[3]
+
+-- DoorEntity
+-------------------------------------------
+local DoorEntity = setmetatable({}, { __index = AnimatedEntity })
+DoorEntity.__index = DoorEntity
+DoorEntity.name = "decor_api:animator_bone"
+
+function DoorEntity:on_activate(staticdata)
+	if not AnimatedEntity.on_activate(self, staticdata) then
+		return false
+	end
+
+	self.anim_params = self.anim_params or {}
+	self.anim_params.rotate = self.anim_params.rotate ~= false
+	self.anim_params.target_axis = self.anim_params.target_axis or "y"
+	self.anim_params.target_offset = self.anim_params.target_offset or math.pi/2
+	self.anim_params.velocity = self.anim_params.velocity or math.pi/1.5
+	self.anim_params.rotate_dir = self.anim_params.rotate_dir or "inward"
+
+	self.cur_mode = self.cur_mode or "closed"
+
+	return true
+end
+
+-- Первичная настройка параметров (вызывается кодом ноды мебели при размещении/генерации)
+function DoorEntity:init_door(model_params, anim_params)
+	if model_params then table.copy_to(model_params, self.model_params) end
+	if anim_params then table.copy_to(anim_params, self.anim_params) end
+
+	self.cur_pos = self.object:get_pos()
+	self.cur_rot = self.object:get_rotation()
+
+	self:create_dummy_model()
+	self:update_door_state("closed")
+end
+
+-- Переопределяем окончание анимации родителя, чтобы обновить коллизии в финальной точке
+function DoorEntity:on_animation_end()
+	if self.object and self.model_params.box then
+		local coords = self.model_params.box:get_coords()
+		self.object:set_properties({ collisionbox = coords, selectionbox = coords })
+	end
+end
+
+-- Запуск плавного открытия кости через родительский метод :animate
+function DoorEntity:animate_door()
+	self:animate(
+		self.anim_params.rotate, 
+		self.target_offset[self.anim_params.target_axis],
+		self.anim_params.target_axis, 
+		self.anim_params.velocity
+	)
+end
+
+-- Перерасчет смещений векторов и углов на основе param2 ноды
+function DoorEntity:update_door_state(new_mode)
+	local dir = multidecor.dir_ops.get_dir(self.attached_to.pos)
+	local mparams = self.model_params
+	local pos = vector.new(mparams.pos)
+	local box_length = mparams.box:width()
+
+	if mparams.mirrored then 
+		pos.x = pos.x + box_length * 2
+	end
+
+	self.cur_pos = self.attached_to.pos + multidecor.dir_ops.rotate_to_dir(pos, dir)
+	self.cur_rot = vector.new(mparams.rot)
+	self.cur_rot.y = self.cur_rot.y + multidecor.dir_ops.get_rot_y(dir)
+	self.cur_mode = new_mode
+
+	local target_offset = self.anim_params.target_offset
+	local closed = new_mode == "closed"
+	local mirrored = mparams.mirrored
+	local rotate_dir = mparams.rotate_dir or self.anim_params.rotate_dir
+
+	if self.anim_params.rotate then
+		local start_rot_dir = 0
+		if not closed then start_rot_dir = rotate_dir == "inward" and -1 or 1 end
+		if mirrored then start_rot_dir = -start_rot_dir end
+		self.cur_rot[mparams.target_axis] = self.cur_rot[mparams.target_axis] + start_rot_dir * target_offset
+
+		local target_rot_dir = (not closed) and 1 or -1
+		if rotate_dir == "outward" then target_rot_dir = -target_rot_dir end
+		if mirrored then target_rot_dir = -target_rot_dir end
+		target_offset = target_offset * target_rot_dir
+	else
+		local start_shift_dir = (not closed) and 1 or 0
+		self.cur_pos[mparams.target_axis] = self.cur_pos[mparams.target_axis] + start_shift_dir * target_offset
+		target_offset = target_offset * (closed and 1 or -1)
+	end
+
+	self.target_offset = vector.new()
+	self.target_offset[self.anim_params.target_axis] = target_offset
+	mparams.box:rotate(dir)
+
+	self.object:set_pos(self.cur_pos)
+	self.object:set_rotation(self.cur_rot)
+end
+
+-- Регистрация анимированной двери в менеджере
+FurnitureManager.register(DoorEntity.name, DoorEntity)
+
+
 multidecor.doors = {}
 
 local doors = multidecor.doors
@@ -333,3 +438,5 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 		get_staticdata = doors.door_entity_get_staticdata
 	})
 end
+
+return DoorEntity
