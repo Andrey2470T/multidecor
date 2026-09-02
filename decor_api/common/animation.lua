@@ -1,6 +1,7 @@
 local BBox = require("decor_api.helpers.box")
 local Timer = require("decor_api.helpers.timer")
-local FurnitureEntity, _, FurnitureManager = unpack(require("decor_api.common.furniture_entity"))
+local furniture_t = require("decor_api.common.furniture_entity")
+local FurnitureEntity, FurnitureManager = furniture_t[1], furniture_t[3]
 
 -- AnimatedEntity
 ----------------------------------------------------
@@ -180,4 +181,4 @@ end
 -- Registers the "decor_api:cyclic_furniture" entity
 FurnitureManager.register(CyclicEntity.name, CyclicEntity)
 
-return AnimatedEntity, CyclicEntity
+return { AnimatedEntity, CyclicEntity }

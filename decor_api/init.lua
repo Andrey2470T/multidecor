@@ -13,8 +13,10 @@ multidecor.dir_ops = require("decor_api.helpers.dir_ops")
 multidecor.Timer = require("decor_api.helpers.timer")
 
 -- Common
-multidecor.AnimatedEntity, multidecor.CyclicEntity = require("decor_api.common.animation")
-multidecor.FurnitureEntity, multidecor.FurnitureDescriptor, multidecor.FurnitureManager = require("decor_api.common.furniture_entity")
+local animation_t = require("decor_api.common.animation")
+multidecor.AnimatedEntity, multidecor.CyclicEntity = animation_t[1], animation_t[2]
+local furniture_t = require("decor_api.common.furniture_entity")
+multidecor.FurnitureEntity, multidecor.FurnitureDescriptor, multidecor.FurnitureManager = furniture_t[1], furniture_t[2], furniture_t[3]
 dofile(modpath .. "/common/connecting.lua")
 dofile(modpath .. "/common/placement.lua")
 dofile(modpath .. "/common/register.lua")

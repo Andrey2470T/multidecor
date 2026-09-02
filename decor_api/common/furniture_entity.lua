@@ -11,7 +11,7 @@ local FurnitureEntity = {
 }
 FurnitureEntity.__index = FurnitureEntity
 
-function FurnitureEntity.new(node_pos, node_name, data)
+function FurnitureEntity.new(pos, node_name, data)
 	local self = setmetatable({}, FurnitureEntity)
 	self.attached_to = { pos = vector.new(node_pos), name = node_name }
     if data then
@@ -81,10 +81,15 @@ function FurnitureEntity.build_definition(class_table, override_def)
 		static_save = true,
 		on_activate = function(self, staticdata)
 			setmetatable(self, class_table)
-			class_table.on_activate(self, staticdata)
+			if class_table.on_activate then
+				class_table.on_activate(self, staticdata)
+			end
 		end,
 		get_staticdata = function(self)
-			return class_table.get_staticdata(self)
+			if class_table.get_staticdata then
+				return class_table.get_staticdata(self)
+			end
+			return ""
 		end,
 		on_step = function(self, dtime)
 			if class_table.on_step then
@@ -201,5 +206,5 @@ core.register_globalstep(function (dtime)
 	FurnitureManager.timer:tick(dtime)
 end)
 
-return FurnitureEntity, FurnitureDescriptor, FurnitureManager
+return { FurnitureEntity, FurnitureDescriptor, FurnitureManager }
 

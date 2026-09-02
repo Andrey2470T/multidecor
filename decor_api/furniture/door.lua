@@ -1,3 +1,5 @@
+local dir_ops = require("decor_api.helpers.dir_ops")
+local BBox = require("decor_api.helpers.box")
 local AnimatedEntity = require("decor_api.common.animation")[1]
 local FurnitureManager = require("decor_api.common.furniture_entity")[3]
 
@@ -47,9 +49,9 @@ end
 -- Запуск плавного открытия кости через родительский метод :animate
 function DoorEntity:animate_door()
 	self:animate(
-		self.anim_params.rotate, 
-		self.target_offset[self.anim_params.target_axis],
-		self.anim_params.target_axis, 
+		self.anim_params.rotate,
+		self.anim_params.target_offset,
+		self.anim_params.target_axis,
 		self.anim_params.velocity
 	)
 end
@@ -61,7 +63,7 @@ function DoorEntity:update_door_state(new_mode)
 	local pos = vector.new(mparams.pos)
 	local box_length = mparams.box:width()
 
-	if mparams.mirrored then 
+	if mparams.mirrored then
 		pos.x = pos.x + box_length * 2
 	end
 
