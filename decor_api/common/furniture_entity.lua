@@ -11,10 +11,10 @@ local FurnitureEntity = {
 }
 FurnitureEntity.__index = FurnitureEntity
 
-function FurnitureEntity.new(pos, node_name, data)
+function FurnitureEntity.new(node_pos, node_name, data)
 	local self = setmetatable({}, FurnitureEntity)
 	self.attached_to = { pos = vector.new(node_pos), name = node_name }
-    if data then
+	if data then
 		table.copy_to(data, self)
 	end
 
@@ -24,8 +24,9 @@ end
 function FurnitureEntity.spawn(entity_name, node_pos, node_name, pos, rot, data)
 	local serialize_t = FurnitureEntity.new(node_pos, node_name, data)
 	local entity = core.add_entity(pos, entity_name, core.serialize(serialize_t))
-	entity:set_rotation(rot)
-
+	if entity then
+		entity:set_rotation(rot)
+	end
 	return entity
 end
 
@@ -34,21 +35,19 @@ function FurnitureEntity:on_activate(staticdata)
 		local data = core.deserialize(staticdata)
 		if data and data.attached_to then
 			table.copy_to(data, self)
-
 			return true
 		end
 	end
 
-    self.object:set_armor_groups({immortal=true})
-
+	self.object:set_armor_groups({immortal=true})
 	return false
 end
 
 function FurnitureEntity:on_deactivate(removal)
-	local desc = FurnitureManager.get(self.attached_to.pos)
-	-- if removed=true, the entity is entirely removed, if removed=false it was unloaded,
-	-- otherwise it means the callback wasnt called (in case of core.clear_objects it may stay nil)
-	desc.removed = removal
+	local desc = FurnitureManager.get_by_object(self.object)
+	if desc then
+		desc.removed = removal
+	end
 end
 
 function FurnitureEntity:get_staticdata()
@@ -61,7 +60,6 @@ function FurnitureEntity:get_staticdata()
 	return core.serialize(serialize_t)
 end
 
--- Check if the attaching node still exists, remove the object if doesn't
 function FurnitureEntity:check_node_valid()
 	if not self.attached_to then
 		return false
@@ -74,7 +72,6 @@ function FurnitureEntity:check_node_valid()
 	return true
 end
 
--- Creates and fills the entity registration table for "core.register_entity"
 function FurnitureEntity.build_definition(class_table, override_def)
 	local def = {
 		physical = false,
@@ -103,7 +100,7 @@ function FurnitureEntity.build_definition(class_table, override_def)
 	return def
 end
 
--- FurnitureDescriptor
+-- FurnitureDescriptor (handles one entity)
 -------------------------------------------------
 local FurnitureDescriptor = {}
 FurnitureDescriptor.__index = FurnitureDescriptor
@@ -125,6 +122,8 @@ function FurnitureDescriptor.new(entity_name, node_pos, node_name, spawn_pos, sp
 	return self
 end
 
+-- If "self.removed=true" or the object is invalid, it doesn't exist,
+-- if "self.removed=false" the object was just unloaded from the memory, but actually exists in the map 
 function FurnitureDescriptor:exists()
 	if self.removed == false then
 		return true
@@ -132,6 +131,8 @@ function FurnitureDescriptor:exists()
 	return self.object and self.object:is_valid() and self.object:get_luaentity()
 end
 
+-- Self-validates. Removes the underlying entity if the node is not valid, otherwise
+-- if the entity itself doesn't exist, respawns it
 function FurnitureDescriptor:validate_entity()
 	if self:exists() then
 		if not self.object:get_luaentity():check_node_valid() then
@@ -140,8 +141,17 @@ function FurnitureDescriptor:validate_entity()
 		end
 	else
 		local class_table = FurnitureManager.registered_entities[self.entity_name]
+
+		if self.object then
+			FurnitureManager.guid_to_desc[self.object:get_guid()] = nil
+		end
+
 		self.object = class_table.spawn(
 			self.entity_name, self.node_pos, self.node_name, self.spawn_pos, self.spawn_rot, self.data)
+
+		if self.object then
+			FurnitureManager.guid_to_desc[self.object:get_guid()] = self
+		end
 	end
 	self.removed = nil
 
@@ -152,8 +162,9 @@ end
 ------------------------------------------------------
 FurnitureManager = {
 	registered_entities = {},
-	descriptors = {}, -- table in view: [pos_string] = FurnitureDescriptor
-	CHECK_INTERVAL = 3.0 -- Check for entity validity per 3 seconds
+	descriptors = {},
+	guid_to_desc = {},  -- [object_guid] = FurnitureDescriptor (for immediate search, O(1))
+	CHECK_INTERVAL = 3.0
 }
 
 function FurnitureManager.register(name, class)
@@ -161,44 +172,98 @@ function FurnitureManager.register(name, class)
 	core.register_entity(name, FurnitureEntity.build_definition(class))
 end
 
--- Adds the descriptor (called when the node was added to which its entity was attached)
 function FurnitureManager.add(entity_name, node_pos, node_name, spawn_pos, spawn_rot, data)
 	local pos_str = core.pos_to_string(node_pos)
 	local desc = FurnitureDescriptor.new(entity_name, node_pos, node_name, spawn_pos, spawn_rot, data)
-	FurnitureManager.descriptors[pos_str] = desc
+
+	if desc.object then
+		if not FurnitureManager.descriptors[pos_str] then
+			FurnitureManager.descriptors[pos_str] = {}
+		end
+
+		table.insert(FurnitureManager.descriptors[pos_str], desc)
+		FurnitureManager.guid_to_desc[desc.object:get_guid()] = desc
+	end
 end
 
--- Removes the descriptor (called when the node was removed to which its entity was attached or in on_step)
+-- Removes all descriptors at "node_pos"
 function FurnitureManager.remove(node_pos)
 	local pos_str = core.pos_to_string(node_pos)
-	local desc = FurnitureManager.descriptors[pos_str]
-	if desc then
-		if desc:exists() then
-			desc.object:remove()
+	local list = FurnitureManager.descriptors[pos_str]
+	if list then
+		for _, desc in ipairs(list) do
+			if desc:exists() then
+				FurnitureManager.guid_to_desc[desc.object:get_guid()] = nil
+				desc.object:remove()
+			end
 		end
 		FurnitureManager.descriptors[pos_str] = nil
 	end
 end
 
-function FurnitureManager.get(node_pos)
-	local pos_str = core.pos_to_string(node_pos)
-	return FurnitureManager.descriptors[pos_str]
-end
+-- Removes only one descriptor using "guid_to_desc" mapping table
+function FurnitureManager.remove_by_object(object)
+	if not object or not object:is_valid() then return end
+	local guid = object:get_guid()
+	local desc = FurnitureManager.guid_to_desc[guid]
 
-function FurnitureManager.on_step()
-	for _, desc in pairs(FurnitureManager.descriptors) do
-		local result = desc:validate_entity()
-		if not result then FurnitureManager.remove(desc.node_pos) end
+	if desc then
+		local pos_str = core.pos_to_string(desc.node_pos)
+		local list = FurnitureManager.descriptors[pos_str]
+
+		if list then
+			for i = #list, 1, -1 do
+				if list[i] == desc then
+					table.remove(list, i)
+					break
+				end
+			end
+			if #list == 0 then
+				FurnitureManager.descriptors[pos_str] = nil
+			end
+		end
+
+		FurnitureManager.guid_to_desc[guid] = nil
+		object:remove()
 	end
 end
 
--- Registers the "decor_api:base_furniture" entity
+-- Returns the array of all descriptors at "node_pos"
+function FurnitureManager.get(node_pos)
+	local pos_str = core.pos_to_string(node_pos)
+	return FurnitureManager.descriptors[pos_str] or {}
+end
+
+-- Мгновенный поиск дескриптора конкретного объекта за O(1) через GUID
+function FurnitureManager.get_by_object(object)
+	if not object or not object:is_valid() then return nil end
+	return FurnitureManager.guid_to_desc[object:get_guid()]
+end
+
+function FurnitureManager.on_step()
+	for pos_str, list in pairs(FurnitureManager.descriptors) do
+		for i = #list, 1, -1 do
+			local desc = list[i]
+			local result = desc:validate_entity()
+			if not result then
+				if desc.object then
+					FurnitureManager.guid_to_desc[desc.object:get_guid()] = nil
+				end
+				table.remove(list, i)
+			end
+		end
+		if #list == 0 then
+			FurnitureManager.descriptors[pos_str] = nil
+		end
+	end
+end
+
 FurnitureManager.register(FurnitureEntity.name, FurnitureEntity)
 
 FurnitureManager.timer = Timer.new(
 	FurnitureManager.CHECK_INTERVAL,
 	true,
-	{end_callback=FurnitureManager.on_step}
+	{end_callback = FurnitureManager.on_step}
 )
 FurnitureManager.timer:start()
 
@@ -207,4 +272,3 @@ core.register_globalstep(function (dtime)
 end)
 
 return { FurnitureEntity, FurnitureDescriptor, FurnitureManager }
-

@@ -1,46 +1,47 @@
--- Bounding box class
+-- Static bounding box class
 ------------------------------------------------------
 
 local common = require("decor_api.helpers.common")
 local dir_ops = require("decor_api.helpers.dir_ops")
 
-local BBox = {
-	min_edge = vector.new(),
-	max_edge = vector.new()
-}
-
+local BBox = {}
 BBox.__index = BBox
 
+local function new(x1, y1, z1, x2, y2, z2)
+	local self = setmetatable({
+		min_edge = vector.new(x1, y1, z1),
+		max_edge = vector.new(x2, y2, z2),
+		hdir     = vector.new(vector.forward)
+	}, BBox)
+
+	self:repair()
+	self.dims = self.max_edge - self.min_edge
+
+	return self
+end
+
 function BBox.from_default()
-	return setmetatable({}, BBox)
+	return new(0, 0, 0, 0, 0, 0)
 end
 
 function BBox.from_box(box)
-	local self = setmetatable({}, BBox)
-	self.min_edge = vector.new(box[1], box[2], box[3])
-	self.max_edge = vector.new(box[4], box[5], box[6])
-
-	return self
+	return new(table.unpack(box))
 end
 
-function BBox.from_edges(_min_edge, _max_edge)
-	local self = setmetatable({}, BBox)
-	self.min_edge = _min_edge
-	self.max_edge = _max_edge
-
-	return self
+function BBox.from_edges(min_edge, max_edge)
+	return new(min_edge.x, min_edge.y, min_edge.z, max_edge.x, max_edge.y, max_edge.z)
 end
 
 function BBox:width()
-	return self.max_edge.x - self.min_edge.x
+	return self.dims.x
 end
 
 function BBox:height()
-	return self.max_edge.y - self.min_edge.y
+	return self.dims.y
 end
 
 function BBox:depth()
-	return self.max_edge.z - self.min_edge.z
+	return self.dims.z
 end
 
 function BBox:get_coords()
@@ -59,10 +60,16 @@ function BBox:repair()
 	e1.z, e2.z = common.swap(e1.z, e2.z, e1.z > e2.z)
 end
 
--- Rotates 'bbox' bounding box (collision or selection) corresponding to 'dir'
+-- Rotates 'bbox' bounding box vertically (collision or selection) corresponding to 'dir'
 function BBox:rotate(dir)
-	self.min_edge = dir_ops.rotate_to_dir(self.min_edge, dir)
-	self.max_edge = dir_ops.rotate_to_dir(self.max_edge, dir)
+	local orig_min_edge = dir_ops.rotate_to_dir(self.min_edge, -self.hdir)
+	local orig_max_edge = dir_ops.rotate_to_dir(self.max_edge, -self.hdir)
+	self.min_edge = dir_ops.rotate_to_dir(orig_min_edge, dir)
+	self.max_edge = dir_ops.rotate_to_dir(orig_max_edge, dir)
+
+	self.hdir = vector.new(dir)
+
+	self:repair()
 end
 
 return BBox

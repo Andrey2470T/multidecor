@@ -1,34 +1,29 @@
 -- Timer class
 ------------------------------------------------
 
-local Timer = {
-	started = false,
-	cur_time = 0,
-	duration = 0,
-    cyclic = false,
-    tick_callback = nil,
-    tick_callback_data = nil,
-	end_callback = nil,
-	end_callback_data = nil
-}
-
+local Timer = {}
 Timer.__index = Timer
 
-function Timer.new(_duration, _cyclic, callbacks)
-	local self = setmetatable({}, Timer)
-	self.duration = _duration
-	self.cyclic = _cyclic
-	self.end_callback = callbacks.end_callback
-	self.end_callback_data = callbacks.end_callback_data
-	self.tick_callback = callbacks.tick_callback
-	self.tick_callback_data = callbacks.tick_callback_data
+function Timer.new(duration, cyclic, callbacks)
+	callbacks = callbacks or {}
+
+	local self = setmetatable({
+		started 	  = false,
+		cur_time 	  = 0,
+		duration 	  = duration or 0,
+		cyclic 		  = cyclic,
+		tick_callback = callbacks.tick_callback,
+		tick_callback_data = callbacks.tick_callback_data,
+		end_callback 	   = callbacks.end_callback,
+		end_callback_data  = callbacks.end_callback_data
+	}, Timer)
 
 	return self
 end
 
-function Timer:start(_duration)
+function Timer:start(duration)
 	self.cur_time = 0
-	self.duration = _duration or self.duration
+	self.duration = duration or self.duration
 	self.started = true
 end
 
