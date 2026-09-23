@@ -1,7 +1,12 @@
 require("decor_api.helpers.common")
 local Timer = require("decor_api.helpers.timer")
 
-local FurnitureManager
+local FurnitureManager = {
+	registered_entities = {},
+	descriptors = {},
+	guid_to_desc = {},  -- [object_guid] = FurnitureDescriptor (for immediate search, O(1))
+	CHECK_INTERVAL = 3.0
+}
 
 -- FurnitureEntity
 --------------------------------------
@@ -19,6 +24,15 @@ function FurnitureEntity.new(node_pos, node_name, data)
 	end
 
 	return self
+end
+
+function FurnitureEntity:extend(name)
+	local child = {}
+	child.__index = child
+	child.name = name
+
+	setmetatable(child, { __index = self })
+	return child
 end
 
 function FurnitureEntity.spawn(entity_name, node_pos, node_name, pos, rot, data)
@@ -112,10 +126,10 @@ function FurnitureDescriptor.new(entity_name, node_pos, node_name, spawn_pos, sp
 	self.node_pos = vector.new(node_pos)
 	self.node_name = node_name
 	self.spawn_pos = spawn_pos and vector.new(spawn_pos) or vector.new(node_pos)
-	self.spawn_rot = spawn_rot and vector.new(spawn_rot) or vector.new({x=0, y=0, z=0})
+	self.spawn_rot = spawn_rot and vector.new(spawn_rot) or vector.new()
 	self.data = data or {}
 
-	local class_table = FurnitureManager.registered_entities[entity_name]
+	local class_table = FurnitureManager.registered_entities[self.entity_name]
 	self.object = class_table.spawn(
 		entity_name, self.node_pos, self.node_name, self.spawn_pos, self.spawn_rot, self.data)
 
@@ -139,6 +153,14 @@ function FurnitureDescriptor:validate_entity()
 			self.object:remove()
 			return false
 		end
+
+		-- Prevents the unintentional entity position and rotation change (may be caused by external mod)
+		if self.spawn_pos ~= self.object:get_pos() then
+			self.object:set_pos(self.spawn_pos)
+		end
+		if self.spawn_rot ~= self.object:get_rotation() then
+			self.object:set_rotation(self.spawn_rot)
+		end
 	else
 		local class_table = FurnitureManager.registered_entities[self.entity_name]
 
@@ -160,12 +182,6 @@ end
 
 -- FurnitureManager
 ------------------------------------------------------
-FurnitureManager = {
-	registered_entities = {},
-	descriptors = {},
-	guid_to_desc = {},  -- [object_guid] = FurnitureDescriptor (for immediate search, O(1))
-	CHECK_INTERVAL = 3.0
-}
 
 function FurnitureManager.register(name, class)
 	FurnitureManager.registered_entities[name] = class
@@ -234,7 +250,7 @@ function FurnitureManager.get(node_pos)
 	return FurnitureManager.descriptors[pos_str] or {}
 end
 
--- Мгновенный поиск дескриптора конкретного объекта за O(1) через GUID
+-- Returns the descriptor for "object" using the "guid_to_desc" mapping table (O(1))
 function FurnitureManager.get_by_object(object)
 	if not object or not object:is_valid() then return nil end
 	return FurnitureManager.guid_to_desc[object:get_guid()]

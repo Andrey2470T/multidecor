@@ -5,9 +5,7 @@ local FurnitureEntity, FurnitureManager = furniture_t[1], furniture_t[3]
 
 -- AnimatedEntity
 ----------------------------------------------------
-local AnimatedEntity = setmetatable({}, { __index = FurnitureEntity })
-AnimatedEntity.__index = AnimatedEntity
-AnimatedEntity.name = "decor_api:animated_furniture"
+local AnimatedEntity = FurnitureEntity:extend("decor_api:animated_furniture")
 
 function AnimatedEntity:on_activate(staticdata)
 	if not FurnitureEntity.on_activate(self, staticdata) then
@@ -21,10 +19,10 @@ function AnimatedEntity:on_activate(staticdata)
 	self.model_params.box = self.model_params.box or BBox.from_default()
 	self.sound_handle = nil
 
-	local cb_data = { node_pos = self.attached_to.pos }
+	local cb_data = { guid = self.object:get_guid() }
 	self.anim_timer = Timer.new(0, false, {
 		end_callback = function(data)
-			local desc = FurnitureManager.get(data.node_pos)
+			local desc = FurnitureManager.get_by_object(data.guid)
 			if desc:exists() then
 				local desc_self = desc.object:get_luaentity()
 
