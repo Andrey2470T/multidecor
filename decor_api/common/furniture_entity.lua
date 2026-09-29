@@ -48,13 +48,14 @@ function FurnitureEntity:on_activate(staticdata)
 	if staticdata and staticdata ~= "" then
 		local data = core.deserialize(staticdata)
 		if data and data.attached_to then
+			-- Restore the vector metatable lost during serialization
+			data.attached_to.pos = vector.new(data.attached_to.pos)
 			table.copy_to(data, self)
-			return true
 		end
 	end
 
 	self.object:set_armor_groups({immortal=true})
-	return false
+	return true
 end
 
 function FurnitureEntity:on_deactivate(removal)
@@ -68,8 +69,15 @@ function FurnitureEntity:get_staticdata()
 	local serialize_t = {}
 
 	table.copy_to(self, serialize_t)
+	-- Runtime-only fields, must not be persisted (handles and timers are recreated on activation)
 	serialize_t.name = nil
 	serialize_t.object = nil
+	serialize_t.dummy_entity = nil
+	serialize_t.anim_timer = nil
+	serialize_t.initialized = nil
+	if serialize_t.sound then
+		serialize_t.sound.handle = nil
+	end
 
 	return core.serialize(serialize_t)
 end
@@ -149,19 +157,28 @@ end
 -- if the entity itself doesn't exist, respawns it
 function FurnitureDescriptor:validate_entity()
 	if self:exists() then
-		if not self.object:get_luaentity():check_node_valid() then
+		local luaentity = self.object:get_luaentity()
+		if not luaentity or not luaentity:check_node_valid() then
 			self.object:remove()
 			return false
 		end
 
 		-- Prevents the unintentional entity position and rotation change (may be caused by external mod)
-		if self.spawn_pos ~= self.object:get_pos() then
+		local cur_pos = self.object:get_pos()
+		if not vector.equals(self.spawn_pos, cur_pos) then
 			self.object:set_pos(self.spawn_pos)
 		end
-		if self.spawn_rot ~= self.object:get_rotation() then
+		local cur_rot = self.object:get_rotation()
+		if not vector.equals(self.spawn_rot, cur_rot) then
 			self.object:set_rotation(self.spawn_rot)
 		end
 	else
+		-- The node may be gone (that is why the entity was removed) — don't respawn then
+		local cur_node = core.get_node_or_nil(self.node_pos)
+		if not cur_node or cur_node.name ~= self.node_name then
+			return false
+		end
+
 		local class_table = FurnitureManager.registered_entities[self.entity_name]
 
 		if self.object then
@@ -183,9 +200,9 @@ end
 -- FurnitureManager
 ------------------------------------------------------
 
-function FurnitureManager.register(name, class)
+function FurnitureManager.register(name, class, override_def)
 	FurnitureManager.registered_entities[name] = class
-	core.register_entity(name, FurnitureEntity.build_definition(class))
+	core.register_entity(name, FurnitureEntity.build_definition(class, override_def))
 end
 
 function FurnitureManager.add(entity_name, node_pos, node_name, spawn_pos, spawn_rot, data)
@@ -200,6 +217,8 @@ function FurnitureManager.add(entity_name, node_pos, node_name, spawn_pos, spawn
 		table.insert(FurnitureManager.descriptors[pos_str], desc)
 		FurnitureManager.guid_to_desc[desc.object:get_guid()] = desc
 	end
+
+	return desc
 end
 
 -- Removes all descriptors at "node_pos"
@@ -254,6 +273,11 @@ end
 function FurnitureManager.get_by_object(object)
 	if not object or not object:is_valid() then return nil end
 	return FurnitureManager.guid_to_desc[object:get_guid()]
+end
+
+-- Returns the descriptor for an entity object guid
+function FurnitureManager.get_by_guid(guid)
+	return FurnitureManager.guid_to_desc[guid]
 end
 
 function FurnitureManager.on_step()

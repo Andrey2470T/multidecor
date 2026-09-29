@@ -1,3 +1,7 @@
+local animation_t = require("decor_api.common.animation")
+local CyclicEntity = animation_t[2]
+local FurnitureManager = require("decor_api.common.furniture_entity")[3]
+
 local cab_bboxes = {
 	{-0.5, -0.5, -0.425, 0.5, 0.45, 0.5},
 	{-0.5, 0.45, -0.5, 0.5, 0.5, 0.5}
@@ -143,12 +147,13 @@ local cmpnts = {
 	},
 }
 
+local cabinet_door_textures = {"multidecor_wood.png", "multidecor_metal_material.png", "multidecor_glass_material.png"}
+
 local garniture_def = {
 	type = "kitchen",
 	style = "modern",
 	material = "wood",
 	common_name = "kitchen_modern_%s_cabinet",
-	objs_common_name = "kitchen_cabinet",
 	tiles = {
 		"multidecor_wood.png",
 		"multidecor_%s_material.png",
@@ -156,9 +161,58 @@ local garniture_def = {
 		"multidecor_sink_leakage.png",
 		"multidecor_plastic_bucket.png"
 	},
-	--obj_tiles = {"multidecor_wood.png", "multidecor_metal_material.png", "multidecor_glass_material.png"},
 	groups = {choppy=1.5},
-	modname = "modern"
+	move_parts = {
+		floor_door = {
+			mesh = "multidecor_kitchen_cabinet_door.obj",
+			textures = cabinet_door_textures,
+			use_texture_alpha = true,
+			backface_culling = false,
+			selectionbox = {-0.9,-0.5,0,0,0.4,0.075}
+		},
+		floor_half_door = {
+			mesh = "multidecor_kitchen_cabinet_half_door.obj",
+			textures = cabinet_door_textures,
+			use_texture_alpha = true,
+			backface_culling = false,
+			selectionbox = {-0.45,-0.5,0,0,0.4,0.075}
+		},
+		wall_door = {
+			mesh = "multidecor_kitchen_wall_cabinet_door.obj",
+			textures = cabinet_door_textures,
+			use_texture_alpha = true,
+			backface_culling = false,
+			selectionbox = {-0.9,-0.5,0,0,0.4,0.075}
+		},
+		wall_half_door = {
+			mesh = "multidecor_kitchen_wall_cabinet_half_door.obj",
+			textures = cabinet_door_textures,
+			use_texture_alpha = true,
+			backface_culling = false,
+			selectionbox = {-0.45,-0.5,0,0,0.4,0.075}
+		},
+		wall_half_glass_door = {
+			mesh = "multidecor_kitchen_wall_cabinet_half_glass_door.obj",
+			textures = cabinet_door_textures,
+			use_texture_alpha = true,
+			backface_culling = false,
+			selectionbox = {-0.45,-0.5,0,0,0.4,0.075}
+		},
+		large_drawer = {
+			mesh = "multidecor_kitchen_cabinet_two_shelves_drawer.obj",
+			textures = cabinet_door_textures,
+			use_texture_alpha = true,
+			backface_culling = false,
+			selectionbox = {-0.3,-0.2,-0.4,0.3,0.2,0.4}
+		},
+		small_drawer = {
+			mesh = "multidecor_kitchen_cabinet_three_shelves_drawer.obj",
+			textures = cabinet_door_textures,
+			use_texture_alpha = true,
+			backface_culling = false,
+			selectionbox = {-0.3,-0.15,-0.4,0.3,0.15,0.4}
+		}
+	}
 }
 
 local granite_cmpnts = table.copy(cmpnts)
@@ -275,33 +329,27 @@ marble_garniture_def.components = marble_cmpnts
 multidecor.register.register_garniture(marble_garniture_def)
 
 
-local objects = {
-	["floor_door"] = {type="door",mesh="multidecor_kitchen_cabinet_door.obj",box={-0.9,-0.5,0,0,0.4,0.075}},
-	["floor_half_door"] = {type="door",mesh="multidecor_kitchen_cabinet_half_door.obj",box={-0.45,-0.5,0,0,0.4,0.075}},
-	["wall_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_door.obj",box={-0.9,-0.5,0,0,0.4,0.075}},
-	["wall_half_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_half_door.obj",box={-0.45,-0.5,0,0,0.4,0.075}},
-	["wall_half_glass_door"] = {type="door",mesh="multidecor_kitchen_wall_cabinet_half_glass_door.obj",box={-0.45,-0.5,0,0,0.4,0.075}},
-	["large_drawer"] = {type="drawer",mesh="multidecor_kitchen_cabinet_two_shelves_drawer.obj",box={-0.3,-0.2,-0.4,0.3,0.2,0.4}},
-	["small_drawer"] = {type="drawer",mesh="multidecor_kitchen_cabinet_three_shelves_drawer.obj",box={-0.3,-0.15,-0.4,0.3,0.15,0.4}}
-}
+local CeilingFanEntity = CyclicEntity:extend("modern:ceiling_fan_blades")
 
-for name, props in pairs(objects) do
-	core.register_entity("modern:kitchen_cabinet_" .. name, {
-		visual = "mesh",
-		visual_size = {x=5, y=5, z=5},
-		mesh = props.mesh,
-		textures = {"multidecor_wood.png", "multidecor_metal_material.png", "multidecor_glass_material.png"},
-		backface_culling = false,
-		use_texture_alpha = true,
-		physical = false,
-		selectionbox = props.box,
-		on_activate = multidecor.shelves.on_activate,
-		on_rightclick = multidecor.shelves.on_rightclick,
-		on_step = props.type == "drawer" and multidecor.shelves.drawer_on_step or multidecor.shelves.door_on_step,
-		get_staticdata = multidecor.shelves.get_staticdata,
-		on_deactivate = multidecor.shelves.on_deactivate
-	})
+-- The blades spin via a keyframed mesh animation instead of the bone cycling
+function CeilingFanEntity:cycle()
+	if self.frame_animation then
+		self:play_frame_animation(self.frame_animation.range, self.frame_animation.speed)
+	end
+	self:play_sound()
 end
+
+FurnitureManager.register(CeilingFanEntity.name, CeilingFanEntity, {
+	visual = "mesh",
+	visual_size = {x=5, y=5, z=5},
+	mesh = "multidecor_ceiling_fan_blades.b3d",
+	textures = {"multidecor_ceiling_fan.png"},
+	physical = true,
+	backface_culling = false,
+	selectionbox = {-0.5, -0.2, -0.5, 0.5, 0, 0.5},
+	static_save = true
+})
+
 
 multidecor.register.register_furniture_unit("ceiling_fan", {
 	type = "decoration",
@@ -315,7 +363,15 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 	callbacks = {
 		on_construct = function(pos)
 			local node = core.get_node(pos)
-			core.add_entity(pos, "modern:ceiling_fan_blades", core.serialize({pos=pos, name=node.name}))
+			FurnitureManager.add(CeilingFanEntity.name, pos, node.name, pos, vector.new(), {
+				frame_animation = {range = {x=1, y=40}, speed = 30},
+				sound = {
+					name = "multidecor_fan_noise",
+					volume = 1.0,
+					max_distance = 15,
+					loop = true
+				}
+			})
 		end
 	}
 },
@@ -327,63 +383,37 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 	}
 })
 
-core.register_entity("modern:ceiling_fan_blades", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_ceiling_fan_blades.b3d",
-	textures = {"multidecor_ceiling_fan.png"},
-	physical = true,
+local cooker_oven_door_def = {
+	mesh = "multidecor_kitchen_cooker_oven_door.obj",
+	textures = {"multidecor_kitchen_cooker_oven_door.png", "multidecor_metal_material.png"},
+	use_texture_alpha = true,
 	backface_culling = false,
-	selectionbox = {-0.5, -0.2, -0.5, 0.5, 0, 0.5},
-	static_save = true,
-	on_activate = function(self, staticdata)
-		self.object:set_armor_groups({immortal=1})
+	selectionbox = {-0.5, 0, 0.1, 0.5, 0.6, 0}
+}
 
-		if staticdata ~= "" then
-			-- The code below is for backwards compatibility with versions < 1.2.5
-			local attach = vector.from_string(staticdata)
+local fridge_upper_door_def = {
+	mesh = "multidecor_fridge_upper_door.obj",
+	textures = {"multidecor_fridge_interior.png", "multidecor_metal_material.png", "multidecor_plastic_material.png"},
+	use_texture_alpha = true,
+	backface_culling = false,
+	selectionbox = {0, -0.5, 0, 1, 0.8, 0.1}
+}
 
-			if attach then
-				self.object:remove()
-				core.set_node(attach, core.get_node(attach))
-				return
-			end
-			-- end
+local fridge_lower_door_def = {
+	mesh = "multidecor_fridge_lower_door.obj",
+	textures = {"multidecor_fridge_interior.png", "multidecor_metal_material.png", "multidecor_plastic_material.png"},
+	use_texture_alpha = true,
+	backface_culling = false,
+	selectionbox = {0, -0.5, 0, 1, 0.15, 0.1}
+}
 
-			self.attached_to = core.deserialize(staticdata)
-
-			if not attach and not self.attached_to then
-				self.object:remove()
-				return
-			end
-
-			if self.attached_to.sound then
-				core.sound_stop(self.attached_to.sound)
-			end
-
-			self.attached_to.sound = core.sound_play("multidecor_fan_noise", {object=self.object, fade=1.0, max_hear_distance=15, loop=true})
-		end
-
-		self.object:set_animation({x=1, y=40}, 30)
-	end,
-	on_step = function(self, dtime)
-		if not self.attached_to then
-			self.object:remove()
-			return
-		end
-
-		local cur_node = core.get_node(self.attached_to.pos)
-
-		if cur_node.name ~= self.attached_to.name then
-			self.object:remove()
-			core.sound_stop(self.attached_to.sound)
-			return
-		end
-	end,
-	get_staticdata = function(self)
-		return core.serialize(self.attached_to)
-	end
-})
+local microwave_door_def = {
+	mesh = "multidecor_microwave_door.obj",
+	textures = {"multidecor_black_plastic_material.png", "multidecor_microwave_net.png"},
+	use_texture_alpha = true,
+	backface_culling = false,
+	selectionbox = {-0.575, -0.25, 0.075, 0, 0.25, 0}
+}
 
 multidecor.register.register_furniture_unit("kitchen_cooker", {
 	type = "decoration",
@@ -410,7 +440,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker", {
 			common_name = "kitchen_cooker",
 			{
 				type = "door",
-				object = "modern:kitchen_cooker_oven_door",
+				def = cooker_oven_door_def,
 				pos = {x=0, y=-0.35, z=0.4},
 				invlist_type = "cooker",
 				acc = 1,
@@ -455,7 +485,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker_activated", {
 			common_name = "kitchen_cooker",
 			{
 				type = "door",
-				object = "modern:kitchen_cooker_oven_door",
+				def = cooker_oven_door_def,
 				pos = {x=0, y=-0.35, z=0.4},
 				invlist_type = "cooker",
 				acc = 1,
@@ -469,22 +499,6 @@ multidecor.register.register_furniture_unit("kitchen_cooker_activated", {
 	}
 })
 
-core.register_entity("modern:kitchen_cooker_oven_door", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_kitchen_cooker_oven_door.obj",
-	textures = {"multidecor_kitchen_cooker_oven_door.png", "multidecor_metal_material.png"},
-	use_texture_alpha = true,
-	physical = false,
-	backface_culling = false,
-	selectionbox = {-0.5, 0, 0.1, 0.5, 0.6, 0},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.door_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})
 
 multidecor.register.register_light("kitchen_hood", {
 	style = "modern",
@@ -540,7 +554,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 			common_name = "kitchen_fridge",
 			{
 				type = "door",
-				object = "modern:kitchen_fridge_upper_door",
+				def = fridge_upper_door_def,
 				pos = {x=-0.5, y=0.7, z=0.4},
 				inv_size = {w=8, h=4},
 				acc = 1,
@@ -552,7 +566,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 			},
 			{
 				type = "door",
-				object = "modern:kitchen_fridge_lower_door",
+				def = fridge_lower_door_def,
 				pos = {x=-0.5, y=0, z=0.4},
 				inv_size = {w=8, h=2},
 				acc = 1,
@@ -573,39 +587,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 	}
 })
 
-core.register_entity("modern:kitchen_fridge_upper_door", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_fridge_upper_door.obj",
-	textures = {"multidecor_fridge_interior.png", "multidecor_metal_material.png", "multidecor_plastic_material.png"},
-	use_texture_alpha = true,
-	physical = false,
-	backface_culling = false,
-	selectionbox = {0, -0.5, 0, 1, 0.8, 0.1},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.door_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})
 
-core.register_entity("modern:kitchen_fridge_lower_door", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_fridge_lower_door.obj",
-	textures = {"multidecor_fridge_interior.png", "multidecor_metal_material.png", "multidecor_plastic_material.png"},
-	use_texture_alpha = true,
-	physical = false,
-	backface_culling = false,
-	selectionbox = {0, -0.5, 0, 1, 0.15, 0.1},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.door_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})
 
 multidecor.register.register_furniture_unit("porcelain_plate", {
 	type = "decoration",
@@ -1053,7 +1035,7 @@ multidecor.register.register_furniture_unit("microwave", {
 			common_name = "microwave",
 			{
 				type = "door",
-				object = "modern:microwave_door",
+				def = microwave_door_def,
 				pos = {x=0.425, y=-0.25, z=0.225},
 				invlist_type = "cooker",
 				acc = 1,
@@ -1102,7 +1084,7 @@ multidecor.register.register_furniture_unit("microwave_activated", {
 			common_name = "microwave",
 			{
 				type = "door",
-				object = "modern:microwave_door",
+				def = microwave_door_def,
 				pos = {x=0.425, y=-0.25, z=0.225},
 				invlist_type = "cooker",
 				acc = 1,
@@ -1116,19 +1098,3 @@ multidecor.register.register_furniture_unit("microwave_activated", {
 	}
 })
 
-core.register_entity("modern:microwave_door", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_microwave_door.obj",
-	textures = {"multidecor_black_plastic_material.png", "multidecor_microwave_net.png"},
-	use_texture_alpha = true,
-	physical = false,
-	backface_culling = false,
-	selectionbox = {-0.575, -0.25, 0.075, 0, 0.25, 0},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.door_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})

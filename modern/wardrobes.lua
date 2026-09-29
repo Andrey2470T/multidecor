@@ -1,3 +1,18 @@
+local wardrobe_wooden_glass_door_def = {
+	mesh = "multidecor_wardrobe_wooden_glass_door.obj",
+	textures = {"multidecor_metal_material.png", "multidecor_jungle_wood.png^[resize:32x32", "multidecor_glass_material.png"},
+	use_texture_alpha = true,
+	backface_culling = false,
+	selectionbox = {-0.5, -0.53, 0, 0, 0.53, 0.075}
+}
+
+local wardrobe_wooden_door_def = {
+	mesh = "multidecor_wardrobe_wooden_door.obj",
+	textures = {"multidecor_metal_material.png", "multidecor_jungle_wood.png^[resize:32x32"},
+	backface_culling = false,
+	selectionbox = {-0.5, -0.53, 0, 0, 0.53, 0.075}
+}
+
 multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 	style = "modern",
 	material = "wood",
@@ -22,7 +37,7 @@ multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 			type = "sym_doors",
 			pos = {x=0.5, y=1.6625, z=0.25},
 			pos2 = {x=-0.5, y=1.6625, z=0.25},
-			object = "modern:wardrobe_wooden_glass_door",
+			def = wardrobe_wooden_glass_door_def,
 			inv_size = {w=8,h=6},
 			acc = 1,
 			sounds = {
@@ -34,7 +49,7 @@ multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 			type = "sym_doors",
 			pos = {x=0.5, y=0.2375, z=0.25},
 			pos2 = {x=-0.5, y=0.2375, z=0.25},
-			object = "modern:wardrobe_wooden_door",
+			def = wardrobe_wooden_door_def,
 			inv_size = {w=8,h=6},
 			acc = 1,
 			sounds = {
@@ -52,35 +67,4 @@ multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 	}
 })
 
-core.register_entity("modern:wardrobe_wooden_glass_door", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_wardrobe_wooden_glass_door.obj",
-	textures = {"multidecor_metal_material.png", "multidecor_jungle_wood.png^[resize:32x32", "multidecor_glass_material.png"},
-	use_texture_alpha = true,
-	physical = false,
-	backface_culling = false,
-	selectionbox = {-0.5, -0.53, 0, 0, 0.53, 0.075},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.door_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})
 
-core.register_entity("modern:wardrobe_wooden_door", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_wardrobe_wooden_door.obj",
-	textures = {"multidecor_metal_material.png", "multidecor_jungle_wood.png^[resize:32x32"},
-	physical = false,
-	selectionbox = {-0.5, -0.53, 0, 0, 0.53, 0.075},
-	static_save = true,
-	backface_culling = false,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.door_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})

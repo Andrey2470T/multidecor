@@ -20,66 +20,611 @@
 	}
 ]]
 
-multidecor.shelves = {}
+local dir_ops = require("decor_api.helpers.dir_ops")
+local common = require("decor_api.helpers.common")
+local BBox = require("decor_api.helpers.box")
+local furniture_t = require("decor_api.common.furniture_entity")
+local FurnitureManager = furniture_t[3]
+local DoorEntity = require("decor_api.furniture.door")
 
+local shelves_api = {}
 
--- Temporary saving objects of current "open" shelves in the following format: ["playername"] = objref
+-- Shelf: manages one shelf of a furniture node — its detached inventory,
+-- lock/share info, cooking and one or two DoorEntity doors
+--------------------------------------------------------------------------------
+local Shelf = {}
+Shelf.__index = Shelf
+
+-- Runtime registry: [pos_str] = { [shelf_i] = Shelf }
+local shelves_registry = {}
+
+-- Players currently having a shelf formspec open: [playername] = Shelf
 local open_shelves = {}
 
--- Rotates the shelf 'obj' around 'pos' position of the node
-function multidecor.shelves.rotate_shelf(pos, obj, is_drawer, side, move_dist, orig_angle)
-	orig_angle = orig_angle or {x=0, y=0, z=0}
-	local dir = multidecor.helpers.get_dir(pos)
-	--doors.rotate(obj, dir, pos)
-	local new_pos, rot = multidecor.doors.rotate(obj:get_pos(), dir, pos)
-	rot = vector.add(rot, orig_angle)
-	obj:set_pos(new_pos)
-	obj:set_rotation(rot)
+-- Nodes with cooking in progress: [pos_str] = true
+local cooking_shelves = {}
 
-	dir = vector.rotate(dir, orig_angle)
 
-	local self = obj:get_luaentity()
-	if is_drawer then
-		local rel_obj_pos = vector.subtract(obj:get_pos(), pos)
-		self.start_v = vector.add(pos, rel_obj_pos)
-		self.end_v = vector.add(pos, vector.add(rel_obj_pos, vector.multiply(dir, move_dist)))
+function Shelf.get_or_new(node_pos, shelf_i)
+	local node = core.get_node(node_pos)
+	local def = core.registered_nodes[node.name]
+
+	if not def or not def.add_properties or not def.add_properties.shelves_data then
+		return nil
+	end
+
+	local shelves_data = def.add_properties.shelves_data
+	if not shelves_data[shelf_i] then
+		return nil
+	end
+
+	local pos_str = core.pos_to_string(node_pos)
+	local reg = shelves_registry[pos_str]
+	if reg and reg[shelf_i] then
+		return reg[shelf_i]
+	end
+
+	local self = setmetatable({}, Shelf)
+	self.node_pos = vector.new(node_pos)
+	self.node_name = node.name
+	self.shelves_data = shelves_data
+	self.shelf_data = shelves_data[shelf_i]
+	self.shelf_i = shelf_i
+
+	local state = core.deserialize(core.get_meta(node_pos):get_string("shelf_" .. shelf_i .. "_state")) or {}
+	self.inv_list = state.inv_list or {}
+	self.lock_info = state.lock_info
+	self.cook_info = state.cook_info
+	self.is_open = false
+
+	if not reg then
+		shelves_registry[pos_str] = {}
+	end
+	shelves_registry[pos_str][shelf_i] = self
+
+	return self
+end
+
+function Shelf:inv_name()
+	return common.build_name_from_tmp(self.shelves_data.common_name, "inv", self.shelf_i, self.node_pos)
+end
+
+function Shelf:list_name()
+	return common.build_name_from_tmp(self.shelves_data.common_name, "list", self.shelf_i, self.node_pos)
+end
+
+function Shelf:formspec_name()
+	return common.build_name_from_tmp(self.shelves_data.common_name, "fs", self.shelf_i, self.node_pos)
+end
+
+function Shelf:save_state()
+	local inv = core.get_inventory({type="detached", name=self:inv_name()})
+	if inv then
+		local inv_list = {}
+		local list = inv:get_list(self:list_name())
+
+		for _, stack in ipairs(list) do
+			table.insert(inv_list, {name=stack:get_name(), count=stack:get_count(), wear=stack:get_wear()})
+		end
+
+		self.inv_list = inv_list
+	end
+
+	local infotext = shelves_api.build_infotext(self.lock_info)
+	for _, lua_ent in ipairs(self:get_door_entities()) do
+		if lua_ent.dummy_entity and lua_ent.dummy_entity:is_valid() then
+			lua_ent.dummy_entity:set_properties({infotext=infotext})
+		end
+	end
+
+	core.get_meta(self.node_pos):set_string("shelf_" .. self.shelf_i .. "_state", core.serialize({
+		inv_list = self.inv_list,
+		lock_info = self.lock_info,
+		cook_info = self.cook_info
+	}))
+end
+
+function Shelf:create_inventory()
+	local inv_name = self:inv_name()
+	if core.get_inventory({type="detached", name=inv_name}) then
+		return
+	end
+
+	local shelf = self
+
+	local inv = core.create_detached_inventory(inv_name, {
+		allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
+			return count
+		end,
+		allow_put = function(inv, listname, index, stack, player)
+			local c = stack:get_count()
+
+			if shelf.shelf_data.invlist_type == "cooker" then
+				local output = core.get_craft_result({method="cooking", width=1, items={stack}})
+
+				if not output or output.time == 0 then
+					c = 0
+				end
+			end
+			return c
+		end,
+		allow_take = function(inv, listname, index, stack, player)
+			return stack:get_count()
+		end,
+		on_put = function(inv, listname, index, stack, player)
+			local playername = player:get_player_name()
+			if shelf.shelf_data.invlist_type == "trash" then
+				inv:remove_item(listname, inv:get_stack(listname, 1))
+				core.sound_play("multidecor_trash", {to_player=playername})
+			elseif shelf.shelf_data.invlist_type == "cooker" then
+				shelf:start_cooking(inv, listname, stack, playername)
+			end
+		end
+	})
+
+	local inv_list = {}
+	for _, stack_t in ipairs(self.inv_list) do
+		local stack = ItemStack(stack_t.name)
+		stack:set_count(stack_t.count)
+		stack:set_wear(stack_t.wear)
+
+		table.insert(inv_list, stack)
+	end
+
+	local list_type = self.shelf_data.invlist_type or "storage"
+	local invsize = list_type == "storage" and self.shelf_data.inv_size or {w=1, h=1}
+	inv:set_list(self:list_name(), inv_list)
+	inv:set_size(self:list_name(), invsize.w*invsize.h)
+	inv:set_width(self:list_name(), invsize.w)
+
+	inv:set_size("main", 32)
+	inv:set_width("main", 8)
+end
+
+function Shelf:start_cooking(inv, listname, stack, playername)
+	local output = core.get_craft_result({method="cooking", width=1, items=inv:get_list(listname)})
+	output.item = {
+		name=output.item:get_name(),
+		count=output.item:get_count()*stack:get_count(),
+		wear=output.item:get_wear()
+	}
+	local total_time = output.time*stack:get_count()
+
+	core.swap_node(self.node_pos, {
+		name="multidecor:" .. self.shelves_data.common_name .. "_activated",
+		param2=core.get_node(self.node_pos).param2
+	})
+
+	local meta = core.get_meta(self.node_pos)
+	self.cook_info = {output, 0, total_time, 0}
+	meta:set_string("sound_handle", core.serialize(core.sound_play(
+		"multidecor_hum",
+		{pos=self.node_pos, fade=1.0, max_hear_distance=10, loop=true}
+	)))
+
+	cooking_shelves[core.pos_to_string(self.node_pos)] = true
+end
+
+function Shelf:stop_cooking()
+	local meta = core.get_meta(self.node_pos)
+	self.cook_info = nil
+	meta:set_string("cook_info", "")
+	meta:set_string("infotext", "")
+
+	local sound_handle = core.deserialize(meta:get_string("sound_handle"))
+	core.sound_stop(sound_handle)
+
+	core.swap_node(self.node_pos, {
+		name="multidecor:" .. self.shelves_data.common_name,
+		param2=core.get_node(self.node_pos).param2
+	})
+
+	cooking_shelves[core.pos_to_string(self.node_pos)] = nil
+end
+
+function Shelf:cook_step(dtime)
+	local inv = core.get_inventory({type="detached", name=self:inv_name()})
+	if not inv then
+		cooking_shelves[core.pos_to_string(self.node_pos)] = nil
+		return
+	end
+
+	local cook_info = self.cook_info
+	if not cook_info then
+		return
+	end
+
+	cook_info[2] = cook_info[2] + dtime
+	cook_info[4] = cook_info[2]/cook_info[3]*100
+
+	local meta = core.get_meta(self.node_pos)
+	meta:set_string("infotext", multidecor.S("Cooked to: ") .. tostring(math.round(cook_info[4])) .. " %")
+
+	local list_name = self:list_name()
+	local time_elapsed = cook_info[2] >= cook_info[3]
+	local is_empty = inv:is_empty(list_name)
+
+	if is_empty or time_elapsed then
+		if time_elapsed then
+			local output = ItemStack(cook_info[1].item.name)
+			output:set_count(cook_info[1].item.count)
+			output:set_wear(cook_info[1].item.wear)
+			inv:set_stack(list_name, 1, output)
+		end
+
+		cook_info[4] = 0
+		self:stop_cooking()
+	end
+
+	local i, f = math.modf(cook_info[2])
+	local playername, fs
+
+	if (f > 0 and f < 0.05) or is_empty then
+		for pl_name, open_shelf in pairs(open_shelves) do
+			if open_shelf == self then
+				playername = pl_name
+				fs = shelves_api.build_main_formspec(
+					self.node_pos,
+					self.shelves_data.common_name,
+					self.shelf_data,
+					self.shelf_i,
+					self.lock_info ~= nil,
+					shelves_api.show_lock_buttons(self.lock_info, pl_name),
+					cook_info[4]
+				)
+				break
+			end
+		end
+	end
+
+	if fs and playername then
+		core.show_formspec(playername, self:formspec_name(), fs)
+	end
+end
+
+local function get_dominant_axis(dir)
+	if dir.x ~= 0 then return "x"
+	elseif dir.y ~= 0 then return "y"
+	else return "z" end
+end
+
+-- Builds the DoorEntity spawn data for one shelf door/drawer.
+-- 'rel_pos' is the door position relative to the node, 'mirrored' flips the
+-- dummy model horizontally (the second door of "sym_doors")
+function Shelf:build_door_data(rel_pos, mirrored)
+	local sd = self.shelf_data
+	local obj_def = sd.def or core.registered_entities[sd.object]
+	if not obj_def then
+		return nil
+	end
+
+	local size = vector.new(obj_def.visual_size or {x=5, y=5, z=5})
+	if sd.visual_size_adds then
+		size = vector.add(size, sd.visual_size_adds)
+	end
+
+	local model_params = {
+		size = size,
+		mesh = obj_def.mesh,
+		textures = obj_def.textures,
+		box = BBox.from_box(obj_def.selectionbox or obj_def.collisionbox or {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5}),
+		pos = vector.new(rel_pos),
+		rot = vector.new(sd.orig_angle or {x=0, y=0, z=0}),
+		mirrored = mirrored,
+		bone = "Door",
+		use_texture_alpha = obj_def.use_texture_alpha,
+		backface_culling = obj_def.backface_culling
+	}
+
+	if sd.base_texture then
+		model_params.textures = table.copy(obj_def.textures)
+		model_params.textures[1] = sd.base_texture
+	end
+
+	local dir = dir_ops.get_dir(self.node_pos)
+	local anim_params
+
+	if sd.type == "drawer" then
+		local move_dist = 2/3*(sd.length or 0.5)
+
+		if sd.orig_angle then
+			dir = vector.rotate(dir, sd.orig_angle)
+		end
+		local axis = get_dominant_axis(dir)
+		local sign = dir[axis] > 0 and 1 or -1
+
+		anim_params = {
+			rotate = false,
+			target_axis = axis,
+			target_offset = sign*move_dist,
+			velocity = 0.6
+		}
 	else
-		local rot = vector.dir_to_rotation(dir)
-		if side == "down" or side == "up" then
-			self.rotate_x = true
-			self.start_v = rot.x
-			self.end_v = rot.x+move_dist
+		local move_dist
+		if sd.type == "door" then
+			move_dist = (sd.side == "left" or sd.side == "down") and -math.pi/2 or math.pi/2
+			if mirrored then
+				move_dist = -move_dist
+			end
 		else
-			self.rotate_x = false
-			self.start_v = rot.y
-			self.end_v = rot.y+move_dist
+			move_dist = (mirrored and 1 or -1)*math.pi/2
+		end
+
+		local axis = (sd.side == "up" or sd.side == "down") and "x" or "y"
+
+		anim_params = {
+			rotate = true,
+			target_axis = axis,
+			target_offset = move_dist,
+			velocity = math.rad(sd.vel or 30)
+		}
+	end
+
+	return {
+		model_params = model_params,
+		anim_params = anim_params,
+		sound_defs = sd.sounds,
+		shelf_i = self.shelf_i,
+		node_pattern = self.shelves_data.common_name,
+		cur_mode = "closed",
+		convert_on_end = false,
+		persistent = true
+	}
+end
+
+-- Spawns the DoorEntity doors of this shelf (one door, two sym doors or a drawer)
+function Shelf:spawn_doors()
+	local sd = self.shelf_data
+
+	if sd.type ~= "door" and sd.type ~= "sym_doors" and sd.type ~= "drawer" then
+		return
+	end
+
+	local data = self:build_door_data(sd.pos, false)
+	if not data then
+		return
+	end
+
+	local dir = dir_ops.get_dir(self.node_pos)
+	local model_params = data.model_params
+
+	local spawn_pos = self.node_pos + dir_ops.rotate_to_dir(vector.new(model_params.pos), dir)
+	local spawn_rot = vector.new(model_params.rot)
+	spawn_rot.y = spawn_rot.y + dir_ops.get_rot_y(dir)
+
+	FurnitureManager.add(DoorEntity.name, self.node_pos, self.node_name, spawn_pos, spawn_rot, data)
+
+	if sd.type == "sym_doors" then
+		local data2 = self:build_door_data(sd.pos2, true)
+		if data2 then
+			local spawn_pos2 = self.node_pos + dir_ops.rotate_to_dir(vector.new(data2.model_params.pos), dir)
+			local spawn_rot2 = vector.new(data2.model_params.rot)
+			spawn_rot2.y = spawn_rot2.y + dir_ops.get_rot_y(dir)
+
+			FurnitureManager.add(DoorEntity.name, self.node_pos, self.node_name, spawn_pos2, spawn_rot2, data2)
 		end
 	end
 end
 
--- Rotates the obj`s selectionbox depending on the connected node rotation
-function multidecor.shelves.rotate_shelf_bbox(obj)
-	local self = obj:get_luaentity()
-	if not self then return end
+-- Returns the DoorEntity luaentities of this shelf
+function Shelf:get_door_entities()
+	local result = {}
 
-	local dir = multidecor.helpers.get_dir(self.connected_to.pos)
-	local shelf = core.registered_nodes[self.connected_to.name].add_properties.shelves_data[self.shelf_data_i]
-
-	if shelf.type == "sym_doors" and
-			vector.round(vector.subtract(obj:get_pos(), self.connected_to.pos)) == vector.round(shelf.pos2) or self.is_flip_x_scale then
-		dir = vector.rotate_around_axis(dir, {x=0, y=1, z=0}, math.pi)
+	for _, desc in ipairs(FurnitureManager.get(self.node_pos)) do
+		if desc.entity_name == DoorEntity.name and desc:exists() then
+			local lua_ent = desc.object:get_luaentity()
+			if lua_ent and lua_ent.shelf_i == self.shelf_i then
+				table.insert(result, lua_ent)
+			end
+		end
 	end
-	local def = core.registered_entities[self.name]
-	local sbox = multidecor.helpers.rotate_bbox(def.selectionbox, dir)
-	obj:set_properties({
-		selectionbox = sbox
-	})
+
+	return result
 end
 
--- Builds formspec string for the shelf with 'shelf_num' number. The inventory can be detached and node.
-function multidecor.shelves.build_main_formspec(pos, common_name, data, shelf_num, locked, show_lock_btns, percents)
-	local inv_name = multidecor.helpers.build_name_from_tmp(common_name, "inv", shelf_num, pos)
-	local list_name = multidecor.helpers.build_name_from_tmp(common_name, "list", shelf_num, pos)
+-- Animates all doors of the shelf to the open or closed state
+function Shelf:set_doors_open(is_open)
+	for _, lua_ent in ipairs(self:get_door_entities()) do
+		lua_ent:set_action(is_open and "open" or "close")
+	end
+	self.is_open = is_open
+end
+
+function Shelf:open_for(clicker)
+	local playername = clicker:get_player_name()
+
+	if not shelves_api.has_access(self.lock_info, playername) then
+		return
+	end
+
+	open_shelves[playername] = self
+	self:create_inventory()
+
+	local fs = shelves_api.build_main_formspec(
+		self.node_pos,
+		self.shelves_data.common_name,
+		self.shelf_data,
+		self.shelf_i,
+		self.lock_info ~= nil,
+		shelves_api.show_lock_buttons(self.lock_info, playername),
+		self.cook_info and self.cook_info[4] or 0.0
+	)
+	core.show_formspec(playername, self:formspec_name(), fs)
+
+	if not self.is_open then
+		self:set_doors_open(true)
+	end
+end
+
+function Shelf:close_and_save()
+	if self.is_open then
+		self:set_doors_open(false)
+	end
+	self:save_state()
+end
+
+function Shelf:remove_inventory()
+	core.remove_detached_inventory(self:inv_name())
+end
+
+-- Removes the Shelf from the registry together with the whole node entry
+-- when it is the last shelf of the node
+function Shelf:unregister()
+	local pos_str = core.pos_to_string(self.node_pos)
+	local reg = shelves_registry[pos_str]
+
+	if not reg then return end
+	reg[self.shelf_i] = nil
+
+	if not next(reg) then
+		shelves_registry[pos_str] = nil
+		cooking_shelves[pos_str] = nil
+	end
+end
+
+-- Static helpers (kept on the API table, they do not need a Shelf instance)
+--------------------------------------------------------------------------
+
+function shelves_api.has_access(lock_info, playername)
+	local success = false
+
+	if lock_info then
+		if lock_info.owner == playername then
+			success = true
+		else
+			for _, member in ipairs(lock_info.share) do
+				if member == playername then
+					success = true
+					break
+				end
+			end
+		end
+	else
+		success = true
+	end
+
+	return success
+end
+
+function shelves_api.show_lock_buttons(lock_info, playername)
+	local show = true
+	local has_access = shelves_api.has_access(lock_info, playername)
+
+	if has_access and lock_info and lock_info.owner ~= playername then
+		show = false
+	end
+
+	return show
+end
+
+-- Node callbacks
+--------------------------------------------------------------------------
+
+-- Adds shelves for the node at 'pos' (wired as on_construct by register_garniture)
+function shelves_api.set_shelves(pos)
+	local node = core.get_node(pos)
+	local def = core.registered_nodes[node.name]
+
+	if not def or not def.add_properties or not def.add_properties.shelves_data then
+		return
+	end
+
+	local shelves_data = def.add_properties.shelves_data
+
+	for i in ipairs(shelves_data) do
+		local shelf = Shelf.get_or_new(pos, i)
+		if shelf then
+			shelf:create_inventory()
+			shelf:spawn_doors()
+		end
+	end
+end
+
+function shelves_api.can_dig(pos)
+	local node = core.get_node(pos)
+	local def = core.registered_nodes[node.name]
+	if not def or not def.add_properties or not def.add_properties.shelves_data then
+		return true
+	end
+
+	local shelves_data = def.add_properties.shelves_data
+
+	local is_all_empty = true
+	for i, _ in ipairs(shelves_data) do
+		local shelf = Shelf.get_or_new(pos, i)
+		if shelf then
+			local inv = core.get_inventory({type="detached", name=shelf:inv_name()})
+			if inv then
+				is_all_empty = is_all_empty and inv:is_empty(shelf:list_name())
+			end
+		end
+	end
+
+	return is_all_empty
+end
+
+-- Callbacks for shelves without doors/drawers (plain node inventory)
+function shelves_api.on_construct(pos)
+	local shelf = Shelf.get_or_new(pos, 1)
+	if shelf then
+		shelf:save_state()
+		shelf:create_inventory()
+	end
+end
+
+function shelves_api.on_destruct(pos)
+	local pos_str = core.pos_to_string(pos)
+	local reg = shelves_registry[pos_str]
+
+	if reg then
+		for _, shelf in pairs(reg) do
+			shelf:save_state()
+			shelf:remove_inventory()
+		end
+		shelves_registry[pos_str] = nil
+		cooking_shelves[pos_str] = nil
+	end
+
+	FurnitureManager.remove(pos)
+end
+
+function shelves_api.node_on_rightclick(pos, node, clicker)
+	local shelf = Shelf.get_or_new(pos, 1)
+	if shelf then
+		shelf:open_for(clicker)
+	end
+end
+
+-- DoorEntity integration
+--------------------------------------------------------------------------
+
+-- Called by DoorEntity:on_rightclick for shelf doors
+function shelves_api.handle_door_click(door_ent, clicker)
+	local shelf = Shelf.get_or_new(door_ent.attached_to.pos, door_ent.shelf_i)
+	if shelf then
+		shelf:open_for(clicker)
+	end
+end
+
+-- Called by DoorEntity:on_deactivate for shelf doors
+function shelves_api.on_door_deactivated(door_ent, removal)
+	local shelf = Shelf.get_or_new(door_ent.attached_to.pos, door_ent.shelf_i)
+	if not shelf then return end
+
+	if removal then
+		shelf.is_open = false
+		shelf:save_state()
+		shelf:remove_inventory()
+		shelf:unregister()
+	end
+end
+
+-- Formspecs (ported as-is from the legacy implementation)
+--------------------------------------------------------------------------
+
+function shelves_api.build_main_formspec(pos, common_name, data, shelf_num, locked, show_lock_btns, percents)
+	local inv_name = common.build_name_from_tmp(common_name, "inv", shelf_num, pos)
+	local list_name = common.build_name_from_tmp(common_name, "list", shelf_num, pos)
 	local list_type = data.invlist_type or "storage"
 
 	local padding = 0.25
@@ -138,7 +683,7 @@ function multidecor.shelves.build_main_formspec(pos, common_name, data, shelf_nu
 	return fs
 end
 
-function multidecor.shelves.build_share_formspec(members)
+function shelves_api.build_share_formspec(members)
 	local steps_c
 
 	if #members <= 3 then
@@ -185,7 +730,7 @@ function multidecor.shelves.build_share_formspec(members)
 	return fs
 end
 
-function multidecor.shelves.build_infotext(lock_info)
+function shelves_api.build_infotext(lock_info)
 	local infotext = ""
 
 	if lock_info then
@@ -199,744 +744,109 @@ function multidecor.shelves.build_infotext(lock_info)
 	return infotext
 end
 
-function multidecor.shelves.get_opposite_symdoor(self, shelf)
-	if shelf.type ~= "sym_doors" then return end
+-- Formspec fields handling
+--------------------------------------------------------------------------
 
-	local tpos = self.is_flip_x_scale and shelf.pos or shelf.pos2
-	tpos = self.connected_to.pos + multidecor.helpers.rotate_to_node_dir(self.connected_to.pos, tpos)
+function shelves_api.on_receive_fields(player, formname, fields)
+	local shelf = open_shelves[player:get_player_name()]
 
-	local tobj = core.get_objects_inside_radius(tpos, 0.05)[1]
-
-	if not tobj then return end
-
-	return tobj:get_luaentity()
-end
-
--- Animates opening or closing the shelf 'obj'. The action directly depends on 'dir_sign' value ('1' is open, '-1' is close)
-function multidecor.shelves.open_shelf(obj, dir_sign)
-	local self = obj:get_luaentity()
-
-	if not self then
+	if not shelf then
 		return
 	end
-
-	if not self.connected_to then
-		return
-	end
-
-	local node_name = self.connected_to.name
-	local shelf = core.registered_nodes[node_name].add_properties.shelves_data[self.shelf_data_i]
-	local dir = multidecor.helpers.get_dir(self.connected_to.pos)
-
-	self.dir = dir_sign
-	if shelf.type == "drawer" then
-		-- Will pull out the drawer at the distance equal to 2/3 its length
-		obj:set_velocity(vector.multiply(dir*dir_sign, 0.6))
-	elseif shelf.type == "sym_doors" then
-		local self2 = multidecor.shelves.get_opposite_symdoor(self, shelf)
-
-		if self2 and self.name == self2.name then
-			self2.dir = dir_sign
-		end
-	end
-
-	if shelf.sounds then
-		local play_sound = dir_sign == 1 and shelf.sounds.open or shelf.sounds.close
-
-		core.sound_play(play_sound, {pos=obj:get_pos(), fade=1.0, max_hear_distance=10})
-	end
-end
-
--- Adds shelf objects for the node with 'pos' position. They should save formspec inventory and position of the node which they are connected to
-function multidecor.shelves.set_shelves(pos)
-	local node = core.get_node(pos)
-	local def = core.registered_nodes[node.name]
-
-	if not def.add_properties or not def.add_properties.shelves_data then
-		return
-	end
-
-	for i, shelf_data in ipairs(def.add_properties.shelves_data) do
-		local obj = core.add_entity(vector.add(pos, shelf_data.pos), shelf_data.object, core.serialize({{name=node.name, pos=pos}, 0, i}))
-
-		local move_dist
-
-		if shelf_data.type == "drawer" then
-			move_dist = 2/3*shelf_data.length
-		elseif shelf_data.type == "door" then
-			move_dist = (shelf_data.side == "left" or shelf_data.side == "down") and -math.pi/2 or math.pi/2
-		elseif shelf_data.type == "sym_doors" then
-			move_dist = -math.pi/2
-		end
-		multidecor.shelves.rotate_shelf(pos, obj, shelf_data.type == "drawer", shelf_data.side, move_dist, shelf_data.orig_angle)
-
-		if shelf_data.type == "sym_doors" then
-			local obj2 = core.add_entity(vector.add(pos, shelf_data.pos2), shelf_data.object, core.serialize({{name=node.name, pos=pos}, 0, i}))
-
-			local vis_size = obj2:get_properties().visual_size
-			obj2:set_properties({visual_size={x=vis_size.x*-1, y=vis_size.y, z=vis_size.z}})
-			obj2:get_luaentity().is_flip_x_scale = true
-
-			multidecor.shelves.rotate_shelf(pos, obj2, false, shelf_data.side, math.pi/2, shelf_data.orig_angle)
-		end
-	end
-end
-
-multidecor.shelves.check_for_formname = function(formname)
-	local shelf_i = formname:find("%d+")
-
-	if not shelf_i then
-		return false
-	end
-
-	local name = formname:sub(1, shelf_i-2)
-	local def = core.registered_nodes[name]
-
-	if not def then
-		return false
-	end
-
-	if not name:sub(1, name:find(":")-1) == "multidecor" then
-		return false
-	end
-
-	return true
-end
-
-multidecor.shelves.has_access = function(lock_info, playername)
-	local success = false
-
-	if lock_info then
-		if lock_info.owner == playername then
-			success = true
-		else
-			for _, member in ipairs(lock_info.share) do
-				if member == playername then
-					success = true
-					break
-				end
-			end
-		end
-	else
-		success = true
-	end
-
-	return success
-end
-
-multidecor.shelves.show_lock_buttons = function(lock_info, playername)
-	local show = true
-	local has_access = multidecor.shelves.has_access(lock_info, playername)
-
-	if has_access and lock_info and lock_info.owner ~= playername then
-		show = false
-	end
-
-	return show
-end
-
-multidecor.shelves.create_detached_inventory = function(pos, shelf_i, shelves_data, obj)
-	local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", shelf_i, pos)
-	local inv = core.get_inventory({type="detached", name=inv_name})
-
-	if not inv then
-		local shelf_data = shelves_data[shelf_i]
-		inv = core.create_detached_inventory(inv_name, {
-			allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
-				return count
-			end,
-			allow_put = function(inv, listname, index, stack, player)
-				local c = stack:get_count()
-
-				if shelf_data.invlist_type == "cooker" then
-					local output = core.get_craft_result({method="cooking", width=1, items={stack}})
-
-					if not output or output.time == 0 then
-						c = 0
-					end
-				end
-				return c
-			end,
-			allow_take = function(inv, listname, index, stack, player)
-				return stack:get_count()
-			end,
-			on_put = function(inv, listname, index, stack, player)
-				local playername = player:get_player_name()
-				if shelf_data.invlist_type == "trash" then
-					inv:remove_item(listname, inv:get_stack(listname, 1))
-					core.sound_play("multidecor_trash", {to_player=playername})
-				elseif shelf_data.invlist_type == "cooker" then
-					local name = stack:get_name()
-
-					local output = core.get_craft_result({method="cooking", width=1, items=inv:get_list(listname)})
-					output.item = {
-						name=output.item:get_name(),
-						count=output.item:get_count()*stack:get_count(),
-						wear=output.item:get_wear()
-					}
-					local total_time = output.time*stack:get_count()
-
-					core.swap_node(pos, {
-						name="multidecor:" ..shelves_data.common_name .. "_activated",
-						param2=core.get_node(pos).param2
-					})
-
-					local meta = core.get_meta(pos)
-					local cook_data = {output, 0, total_time, 0}
-
-					if open_shelves[playername] then
-						local self = open_shelves[playername]:get_luaentity()
-						self.cook_info = cook_data
-
-						local self2 = multidecor.shelves.get_opposite_symdoor(self, shelf_data)
-
-						if self2 then
-							self2.cook_info = cook_data
-						end
-					else
-						meta:set_string("cook_info", core.serialize(cook_data))
-					end
-					meta:set_string("sound_handle", core.serialize(core.sound_play(
-						"multidecor_hum",
-						{pos=pos, fade=1.0, max_hear_distance=10, loop=true}
-					)))
-				end
-			end
-		})
-
-		local list_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", shelf_i, pos)
-		local inv_list = {}
-
-		local cur_inv_list
-
-		if obj then
-			local self = obj:get_luaentity()
-			cur_inv_list = self.inv_list
-		else
-			cur_inv_list = core.deserialize(core.get_meta(pos):get_string("inv_list"))
-		end
-
-		for _, stack_t in ipairs(cur_inv_list) do
-			local stack = ItemStack(stack_t.name)
-			stack:set_count(stack_t.count)
-			stack:set_wear(stack_t.wear)
-
-			table.insert(inv_list, stack)
-		end
-
-		local list_type = shelf_data.invlist_type or "storage"
-		local invsize = list_type == "storage" and shelf_data.inv_size or {w=1, h=1}
-		inv:set_list(list_name, inv_list)
-		inv:set_size(list_name, invsize.w*invsize.h)
-		inv:set_width(list_name, invsize.w)
-
-		inv:set_size("main", 32)
-		inv:set_width("main", 8)
-	end
-end
-
-
--- Callbacks for shelves having objects attached (doors, drawers)
-multidecor.shelves.on_activate = function(self, staticdata)
-	if staticdata ~= "" then
-		local data = core.deserialize(staticdata)
-
-		-- The code below is for backwards compatibility with versions < 1.2.5
-		local ind_incr = 0
-		if type(data[1]) == "string" then
-			ind_incr = 1
-		end
-		--end
-		self.connected_to = data[1+ind_incr]
-		self.dir = data[2+ind_incr]
-		self.shelf_data_i = data[3+ind_incr]
-		self.inv_list = data[4+ind_incr] or {}
-		self.start_v = data[5+ind_incr]
-		self.end_v = data[6+ind_incr]
-		self.is_flip_x_scale = data[7+ind_incr]
-		self.rotate_x = data[8+ind_incr]
-		self.cook_info = data[9+ind_incr]
-		self.lock_info = data[10+ind_incr]		-- table containing name of the owner locked the shelf and share group members
-	end
-
-	local node = core.get_node(self.connected_to.pos)
-
-	local shelves_data = core.registered_nodes[self.connected_to.name].add_properties.shelves_data
-	if not node.name:match(shelves_data.common_name) then
-		self.object:remove()
-		return
-	end
-
-	local shelf_data = shelves_data[self.shelf_data_i]
-	local obj_props = {}
-
-	obj_props.visual_size = self.object:get_properties().visual_size
-	-- Addendums for 'visual_size' multipliers
-	if shelf_data.visual_size_adds then
-		obj_props.visual_size = vector.add(obj_props.visual_size, shelf_data.visual_size_adds)
-	end
-
-	if self.is_flip_x_scale then
-		obj_props.visual_size.x = obj_props.visual_size.x * -1
-	end
-	-- Usually means a material which the shelf is made of
-	if shelf_data.base_texture then
-		obj_props.textures = self.object:get_properties().textures
-		obj_props.textures[1] = shelf_data.base_texture
-	end
-
-	obj_props.infotext = multidecor.shelves.build_infotext(self.lock_info)
-
-	self.object:set_properties(obj_props)
-	self.object:set_armor_groups({immortal=1})
-
-	multidecor.shelves.rotate_shelf_bbox(self.object)
-
-	multidecor.shelves.create_detached_inventory(self.connected_to.pos, self.shelf_data_i, shelves_data, self.object)
-end
-
-multidecor.shelves.get_staticdata = function(self)
-	return core.serialize({
-		self.connected_to, self.dir,
-		self.shelf_data_i, self.inv_list,
-		self.start_v, self.end_v, self.is_flip_x_scale,
-		self.rotate_x, self.cook_info, self.lock_info
-	})
-end
-
-multidecor.shelves.on_rightclick = function(self, clicker)
-	local playername = clicker:get_player_name()
-	local has = multidecor.shelves.has_access(self.lock_info, playername)
-
-	if not has then return end
-
-	open_shelves[playername] = self.object
-	local shelves_data = core.registered_nodes[self.connected_to.name].add_properties.shelves_data
-
-	local fs = multidecor.shelves.build_main_formspec(
-		self.connected_to.pos,
-		shelves_data.common_name,
-		shelves_data[self.shelf_data_i],
-		self.shelf_data_i,
-		self.lock_info ~= nil,
-		multidecor.shelves.show_lock_buttons(self.lock_info, playername),
-		self.cook_info and self.cook_info[4] or 0.0
-	)
-	core.show_formspec(playername,
-		multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "fs", self.shelf_data_i, self.connected_to.pos), fs)
-
-	if self.dir == 0 then
-		multidecor.shelves.open_shelf(self.object, 1)
-	end
-end
-
-
-local function cook_step(pos, shelf_i, lock_info, dtime, obj)
-	local cook_info
-
-	if obj then
-		cook_info = obj:get_luaentity().cook_info
-	else
-		cook_info = core.deserialize(core.get_meta(pos):get_string("cook_info"))
-	end
-
-	if not cook_info then
-		return
-	end
-
-	cook_info[2] = cook_info[2] + dtime
-	cook_info[4] = cook_info[2]/cook_info[3]*100
-
-	local meta = core.get_meta(pos)
-	meta:set_string("infotext", multidecor.S("Cooked to: ") .. tostring(math.round(cook_info[4])) .. " %")
-
-	local name = core.get_node(pos).name
-	local shelves_data = core.registered_nodes[name].add_properties.shelves_data
-	local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", shelf_i, pos)
-	local inv_list = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", shelf_i, pos)
-	local inv = core.get_inventory({type="detached", name=inv_name})
-
-
-	local time_elapsed = cook_info[2] >= cook_info[3]
-	local is_empty = inv:is_empty(inv_list)
-	if is_empty or time_elapsed then
-		if time_elapsed then
-			local output = ItemStack(cook_info[1].item.name)
-			output:set_count(cook_info[1].item.count)
-			output:set_wear(cook_info[1].item.wear)
-			inv:set_stack(inv_list, 1, output)
-		end
-
-		cook_info[4] = 0
-
-		if obj then
-			obj:get_luaentity().cook_info = nil
-		else
-			core.get_meta(pos):set_string("cook_info", "")
-		end
-		meta:set_string("infotext", "")
-		local sound_handle = core.deserialize(core.get_meta(pos):get_string("sound_handle"))
-		core.sound_stop(sound_handle)
-		core.swap_node(pos, {
-			name="multidecor:" .. shelves_data.common_name,
-			param2=core.get_node(pos).param2
-		})
-	end
-
-	local i, f = math.modf(cook_info[2])
-	local fs
-
-	if (f > 0 and f < 0.05) or is_empty then
-		fs = multidecor.shelves.build_main_formspec(
-			pos,
-			shelves_data.common_name,
-			shelves_data[shelf_i],
-			shelf_i,
-			lock_info ~= nil,
-			multidecor.shelves.show_lock_buttons(lock_info, playername),
-			cook_info[4]
-		)
-	end
-
-	if fs then
-		local fs_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "fs", shelf_i, pos)
-		if obj then
-			for pl_name, o in pairs(open_shelves) do
-				if o == obj then
-					core.show_formspec(pl_name, fs_name, fs)
-				end
-			end
-		else
-			local players = core.get_connected_players()
-
-			for _, player in ipairs(players) do
-				local open_shelf = vector.from_string(player:get_meta():get_string("open_shelf"))
-
-				if vector.equals(open_shelf, pos) then
-					core.show_formspec(player:get_player_name(), fs_name, fs)
-				end
-			end
-		end
-	end
-end
-
-multidecor.shelves.drawer_on_step = function(self, dtime)
-	local node = core.get_node(self.connected_to.pos)
-	local data = core.registered_nodes[node.name].add_properties and core.registered_nodes[node.name].add_properties.shelves_data
-
-	if not data or not self.connected_to.name:match(data.common_name) then
-		self.object:remove()
-		return
-	end
-	if self.dir == 0 then
-		return
-	end
-
-	local shift = vector.subtract(self.end_v, self.start_v)
-	local cur_shift = vector.subtract(self.object:get_pos(), self.start_v)
-	local shift_len = vector.length(shift)
-	local cur_shift_len = vector.length(cur_shift)
-	local target_pos = self.dir == 1 and self.end_v or self.start_v
-
-	if cur_shift_len >= shift_len or cur_shift_len ~= 0 and vector.angle(shift, cur_shift) ~= 0 then
-		self.dir = 0
-		self.object:set_velocity(vector.zero())
-		self.object:set_pos(target_pos)
-	end
-
-	cook_step(self.connected_to.pos, self.shelf_data_i, self.lock_info, dtime, self.object)
-end
-
-multidecor.shelves.door_on_step = function(self, dtime)
-	local node = core.get_node(self.connected_to.pos)
-	local data = core.registered_nodes[node.name].add_properties and core.registered_nodes[node.name].add_properties.shelves_data
-
-	if not data or not self.connected_to.name:match(data.common_name) then
-		self.object:remove()
-		return
-	end
-
-	local shelf_data = core.registered_nodes[node.name].add_properties.shelves_data[self.shelf_data_i]
-	multidecor.doors.smooth_rotate_step(self, dtime, shelf_data.vel or 30, shelf_data.acc or 0)
-
-	cook_step(self.connected_to.pos, self.shelf_data_i, self.lock_info, dtime, self.object)
-end
-
-multidecor.shelves.on_deactivate = function(self, removal)
-	if not removal then return end
-
-	local shelves_data = core.registered_nodes[self.connected_to.name].add_properties.shelves_data
-
-	local inv_name = multidecor.helpers.build_name_from_tmp(
-		shelves_data.common_name, "inv",
-		self.shelf_data_i, self.connected_to.pos)
-	core.remove_detached_inventory(inv_name)
-end
-
-
--- Callbacks for nodes having one shelf (without doors, drawers)
-multidecor.shelves.on_construct = function(pos)
-	local node = core.get_node(pos)
-	local meta = core.get_meta(pos)
-	meta:set_string("connected_to", core.serialize({pos=pos,name=node.name}))
-	meta:set_string("inv_list", core.serialize({}))
-	local shelves_data = core.registered_nodes[node.name].add_properties.shelves_data
-
-	multidecor.shelves.create_detached_inventory(pos, 1, shelves_data)
-end
-
-multidecor.shelves.on_destruct = function(pos)
-	local meta = core.get_meta(pos)
-	local connected_to = core.deserialize(meta:get_string("connected_to"))
-
-	if not connected_to then return end
-	local shelves_data = core.registered_nodes[connected_to.name].add_properties.shelves_data
-
-	local inv_name = multidecor.helpers.build_name_from_tmp(
-		shelves_data.common_name, "inv",1, pos)
-	core.remove_detached_inventory(inv_name)
-
-end
-
-multidecor.shelves.node_on_rightclick = function(pos, node, clicker)
-	local playername = clicker:get_player_name()
-
-	local meta = core.get_meta(pos)
-	local lock_info = core.deserialize(meta:get_string("lock_info"))
-	local has = multidecor.shelves.has_access(lock_info, playername)
-
-	if not has then return end
-
-	local connected_to = core.deserialize(meta:get_string("connected_to"))
-
-	if not connected_to then
-		core.set_node(pos, core.get_node(pos))
-		return
-	end
-	clicker:get_meta():set_string("open_shelf", vector.to_string(pos))
-
-	local cook_info = core.deserialize(meta:get_string("cook_info"))
-	local shelves_data = core.registered_nodes[connected_to.name].add_properties.shelves_data
-
-	multidecor.shelves.create_detached_inventory(pos, 1, shelves_data)
-	local fs = multidecor.shelves.build_main_formspec(
-		connected_to.pos,
-		shelves_data.common_name,
-		shelves_data[1],
-		1,
-		lock_info ~= nil,
-		multidecor.shelves.show_lock_buttons(lock_info, playername),
-		cook_info and cook_info[4] or 0.0
-	)
-	core.show_formspec(playername,
-		multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "fs", 1, connected_to.pos), fs)
-end
-
-multidecor.shelves.on_receive_fields = function(player, formname, fields)
-	local correct_formname = multidecor.shelves.check_for_formname(formname)
-
-	if not correct_formname then return end
 
 	local playername = player:get_player_name()
-	local connected_to, shelf_i, lock_info, cook_info
+	local fs_name = shelf:formspec_name()
 
-	local shelf = open_shelves[playername]
-
-	if shelf then
-		local self = shelf:get_luaentity()
-
-		if not self then return end
-		connected_to = self.connected_to
-		shelf_i = self.shelf_data_i
-		lock_info = self.lock_info
-		cook_info = self.cook_info
-	else
-		shelf = vector.from_string(player:get_meta():get_string("open_shelf"))
-
-		if not shelf then return end
-
-		local meta = core.get_meta(shelf)
-		connected_to = core.deserialize(meta:get_string("connected_to"))
-		shelf_i = 1
-		lock_info = core.deserialize(meta:get_string("lock_info"))
-		cook_info = core.deserialize(meta:get_string("cook_info"))
-	end
-
-	local shelves_data = core.registered_nodes[connected_to.name].add_properties.shelves_data
 	if fields.quit == "true" then
-		local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", shelf_i, connected_to.pos)
-		local inv = core.get_inventory({type="detached", name=inv_name})
-		local list = inv:get_list(multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", shelf_i, connected_to.pos))
-
 		open_shelves[playername] = nil
-
-		local inv_list = {}
-		for _, stack in ipairs(list) do
-			table.insert(inv_list, {name=stack:get_name(), count=stack:get_count(), wear=stack:get_wear()})
-		end
-
-		if type(shelf) == "userdata" then
-			open_shelves[playername] = nil
-			local self = shelf:get_luaentity()
-			self.inv_list = inv_list
-
-			local self2 = multidecor.shelves.get_opposite_symdoor(self, shelves_data[shelf_i])
-
-			if self2 then
-				self2.inv_list = inv_list
-			end
-			multidecor.shelves.open_shelf(shelf, -1)
-		else
-			player:get_meta():set_string("open_shelf", "")
-			core.get_meta(shelf):set_string("inv_list", core.serialize(inv_list))
-		end
-
+		shelf:close_and_save()
 		return true
 	end
 
-	local fs_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "fs", shelf_i, connected_to.pos)
-
 	if fields.lock_button or fields.unlock_button then
-		local new_fs = multidecor.shelves.build_main_formspec(
-			connected_to.pos,
-			shelves_data.common_name,
-			shelves_data[shelf_i],
-			shelf_i,
-			fields.lock_button,
-			true,
-			cook_info and cook_info[4] or 0.0
-		)
-
 		if fields.lock_button then
-			lock_info = {
+			shelf.lock_info = {
 				owner = playername,
 				share = {}
 			}
 		else
-			lock_info = nil
+			shelf.lock_info = nil
 		end
 
-		local infotext = multidecor.shelves.build_infotext(lock_info)
-		if type(shelf) == "userdata" then
-			local self = shelf:get_luaentity()
-			self.lock_info = lock_info
-			shelf:set_properties({infotext=infotext})
-
-			local self2 = multidecor.shelves.get_opposite_symdoor(self, shelves_data[shelf_i])
-
-			if self2 then
-				self2.lock_info = lock_info
-				self2.object:set_properties({infotext=infotext})
-			end
-		else
-			local meta = core.get_meta(shelf)
-			meta:set_string("infotext", infotext)
-			meta:set_string("lock_info", core.serialize(lock_info))
-		end
+		local new_fs = shelves_api.build_main_formspec(
+			shelf.node_pos,
+			shelf.shelves_data.common_name,
+			shelf.shelf_data,
+			shelf.shelf_i,
+			fields.lock_button,
+			true,
+			shelf.cook_info and shelf.cook_info[4] or 0.0
+		)
 
 		core.show_formspec(playername, fs_name, new_fs)
-
 		return true
 	end
 
 	if fields.share_button then
-		local new_fs = multidecor.shelves.build_share_formspec(lock_info.share)
-
+		local new_fs = shelves_api.build_share_formspec(shelf.lock_info.share)
 		core.show_formspec(playername, fs_name, new_fs)
-
 		return true
 	end
 
 	if fields.share_close_button then
-		local new_fs = multidecor.shelves.build_main_formspec(
-			connected_to.pos,
-			shelves_data.common_name,
-			shelves_data[shelf_i],
-			shelf_i,
-			lock_info,
+		local new_fs = shelves_api.build_main_formspec(
+			shelf.node_pos,
+			shelf.shelves_data.common_name,
+			shelf.shelf_data,
+			shelf.shelf_i,
+			shelf.lock_info ~= nil,
 			true,
-			cook_info and cook_info[4] or 0.0
+			shelf.cook_info and shelf.cook_info[4] or 0.0
 		)
 
 		core.show_formspec(playername, fs_name, new_fs)
-
 		return true
 	end
 
 	if fields.share_add_button then
-		table.insert(lock_info.share, fields.share_add_field)
+		table.insert(shelf.lock_info.share, fields.share_add_field)
 
-		local infotext = multidecor.shelves.build_infotext(lock_info)
-		if type(shelf) == "userdata" then
-			local self = shelf:get_luaentity()
-			shelf:set_properties({infotext=infotext})
-
-			local self2 = multidecor.shelves.get_opposite_symdoor(self, shelves_data[shelf_i])
-
-			if self2 then
-				self2.lock_info = lock_info
-				self2.object:set_properties({infotext=infotext})
-			end
-		else
-			local meta = core.get_meta(shelf)
-			meta:set_string("infotext", infotext)
-			meta:set_string("lock_info", core.serialize(lock_info))
-		end
-
-		local new_fs = multidecor.shelves.build_share_formspec(lock_info.share)
-
+		local new_fs = shelves_api.build_share_formspec(shelf.lock_info.share)
 		core.show_formspec(playername, fs_name, new_fs)
-
 		return true
 	end
 
-	for i, member in ipairs(lock_info.share) do
-		if fields["share_remove_" .. member] then
-			table.remove(lock_info.share, i)
+	if shelf.lock_info then
+		for i, member in ipairs(shelf.lock_info.share) do
+			if fields["share_remove_" .. member] then
+				table.remove(shelf.lock_info.share, i)
 
-			local infotext = multidecor.shelves.build_infotext(lock_info)
-			if type(shelf) == "userdata" then
-				local self = shelf:get_luaentity()
-				shelf:set_properties({infotext=infotext})
-
-				local self2 = multidecor.shelves.get_opposite_symdoor(self, shelves_data[shelf_i])
-
-				if self2 then
-					self2.lock_info = lock_info
-					self2.object:set_properties({infotext=infotext})
-				end
-			else
-				local meta = core.get_meta(shelf)
-				meta:set_string("infotext", infotext)
-				meta:set_string("lock_info", core.serialize(lock_info))
+				local new_fs = shelves_api.build_share_formspec(shelf.lock_info.share)
+				core.show_formspec(playername, fs_name, new_fs)
+				return true
 			end
-
-			local new_fs = multidecor.shelves.build_share_formspec(lock_info.share)
-
-			core.show_formspec(playername, fs_name, new_fs)
-
-			return true
 		end
 	end
 end
 
+core.register_on_player_receive_fields(shelves_api.on_receive_fields)
 
-multidecor.shelves.can_dig = function(pos)
-	local name = core.get_node(pos).name
-	local shelves_data = core.registered_nodes[name].add_properties.shelves_data
+-- Cooking global step
+--------------------------------------------------------------------------
 
-	local is_all_empty = true
-	for i, shelf in ipairs(shelves_data) do
-		local inv_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "inv", i, pos)
-		local list_name = multidecor.helpers.build_name_from_tmp(shelves_data.common_name, "list", i, pos)
-		local inv = core.get_inventory({type="detached", name=inv_name})
-
-		if inv then
-			is_all_empty = is_all_empty and inv:is_empty(list_name)
+core.register_globalstep(function(dtime)
+	for pos_str in pairs(cooking_shelves) do
+		local reg = shelves_registry[pos_str]
+		if not reg then
+			cooking_shelves[pos_str] = nil
+		else
+			for _, shelf in pairs(reg) do
+				if shelf.cook_info then
+					shelf:cook_step(dtime)
+				end
+			end
 		end
 	end
+end)
 
-	return is_all_empty
-end
-
-core.register_on_player_receive_fields(multidecor.shelves.on_receive_fields)
+return { Shelf, shelves_api }

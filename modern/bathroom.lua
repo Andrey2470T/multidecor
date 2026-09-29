@@ -59,6 +59,36 @@ local tile_bboxes = {
 
 }
 
+local washbasin_door_def = {
+	mesh = "multidecor_bathroom_washbasin_door.obj",
+	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
+	use_texture_alpha = true,
+	backface_culling = false,
+	selectionbox = {-0.35, -0.3, -0.05, 0.0, 0.3, 0.0}
+}
+
+local wall_cabinet_door_def = {
+	mesh = "multidecor_bathroom_wall_cabinet_door.obj",
+	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
+	use_texture_alpha = true,
+	backface_culling = false,
+	selectionbox = {-0.5, -0.53, 0.0, 0, 0.53, 0.05}
+}
+
+local wall_set_with_mirror_door_def = {
+	mesh = "multidecor_bathroom_wall_set_with_mirror_door.obj",
+	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
+	use_texture_alpha = true,
+	backface_culling = false,
+	selectionbox = {-0.35, -0.8, 0, 0, 0.7, 0.075}
+}
+
+local underwear_tank_cover_def = {
+	mesh = "multidecor_underwear_tank_cover.obj",
+	textures = {"multidecor_shred.png", "multidecor_metal_material.png"},
+	selectionbox = {-0.4, 0.0, 0.05, 0.4, 0.15, 0.55}
+}
+
 core.register_node(":multidecor:ceramic_tile", {
 	description = modern.S("Ceramic Tile"),
 	drawtype = "nodebox",
@@ -212,7 +242,7 @@ for _, style in ipairs(bathroom_styles) do
 				pos = {x=0.35, y=-0.2, z=0.08},
 				pos2 = {x=-0.35, y=-0.2, z=0.08},
 				base_texture = tex_name,
-				object = "modern:bathroom_washbasin_door",
+				def = washbasin_door_def,
 				inv_size = {w=5,h=3},
 				acc = 1,
 				sounds = {
@@ -265,7 +295,7 @@ for _, style in ipairs(bathroom_styles) do
 				pos = {x=0.5, y=0, z=0.1},
 				pos2 = {x=-0.5, y=0, z=0.1},
 				base_texture = tex_name,
-				object = "modern:bathroom_wall_cabinet_door",
+				def = wall_cabinet_door_def,
 				inv_size = {w=6,h=4},
 				acc = 1,
 				sounds = {
@@ -313,7 +343,7 @@ for _, style in ipairs(bathroom_styles) do
 				type = "door",
 				pos = {x=0.5, y=-0.25, z=0.05},
 				base_texture = tex_name,
-				object = "modern:bathroom_wall_set_with_mirror_door",
+				def = wall_set_with_mirror_door_def,
 				inv_size = {w=5,h=2},
 				side = "left",
 				acc = 1,
@@ -810,7 +840,7 @@ multidecor.register.register_furniture_unit("underwear_tank", {
 			common_name = "underwear_tank",
 			{
 				type = "door",
-				object = "modern:underwear_tank_cover",
+				def = underwear_tank_cover_def,
 				pos = {x=0, y=0.225, z=-0.3},
 				acc = 1,
 				inv_size = {w=5,h=4},
@@ -832,69 +862,6 @@ multidecor.register.register_furniture_unit("underwear_tank", {
 })
 
 
-core.register_entity("modern:bathroom_washbasin_door", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_bathroom_washbasin_door.obj",
-	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
-	use_texture_alpha = true,
-	physical = false,
-	backface_culling = false,
-	selectionbox = {-0.35, -0.3, -0.05, 0.0, 0.3, 0.0},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.door_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})
 
-core.register_entity("modern:bathroom_wall_cabinet_door", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_bathroom_wall_cabinet_door.obj",
-	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
-	use_texture_alpha = true,
-	physical = false,
-	backface_culling = false,
-	selectionbox = {-0.5, -0.53, 0.0, 0, 0.53, 0.05},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.door_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})
 
-core.register_entity("modern:bathroom_wall_set_with_mirror_door", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_bathroom_wall_set_with_mirror_door.obj",
-	textures = {"multidecor_" .. ceramic_tiles[1][1] .. ".png", "multidecor_metal_material.png"},
-	use_texture_alpha = true,
-	physical = false,
-	backface_culling = false,
-	selectionbox = {-0.35, -0.8, 0, 0, 0.7, 0.075},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.door_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})
 
-core.register_entity("modern:underwear_tank_cover", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_underwear_tank_cover.obj",
-	textures = {"multidecor_shred.png", "multidecor_metal_material.png"},
-	physical = false,
-	backface_culling = false,
-	selectionbox = {-0.4, 0.0, 0.05, 0.4, 0.15, 0.55},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.door_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})

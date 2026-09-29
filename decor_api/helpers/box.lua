@@ -25,7 +25,26 @@ function BBox.from_default()
 end
 
 function BBox.from_box(box)
-	return new(table.unpack(box))
+	return new(box[1], box[2], box[3], box[4], box[5], box[6])
+end
+
+-- Restores a valid BBox instance from a plain table got after core.deserialize
+-- (metatables are lost during serialization)
+function BBox.restore(box_t)
+	if getmetatable(box_t) == BBox then
+		return box_t
+	end
+
+	local self = setmetatable({
+		min_edge = vector.new(box_t.min_edge),
+		max_edge = vector.new(box_t.max_edge),
+		hdir     = vector.new(box_t.hdir or vector.forward)
+	}, BBox)
+
+	self:repair()
+	self.dims = self.max_edge - self.min_edge
+
+	return self
 end
 
 function BBox.from_edges(min_edge, max_edge)

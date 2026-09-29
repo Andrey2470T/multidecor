@@ -113,7 +113,10 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 	},
 	add_properties = {
 		time_params = {
-			object = "modern:floor_clock_balance_wheel",
+			def = {
+				mesh = "multidecor_floor_clock_balance_wheel.b3d",
+				textures = {"multidecor_gold_material.png"}
+			},
 			animation = {
 				range = {x=1, y=40},
 				speed = 40.0
@@ -134,18 +137,6 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 })
 
 
-core.register_entity("modern:floor_clock_balance_wheel", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	physical = false,
-	pointable = false,
-	mesh = "multidecor_floor_clock_balance_wheel.b3d",
-	textures = {"multidecor_gold_material.png"},
-	static_save = true,
-	on_activate = multidecor.clock.on_activate,
-	on_step = multidecor.clock.on_step,
-	get_staticdata = multidecor.clock.get_staticdata
-})
 
 multidecor.register.register_furniture_unit("book", {
 	type = "decoration",
@@ -268,7 +259,6 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 	},
 	add_properties = {
 		time_params = {
-			object = "modern:alarm_clock_dummy_wheel",
 			sound = {
 				name = "multidecor_clock_ticking",
 				max_hear_distance = 12
@@ -285,18 +275,6 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 	replacements = {{"multidecor:steel_scissors", "multidecor:steel_scissors"}}
 })
 
-core.register_entity("modern:alarm_clock_dummy_wheel", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_alarm_clock.obj",
-	is_visible = false,
-	physical = false,
-	pointable = false,
-	static_save = true,
-	on_activate = multidecor.clock.on_activate,
-	on_step = multidecor.clock.on_step,
-	get_staticdata = multidecor.clock.get_staticdata
-})
 
 local floors_defs = {
 	["laminate"] = {

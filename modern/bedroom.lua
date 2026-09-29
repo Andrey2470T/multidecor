@@ -1,3 +1,9 @@
+local wooden_drawer_with_round_handle_def = {
+	mesh = "multidecor_wooden_drawer_with_round_handle.obj",
+	textures = {"multidecor_jungle_wood.png", "multidecor_metal_material.png"},
+	selectionbox = {-0.5, -0.16, -0.45, 0.525, 0.16, 0.575}
+}
+
 multidecor.register.register_bed("jungle_bed", {
 	style = "modern",
 	material = "wood",
@@ -119,7 +125,7 @@ multidecor.register.register_table("dresser_with_mirror", {
 			base_texture = "multidecor_aspen_wood.png",
 			visual_size_adds = {x=1.5, y=1.5, z=1.2},
 			pos = {x=-0.02, y=0.28, z=0},
-			object = "modern:wooden_drawer_with_round_handle",
+			def = wooden_drawer_with_round_handle_def,
 			length = 0.5,
 			inv_size = {w=6,h=1},
 			sounds = {
@@ -132,7 +138,7 @@ multidecor.register.register_table("dresser_with_mirror", {
 			base_texture = "multidecor_aspen_wood.png",
 			visual_size_adds = {x=1.5, y=1.5, z=1.2},
 			pos = {x=-0.02, y=0, z=0},
-			object = "modern:wooden_drawer_with_round_handle",
+			def = wooden_drawer_with_round_handle_def,
 			length = 0.5,
 			inv_size = {w=6,h=1},
 			sounds = {
@@ -145,7 +151,7 @@ multidecor.register.register_table("dresser_with_mirror", {
 			base_texture = "multidecor_aspen_wood.png",
 			visual_size_adds = {x=1.5, y=1.5, z=1.2},
 			pos = {x=-0.02, y=-0.28, z=0},
-			object = "modern:wooden_drawer_with_round_handle",
+			def = wooden_drawer_with_round_handle_def,
 			length = 0.5,
 			inv_size = {w=6,h=1},
 			sounds = {
@@ -158,7 +164,7 @@ multidecor.register.register_table("dresser_with_mirror", {
 			base_texture = "multidecor_aspen_wood.png",
 			visual_size_adds = {x=1.5, y=1.5, z=1.2},
 			pos = {x=-1, y=0.28, z=0},
-			object = "modern:wooden_drawer_with_round_handle",
+			def = wooden_drawer_with_round_handle_def,
 			length = 0.5,
 			inv_size = {w=6,h=1},
 			sounds = {
@@ -171,7 +177,7 @@ multidecor.register.register_table("dresser_with_mirror", {
 			base_texture = "multidecor_aspen_wood.png",
 			visual_size_adds = {x=1.5, y=1.5, z=1.2},
 			pos = {x=-1, y=0, z=0},
-			object = "modern:wooden_drawer_with_round_handle",
+			def = wooden_drawer_with_round_handle_def,
 			length = 0.5,
 			inv_size = {w=6,h=1},
 			sounds = {
@@ -184,7 +190,7 @@ multidecor.register.register_table("dresser_with_mirror", {
 			base_texture = "multidecor_aspen_wood.png",
 			visual_size_adds = {x=1.5, y=1.5, z=1.2},
 			pos = {x=-1, y=-0.28, z=0},
-			object = "modern:wooden_drawer_with_round_handle",
+			def = wooden_drawer_with_round_handle_def,
 			length = 0.5,
 			inv_size = {w=6,h=1},
 			sounds = {
@@ -202,17 +208,3 @@ multidecor.register.register_table("dresser_with_mirror", {
 	}
 })
 
-core.register_entity("modern:wooden_drawer_with_round_handle", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_wooden_drawer_with_round_handle.obj",
-	textures = {"multidecor_jungle_wood.png", "multidecor_metal_material.png"},
-	physical = false,
-	selectionbox = {-0.5, -0.16, -0.45, 0.525, 0.16, 0.575},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.drawer_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})

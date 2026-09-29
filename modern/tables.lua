@@ -1,3 +1,15 @@
+local wooden_drawer_def = {
+	mesh = "multidecor_wooden_drawer.obj",
+	textures = {"multidecor_jungle_wood.png", "multidecor_metal_material.png"},
+	selectionbox = {-0.35, -0.15, -0.4, 0.35, 0.15, 0.4}
+}
+
+local wooden_door_def = {
+	mesh = "multidecor_wooden_door.obj",
+	textures = {"multidecor_jungle_wood.png", "multidecor_metal_material.png"},
+	selectionbox = {-0.65, -0.25, 0, 0, 0.25, 0.05}
+}
+
 multidecor.register.register_table("kitchen_modern_wooden_table", {
 	style = "modern",
 	material = "wood",
@@ -138,7 +150,7 @@ multidecor.register.register_table("modern_wooden_desk", {
 		{
 			type = "drawer",
 			pos = {x=-1.15, y=0.225, z=0.025},
-			object = "modern:wooden_drawer",
+			def = wooden_drawer_def,
 			length = 0.8,
 			inv_size = {w=6,h=1},
 			sounds = {
@@ -149,7 +161,7 @@ multidecor.register.register_table("modern_wooden_desk", {
 		{
 			type = "door",
 			pos = {x=-0.825, y=-0.15, z=0.4},
-			object = "modern:wooden_door",
+			def = wooden_door_def,
 			side = "left",
 			inv_size = {w=6,h=3},
 			acc = 1,
@@ -168,35 +180,7 @@ multidecor.register.register_table("modern_wooden_desk", {
 	}
 })
 
-core.register_entity("modern:wooden_drawer", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_wooden_drawer.obj",
-	textures = {"multidecor_jungle_wood.png", "multidecor_metal_material.png"},
-	physical = false,
-	selectionbox = {-0.35, -0.15, -0.4, 0.35, 0.15, 0.4},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.drawer_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})
 
-core.register_entity("modern:wooden_door", {
-	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_wooden_door.obj",
-	textures = {"multidecor_jungle_wood.png", "multidecor_metal_material.png"},
-	physical = false,
-	selectionbox = {-0.65, -0.25, 0, 0, 0.25, 0.05},
-	static_save = true,
-	on_activate = multidecor.shelves.on_activate,
-	on_rightclick = multidecor.shelves.on_rightclick,
-	on_step = multidecor.shelves.door_on_step,
-	get_staticdata = multidecor.shelves.get_staticdata,
-	on_deactivate = multidecor.shelves.on_deactivate
-})
 
 multidecor.register.register_table("modern_wooden_table_with_metallic_legs", {
 	style = "modern",
@@ -241,7 +225,7 @@ multidecor.register.register_table("modern_bedside_table", {
 			base_texture = "multidecor_pine_wood2.png",
 			visual_size_adds = {x=1.2*2.2, y=1.5*2.2, z=-0.8*2.2},
 			pos = {x=0, y=-0.22, z=0.2375},
-			object = "modern:wooden_drawer",
+			def = wooden_drawer_def,
 			length = 0.8,
 			inv_size = {w=6,h=1},
 			sounds = {
@@ -254,7 +238,7 @@ multidecor.register.register_table("modern_bedside_table", {
 			base_texture = "multidecor_pine_wood2.png",
 			visual_size_adds = {x=1.2*2.2, y=1.5*2.2, z=-0.8*2.2},
 			pos = {x=0, y=0.205, z=0.2375},
-			object = "modern:wooden_drawer",
+			def = wooden_drawer_def,
 			length = 0.8,
 			inv_size = {w=6,h=1},
 			sounds = {

@@ -417,17 +417,22 @@ end
 			},
 		},
 		move_parts = {
-			["floor_door"] = <meshname>,
-			["floor_half_door"] = <meshname>,
-			["wall_door"] = <meshname>,
-			["wall_half_door"] = <meshname>,
-			["wall_half_glass_door"] = <meshname>,
-			["large_drawer"] = <meshname>,
-			["small_drawer"] = <meshname>
+			-- each part is a model definition table used by the Shelf class
+			-- to build the DoorEntity doors (no entity registration needed):
+			-- {mesh = <filename>, textures = {...}, visual_size = {...} (optional),
+			--  selectionbox = {...}, use_texture_alpha = <bool> (optional),
+			--  backface_culling = <bool> (optional)}
+			["floor_door"] = <model def>,
+			["floor_half_door"] = <model def>,
+			["wall_door"] = <model def>,
+			["wall_half_door"] = <model def>,
+			["wall_half_glass_door"] = <model def>,
+			["large_drawer"] = <model def>,
+			["small_drawer"] = <model def>
 		}
 	}
-
 ]]
+
 -- Registers a set of furniture components of certain type: "kitchen", "bathroom", "bedroom", "living_room" and etc.
 function multidecor.register.register_garniture(def)
 	local cmn_def = {}
@@ -442,13 +447,13 @@ function multidecor.register.register_garniture(def)
 	cmn_def.groups = def.groups
 
 	local objects = {
-		def.modname .. ":" .. def.objs_common_name .. "_floor_door",
-		def.modname .. ":" .. def.objs_common_name .. "_floor_half_door",
-		def.modname .. ":" .. def.objs_common_name .. "_wall_door",
-		def.modname .. ":" .. def.objs_common_name .. "_wall_half_door",
-		def.modname .. ":" .. def.objs_common_name .. "_wall_half_glass_door",
-		def.modname .. ":" .. def.objs_common_name .. "_large_drawer",
-		def.modname .. ":" .. def.objs_common_name .. "_small_drawer"
+		def.move_parts.floor_door,
+		def.move_parts.floor_half_door,
+		def.move_parts.wall_door,
+		def.move_parts.wall_half_door,
+		def.move_parts.wall_half_glass_door,
+		def.move_parts.large_drawer,
+		def.move_parts.small_drawer
 	}
 
 	local door_sounds = {
@@ -481,10 +486,10 @@ function multidecor.register.register_garniture(def)
 		return cabdef
 	end
 
-	local function form_shelf_data(name, type, objname, pos1, pos2, orig_angle, side, list_type)
+	local function form_shelf_data(name, type, obj_def, pos1, pos2, orig_angle, side, list_type)
 		return {
 			type = type,
-			object = objname,
+			def = obj_def,
 			invlist_type = list_type,
 			inv_size = def.components[name].shelves_data.inv_size,
 			pos = pos1,
