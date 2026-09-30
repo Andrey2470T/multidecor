@@ -44,6 +44,101 @@ function common.build_name_from_tmp(name, type, i, pos)
 	return resname
 end
 
+-- Metatable-preserving serialization
+--------------------------------------------------
+-- core.serialize dumps tables as plain Lua code and never touches metatables
+-- (builtin/common/serialize.lua: the table dump uses only rawget/next and even
+-- bypasses metatables explicitly). These wrappers inject a class marker field
+-- into a detached copy of the value and reattach the metatable on
+-- deserialization. Classes must be registered via register_class first.
+-- NOTE: the marker key must not occur as a real data key in serialized tables.
+
+local CLASS_MARKER = "__mdclass"
+
+local class_name_by_mt = {}
+local class_mt_by_name = {}
+
+function common.register_class(name, metatable)
+	class_name_by_mt[metatable] = name
+	class_mt_by_name[name] = metatable
+end
+
+-- Detached deep copy with class markers injected; preserves reference sharing
+-- and cycles, never mutates the value being serialized
+local function transform_out(value, seen)
+	if type(value) ~= "table" then
+		return value
+	end
+
+	local copy = seen[value]
+	if copy then
+		return copy
+	end
+
+	copy = {}
+	seen[value] = copy
+
+	local mt = getmetatable(value)
+	if mt and class_name_by_mt[mt] then
+		copy[CLASS_MARKER] = class_name_by_mt[mt]
+	end
+
+	for k, v in pairs(value) do
+		copy[transform_out(k, seen)] = transform_out(v, seen)
+	end
+
+	return copy
+end
+
+-- Strips the class markers back and reattaches the registered metatables
+local function transform_in(value, seen)
+	if type(value) ~= "table" then
+		return value
+	end
+
+	local copy = seen[value]
+	if copy then
+		return copy
+	end
+
+	copy = {}
+	seen[value] = copy
+
+	for k, v in pairs(value) do
+		copy[transform_in(k, seen)] = transform_in(v, seen)
+	end
+
+	local class_name = rawget(copy, CLASS_MARKER)
+	if class_name then
+		copy[CLASS_MARKER] = nil
+		setmetatable(copy, class_mt_by_name[class_name])
+	end
+
+	return copy
+end
+
+-- The wrappers behave like core.serialize/core.deserialize on plain values
+function common.serialize(value)
+	return core.serialize(transform_out(value, {}))
+end
+
+function common.deserialize(str)
+	if not str or str == "" then
+		return nil
+	end
+
+	local data = core.deserialize(str)
+	if type(data) ~= "table" then
+		return data
+	end
+
+	return transform_in(data, {})
+end
+
+if vector.metatable then
+	common.register_class("vector", vector.metatable)
+end
+
 -- Basic colors names
 common.colors = {}
 common.colors.white = "white"

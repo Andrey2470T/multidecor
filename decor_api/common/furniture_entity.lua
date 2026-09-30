@@ -1,4 +1,4 @@
-require("decor_api.helpers.common")
+local common = require("decor_api.helpers.common")
 local Timer = require("decor_api.helpers.timer")
 
 local FurnitureManager = {
@@ -37,7 +37,7 @@ end
 
 function FurnitureEntity.spawn(entity_name, node_pos, node_name, pos, rot, data)
 	local serialize_t = FurnitureEntity.new(node_pos, node_name, data)
-	local entity = core.add_entity(pos, entity_name, core.serialize(serialize_t))
+	local entity = core.add_entity(pos, entity_name, common.serialize(serialize_t))
 	if entity then
 		entity:set_rotation(rot)
 	end
@@ -46,10 +46,8 @@ end
 
 function FurnitureEntity:on_activate(staticdata)
 	if staticdata and staticdata ~= "" then
-		local data = core.deserialize(staticdata)
+		local data = common.deserialize(staticdata)
 		if data and data.attached_to then
-			-- Restore the vector metatable lost during serialization
-			data.attached_to.pos = vector.new(data.attached_to.pos)
 			table.copy_to(data, self)
 		end
 	end
@@ -79,7 +77,7 @@ function FurnitureEntity:get_staticdata()
 		serialize_t.sound.handle = nil
 	end
 
-	return core.serialize(serialize_t)
+	return common.serialize(serialize_t)
 end
 
 function FurnitureEntity:check_node_valid()

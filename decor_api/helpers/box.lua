@@ -79,6 +79,8 @@ function BBox:repair()
 	e1.z, e2.z = common.swap(e1.z, e2.z, e1.z > e2.z)
 end
 
+common.register_class("BBox", BBox)
+
 -- Rotates 'bbox' bounding box vertically (collision or selection) corresponding to 'dir'
 function BBox:rotate(dir)
 	local orig_min_edge = dir_ops.rotate_to_dir(self.min_edge, -self.hdir)

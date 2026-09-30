@@ -51,8 +51,6 @@ end
 
 function AnimatedEntity:create_dummy_model()
 	if not self.object then return end
-	-- No model to display — the dummy is not needed at all
-	if not self.model_params.mesh or self.model_params.mesh == "" then return end
 
 	-- Prevents the entity duplication
 	if self.dummy_entity and self.dummy_entity:is_valid() then return end
@@ -74,10 +72,7 @@ function AnimatedEntity:create_dummy_model()
 			mesh = self.model_params.mesh,
 			textures = self.model_params.textures,
 			collisionbox = self.model_params.box,
-			selectionbox = self.model_params.box,
-			use_texture_alpha = self.model_params.use_texture_alpha,
-			backface_culling = self.model_params.backface_culling,
-			pointable = self.model_params.pointable
+			selectionbox = self.model_params.box
 		})
 	end
 end

@@ -25,7 +25,7 @@ local common = require("decor_api.helpers.common")
 local BBox = require("decor_api.helpers.box")
 local furniture_t = require("decor_api.common.furniture_entity")
 local FurnitureManager = furniture_t[3]
-local DoorEntity = require("decor_api.furniture.door")
+local DoorEntity = require("decor_api.furniture.door")[1]
 
 local shelves_api = {}
 

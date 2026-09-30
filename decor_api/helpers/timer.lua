@@ -1,6 +1,8 @@
 -- Timer class
 ------------------------------------------------
 
+local common = require("decor_api.helpers.common")
+
 local Timer = {}
 Timer.__index = Timer
 
@@ -64,5 +66,7 @@ function Timer:tick(dtime)
 		end
 	end
 end
+
+common.register_class("Timer", Timer)
 
 return Timer

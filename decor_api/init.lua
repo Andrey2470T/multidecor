@@ -43,6 +43,8 @@ dofile(modpath .. "/common/placement.lua")
 dofile(modpath .. "/common/register.lua")
 local shelves_t = require("decor_api.common.shelves")
 multidecor.Shelf, multidecor.shelves_api = shelves_t[1], shelves_t[2]
+-- Legacy alias: register.lua, door.lua and the modern mod scripts still use it
+multidecor.shelves = shelves_t[2]
 local sitting_t = require("decor_api.common.sitting")
 multidecor.SittingEntity, multidecor.sitting = sitting_t[1], sitting_t[2]
 dofile(modpath .. "/common/tools_sounds.lua")
