@@ -2,6 +2,8 @@ local common = {}
 
 -- Returns a node def of the node at 'pos'
 function common.ndef(pos)
+	local node = core.get_node_or_nil(pos)
+	if not node then return end
 	return core.registered_nodes[core.get_node(pos).name]
 end
 

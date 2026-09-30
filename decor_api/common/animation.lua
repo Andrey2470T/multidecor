@@ -16,12 +16,7 @@ function AnimatedEntity:on_activate(staticdata)
 	self.model_params.size = self.model_params.size or {x=5, y=5, z=5}
 	self.model_params.mesh = self.model_params.mesh or ""
 	self.model_params.textures = self.model_params.textures or {}
-	if self.model_params.box then
-		-- The box comes back as a plain table after deserialization, restore the BBox metatable
-		self.model_params.box = BBox.restore(self.model_params.box)
-	else
-		self.model_params.box = BBox.from_default()
-	end
+	self.model_params.box = self.model_params.box or BBox.from_default()
 
 	self.sound = self.sound or {}
 	self.sound.handle = nil
@@ -85,7 +80,10 @@ function AnimatedEntity:play_frame_animation(range, speed)
 		target = self.object
 	end
 
-	target:set_animation(range, speed or 30, 0.0, true)
+	speed = speed or 30
+	local time = (range.y - range.x) / math.max(0.001, speed)
+	target:set_animation(range, speed, 0.0, true)
+	self.anim_timer:start(time)
 end
 
 function AnimatedEntity:stop_frame_animation()
@@ -95,6 +93,7 @@ function AnimatedEntity:stop_frame_animation()
 	end
 
 	target:set_animation({x=1, y=1}, 0.0)
+	self.anim_timer:stop()
 end
 
 function AnimatedEntity:play_bone_animation(rotate, target_offset, offset_axis, velocity)
@@ -129,17 +128,20 @@ function AnimatedEntity:stop_bone_animation(instant)
 	local target_pos = vector.new()
 	target_pos[self.animation.offset_axis] = cur_offset
 
+	local override
 	if self.animation.rotate then
-		self.object:set_bone_override(self.model_params.bone or "Door", {
-			rotation = {vec = target_pos, interpolation = instant and 0.0 or 0.1}
-		})
+		override = {rotation = {vec = target_pos, interpolation = instant and 0.0 or cur_time}}
 	else
-		self.object:set_bone_override(self.model_params.bone or "Door", {
-			position = {vec = target_pos, interpolation = instant and 0.0 or 0.1}
-		})
+		override = {position = {vec = target_pos, interpolation = instant and 0.0 or cur_time}}
 	end
-		
-	self.anim_timer:stop()
+
+	self.object:set_bone_override(self.model_params.bone or "Door", override)
+
+	if instant then
+		self.anim_timer:stop()
+	else
+		self.anim_timer:reset()
+	end
 end
 
 function AnimatedEntity:play_sound()
@@ -149,7 +151,7 @@ function AnimatedEntity:play_sound()
 			object = self.object,
 			gain = self.sound.volume,
 			max_hear_distance = self.sound.max_distance,
-			loop = self.sound.loop == true
+			loop = false
 		})
 	end
 end
