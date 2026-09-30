@@ -1,7 +1,8 @@
 multidecor.placement = {}
 
 function multidecor.placement.is_free_space(pos)
-	local def = core.registered_nodes[core.get_node(pos).name]
+	local def = multidecor.helpers.ndef(pos)
+	if not def then return false end
 
 	return def.drawtype == "airlike"
 end
@@ -80,7 +81,7 @@ function multidecor.placement.calc_place_space_size(bboxes)
 end
 
 function multidecor.placement.check_for_placement(pos, name)
-	local def = core.registered_nodes[name]
+	local def = multidecor.helpers.ndef(pos)
 
 	if not def then
 		core.log("error", "Node definition not found for: " .. name)
