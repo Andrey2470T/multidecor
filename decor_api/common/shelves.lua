@@ -46,8 +46,7 @@ local cooking_shelves = {}
 
 
 function Shelf.get_or_new(node_pos, shelf_i)
-	local node = core.get_node(node_pos)
-	local def = core.registered_nodes[node.name]
+  local def = common.ndef(node_pos)
 
 	if not def or not def.add_properties or not def.add_properties.shelves_data then
 		return nil
@@ -67,14 +66,13 @@ function Shelf.get_or_new(node_pos, shelf_i)
 	local self = setmetatable({}, Shelf)
 	self.node_pos = vector.new(node_pos)
 	self.node_name = node.name
+  self.common_name = def.add_properties.common_name
 	self.shelves_data = shelves_data
 	self.shelf_data = shelves_data[shelf_i]
 	self.shelf_i = shelf_i
-
-	local state = core.deserialize(core.get_meta(node_pos):get_string("shelf_" .. shelf_i .. "_state")) or {}
-	self.inv_list = state.inv_list or {}
-	self.lock_info = state.lock_info
-	self.cook_info = state.cook_info
+	self.inv_list = {}
+	self.lock_info = {}
+	self.cook_info = nil
 	self.is_open = false
 
 	if not reg then
@@ -86,15 +84,15 @@ function Shelf.get_or_new(node_pos, shelf_i)
 end
 
 function Shelf:inv_name()
-	return common.build_name_from_tmp(self.shelves_data.common_name, "inv", self.shelf_i, self.node_pos)
+	return common.build_name_from_tmp(self.common_name, "inv", self.shelf_i, self.node_pos)
 end
 
 function Shelf:list_name()
-	return common.build_name_from_tmp(self.shelves_data.common_name, "list", self.shelf_i, self.node_pos)
+	return common.build_name_from_tmp(self.common_name, "list", self.shelf_i, self.node_pos)
 end
 
 function Shelf:formspec_name()
-	return common.build_name_from_tmp(self.shelves_data.common_name, "fs", self.shelf_i, self.node_pos)
+	return common.build_name_from_tmp(self.common_name, "fs", self.shelf_i, self.node_pos)
 end
 
 function Shelf:save_state()
@@ -104,7 +102,7 @@ function Shelf:save_state()
 		local list = inv:get_list(self:list_name())
 
 		for _, stack in ipairs(list) do
-			table.insert(inv_list, {name=stack:get_name(), count=stack:get_count(), wear=stack:get_wear()})
+			table.insert(inv_list, stack:to_table())
 		end
 
 		self.inv_list = inv_list
@@ -116,12 +114,6 @@ function Shelf:save_state()
 			lua_ent.dummy_entity:set_properties({infotext=infotext})
 		end
 	end
-
-	core.get_meta(self.node_pos):set_string("shelf_" .. self.shelf_i .. "_state", core.serialize({
-		inv_list = self.inv_list,
-		lock_info = self.lock_info,
-		cook_info = self.cook_info
-	}))
 end
 
 function Shelf:create_inventory()
@@ -191,31 +183,29 @@ function Shelf:start_cooking(inv, listname, stack, playername)
 	local total_time = output.time*stack:get_count()
 
 	core.swap_node(self.node_pos, {
-		name="multidecor:" .. self.shelves_data.common_name .. "_activated",
+		name="multidecor:" .. self.common_name .. "_activated",
 		param2=core.get_node(self.node_pos).param2
 	})
 
 	local meta = core.get_meta(self.node_pos)
 	self.cook_info = {output, 0, total_time, 0}
-	meta:set_string("sound_handle", core.serialize(core.sound_play(
+	self.cook_info.sound_handle = core.sound_play(
 		"multidecor_hum",
 		{pos=self.node_pos, fade=1.0, max_hear_distance=10, loop=true}
-	)))
+	)
 
 	cooking_shelves[core.pos_to_string(self.node_pos)] = true
 end
 
 function Shelf:stop_cooking()
 	local meta = core.get_meta(self.node_pos)
-	self.cook_info = nil
-	meta:set_string("cook_info", "")
 	meta:set_string("infotext", "")
+	core.sound_stop(self.cook_info.sound_handle)
 
-	local sound_handle = core.deserialize(meta:get_string("sound_handle"))
-	core.sound_stop(sound_handle)
+  self.cook_info = nil
 
 	core.swap_node(self.node_pos, {
-		name="multidecor:" .. self.shelves_data.common_name,
+		name="multidecor:" .. self.common_name,
 		param2=core.get_node(self.node_pos).param2
 	})
 
@@ -265,7 +255,7 @@ function Shelf:cook_step(dtime)
 				playername = pl_name
 				fs = shelves_api.build_main_formspec(
 					self.node_pos,
-					self.shelves_data.common_name,
+					self.common_name,
 					self.shelf_data,
 					self.shelf_i,
 					self.lock_info ~= nil,
@@ -365,7 +355,7 @@ function Shelf:build_door_data(rel_pos, mirrored)
 		anim_params = anim_params,
 		sound_defs = sd.sounds,
 		shelf_i = self.shelf_i,
-		node_pattern = self.shelves_data.common_name,
+		node_pattern = self.common_name,
 		cur_mode = "closed",
 		convert_on_end = false,
 		persistent = true
@@ -442,7 +432,7 @@ function Shelf:open_for(clicker)
 
 	local fs = shelves_api.build_main_formspec(
 		self.node_pos,
-		self.shelves_data.common_name,
+		self.common_name,
 		self.shelf_data,
 		self.shelf_i,
 		self.lock_info ~= nil,
