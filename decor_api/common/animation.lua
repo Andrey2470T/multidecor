@@ -72,31 +72,9 @@ function AnimatedEntity:create_dummy_model()
 	end
 end
 
--- Plays a keyframed mesh animation (e.g. a spinning fan or a clock wheel).
--- The dummy carries the model when it exists, otherwise the entity itself does
-function AnimatedEntity:play_frame_animation(range, speed)
-	local target = self.dummy_entity
-	if not (target and target:is_valid()) then
-		target = self.object
-	end
+function AnimatedEntity:play_animation(rotate, target_offset, offset_axis, velocity)
+	self:stop_animation(true)
 
-	speed = speed or 30
-	local time = (range.y - range.x) / math.max(0.001, speed)
-	target:set_animation(range, speed, 0.0, true)
-	self.anim_timer:start(time)
-end
-
-function AnimatedEntity:stop_frame_animation()
-	local target = self.dummy_entity
-	if not (target and target:is_valid()) then
-		target = self.object
-	end
-
-	target:set_animation({x=1, y=1}, 0.0)
-	self.anim_timer:stop()
-end
-
-function AnimatedEntity:play_bone_animation(rotate, target_offset, offset_axis, velocity)
 	local time = math.abs(target_offset) / math.max(0.001, velocity)
 
 	local target_pos = vector.new()
@@ -119,7 +97,7 @@ function AnimatedEntity:play_bone_animation(rotate, target_offset, offset_axis, 
 	self.anim_timer:start(time)
 end
 
-function AnimatedEntity:stop_bone_animation(instant)
+function AnimatedEntity:stop_animation(instant)
 	if not self.anim_timer:is_started() then return end
 
 	local cur_time = self.anim_timer:get_time()
@@ -170,7 +148,9 @@ function AnimatedEntity:on_step(dtime)
 end
 
 function AnimatedEntity:on_deactivate(removal)
+	self:stop_animation(true)	
 	self:stop_sound()
+
 	if self.dummy_entity and self.dummy_entity:is_valid() then
 		self.dummy_entity:remove()
 	end
@@ -206,7 +186,7 @@ function CyclicEntity:cycle()
 	local anim = self.cyclic_animation
 
 	if anim then
-		self:animate(true, anim.angle * anim.direction, anim.axis, anim.velocity)
+		self:play_animation(true, anim.angle * anim.direction, anim.axis, anim.velocity)
 	end
 
 	self:play_sound()
