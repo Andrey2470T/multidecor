@@ -9,10 +9,12 @@ local FurnitureManager = {
 }
 
 -- FurnitureEntity
+-- The root class of all furniture entities.
+-- It handles the serialization and deserialization of the entity data saved in "self" table, as well as the attachment to a node.
 --------------------------------------
 local FurnitureEntity = {
 	name = "decor_api:base_furniture",
-	attached_to = nil, -- table {pos = vector, name = string}
+	attached_to = nil, -- table { pos = vector, name = string }
 }
 FurnitureEntity.__index = FurnitureEntity
 
@@ -52,7 +54,7 @@ function FurnitureEntity:on_activate(staticdata)
 		end
 	end
 
-	self.object:set_armor_groups({immortal=true})
+	self.object:set_armor_groups({immortal = 1})
 	return true
 end
 
@@ -67,15 +69,9 @@ function FurnitureEntity:get_staticdata()
 	local serialize_t = {}
 
 	table.copy_to(self, serialize_t)
-	-- Runtime-only fields, must not be persisted (handles and timers are recreated on activation)
+
 	serialize_t.name = nil
 	serialize_t.object = nil
-	serialize_t.dummy_entity = nil
-	serialize_t.anim_timer = nil
-	serialize_t.initialized = nil
-	if serialize_t.sound then
-		serialize_t.sound.handle = nil
-	end
 
 	return common.serialize(serialize_t)
 end
@@ -93,9 +89,16 @@ function FurnitureEntity:check_node_valid()
 end
 
 function FurnitureEntity.build_definition(class_table, override_def)
-	local def = {
+	local properties = {
 		physical = false,
-		static_save = true,
+		static_save = true
+	}
+	if override_def then
+		for k, v in pairs(override_def) do properties[k] = v end
+	end
+
+	local def = {
+		initial_properties = properties,
 		on_activate = function(self, staticdata)
 			setmetatable(self, class_table)
 			if class_table.on_activate then
@@ -112,15 +115,20 @@ function FurnitureEntity.build_definition(class_table, override_def)
 			if class_table.on_step then
 				class_table.on_step(self, dtime)
 			end
+		end,
+		on_deactivate = function(self, removal)
+			if class_table.on_deactivate then
+				class_table.on_deactivate(self, removal)
+			end
 		end
 	}
-	if override_def then
-		for k, v in pairs(override_def) do def[k] = v end
-	end
 	return def
 end
 
--- FurnitureDescriptor (handles one entity)
+-- FurnitureDescriptor
+-- The class saving and handling one FurnitureEntity or its subclasses.
+-- It is made mainly for the entity validation and its restoration due to various unexpected events
+-- like when the entity is removed or changes its position/rotation by an external mod, /clear_objects was called
 -------------------------------------------------
 local FurnitureDescriptor = {}
 FurnitureDescriptor.__index = FurnitureDescriptor
@@ -138,6 +146,9 @@ function FurnitureDescriptor.new(entity_name, node_pos, node_name, spawn_pos, sp
 	local class_table = FurnitureManager.registered_entities[self.entity_name]
 	self.object = class_table.spawn(
 		entity_name, self.node_pos, self.node_name, self.spawn_pos, self.spawn_rot, self.data)
+	if self.object then
+		self.guid = self.object:get_guid()
+	end
 
 	return self
 end
@@ -179,15 +190,14 @@ function FurnitureDescriptor:validate_entity()
 
 		local class_table = FurnitureManager.registered_entities[self.entity_name]
 
-		if self.object then
-			FurnitureManager.guid_to_desc[self.object:get_guid()] = nil
-		end
+		FurnitureManager.guid_to_desc[self.guid] = nil
 
 		self.object = class_table.spawn(
 			self.entity_name, self.node_pos, self.node_name, self.spawn_pos, self.spawn_rot, self.data)
 
 		if self.object then
-			FurnitureManager.guid_to_desc[self.object:get_guid()] = self
+			self.guid = self.object:get_guid()
+			FurnitureManager.guid_to_desc[self.guid] = self
 		end
 	end
 	self.removed = nil
@@ -196,6 +206,7 @@ function FurnitureDescriptor:validate_entity()
 end
 
 -- FurnitureManager
+-- Saves and manages all furniture entities in the world.
 ------------------------------------------------------
 
 function FurnitureManager.register(name, class, override_def)
@@ -213,7 +224,7 @@ function FurnitureManager.add(entity_name, node_pos, node_name, spawn_pos, spawn
 		end
 
 		table.insert(FurnitureManager.descriptors[pos_str], desc)
-		FurnitureManager.guid_to_desc[desc.object:get_guid()] = desc
+		FurnitureManager.guid_to_desc[desc.guid] = desc
 	end
 
 	return desc
@@ -284,9 +295,7 @@ function FurnitureManager.on_step()
 			local desc = list[i]
 			local result = desc:validate_entity()
 			if not result then
-				if desc.object then
-					FurnitureManager.guid_to_desc[desc.object:get_guid()] = nil
-				end
+				FurnitureManager.guid_to_desc[desc.guid] = nil
 				table.remove(list, i)
 			end
 		end

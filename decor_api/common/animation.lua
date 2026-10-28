@@ -4,6 +4,9 @@ local furniture_t = require("decor_api.common.furniture_entity")
 local FurnitureEntity, FurnitureManager = furniture_t[1], furniture_t[3]
 
 -- AnimatedEntity
+-- The child class of FurnitureEntity handling the bone animation and the sound playback.
+-- Consists of two entities - self.object, the invisible one having the "Door" bone and attaching sound
+-- and self.dummy_entity, the visible one carrying the model and attached to the "Door" bone of the parent entity.
 ----------------------------------------------------
 local AnimatedEntity = FurnitureEntity:extend("decor_api:animated_furniture")
 
@@ -31,7 +34,7 @@ function AnimatedEntity:on_activate(staticdata)
 			if desc and desc:exists() then
 				local desc_self = desc.object:get_luaentity()
 
-				if desc_self.on_animation_end then
+				if desc_self and desc_self.on_animation_end then
 					desc_self:on_animation_end()
 				end
 			end
@@ -47,6 +50,9 @@ end
 function AnimatedEntity:create_dummy_model()
 	if not self.object then return end
 
+	-- The entity itself carries the model when there is none for the dummy
+	if self.model_params.mesh == "" then return end
+
 	-- Prevents the entity duplication
 	if self.dummy_entity and self.dummy_entity:is_valid() then return end
 
@@ -54,20 +60,21 @@ function AnimatedEntity:create_dummy_model()
 	self.dummy_entity = core.add_entity(p, "decor_api:animator_dummy")
 
 	if self.dummy_entity then
-		-- Attaches the dummy entity with some model to the bone-entity
-		self.dummy_entity:set_attach(self.object, self.model_params.bone or "", {x=0, y=0, z=0}, {x=0, y=0, z=0}, true)
+		-- Attaches the dummy entity with some model to the bone-entity. When
+		self.dummy_entity:set_attach(self.object, "Door", {x=0, y=0, z=0}, {x=0, y=0, z=0}, true)
 
 		local size = vector.new(self.model_params.size)
 		if self.model_params.mirrored then
 			size.x = -size.x
 		end
 
+		local box_coords = self.model_params.box:get_coords()
 		self.dummy_entity:set_properties({
 			visual_size = size,
 			mesh = self.model_params.mesh,
 			textures = self.model_params.textures,
-			collisionbox = self.model_params.box,
-			selectionbox = self.model_params.box
+			collisionbox = box_coords,
+			selectionbox = box_coords
 		})
 	end
 end
@@ -93,12 +100,11 @@ function AnimatedEntity:play_animation(rotate, target_offset, offset_axis, veloc
 		target_offset = target_offset,
 		velocity = velocity
 	}
-	self.object:set_bone_override(self.model_params.bone or "Door", override)
-	self.anim_timer:start(time)
+	self.object:set_bone_override("Door", override)
 end
 
 function AnimatedEntity:stop_animation(instant)
-	if not self.anim_timer:is_started() then return end
+	if not self.animation then return end
 
 	local cur_time = self.anim_timer:get_time()
 	local cur_offset = -self.animation.velocity * cur_time
@@ -113,13 +119,8 @@ function AnimatedEntity:stop_animation(instant)
 		override = {position = {vec = target_pos, interpolation = instant and 0.0 or cur_time}}
 	end
 
-	self.object:set_bone_override(self.model_params.bone or "Door", override)
-
-	if instant then
-		self.anim_timer:stop()
-	else
-		self.anim_timer:reset()
-	end
+	self.object:set_bone_override("Door", override)
+	self.animation = nil
 end
 
 function AnimatedEntity:play_sound()
@@ -148,7 +149,7 @@ function AnimatedEntity:on_step(dtime)
 end
 
 function AnimatedEntity:on_deactivate(removal)
-	self:stop_animation(true)	
+	self:stop_animation(true)
 	self:stop_sound()
 
 	if self.dummy_entity and self.dummy_entity:is_valid() then
@@ -175,21 +176,44 @@ core.register_entity("decor_api:animator_dummy", {
 		if parent_entity and parent_entity.on_rightclick then
 			parent_entity:on_rightclick(clicker)
 		end
+	end,
+	on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir, damage)
+		local parent = self.object:get_attach()
+		if not parent then return end
+
+		local parent_entity = parent:get_luaentity()
+		if parent_entity and parent_entity.on_punch then
+			parent_entity:on_punch(puncher, time_from_last_punch, tool_capabilities, dir, damage)
+		end
 	end
 })
 
 -- CyclicEntity
+-- The child class of AnimatedEntity that automatically cycles the animation and sound playback.
+-- Used for the floor clock balance wheel where the animation is started/stopped on_rightclick,
+-- for the ceiling fan blades where the animation is always running and
+-- the alarm clock where only the cyclic sound is played without the animation.
 ------------------------------------------------
 local CyclicEntity = AnimatedEntity:extend("decor_api:cyclic_furniture")
 
+-- Calls the one animation cycle
 function CyclicEntity:cycle()
 	local anim = self.cyclic_animation
 
+	local time
 	if anim then
+		time = math.abs(anim.angle) / math.max(0.001, anim.velocity)
 		self:play_animation(true, anim.angle * anim.direction, anim.axis, anim.velocity)
 	end
 
+	if not time then
+		time = self.sound.duration or 0
+	end
 	self:play_sound()
+
+	if not self.anim_timer:is_started() then
+		self.anim_timer:start(time)
+	end
 end
 
 function CyclicEntity:on_activate(staticdata)
@@ -202,12 +226,14 @@ function CyclicEntity:on_activate(staticdata)
 	self.cyclic_animation.axis = self.cyclic_animation.axis or "y"
 	self.cyclic_animation.velocity = self.cyclic_animation.velocity or math.pi/4
 	self.cyclic_animation.direction = self.cyclic_animation.direction or 1
-
-	self:cycle()
+	self.anim_timer.cyclic = true
 
 	return true
 end
 
+-- Called at the end of the timer cycle once the duration is reached
+-- Inverts the animation direction if "swap_direction=true", used for the floor clock balance wheel,
+-- the ceiling fan blades don't invert it
 function CyclicEntity:on_animation_end()
 	if self.cyclic_animation.swap_direction then
 		self.cyclic_animation.direction = self.cyclic_animation.direction * -1

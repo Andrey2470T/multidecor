@@ -4,10 +4,11 @@
 -- intentionally doing them inaccessible outside, it has been done in the safety goals.
 -- Only the really necessary API will be exposed for mods as global.
 
-multidecor.register = {}
+local common = require("decor_api.helpers.common")
+local placement = require("decor_api.common.placement")
+local tools_sounds = require("decor_api.common.tools_sounds")
 
 local register = {}
-
 
 -- Default furniture types
 register.supported_types = {
@@ -43,13 +44,13 @@ register.supported_materials = {
 }
 
 -- Registers a new furniture type
-function multidecor.register.register_type(type_name)
+function register.register_type(type_name)
 	table.insert(register.supported_types, type_name)
 end
 
 -- Checks whether the given 'name' is in the category with 'category_id' (whether it is registered there).
 -- 'category_id': '0' - types, '1' - styles, '2' - materials
-function multidecor.register.category_contains(name, category_id)
+function register.category_contains(name, category_id)
 	local lookup_t
 
 	if category_id == 0 then
@@ -76,8 +77,8 @@ function register.build_description(style, material, base_desc)
 	return desc:format(multidecor.S(style), multidecor.S(material))
 end
 
-function multidecor.register.after_place_node(pos, placer, itemstack)
-	local place = multidecor.placement.check_for_placement(pos, itemstack:get_name())
+function register.after_place_node(pos, placer, itemstack)
+	local place = placement.check_for_placement(pos, itemstack:get_name())
 	local name = placer and placer:get_player_name() or ""
 
 	if not place then
@@ -85,22 +86,21 @@ function multidecor.register.after_place_node(pos, placer, itemstack)
 		core.remove_node(pos)
 	else
 		if not core.is_creative_enabled(name)
-		then
-			itemstack:set_count(itemstack:get_count()-1)
+		then itemstack:set_count(itemstack:get_count()-1)
 		end
 	end
 
 	return itemstack
 end
 
-function multidecor.register.on_punch(pos, node, puncher)
+function register.on_punch(pos, node, puncher)
 	local wielded_item = puncher:get_wielded_item()
 
 	if wielded_item:get_name() ~= "multidecor:scraper" then
 		return
 	end
 
-	local def = hlpfuncs.ndef(pos)
+	local def = common.ndef(pos)
 
 	if not def.is_colorable then return end
 
@@ -114,7 +114,7 @@ function multidecor.register.on_punch(pos, node, puncher)
 		return
 	end
 
-	local color = multidecor.colors[palette_index+1]
+	local color = common.colors[palette_index+1]
 	local rot = node.param2 % mul
 
 	core.swap_node(pos, {name=node.name, param2=rot})
@@ -124,7 +124,7 @@ function multidecor.register.on_punch(pos, node, puncher)
 	wielded_item:set_wear(wielded_item:get_wear()+math.modf(65535/50))
 	puncher:set_wielded_item(wielded_item)
 
-	multidecor.tools_sounds.play(playername, 4)
+	common.tools_sounds.play(playername, 4)
 end
 
 --[[def:
@@ -474,6 +474,7 @@ function multidecor.register.register_garniture(def)
 		cabdef.bounding_boxes = def.components[name].bounding_boxes
 		cabdef.callbacks = def.components[name].callbacks or {}
 		cabdef.callbacks.on_construct = cabdef.callbacks.on_construct or function(pos) multidecor.shelves.set_shelves(pos) end
+		cabdef.callbacks.on_destruct = cabdef.callbacks.on_destruct or multidecor.shelves.on_destruct
 		cabdef.callbacks.can_dig = cabdef.callbacks.can_dig or multidecor.shelves.can_dig
 		cabdef.add_properties = {}
 

@@ -41,7 +41,7 @@ function Timer:is_started()
 	return self.started
 end
 
-function Timer:cur_time()
+function Timer:get_time()
 	return self.cur_time
 end
 

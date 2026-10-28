@@ -15,7 +15,8 @@ local function new(x1, y1, z1, x2, y2, z2)
 	}, BBox)
 
 	self:repair()
-	self.dims = self.max_edge - self.min_edge
+	self.orig_min_edge = vector.new(self.min_edge)
+	self.orig_max_edge = vector.new(self.max_edge)
 
 	return self
 end
@@ -33,15 +34,19 @@ function BBox.from_edges(min_edge, max_edge)
 end
 
 function BBox:width()
-	return self.dims.x
+	return self.orig_max_edge.x - self.orig_min_edge.x
 end
 
 function BBox:height()
-	return self.dims.y
+	return self.orig_max_edge.y - self.orig_min_edge.y
 end
 
 function BBox:depth()
-	return self.dims.z
+	return self.orig_max_edge.z - self.orig_min_edge.z
+end
+
+function BBox:get_dir()
+	return self.hdir
 end
 
 function BBox:get_coords()
@@ -64,10 +69,8 @@ common.register_class("BBox", BBox)
 
 -- Rotates 'bbox' bounding box vertically (collision or selection) corresponding to 'dir'
 function BBox:rotate(dir)
-	local orig_min_edge = dir_ops.rotate_to_dir(self.min_edge, -self.hdir)
-	local orig_max_edge = dir_ops.rotate_to_dir(self.max_edge, -self.hdir)
-	self.min_edge = dir_ops.rotate_to_dir(orig_min_edge, dir)
-	self.max_edge = dir_ops.rotate_to_dir(orig_max_edge, dir)
+	self.min_edge = dir_ops.rotate_to_dir(self.orig_min_edge, dir)
+	self.max_edge = dir_ops.rotate_to_dir(self.orig_max_edge, dir)
 
 	self.hdir = vector.new(dir)
 
