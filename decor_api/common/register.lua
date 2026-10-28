@@ -124,7 +124,7 @@ function register.on_punch(pos, node, puncher)
 	wielded_item:set_wear(wielded_item:get_wear()+math.modf(65535/50))
 	puncher:set_wielded_item(wielded_item)
 
-	common.tools_sounds.play(playername, 4)
+	tools_sounds.play(playername, 4)
 end
 
 --[[def:
@@ -165,11 +165,11 @@ end
 ]]
 
 -- Registers some furniture component (chair, stool, table, sofa, cupboard and etc).
-function multidecor.register.register_furniture_unit(name, def, craft_def)
+function register.register_furniture_unit(name, def, craft_def)
 	local f_def = {}
 
-	assert(multidecor.register.category_contains(def.type, 0), "The type with a name \"" .. def.type .. "\" is not registered!")
-	assert(multidecor.register.category_contains(def.style, 1), "The style with a name \"" .. def.style .. "\" is not registered!")
+	assert(register.category_contains(def.type, 0), "The type with a name \"" .. def.type .. "\" is not registered!")
+	assert(register.category_contains(def.style, 1), "The style with a name \"" .. def.style .. "\" is not registered!")
 
 	f_def.description = def.description
 	f_def.visual_scale = def.visual_scale or 0.5
@@ -264,12 +264,12 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 		local function after_place(pos, placer, itemstack)
 			prev_after_place(pos, placer, itemstack)
 
-			return multidecor.register.after_place_node(pos, placer, itemstack)
+			return register.after_place_node(pos, placer, itemstack)
 		end
 
 		f_def.after_place_node = after_place
 	else
-		f_def.after_place_node = multidecor.register.after_place_node
+		f_def.after_place_node = register.after_place_node
 	end
 
 	if f_def.on_punch then
@@ -277,10 +277,10 @@ function multidecor.register.register_furniture_unit(name, def, craft_def)
 		f_def.on_punch = function(pos, node, puncher)
 			prev_on_punch(pos, node, puncher)
 
-			multidecor.register.on_punch(pos, node, puncher)
+			register.on_punch(pos, node, puncher)
 		end
 	else
-		f_def.on_punch = multidecor.register.on_punch
+		f_def.on_punch = register.on_punch
 	end
 
 	f_def.add_properties = def.add_properties or {}
@@ -434,10 +434,10 @@ end
 ]]
 
 -- Registers a set of furniture components of certain type: "kitchen", "bathroom", "bedroom", "living_room" and etc.
-function multidecor.register.register_garniture(def)
+function register.register_garniture(def)
 	local cmn_def = {}
 
-	assert(multidecor.register.category_contains(def.style, 1), "The style with a name \"" .. def.style .. "\" is not registered!")
+	assert(register.category_contains(def.style, 1), "The style with a name \"" .. def.style .. "\" is not registered!")
 
 	cmn_def.style = def.style
 	cmn_def.material = def.material
@@ -513,7 +513,7 @@ function multidecor.register.register_garniture(def)
 			form_shelf_data("two_floor_drws", "drawer", objects[6], tf_drws_s.pos_upper)
 		}
 
-		multidecor.register.register_table(two_floor_drws.add_properties.shelves_data.common_name, two_floor_drws)
+		register.register_table(two_floor_drws.add_properties.shelves_data.common_name, two_floor_drws)
 	end
 
 	-- kitchen floor three shelves cabinet with drawers
@@ -527,7 +527,7 @@ function multidecor.register.register_garniture(def)
 			form_shelf_data("three_floor_drws", "drawer", objects[7], thf_drws_s.pos_upper)
 		}
 
-		multidecor.register.register_table(three_floor_drws.add_properties.shelves_data.common_name, three_floor_drws)
+		register.register_table(three_floor_drws.add_properties.shelves_data.common_name, three_floor_drws)
 	end
 
 	-- kitchen floor two shelves cabinet with doors
@@ -539,7 +539,7 @@ function multidecor.register.register_garniture(def)
 			form_shelf_data("two_floor_doors", "sym_doors", objects[2], tf_drs_s.pos_left, tf_drs_s.pos_right)
 		}
 
-		multidecor.register.register_table(two_floor_doors.add_properties.shelves_data.common_name, two_floor_doors)
+		register.register_table(two_floor_doors.add_properties.shelves_data.common_name, two_floor_doors)
 	end
 
 	-- kitchen floor three shelves cabinet with doors
@@ -551,7 +551,7 @@ function multidecor.register.register_garniture(def)
 			form_shelf_data("three_floor_doors", "sym_doors", objects[2], thf_drs_s.pos_left, thf_drs_s.pos_right)
 		}
 
-		multidecor.register.register_table(three_floor_doors.add_properties.shelves_data.common_name, three_floor_doors)
+		register.register_table(three_floor_doors.add_properties.shelves_data.common_name, three_floor_doors)
 	end
 
 	-- kitchen floor three shelves cabinet with drawer and door
@@ -565,7 +565,7 @@ function multidecor.register.register_garniture(def)
 		}
 		three_floor_drw_door.add_properties.shelves_data[2].visual_size_adds = {x=0, y=-1.75, z=0}
 
-		multidecor.register.register_table(three_floor_drw_door.add_properties.shelves_data.common_name, three_floor_drw_door)
+		register.register_table(three_floor_drw_door.add_properties.shelves_data.common_name, three_floor_drw_door)
 	end
 
 	-- kitchen wall two shelves cabinet with door
@@ -576,7 +576,7 @@ function multidecor.register.register_garniture(def)
 			form_shelf_data("two_wall_door", "door", objects[3], def.components.two_wall_door.shelves_data.pos, nil, nil, "left")
 		}
 
-		multidecor.register.register_table(two_wall_door.add_properties.shelves_data.common_name, two_wall_door)
+		register.register_table(two_wall_door.add_properties.shelves_data.common_name, two_wall_door)
 	end
 
 	-- kitchen wall two shelves cabinet with half doors
@@ -588,7 +588,7 @@ function multidecor.register.register_garniture(def)
 			form_shelf_data("two_wall_hdoor", "sym_doors", objects[4], tw_hd_s.pos_left, tw_hd_s.pos_right)
 		}
 
-		multidecor.register.register_table(two_wall_hdoor.add_properties.shelves_data.common_name, two_wall_hdoor)
+		register.register_table(two_wall_hdoor.add_properties.shelves_data.common_name, two_wall_hdoor)
 	end
 
 	-- kitchen wall two shelves cabinet with half glass doors
@@ -600,7 +600,7 @@ function multidecor.register.register_garniture(def)
 			form_shelf_data("two_wall_hgldoor", "sym_doors", objects[5], tw_hgld_s.pos_left, tw_hgld_s.pos_right)
 		}
 
-		multidecor.register.register_table(two_wall_hgldoor.add_properties.shelves_data.common_name, two_wall_hgldoor)
+		register.register_table(two_wall_hgldoor.add_properties.shelves_data.common_name, two_wall_hgldoor)
 	end
 
 	-- kitchen wall corner two shelves cabinet with half glass doors
@@ -612,7 +612,7 @@ function multidecor.register.register_garniture(def)
 				def.components.two_wall_crn_hgldoor.shelves_data.pos_right, {x=0, y=-math.pi/4, z=0})
 		}
 
-		multidecor.register.register_table(two_wall_crn_hgldoor.add_properties.shelves_data.common_name, two_wall_crn_hgldoor)
+		register.register_table(two_wall_crn_hgldoor.add_properties.shelves_data.common_name, two_wall_crn_hgldoor)
 	end
 
 	-- kitchen sink
@@ -624,6 +624,8 @@ function multidecor.register.register_garniture(def)
 		}
 		sink.add_properties.tap_data = def.components.sink.tap_data
 
-		multidecor.register.register_table(sink.add_properties.shelves_data.common_name, sink)
+		register.register_table(sink.add_properties.shelves_data.common_name, sink)
 	end
 end
+
+return register

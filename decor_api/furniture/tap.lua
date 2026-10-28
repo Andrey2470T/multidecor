@@ -1,6 +1,8 @@
-multidecor.tap = {}
+local dir_ops = require("decor_api.helpers.dir_ops")
 
---[[function multidecor.tap.register_water_stream(pos, spawn_min_pos, spawn_max_pos, amount, velocity, direction, sound, check_for_sink)
+local tap = {}
+
+--[[function tap.register_water_stream(pos, spawn_min_pos, spawn_max_pos, amount, velocity, direction, sound, check_for_sink)
 	local meta = core.get_meta(pos)
 
 	meta:set_string("water_stream_info", core.serialize({
@@ -14,11 +16,11 @@ multidecor.tap = {}
 	}))
 end]]
 
-function multidecor.tap.is_on(pos)
+function tap.is_on(pos)
 	return core.get_meta(pos):get_string("water_stream_id") ~= ""
 end
 
-function multidecor.tap.on(pos)
+function tap.on(pos)
 	local meta = core.get_meta(pos)
 	local id = meta:get_string("water_stream_id")
 
@@ -36,9 +38,9 @@ function multidecor.tap.on(pos)
 		end
 	end
 
-	local rot_water_min_pos = multidecor.helpers.rotate_to_node_dir(pos, water_info.min_pos)
-	local rot_water_max_pos = multidecor.helpers.rotate_to_node_dir(pos, water_info.max_pos)
-	local rot_water_dir = multidecor.helpers.rotate_to_node_dir(pos, water_info.direction)
+	local rot_water_min_pos = dir_ops.rotate_to_node_dir(pos, water_info.min_pos)
+	local rot_water_max_pos = dir_ops.rotate_to_node_dir(pos, water_info.max_pos)
+	local rot_water_dir = dir_ops.rotate_to_node_dir(pos, water_info.direction)
 
 	local id = core.add_particlespawner({
 		amount = water_info.amount,
@@ -63,7 +65,7 @@ function multidecor.tap.on(pos)
 	meta:set_string("sound_handle", core.serialize(sound_handle))
 end
 
-function multidecor.tap.off(pos)
+function tap.off(pos)
 	local meta = core.get_meta(pos)
 	local id = meta:get_string("water_stream_id")
 
@@ -77,34 +79,36 @@ function multidecor.tap.off(pos)
 	core.sound_stop(sound_handle)
 end
 
-function multidecor.tap.toggle(pos)
+function tap.toggle(pos)
 	local meta = core.get_meta(pos)
 	local id = meta:get_string("water_stream_id")
 
 	if id == "" then
-		multidecor.tap.on(pos)
+		tap.on(pos)
 	else
-		multidecor.tap.off(pos)
+		tap.off(pos)
 	end
 end
 
-function multidecor.tap.on_rightclick(pos)
-	multidecor.tap.toggle(pos)
+function tap.on_rightclick(pos)
+	tap.toggle(pos)
 end
 
-function multidecor.tap.on_destruct(pos)
-	multidecor.tap.off(pos)
+function tap.on_destruct(pos)
+	tap.off(pos)
 end
 
-function multidecor.tap.on_timer(pos, elapsed)
+function tap.on_timer(pos, elapsed)
 	local down_node = core.get_node({x=pos.x, y=pos.y-1, z=pos.z})
 	local down_node2 = core.get_node({x=pos.x, y=pos.y-2, z=pos.z})
 
-	if multidecor.tap.is_on(pos) and
+	if tap.is_on(pos) and
 		core.get_item_group(down_node.name, "sink") ~= 1 and core.get_item_group(down_node2.name, "sink") ~= 1 then
 
-		multidecor.tap.off(pos)
+		tap.off(pos)
 	end
 
 	return true
 end
+
+return tap

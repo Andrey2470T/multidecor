@@ -1,23 +1,26 @@
-multidecor.hedge = {}
+local connecting = require("decor_api.common.connecting")
+local register = require("decor_api.common.register")
 
-function multidecor.hedge.on_construct_dir(pos)
-	multidecor.connecting.update_adjacent_nodes_connection(pos, "directional")
+local hedge = {}
+
+function hedge.on_construct_dir(pos)
+	connecting.update_adjacent_nodes_connection(pos, "directional")
 end
 
-function multidecor.hedge.after_destruct_dir(pos, oldnode)
-	multidecor.connecting.update_adjacent_nodes_connection(pos, "directional", true, oldnode)
+function hedge.after_destruct_dir(pos, oldnode)
+	connecting.update_adjacent_nodes_connection(pos, "directional", true, oldnode)
 end
 
-function multidecor.hedge.on_construct_pair(pos)
-	multidecor.connecting.update_adjacent_nodes_connection(pos, "pair")
+function hedge.on_construct_pair(pos)
+	connecting.update_adjacent_nodes_connection(pos, "pair")
 end
 
-function multidecor.hedge.after_destruct_pair(pos, oldnode)
-	multidecor.connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
+function hedge.after_destruct_pair(pos, oldnode)
+	connecting.update_adjacent_nodes_connection(pos, "pair", true, oldnode)
 end
 
 
-function multidecor.register.register_hedge(name, base_def, add_def, craft_def)
+function register.register_hedge(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
 
 	def.type = "hedge"
@@ -34,16 +37,16 @@ function multidecor.register.register_hedge(name, base_def, add_def, craft_def)
 	def.callbacks = def.callbacks or {}
 
 	if add_def.connect_parts then
-		def.callbacks.on_construct = def.callbacks.on_construct or multidecor.hedge.on_construct_dir
-		def.callbacks.after_dig_node = def.callbacks.after_dig_node or multidecor.hedge.after_destruct_dir
+		def.callbacks.on_construct = def.callbacks.on_construct or hedge.on_construct_dir
+		def.callbacks.after_dig_node = def.callbacks.after_dig_node or hedge.after_destruct_dir
 	elseif add_def.double then
-		def.callbacks.on_construct = def.callbacks.on_construct or multidecor.hedge.on_construct_pair
+		def.callbacks.on_construct = def.callbacks.on_construct or hedge.on_construct_pair
 	end
 
-	multidecor.register.register_furniture_unit(name, def, craft_def)
+	register.register_furniture_unit(name, def, craft_def)
 
 	if add_def.connect_parts then
-		multidecor.connecting.register_connect_parts(def)
+		connecting.register_connect_parts(def)
 	elseif add_def.double then
 		local def2 = table.copy(def)
 		def2.description = add_def.double.description
@@ -65,8 +68,10 @@ function multidecor.register.register_hedge(name, base_def, add_def, craft_def)
 
 		if def2.callbacks then
 			def2.callbacks.on_construct = nil
-			def2.callbacks.after_dig_node = base_def.callbacks and base_def.callbacks.after_dig_node or multidecor.hedge.after_destruct_pair
+			def2.callbacks.after_dig_node = base_def.callbacks and base_def.callbacks.after_dig_node or hedge.after_destruct_pair
 		end
-		multidecor.register.register_furniture_unit(name .. "_double", def2)
+		register.register_furniture_unit(name .. "_double", def2)
 	end
 end
+
+return hedge

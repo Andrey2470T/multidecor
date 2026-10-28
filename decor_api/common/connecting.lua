@@ -1,40 +1,41 @@
-multidecor.connecting = {}
+local dir_ops = require("decor_api.helpers.dir_ops")
+local register = require("decor_api.common.register")
 
-local hlpfuncs = multidecor.helpers
+local connecting = {}
 
 -- Checks if two nodes with 'pos1' and 'pos2' positions belongs to the same table
-function multidecor.connecting.are_nodes_identical(pos1, pos2)
+function connecting.are_nodes_identical(pos1, pos2)
 	local add_props1 = core.registered_nodes[core.get_node(pos1).name].add_properties
 	local add_props2 = core.registered_nodes[core.get_node(pos2).name].add_properties
 
 	return add_props1 and add_props2 and add_props1.common_name == add_props2.common_name
 end
 
-function multidecor.connecting.has_same_cmn_name(pos, cmn_name)
+function connecting.has_same_cmn_name(pos, cmn_name)
 	local add_props = core.registered_nodes[core.get_node(pos).name].add_properties
 
 	return add_props and add_props.common_name == cmn_name
 end
 
-function multidecor.connecting.are_nodes_codirectional(pos1, pos2)
+function connecting.are_nodes_codirectional(pos1, pos2)
 	local node1 = core.get_node(pos1)
 	local node2 = core.get_node(pos2)
 
-	local dir1 = hlpfuncs.get_dir_from_param2(node1.name, node1.param2)
-	local dir2 = hlpfuncs.get_dir_from_param2(node2.name, node2.param2)
+	local dir1 = dir_ops.get_dir_from_param2(node1.name, node1.param2)
+	local dir2 = dir_ops.get_dir_from_param2(node2.name, node2.param2)
 
 	return vector.equals(dir1, dir2)
 end
 
-function multidecor.connecting.has_same_dir(pos, dir)
+function connecting.has_same_dir(pos, dir)
 	local node = core.get_node(pos)
-	local dir2 = hlpfuncs.get_dir_from_param2(node.name, node.param2)*-1
+	local dir2 = dir_ops.get_dir_from_param2(node.name, node.param2)*-1
 
 	return vector.equals(dir, dir2)
 end
 
 -- Replaces surrounding the identical table nodes to other to look like "connected" with node at 'pos'
-function multidecor.connecting.replace_node_to(pos, disconnect, cmn_name)
+function connecting.replace_node_to(pos, disconnect, cmn_name)
 	local ord_shifts = {
 		pos + vector.new(-1, 0, 0),
 		pos + vector.new(0, 0, 1),
@@ -42,24 +43,24 @@ function multidecor.connecting.replace_node_to(pos, disconnect, cmn_name)
 		pos + vector.new(0, 0, -1)
 	}
 
-	if not multidecor.connecting.has_same_cmn_name(pos, cmn_name) then
+	if not connecting.has_same_cmn_name(pos, cmn_name) then
 		return
 	end
 
 	local target_node = ""
 	local rel_rot = 0
 
-	if multidecor.connecting.are_nodes_identical(ord_shifts[1], pos) then
+	if connecting.are_nodes_identical(ord_shifts[1], pos) then
 		target_node = "edge"
 		rel_rot = 180
 	end
 
-	if multidecor.connecting.are_nodes_identical(ord_shifts[2], pos) then
+	if connecting.are_nodes_identical(ord_shifts[2], pos) then
 		target_node = target_node == "edge" and "corner" or "edge"
 		rel_rot = 90
 	end
 
-	if multidecor.connecting.are_nodes_identical(ord_shifts[3], pos) then
+	if connecting.are_nodes_identical(ord_shifts[3], pos) then
 		if target_node == "corner" then
 			target_node = "edge_middle"
 		elseif target_node == "edge" then
@@ -70,7 +71,7 @@ function multidecor.connecting.replace_node_to(pos, disconnect, cmn_name)
 		rel_rot = 0
 	end
 
-	if multidecor.connecting.are_nodes_identical(ord_shifts[4], pos) then
+	if connecting.are_nodes_identical(ord_shifts[4], pos) then
 		if target_node == "edge_middle" then
 			target_node = "off_edge"
 			rel_rot = 0
@@ -97,7 +98,7 @@ function multidecor.connecting.replace_node_to(pos, disconnect, cmn_name)
 
 	local name = "multidecor:" .. cmn_name .. target_node
 	local old_param2 = core.get_node(pos).param2
-	local param2 = hlpfuncs.from_dir_get_param2(name, old_param2, vector.rotate_around_axis({x=0, y=0, z=1}, {x=0, y=1, z=0}, math.rad(rel_rot))*-1)
+	local param2 = dir_ops.from_dir_get_param2(name, old_param2, vector.rotate_around_axis({x=0, y=0, z=1}, {x=0, y=1, z=0}, math.rad(rel_rot))*-1)
 	core.set_node(pos, {name=name, param2=param2})
 end
 
@@ -127,8 +128,8 @@ local function shift_val_in_range(cur_val, shift_val)
 	return res
 end
 
-function multidecor.connecting.replace_node_vertically(pos, disconnect, cmn_name, node)
-	local dir = hlpfuncs.get_dir_from_param2(node.name, node.param2)
+function connecting.replace_node_vertically(pos, disconnect, cmn_name, node)
+	local dir = dir_ops.get_dir_from_param2(node.name, node.param2)
 	local ord_shifts = {
 		pos + vector.rotate_around_axis(dir, vector.new(0, 1, 0), math.pi/2),
 		pos + vector.new(0, 1, 0),
@@ -154,8 +155,8 @@ function multidecor.connecting.replace_node_vertically(pos, disconnect, cmn_name
 		["y-"] = 0
 	}
 
-	if not multidecor.connecting.has_same_cmn_name(pos, cmn_name) or
-		not multidecor.connecting.has_same_dir(pos, dir) then
+	if not connecting.has_same_cmn_name(pos, cmn_name) or
+		not connecting.has_same_dir(pos, dir) then
 
 		return
 	end
@@ -163,17 +164,17 @@ function multidecor.connecting.replace_node_vertically(pos, disconnect, cmn_name
 	local target_node = ""
 	local axis_rot = 0
 
-	if multidecor.connecting.are_nodes_identical(ord_shifts[1], pos) then
+	if connecting.are_nodes_identical(ord_shifts[1], pos) then
 		target_node = "edge"
 		axis_rot = 180
 	end
 
-	if multidecor.connecting.are_nodes_identical(ord_shifts[2], pos) then
+	if connecting.are_nodes_identical(ord_shifts[2], pos) then
 		target_node = target_node == "edge" and "corner" or "edge"
 		axis_rot = 270
 	end
 
-	if multidecor.connecting.are_nodes_identical(ord_shifts[3], pos) then
+	if connecting.are_nodes_identical(ord_shifts[3], pos) then
 		if target_node == "corner" then
 			target_node = "edge_middle"
 		elseif target_node == "edge" then
@@ -184,7 +185,7 @@ function multidecor.connecting.replace_node_vertically(pos, disconnect, cmn_name
 		axis_rot = 0
 	end
 
-	if multidecor.connecting.are_nodes_identical(ord_shifts[4], pos) then
+	if connecting.are_nodes_identical(ord_shifts[4], pos) then
 		if target_node == "edge_middle" then
 			target_node = "off_edge"
 			axis_rot = 0
@@ -227,7 +228,7 @@ end
 -- 'side' - "left"/"right".
 -- 'disconnect' - sofas should be disconnected or connected?
 -- 'cmn_name' - common name.
-function multidecor.connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_name, is_corner)
+function connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_name, is_corner)
 	local node = core.get_node(pos)
 	local def = core.registered_nodes[node.name]
 	local add_props = def.add_properties
@@ -245,7 +246,7 @@ function multidecor.connecting.directional_replace_node_to(pos, dir, side, disco
 	local parts = add_props.connect_parts
 
 	local dir_rot = math.deg(vector.dir_to_rotation(dir).y)
-	local cur_dir = multidecor.helpers.get_dir(pos)
+	local cur_dir = dir_ops.get_dir(pos)
 	local dir_rot2 = math.deg(vector.dir_to_rotation(cur_dir).y)
 
 	if dir_rot == 180 and dir_rot2 == -90 then
@@ -280,7 +281,7 @@ function multidecor.connecting.directional_replace_node_to(pos, dir, side, disco
 
 	if dir_rot ~= dir_rot2 or is_right_corner then
 		local adj_pos = pos + dir
-		local is_adj_node_identical = multidecor.connecting.are_nodes_identical(adj_pos, pos)
+		local is_adj_node_identical = connecting.are_nodes_identical(adj_pos, pos)
 
 		if is_adj_node_identical then
 			if is_left_corner then
@@ -307,11 +308,11 @@ function multidecor.connecting.directional_replace_node_to(pos, dir, side, disco
 		local left_pos = pos + vector.rotate_around_axis(cur_dir, vector.new(0, 1, 0), -math.pi/2)
 		local right_pos = pos + vector.rotate_around_axis(cur_dir, vector.new(0, 1, 0), math.pi/2)
 
-		local is_left_node_identical = multidecor.connecting.are_nodes_identical(left_pos, pos)
-		local is_right_node_identical = multidecor.connecting.are_nodes_identical(right_pos, pos)
+		local is_left_node_identical = connecting.are_nodes_identical(left_pos, pos)
+		local is_right_node_identical = connecting.are_nodes_identical(right_pos, pos)
 
 		if is_left_node_identical then
-			local is_left_node_codir = multidecor.connecting.are_nodes_codirectional(left_pos, pos)
+			local is_left_node_codir = connecting.are_nodes_codirectional(left_pos, pos)
 			local left_node_def = core.registered_nodes[core.get_node(left_pos).name]
 			local is_left_node_corner = left_node_def.add_properties.connect_parts.corner == left_node_def.mesh
 
@@ -321,7 +322,7 @@ function multidecor.connecting.directional_replace_node_to(pos, dir, side, disco
 		end
 
 		if is_right_node_identical then
-			local is_right_node_codir = multidecor.connecting.are_nodes_codirectional(right_pos, pos)
+			local is_right_node_codir = connecting.are_nodes_codirectional(right_pos, pos)
 			local right_node_def = core.registered_nodes[core.get_node(right_pos).name]
 			local is_right_node_corner = right_node_def.add_properties.connect_parts.corner == right_node_def.mesh
 
@@ -341,7 +342,7 @@ function multidecor.connecting.directional_replace_node_to(pos, dir, side, disco
 
 	local name = "multidecor:" .. add_props.common_name .. target_part
 	local rot_dir = vector.rotate_around_axis(t_dir, vector.new(0, 1, 0), rel_rot)
-	local param2 = hlpfuncs.from_dir_get_param2(name, node.param2, rot_dir*-1)
+	local param2 = dir_ops.from_dir_get_param2(name, node.param2, rot_dir*-1)
 
 	core.set_node(pos, {name=name, param2=param2})
 end
@@ -349,7 +350,7 @@ end
 -- Connects or disconnects adjacent nodes around 'pos' position.
 -- If the identical table node was set at 'pos' as surrounding, connect them. On destroying it, disconnect.
 -- 'type' - "horizontal", "vertical", "pair", "directional"
-function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_node)
+function connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_node)
 	local node = disconnect and old_node or core.get_node(pos)
 
 	local def = core.registered_nodes[node.name]
@@ -364,10 +365,10 @@ function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disco
 	end
 
 	if type == "horizontal" then
-		local dir = disconnect and multidecor.helpers.get_dir_from_param2(old_node.name, old_node.param2)*-1 or multidecor.helpers.get_dir(pos)
+		local dir = disconnect and dir_ops.get_dir_from_param2(old_node.name, old_node.param2)*-1 or dir_ops.get_dir(pos)
 
-		local left_dir = type == "horizontal" and vector.new(-1, 0, 0) or hlpfuncs.rot(dir, math.pi/2)
-		local right_dir = type == "horizontal" and vector.new(1, 0, 0) or hlpfuncs.rot(dir, -math.pi/2)
+		local left_dir = type == "horizontal" and vector.new(-1, 0, 0) or dir_ops.rotate_y(dir, math.pi/2)
+		local right_dir = type == "horizontal" and vector.new(1, 0, 0) or dir_ops.rotate_y(dir, -math.pi/2)
 		local up_dir = type == "horizontal" and vector.new(0, 0, 1) or vector.new(0, 1, 0)
 		local down_dir = type == "horizontal" and vector.new(0, 0, -1) or vector.new(0, -1, 0)
 
@@ -381,31 +382,31 @@ function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disco
 		local cmn_name = def.add_properties.common_name
 		for _, s in ipairs(shifts) do
 			if type == "horizontal" then
-				multidecor.connecting.replace_node_to(s, disconnect, cmn_name)
+				connecting.replace_node_to(s, disconnect, cmn_name)
 			else
-				multidecor.connecting.replace_node_vertically(s, disconnect, cmn_name, node)
+				connecting.replace_node_vertically(s, disconnect, cmn_name, node)
 			end
 		end
 
 		if not disconnect then
 			if type == "horizontal" then
-				multidecor.connecting.replace_node_to(pos, nil, cmn_name)
+				connecting.replace_node_to(pos, nil, cmn_name)
 			else
-				multidecor.connecting.replace_node_vertically(pos, nil, cmn_name, node)
+				connecting.replace_node_vertically(pos, nil, cmn_name, node)
 			end
 		end
 	elseif type == "pair" then
 		if not disconnect then
-			local dir = multidecor.helpers.get_dir(pos)
-			local left = pos+hlpfuncs.rot(dir, -math.pi/2)
-			local right = pos+hlpfuncs.rot(dir, math.pi/2)
+			local dir = dir_ops.get_dir(pos)
+			local left = pos+dir_ops.rotate_y(dir, -math.pi/2)
+			local right = pos+dir_ops.rotate_y(dir, math.pi/2)
 
 			local lnode = core.get_node(left)
 			local rnode = core.get_node(right)
 
 			local add_props = def.add_properties
-			local is_left_identical = lnode.name == "multidecor:" .. add_props.common_name and multidecor.connecting.are_nodes_codirectional(left, pos)
-			local is_right_identical = rnode.name == "multidecor:" .. add_props.common_name and multidecor.connecting.are_nodes_codirectional(right, pos)
+			local is_left_identical = lnode.name == "multidecor:" .. add_props.common_name and connecting.are_nodes_codirectional(left, pos)
+			local is_right_identical = rnode.name == "multidecor:" .. add_props.common_name and connecting.are_nodes_codirectional(right, pos)
 
 			local place_pos
 			if is_left_identical then
@@ -416,23 +417,23 @@ function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disco
 				return
 			end
 
-			core.set_node(place_pos, {name="multidecor:" .. add_props.common_name .. "_double", param2=hlpfuncs.from_dir_get_param2(node.name, node.param2, dir*-1)})
-			core.remove_node(place_pos+hlpfuncs.rot(dir, math.pi/2))
+			core.set_node(place_pos, {name="multidecor:" .. add_props.common_name .. "_double", param2=dir_ops.from_dir_get_param2(node.name, node.param2, dir*-1)})
+			core.remove_node(place_pos+dir_ops.rotate_y(dir, math.pi/2))
 		else
-			local dir = hlpfuncs.get_dir_from_param2(old_node.name, old_node.param2)
+			local dir = dir_ops.get_dir_from_param2(old_node.name, old_node.param2)
 			local add_props = core.registered_nodes[old_node.name].add_properties
-			core.set_node(pos, {name="multidecor:" .. add_props.common_name, param2=hlpfuncs.from_dir_get_param2(old_node.name, old_node.param2, dir*-1)})
+			core.set_node(pos, {name="multidecor:" .. add_props.common_name, param2=dir_ops.from_dir_get_param2(old_node.name, old_node.param2, dir*-1)})
 		end
 	elseif type == "directional" then
 		local dir
 
 		if disconnect then
-			dir = hlpfuncs.get_dir_from_param2(old_node.name, old_node.param2)
+			dir = dir_ops.get_dir_from_param2(old_node.name, old_node.param2)
 		else
-			dir = multidecor.helpers.get_dir(pos)
+			dir = dir_ops.get_dir(pos)
 		end
 
-		local left_shift = hlpfuncs.rot(dir, -math.pi/2)
+		local left_shift = dir_ops.rotate_y(dir, -math.pi/2)
 
 		local corner = false
 		if disconnect and def.add_properties.connect_parts.corner == def.mesh then
@@ -440,19 +441,19 @@ function multidecor.connecting.update_adjacent_nodes_connection(pos, type, disco
 			corner = true
 		end
 		local left = pos+left_shift
-		local right = pos+hlpfuncs.rot(dir, math.pi/2)
+		local right = pos+dir_ops.rotate_y(dir, math.pi/2)
 
 		local cmn_name = def.add_properties.common_name
-		multidecor.connecting.directional_replace_node_to(left, dir, "left", disconnect, cmn_name, corner)
-		multidecor.connecting.directional_replace_node_to(right, dir, "right", disconnect, cmn_name, corner)
+		connecting.directional_replace_node_to(left, dir, "left", disconnect, cmn_name, corner)
+		connecting.directional_replace_node_to(right, dir, "right", disconnect, cmn_name, corner)
 
 		if not disconnect then
-			multidecor.connecting.directional_replace_node_to(pos, dir, nil, nil, cmn_name, corner)
+			connecting.directional_replace_node_to(pos, dir, nil, nil, cmn_name, corner)
 		end
 	end
 end
 
-function multidecor.connecting.register_connect_parts(def)
+function connecting.register_connect_parts(def)
 	for name, mesh in pairs(def.add_properties.connect_parts) do
 		local c_def = table.copy(def)
 		c_def.mesh = mesh
@@ -469,6 +470,8 @@ function multidecor.connecting.register_connect_parts(def)
 		end
 		c_def.callbacks.on_construct = nil
 
-		multidecor.register.register_furniture_unit(def.add_properties.common_name .. "_" .. name, c_def)
+		register.register_furniture_unit(def.add_properties.common_name .. "_" .. name, c_def)
 	end
 end
+
+return connecting

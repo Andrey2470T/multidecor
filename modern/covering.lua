@@ -51,7 +51,7 @@ core.register_entity(":multidecor:cover", {
 	physical = false,
 	pointable = true,
 	collisionbox = {0, 0, 0, 0, 0, 0},
-	selectionbox = wallpaper_sbox,
+	selectionbox = cover_sbox,
 	damage_texture_modifier = "",
 	on_activate = function(self, staticdata)
 		if staticdata == "" then

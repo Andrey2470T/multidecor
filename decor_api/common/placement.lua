@@ -1,13 +1,19 @@
-multidecor.placement = {}
+-- Placement checking
+--------------------------------------------------------------
 
-function multidecor.placement.is_free_space(pos)
-	local def = multidecor.helpers.ndef(pos)
+local common = require("decor_api.helpers.common")
+local dir_ops = require("decor_api.helpers.dir_ops")
+
+local placement = {}
+
+function placement.is_free_space(pos)
+	local def = common.ndef(pos)
 	if not def then return false end
 
 	return def.drawtype == "airlike"
 end
 
-function multidecor.placement.check_for_free_space(pos, size_bbox)
+function placement.check_for_free_space(pos, size_bbox)
 	local free = true
 
 	for x = size_bbox[1], size_bbox[4] do
@@ -16,7 +22,7 @@ function multidecor.placement.check_for_free_space(pos, size_bbox)
 				local shift_pos = pos + vector.new(x, y, z)
 
 				if not vector.equals(pos, shift_pos) then
-					if not multidecor.placement.is_free_space(shift_pos) then
+					if not placement.is_free_space(shift_pos) then
 						free = false
 						break
 					end
@@ -32,7 +38,7 @@ function multidecor.placement.check_for_free_space(pos, size_bbox)
 	return free
 end
 
-function multidecor.placement.box_repair(box)
+function placement.box_repair(box)
 	local rep_box = table.copy(box)
 
 	if rep_box[1] > rep_box[4] then
@@ -56,11 +62,11 @@ function multidecor.placement.box_repair(box)
 	return rep_box
 end
 
-function multidecor.placement.calc_place_space_size(bboxes)
+function placement.calc_place_space_size(bboxes)
 	local max_bbox = {0, 0, 0, 0, 0, 0}
 
 	for box_id, _ in ipairs(bboxes) do
-		local new_box = multidecor.placement.box_repair(bboxes[box_id])
+		local new_box = placement.box_repair(bboxes[box_id])
 
 		for i, v in ipairs(new_box) do
 			if i < 4 then
@@ -80,8 +86,8 @@ function multidecor.placement.calc_place_space_size(bboxes)
 	return max_bbox
 end
 
-function multidecor.placement.check_for_placement(pos, name)
-	local def = multidecor.helpers.ndef(pos)
+function placement.check_for_placement(pos, name)
+	local def = common.ndef(pos)
 
 	if not def then
 		core.log("error", "Node definition not found for: " .. name)
@@ -104,20 +110,22 @@ function multidecor.placement.check_for_placement(pos, name)
 		bboxes = def.collision_box.fixed
 	end
 
-	local max_bbox = multidecor.placement.calc_place_space_size(bboxes)
+	local max_bbox = placement.calc_place_space_size(bboxes)
 
 	local rot_bbox = {}
-	rot_bbox.min = multidecor.helpers.rotate_to_node_dir(pos,
+	rot_bbox.min = dir_ops.rotate_to_node_dir(pos,
 		vector.rotate_around_axis(vector.new(max_bbox[1], max_bbox[2], max_bbox[3]), vector.new(0, 1, 0), math.pi)
 	)
-	rot_bbox.max = multidecor.helpers.rotate_to_node_dir(pos,
+	rot_bbox.max = dir_ops.rotate_to_node_dir(pos,
 		vector.rotate_around_axis(vector.new(max_bbox[4], max_bbox[5], max_bbox[6]), vector.new(0, 1, 0), math.pi)
 	)
 
-	max_bbox = multidecor.placement.box_repair({
+	max_bbox = placement.box_repair({
 		rot_bbox.min.x, rot_bbox.min.y, rot_bbox.min.z,
 		rot_bbox.max.x, rot_bbox.max.y, rot_bbox.max.z
 	})
 
-	return multidecor.placement.check_for_free_space(pos, max_bbox)
+	return placement.check_for_free_space(pos, max_bbox)
 end
+
+return placement

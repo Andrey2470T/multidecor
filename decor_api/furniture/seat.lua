@@ -1,3 +1,10 @@
+-- Seat registration
+--------------------------------------------------------------
+
+local register = require("decor_api.common.register")
+local sitting = require("decor_api.common.sitting")[2]
+local connecting = require("decor_api.common.connecting")
+
 --[[
 	'seat_def' is table:
 	{
@@ -13,7 +20,8 @@
 	}
 ]]
 
-function multidecor.register.register_seat(name, base_def, add_def, craft_def)
+-- Extends the registration API with "register_seat", has no own exports
+function register.register_seat(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
 
 	def.type = "seat"
@@ -30,13 +38,12 @@ function multidecor.register.register_seat(name, base_def, add_def, craft_def)
 
 	def.callbacks = def.callbacks or {}
 
-	def.callbacks.on_construct = def.callbacks.on_construct or multidecor.sitting.on_construct
-	def.callbacks.on_destruct = def.callbacks.on_destruct or multidecor.sitting.on_destruct
-	def.callbacks.on_rightclick = def.callbacks.on_rightclick or multidecor.sitting.on_rightclick
+	def.callbacks.on_destruct = def.callbacks.on_destruct or sitting.on_destruct
+	def.callbacks.on_rightclick = def.callbacks.on_rightclick or sitting.on_rightclick
 
-	multidecor.register.register_furniture_unit(name, def, craft_def)
+	register.register_furniture_unit(name, def, craft_def)
 
 	if def.add_properties and def.add_properties.connect_parts then
-		multidecor.connecting.register_connect_parts(def)
+		connecting.register_connect_parts(def)
 	end
 end

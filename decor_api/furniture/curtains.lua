@@ -1,10 +1,12 @@
-multidecor.curtains = {}
+local common = require("decor_api.helpers.common")
+local dir_ops = require("decor_api.helpers.dir_ops")
+local register = require("decor_api.common.register")
 
-local hlpfuncs = multidecor.helpers
+local curtains = {}
 
 -- Defines if the given curtain node with 'nodename' name can be placed at the position 'pos'.
 -- Returns two values: 1 - can/can't, 2 - the curtain with rings should be placed or not
-function multidecor.curtains.can_place(pos, nodename)
+function curtains.can_place(pos, nodename)
 	local data = core.registered_nodes[nodename].add_properties.curtains_data
 
 	local up_pos = {x=pos.x, y=pos.y+1, z=pos.z}
@@ -33,8 +35,8 @@ function multidecor.curtains.can_place(pos, nodename)
 end
 
 -- Destructs and drops (if was dug by player) below curtain node at the 'pos' position if the above node (cornice or other connected curtain) has got absent
-function multidecor.curtains.drop_below_curtain(pos, digger)
-	local add_props = hlpfuncs.ndef(pos).add_properties
+function curtains.drop_below_curtain(pos, digger)
+	local add_props = common.ndef(pos).add_properties
 
 	if add_props and add_props.curtains_data then
 		core.dig_node(pos)
@@ -42,8 +44,8 @@ function multidecor.curtains.drop_below_curtain(pos, digger)
 end
 
 -- Defines at which direction (unit vector) depending on the 'mover's look dir the curtains at the position 'pos' should be moved
-function multidecor.curtains.define_move_dir(pos, mover)
-	local node_dir = hlpfuncs.get_dir(pos)*-1
+function curtains.define_move_dir(pos, mover)
+	local node_dir = dir_ops.get_dir(pos)*-1
 	node_dir.y = 0
 
 	local mover_dir = mover:get_look_dir()
@@ -67,11 +69,11 @@ function multidecor.curtains.define_move_dir(pos, mover)
 end
 
 -- Shifts by the unit the position 'pos' of all same curtains arranged vertically in the direction 'dir'
-function multidecor.curtains.move_curtains(pos, dir)
+function curtains.move_curtains(pos, dir)
 	local max_move_nodes = 50
 	local curtain_top_found = false
 
-	local add_props = hlpfuncs.ndef(pos).add_properties
+	local add_props = common.ndef(pos).add_properties
 
 	local res = false
 
@@ -105,13 +107,13 @@ function multidecor.curtains.move_curtains(pos, dir)
 		end
 
 		local target_pos = vector.add(cur_pos, dir)
-		local target_def = hlpfuncs.ndef(target_pos)
+		local target_def = common.ndef(target_pos)
 		local target_add_props = target_def.add_properties
 
 		if target_def.drawtype ~= "airlike" then
 			if target_add_props then
 				if target_add_props.curtains_data and target_add_props.common_name == add_props.common_name then
-					local moved = multidecor.curtains.move_curtains(target_pos, dir)
+					local moved = curtains.move_curtains(target_pos, dir)
 
 					-- adjacent curtains couldn't be moved for some reason to move to their positions the current curtains
 					if not moved then
@@ -148,10 +150,10 @@ function multidecor.curtains.move_curtains(pos, dir)
 	return res
 end
 
-function multidecor.curtains.after_place_node(pos, placer)
+function curtains.after_place_node(pos, placer)
 	local name = core.get_node(pos).name
 
-	local val = multidecor.curtains.can_place(pos, name)
+	local val = curtains.can_place(pos, name)
 
 	if not val then
 		core.remove_node(pos)
@@ -159,19 +161,19 @@ function multidecor.curtains.after_place_node(pos, placer)
 	end
 end
 
-function multidecor.curtains.after_dig_node(pos, oldnode, oldmeta, digger)
-	multidecor.curtains.drop_below_curtain({x=pos.x, y=pos.y-1, z=pos.z}, digger)
+function curtains.after_dig_node(pos, oldnode, oldmeta, digger)
+	curtains.drop_below_curtain({x=pos.x, y=pos.y-1, z=pos.z}, digger)
 end
 
-function multidecor.curtains.on_rightclick(pos, node, clicker)
-	local mdir = multidecor.curtains.define_move_dir(pos, clicker)
+function curtains.on_rightclick(pos, node, clicker)
+	local mdir = curtains.define_move_dir(pos, clicker)
 
 	if vector.length(mdir) ~= 0  then
-		multidecor.curtains.move_curtains(pos, mdir)
+		curtains.move_curtains(pos, mdir)
 	end
 end
 
-function multidecor.register.register_curtain(name, base_def, add_def)
+function register.register_curtain(name, base_def, add_def)
 	local c_def = table.copy(base_def)
 
 	c_def.type = "curtain"
@@ -185,11 +187,11 @@ function multidecor.register.register_curtain(name, base_def, add_def)
 	c_def.tiles = data.curtain_with_rings.tiles
 
 	c_def.callbacks = c_def.callbacks or {}
-	c_def.callbacks.after_place_node = c_def.callbacks.after_place_node or multidecor.curtains.after_place_node
-	c_def.callbacks.after_dig_node = c_def.callbacks.after_dig_node or multidecor.curtains.after_dig_node
-	c_def.callbacks.on_rightclick = c_def.callbacks.on_rightclick or multidecor.curtains.on_rightclick
+	c_def.callbacks.after_place_node = c_def.callbacks.after_place_node or curtains.after_place_node
+	c_def.callbacks.after_dig_node = c_def.callbacks.after_dig_node or curtains.after_dig_node
+	c_def.callbacks.on_rightclick = c_def.callbacks.on_rightclick or curtains.on_rightclick
 
-	multidecor.register.register_furniture_unit(
+	register.register_furniture_unit(
 		data.curtain_with_rings.name, c_def,
 		data.curtain_with_rings.craft)
 
@@ -206,7 +208,9 @@ function multidecor.register.register_curtain(name, base_def, add_def)
 
 	c_def2.callbacks = c_def.callbacks
 
-	multidecor.register.register_furniture_unit(
+	register.register_furniture_unit(
 		data2.curtain.name, c_def2,
 		data2.curtain.craft)
 end
+
+return curtains

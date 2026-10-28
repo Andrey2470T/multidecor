@@ -1,19 +1,23 @@
-multidecor.bed = {}
+local common = require("decor_api.helpers.common")
+local dir_ops = require("decor_api.helpers.dir_ops")
+local register = require("decor_api.common.register")
 
-function multidecor.bed.on_rightclick(pos, node, clicker, itemstack, pointed_thing)
+local bed = {}
+
+function bed.on_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	local add_props = core.registered_nodes[node.name].add_properties
 
 	if not add_props then
 		return
 	end
 
-	local bed_dir = multidecor.helpers.get_dir(pos)
+	local bed_dir = dir_ops.get_dir(pos)
 
 	local lpos = add_props.lay_pos1 or {x=0, y=0, z=0}
-	lpos = pos + multidecor.helpers.rot(lpos, vector.dir_to_rotation(bed_dir).y)
+	lpos = pos + dir_ops.rotate_y(lpos, vector.dir_to_rotation(bed_dir).y)
 
 	local lpos2 = add_props.lay_pos2
-	lpos2 = lpos2 and pos + multidecor.helpers.rot(lpos2, vector.dir_to_rotation(bed_dir).y)
+	lpos2 = lpos2 and pos + dir_ops.rotate_y(lpos2, vector.dir_to_rotation(bed_dir).y)
 
 	local is_lpos_fr = true
 	local is_lpos2_fr = true
@@ -38,26 +42,26 @@ function multidecor.bed.on_rightclick(pos, node, clicker, itemstack, pointed_thi
 	return itemstack
 end
 
-function multidecor.bed.on_destruct(pos)
+function bed.on_destruct(pos)
 	beds.remove_spawns_at(pos)
 end
 
-function multidecor.bed.can_dig(pos)
-	local add_props = multidecor.helpers.ndef(pos).add_properties
+function bed.can_dig(pos)
+	local add_props = common.ndef(pos).add_properties
 
 	if not add_props then
 		return
 	end
 
-	local bed_dir = multidecor.helpers.get_dir(pos)
+	local bed_dir = dir_ops.get_dir(pos)
 
 	local lpos = add_props.lay_pos1 or {x=0, y=0, z=0}
-	lpos = pos + multidecor.helpers.rot(lpos, vector.dir_to_rotation(bed_dir).y)
+	lpos = pos + dir_ops.rotate_y(lpos, vector.dir_to_rotation(bed_dir).y)
 
 	return beds.can_dig(lpos)
 end
 
-function multidecor.register.register_bed(name, base_def, add_def, craft_def)
+function register.register_bed(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
 
 	def.type = "bed"
@@ -79,15 +83,15 @@ function multidecor.register.register_bed(name, base_def, add_def, craft_def)
 	
 	def.callbacks.after_destruct = nil
 	def.callbacks.after_dig_node = nil
-	def.callbacks.on_rightclick = def.callbacks.on_rightclick or multidecor.bed.on_rightclick
-	def.callbacks.on_destruct = def.callbacks.on_destruct or multidecor.bed.on_destruct
-	def.callbacks.can_dig = def.callbacks.can_dig or multidecor.bed.can_dig
+	def.callbacks.on_rightclick = def.callbacks.on_rightclick or bed.on_rightclick
+	def.callbacks.on_destruct = def.callbacks.on_destruct or bed.on_destruct
+	def.callbacks.can_dig = def.callbacks.can_dig or bed.can_dig
 
 	if def.add_properties then
 		def.add_properties.lay_pos2 = nil
 	end
 
-	multidecor.register.register_furniture_unit(name, def, craft_def)
+	register.register_furniture_unit(name, def, craft_def)
 
 	if add_def.double then
 		local def2 = table.copy(def)
@@ -117,6 +121,8 @@ function multidecor.register.register_bed(name, base_def, add_def, craft_def)
 		if def2.add_properties then
 			def2.add_properties.lay_pos2 = add_def.lay_pos2
 		end
-		multidecor.register.register_furniture_unit(name .. "_double", def2)
+		register.register_furniture_unit(name .. "_double", def2)
 	end
 end
+
+return bed

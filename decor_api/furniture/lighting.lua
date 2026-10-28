@@ -1,6 +1,8 @@
-multidecor.lighting = {}
+local register = require("decor_api.common.register")
 
-function multidecor.lighting.on_rightclick(pos)
+local lighting = {}
+
+function lighting.on_rightclick(pos)
 	local node = core.get_node(pos)
 	local add_props = core.registered_nodes[node.name].add_properties
 
@@ -16,7 +18,7 @@ function multidecor.lighting.on_rightclick(pos)
 end
 
 
-function multidecor.register.register_light(name, base_def, add_def, craft_def)
+function register.register_light(name, base_def, add_def, craft_def)
 	local def = table.copy(base_def)
 
 	def.type = "light"
@@ -31,7 +33,7 @@ function multidecor.register.register_light(name, base_def, add_def, craft_def)
 	end
 
 	def.callbacks = def.callbacks or {}
-	def.callbacks.on_rightclick = def.callbacks.on_rightclick or multidecor.lighting.on_rightclick
+	def.callbacks.on_rightclick = def.callbacks.on_rightclick or lighting.on_rightclick
 
 	local sound_off
 	local are_props = def.add_properties and def.add_properties.swap_light
@@ -42,7 +44,7 @@ function multidecor.register.register_light(name, base_def, add_def, craft_def)
 		def.add_properties.swap_light.sound_off = nil
 	end
 
-	multidecor.register.register_furniture_unit(name, def, craft_def)
+	register.register_furniture_unit(name, def, craft_def)
 
 	if are_props then
 		local def2 = table.copy(def)
@@ -57,7 +59,9 @@ function multidecor.register.register_light(name, base_def, add_def, craft_def)
 		end
 		def2.add_properties.swap_light = {name=name, sound=sound_off}
 
-		multidecor.register.register_furniture_unit(swap_light_name, def2)
+		register.register_furniture_unit(swap_light_name, def2)
 	end
 end
+
+return lighting
 

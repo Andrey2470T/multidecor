@@ -56,7 +56,6 @@ function Shelf.get_or_new(node_pos, shelf_i)
 	if not shelves_data[shelf_i] then
 		return nil
 	end
-
 	local pos_str = core.pos_to_string(node_pos)
 	local reg = shelves_registry[pos_str]
 	if reg and reg[shelf_i] then
@@ -65,13 +64,13 @@ function Shelf.get_or_new(node_pos, shelf_i)
 
 	local self = setmetatable({}, Shelf)
 	self.node_pos = vector.new(node_pos)
-	self.node_name = node.name
-  self.common_name = def.add_properties.common_name
+	self.node_name = def.name
+	self.common_name = shelves_data.common_name
 	self.shelves_data = shelves_data
 	self.shelf_data = shelves_data[shelf_i]
 	self.shelf_i = shelf_i
 	self.inv_list = {}
-	self.lock_info = {}
+	self.lock_info = nil
 	self.cook_info = nil
 	self.is_open = false
 
