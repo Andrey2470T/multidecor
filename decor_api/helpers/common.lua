@@ -1,5 +1,7 @@
 local common = {}
 
+local S = core.get_translator("decor_api")
+
 -- Returns a node def of the node at 'pos'
 function common.ndef(pos)
 	local node = core.get_node_or_nil(pos)
@@ -44,6 +46,22 @@ function common.build_name_from_tmp(name, type, i, pos)
 	end
 
 	return resname
+end
+
+common.translator = S
+
+-- Short wrapper for sending messages to a player or to all players, or logging it if no player is given
+function common.msg(msg, player, all)
+	if all then
+		core.chat_send_all(S(msg))
+	else
+		local playername = player and player:get_player_name()
+		if playername then
+			core.chat_send_player(playername, S(msg))
+		else
+			core.log("action", S(msg))
+		end
+	end
 end
 
 -- Metatable-preserving serialization

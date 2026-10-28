@@ -1,7 +1,5 @@
 multidecor = {}
 
-multidecor.S = core.get_translator("decor_api")
-
 local modpath = core.get_modpath("decor_api")
 
 package.path = modpath .. "/?.lua;" .. package.path

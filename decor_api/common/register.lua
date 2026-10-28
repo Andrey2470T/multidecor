@@ -73,8 +73,8 @@ end
 function register.build_description(style, material, base_desc)
 	material = material or "unknown"
 
-	local desc = base_desc .. multidecor.S("\nStyle: ") .. "%s" .. multidecor.S("\nMaterial: ") .. "%s" 
-	return desc:format(multidecor.S(style), multidecor.S(material))
+	local desc = base_desc .. common.translator("\nStyle: ") .. "%s" .. common.translator("\nMaterial: ") .. "%s" 
+	return desc:format(common.translator(style), common.translator(material))
 end
 
 function register.after_place_node(pos, placer, itemstack)

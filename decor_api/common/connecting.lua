@@ -29,7 +29,8 @@ end
 
 function connecting.has_same_dir(pos, dir)
 	local node = core.get_node(pos)
-	local dir2 = dir_ops.get_dir_from_param2(node.name, node.param2)*-1
+	-- both are in the modpack (front) frame
+	local dir2 = dir_ops.get_dir_from_param2(node.name, node.param2)
 
 	return vector.equals(dir, dir2)
 end
@@ -98,7 +99,8 @@ function connecting.replace_node_to(pos, disconnect, cmn_name)
 
 	local name = "multidecor:" .. cmn_name .. target_node
 	local old_param2 = core.get_node(pos).param2
-	local param2 = dir_ops.from_dir_get_param2(name, old_param2, vector.rotate_around_axis({x=0, y=0, z=1}, {x=0, y=1, z=0}, math.rad(rel_rot))*-1)
+	local param2 = dir_ops.from_dir_get_param2(name, old_param2,
+		vector.rotate_around_axis({x=0, y=0, z=1}, {x=0, y=1, z=0}, math.rad(rel_rot)))
 	core.set_node(pos, {name=name, param2=param2})
 end
 
@@ -342,7 +344,7 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_
 
 	local name = "multidecor:" .. add_props.common_name .. target_part
 	local rot_dir = vector.rotate_around_axis(t_dir, vector.new(0, 1, 0), rel_rot)
-	local param2 = dir_ops.from_dir_get_param2(name, node.param2, rot_dir*-1)
+	local param2 = dir_ops.from_dir_get_param2(name, node.param2, rot_dir)
 
 	core.set_node(pos, {name=name, param2=param2})
 end
@@ -365,7 +367,7 @@ function connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_
 	end
 
 	if type == "horizontal" then
-		local dir = disconnect and dir_ops.get_dir_from_param2(old_node.name, old_node.param2)*-1 or dir_ops.get_dir(pos)
+		local dir = disconnect and dir_ops.get_look_dir_from_param2(old_node.name, old_node.param2) or dir_ops.get_dir(pos)
 
 		local left_dir = type == "horizontal" and vector.new(-1, 0, 0) or dir_ops.rotate_y(dir, math.pi/2)
 		local right_dir = type == "horizontal" and vector.new(1, 0, 0) or dir_ops.rotate_y(dir, -math.pi/2)
@@ -417,12 +419,12 @@ function connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_
 				return
 			end
 
-			core.set_node(place_pos, {name="multidecor:" .. add_props.common_name .. "_double", param2=dir_ops.from_dir_get_param2(node.name, node.param2, dir*-1)})
+			core.set_node(place_pos, {name="multidecor:" .. add_props.common_name .. "_double", param2=dir_ops.from_dir_get_param2(node.name, node.param2, dir)})
 			core.remove_node(place_pos+dir_ops.rotate_y(dir, math.pi/2))
 		else
 			local dir = dir_ops.get_dir_from_param2(old_node.name, old_node.param2)
 			local add_props = core.registered_nodes[old_node.name].add_properties
-			core.set_node(pos, {name="multidecor:" .. add_props.common_name, param2=dir_ops.from_dir_get_param2(old_node.name, old_node.param2, dir*-1)})
+			core.set_node(pos, {name="multidecor:" .. add_props.common_name, param2=dir_ops.from_dir_get_param2(old_node.name, old_node.param2, dir)})
 		end
 	elseif type == "directional" then
 		local dir

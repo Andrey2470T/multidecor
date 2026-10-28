@@ -33,7 +33,7 @@ function bed.on_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	local tpos = is_lpos_fr and lpos or is_lpos2_fr and lpos2
 
 	if not tpos then
-		core.chat_send_player(clicker:get_player_name(), multidecor.S("This bed is already occupied!"))
+		common.msg("This bed is already occupied!", clicker)
 		return
 	end
 

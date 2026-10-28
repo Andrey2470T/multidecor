@@ -227,7 +227,7 @@ function Shelf:cook_step(dtime)
 	cook_info[4] = cook_info[2]/cook_info[3]*100
 
 	local meta = core.get_meta(self.node_pos)
-	meta:set_string("infotext", multidecor.S("Cooked to: ") .. tostring(math.round(cook_info[4])) .. " %")
+	meta:set_string("infotext", common.translator("Cooked to: ") .. tostring(math.round(cook_info[4])) .. " %")
 
 	local list_name = self:list_name()
 	local time_elapsed = cook_info[2] >= cook_info[3]
@@ -657,15 +657,15 @@ function shelves_api.build_main_formspec(pos, common_name, data, shelf_num, lock
 	if show_lock_btns then
 		local lock_img_name = locked and "multidecor_unlock_icon.png" or "multidecor_lock_icon.png"
 		local lock_name = locked and "unlock_button" or "lock_button"
-		local lock_tooltip = locked and multidecor.S("Unlock Shelf\n(do it accessible by everyone)") or
-			multidecor.S("Lock Shelf\n(do it accessible only by you and everyone from the share group)")
+		local lock_tooltip = locked and common.translator("Unlock Shelf\n(do it accessible by everyone)") or
+			common.translator("Lock Shelf\n(do it accessible only by you and everyone from the share group)")
 
 		fs = fs .. ("image_button[%f,0.5;1,1;%s;%s;]"):format(fs_size.w-padding, lock_img_name, lock_name) ..
 			("tooltip[%s;%s]"):format(lock_name, lock_tooltip)
 
 		if locked then
 			fs = fs .. ("image_button[%f,2.0;1,1;multidecor_share_icon.png;share_button;]"):format(fs_size.w-padding) ..
-				"tooltip[share_button;" .. multidecor.S("Share access\n(provide access to certain players)") .. "]"
+				"tooltip[share_button;" .. common.translator("Share access\n(provide access to certain players)") .. "]"
 		end
 	end
 
@@ -712,7 +712,7 @@ function shelves_api.build_share_formspec(members)
 
 	fs = fs .. table.concat({
 		"scroll_container_end[]",
-		"field[1,5.5;5,0.5;share_add_field;" .. multidecor.S("Enter name of player to add to the group") .. ";]",
+		"field[1,5.5;5,0.5;share_add_field;" .. common.translator("Enter name of player to add to the group") .. ";]",
 		"button[6,5.5;1,0.5;share_add_button;Add]"
 	})
 
@@ -723,7 +723,7 @@ function shelves_api.build_infotext(lock_info)
 	local infotext = ""
 
 	if lock_info then
-		infotext = multidecor.S("Owned by ") .. lock_info.owner .. multidecor.S("\nShare group:\n")
+		infotext = common.translator("Owned by ") .. lock_info.owner .. common.translator("\nShare group:\n")
 
 		for _, member in ipairs(lock_info.share) do
 			infotext = infotext .. "\t" .. member .. "\n"
