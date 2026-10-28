@@ -1,13 +1,14 @@
 local animation_t = require("decor_api.common.animation")
 local CyclicEntity = animation_t[2]
 local FurnitureManager = require("decor_api.common.furniture_entity")[3]
+local common = require("decor_api.helpers.common")
 local dir_ops = require("decor_api.helpers.dir_ops")
 
-multidecor.clock = {}
+local clock = {}
 
--- ClockEntity: an invisible wheel entity running the keyframed animation
--- and the looping sound while the clock is activated.
--- The model is carried by the dummy when 'time_params.def' provides one.
+-- ClockEntity: an invisible wheel entity running the bone swing animation
+-- and the restarted-on-cycle sound while the clock is activated.
+-- The balance wheel model is carried by the dummy and its own bone is animated
 --------------------------------------------------------------------------------
 local ClockEntity = CyclicEntity:extend("decor_api:clock_wheel")
 
@@ -23,18 +24,13 @@ function ClockEntity:on_activate(staticdata)
 	return true
 end
 
--- Replaces the bone cycling of CyclicEntity with a keyframed animation
--- and a looping sound bound to the activation state
+-- The balance wheel swings via the cyclic bone animation; the (non-looped)
+-- sound is restarted on every cycle by CyclicEntity
 function ClockEntity:cycle()
 	if self.is_running then
-		if self.frame_animation then
-			self:play_frame_animation(self.frame_animation.range, self.frame_animation.speed)
-		end
-		if self.sound.name ~= "" then
-			self:play_sound()
-		end
+		CyclicEntity.cycle(self)
 	else
-		self:stop_frame_animation()
+		self:stop_animation()
 		self:stop_sound()
 	end
 end
@@ -43,9 +39,9 @@ function ClockEntity:apply_running_state()
 	self:cycle()
 
 	if self.is_running then
-		local hours, minutes = multidecor.clock.get_current_time()
+		local hours, minutes = clock.get_current_time()
 		core.get_meta(self.attached_to.pos):set_string(
-			"infotext", multidecor.clock.get_formatted_time_str(hours, minutes))
+			"infotext", clock.get_formatted_time_str(hours, minutes))
 	end
 end
 
@@ -69,9 +65,9 @@ function ClockEntity:on_step(dtime)
 		self.infotext_time = self.infotext_time + dtime
 		if self.infotext_time >= 1 then
 			self.infotext_time = 0
-			local hours, minutes = multidecor.clock.get_current_time()
+			local hours, minutes = clock.get_current_time()
 			core.get_meta(self.attached_to.pos):set_string(
-				"infotext", multidecor.clock.get_formatted_time_str(hours, minutes))
+				"infotext", clock.get_formatted_time_str(hours, minutes))
 		end
 	end
 end
@@ -81,9 +77,7 @@ FurnitureManager.register(ClockEntity.name, ClockEntity, {
 	static_save = true
 })
 
-multidecor.ClockEntity = ClockEntity
-
-function multidecor.clock.get_current_time()
+function clock.get_current_time()
 	local timeofday = core.get_timeofday()
 	local time = math.floor(timeofday * 1440)
 	local minute = time % 60
@@ -92,11 +86,11 @@ function multidecor.clock.get_current_time()
 	return hour, minute
 end
 
-function multidecor.clock.get_formatted_time_str(hours, minutes)
-	return (multidecor.S("Current time: %d:%d")):format(hours, minutes)
+function clock.get_formatted_time_str(hours, minutes)
+	return (common.translator("Current time: %d:%d")):format(hours, minutes)
 end
 
-function multidecor.clock.on_construct(pos)
+function clock.on_construct(pos)
 	local node = core.get_node(pos)
 	local time_params = core.registered_nodes[node.name].add_properties.time_params
 
@@ -112,19 +106,22 @@ function multidecor.clock.on_construct(pos)
 			size = model_def.visual_size or {x=5, y=5, z=5},
 			pointable = false
 		} or nil,
-		frame_animation = time_params.animation,
+		-- the bone swing parameters of the balance wheel
+		cyclic_animation = time_params.animation,
 		sound = time_params.sound and {
 			name = time_params.sound.name,
 			volume = time_params.sound.gain or 1.0,
 			max_distance = time_params.sound.max_hear_distance or 10.0,
-			loop = true
+			-- for clocks without a wheel: the non-looped sound is restarted
+			-- every 'interval' seconds
+			interval = time_params.sound.interval
 		} or nil
 	})
 
 	core.get_meta(pos):set_string("is_activated", "false")
 end
 
-function multidecor.clock.on_rightclick(pos, node, clicker)
+function clock.on_rightclick(pos, node, clicker)
 	local meta = core.get_meta(pos)
 	local is_activated = meta:get_string("is_activated") == "true"
 
@@ -143,3 +140,5 @@ function multidecor.clock.on_rightclick(pos, node, clicker)
 		end
 	end
 end
+
+return { ClockEntity, clock }

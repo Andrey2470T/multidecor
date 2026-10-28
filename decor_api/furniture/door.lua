@@ -1,15 +1,19 @@
 local dir_ops = require("decor_api.helpers.dir_ops")
 local BBox = require("decor_api.helpers.box")
-require("decor_api.helpers.common")
+local common = require("decor_api.helpers.common")
+local register = require("decor_api.common.register")
 local AnimatedEntity = require("decor_api.common.animation")[1]
 local FurnitureManager = require("decor_api.common.furniture_entity")[3]
 
-local Door
+local Door = {}
+Door.__index = Door
 
--- DoorEntity: the door in its active (animating) state.
--- Exists only while the transition runs, then converts back to the door node.
+-- DoorEntity
+-- The child class of AnimatedEntity handling the door/drawer opening/closing logic.
+-- This is used for the shelves and the regular doors, while the sliding doors are handled by the same class but with a different animation.
+-- For the door nodes, it exists only while the transition runs, then converts back to the door node.
 --------------------------------------------------------------------------------
-local DoorEntity = AnimatedEntity:extend("decor_api:door_dummy")
+local DoorEntity = AnimatedEntity:extend("decor_api:bone_animator")
 
 function DoorEntity:on_activate(staticdata)
 	if not AnimatedEntity.on_activate(self, staticdata) then
@@ -156,9 +160,22 @@ function DoorEntity:on_deactivate(removal)
 	AnimatedEntity.on_deactivate(self, removal)
 end
 
+-- A reactivated untracked door entity with its node absent means the server
+-- restarted (or unloaded) mid-transition: restore the door node instead of
+-- losing it (the node was removed for the transition time)
+function DoorEntity:on_orphan()
+	if self.convert_on_end then
+		Door.from_entity(self)
+	else
+		if self.object and self.object:is_valid() then
+			self.object:remove()
+		end
+	end
+end
+
 FurnitureManager.register(DoorEntity.name, DoorEntity, {
 	visual = "mesh",
-	mesh = "door_dummy.glb",
+	mesh = "multidecor_bone_animator.glb",
 	physical = true,
 	static_save = true
 })
@@ -166,8 +183,6 @@ FurnitureManager.register(DoorEntity.name, DoorEntity, {
 -- Door: manages the door node in its inactive (resting) state.
 -- Converts the node to DoorEntity on interaction and back on animation end.
 --------------------------------------------------------------------------------
-Door = {}
-Door.__index = Door
 
 local function get_rotation_dir(dir, is_open, is_mirrored)
 	local movedir_rot = is_open and math.pi/2 or -math.pi/2
@@ -293,7 +308,7 @@ function Door.from_entity(door_ent)
 	local obj = door_ent.object
 	-- The entity sits at the hinge corner; the node position is exact
 	local pos = vector.new(door_ent.attached_to.pos)
-	local action = door_ent.action or "close"
+	local action = door_ent.action or door_ent.cur_mode or "close"
 	local base_name = door_ent.attached_to.name
 	local dtype = door_ent.door_type
 	local is_mir = door_ent.model_params.mirrored == true
@@ -341,7 +356,7 @@ function doors.node_on_rightclick(pos, node, clicker)
 	if door_data.has_lock then
 		local playername = clicker:get_player_name()
 		if owner ~= playername then
-			core.chat_send_player(playername, multidecor.S("This door has locked!"))
+			common.msg("This door has locked!", clicker)
 			return
 		end
 	end
@@ -375,7 +390,7 @@ function doors.after_place_node(pos, placer)
 		local to_left = dir_ops.rotate_y(dir, -math.pi/2)
 		local left_nodedef = core.registered_nodes[core.get_node(pos + to_left).name]
 
-		if left_nodedef.add_properties and left_nodedef.add_properties.common_name ==
+		if left_nodedef and left_nodedef.add_properties and left_nodedef.add_properties.common_name ==
 			add_props.common_name and vector.equals(dir, dir_ops.get_dir(pos + to_left)) then
 
 			local mirrored_door_name = add_props.door.type == "regular" and add_props.common_name .. "_open" or
@@ -395,7 +410,7 @@ function doors.after_place_node(pos, placer)
 	end
 end
 
-function multidecor.register.register_door(name, base_def, add_def, craft_def)
+function register.register_door(name, base_def, add_def, craft_def)
 	local c_def = table.copy(base_def)
 
 	c_def.type = "door"
@@ -408,7 +423,8 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 	c_def.add_properties.door.type = c_def.add_properties.door.type or "regular"
 
 	if c_def.add_properties.door.type == "regular" then
-		c_def.add_properties.door.vel = c_def.add_properties.door.vel or 2*math.pi/3
+		-- in degrees per sec, converted to radians in Door.to_entity
+		c_def.add_properties.door.vel = c_def.add_properties.door.vel or 120
 	else
 		c_def.add_properties.door.vel = c_def.add_properties.door.vel or 1
 	end
@@ -417,7 +433,7 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 	c_def.callbacks.on_rightclick = c_def.callbacks.on_rightclick or doors.node_on_rightclick
 	c_def.callbacks.after_place_node = c_def.callbacks.after_place_node or doors.after_place_node
 
-	multidecor.register.register_furniture_unit(name, c_def, craft_def)
+	register.register_furniture_unit(name, c_def, craft_def)
 
 	local type = c_def.add_properties.door.type
 	local mesh_format = "." .. (c_def.add_properties.door.format or "b3d")
@@ -440,7 +456,7 @@ function multidecor.register.register_door(name, base_def, add_def, craft_def)
 		c_def2.callbacks.after_place_node = nil
 
 		local endname = type == "regular" and "_open" or "_mirrored"
-		multidecor.register.register_furniture_unit(name .. endname, c_def2)
+		register.register_furniture_unit(name .. endname, c_def2)
 	end
 end
 

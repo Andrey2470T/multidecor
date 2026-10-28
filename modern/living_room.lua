@@ -115,11 +115,15 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 		time_params = {
 			def = {
 				mesh = "multidecor_floor_clock_balance_wheel.b3d",
-				textures = {"multidecor_gold_material.png"}
+				textures = {"multidecor_gold_material.png"},
+				bone = "Bone"
 			},
 			animation = {
-				range = {x=1, y=40},
-				speed = 40.0
+				-- the balance wheel swings around Z between -angle and +angle
+				angle = math.rad(15),
+				axis = "z",
+				velocity = math.rad(60),
+				swap_direction = true
 			},
 			sound = {
 				name = "multidecor_clock_chime",
@@ -259,9 +263,12 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 	},
 	add_properties = {
 		time_params = {
+			-- no wheel model: the non-looped ticking sound is just restarted
+			-- by the cyclic entity every 'interval' seconds
 			sound = {
 				name = "multidecor_clock_ticking",
-				max_hear_distance = 12
+				max_hear_distance = 12,
+				interval = 1.0
 			}
 		}
 	}
@@ -422,10 +429,18 @@ local on_rightclick_flowerpot_with_flower = function(pos, node, clicker, itemsta
 end
 
 local after_destruct_flowerpot = function(pos, oldnode, oldmeta, digger)
-	local pot_groups = core.registered_nodes[oldnode.name].groups
+	local def = core.registered_nodes[oldnode.name]
+	local pot_groups = def and def.groups
+
+	if not pot_groups or not pot_groups.flower_in_pot then
+		return
+	end
+
 	local flower = flowers[pot_groups.flower_in_pot]
 
-	digger:get_inventory():add_item("main", "flowers:" .. flower)
+	if digger and flower then
+		digger:get_inventory():add_item("main", "flowers:" .. flower)
+	end
 end
 
 local flowerpot_tmp_def = {

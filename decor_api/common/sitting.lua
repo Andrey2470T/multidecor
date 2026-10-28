@@ -4,19 +4,27 @@
 local furniture_t = require("decor_api.common.furniture_entity")
 local FurnitureEntity, FurnitureManager = furniture_t[1], furniture_t[3]
 
+local common = require("decor_api.helpers.common")
 local dir_ops = require("decor_api.helpers.dir_ops")
 
--- SittingEntity: an invisible entity the player is attached to while sitting.
+-- SittingEntity
+-- The invisible entity the player is attached to while sitting.
 -- It is spawned at the moment of sitting and removed at the standup.
 --------------------------------------------------------------------------------
 local SittingEntity = FurnitureEntity:extend("decor_api:seat_furniture")
+
+-- Runtime registry of occupied seats: [player name] = SittingEntity luaentity.
+-- It replaces the former player metadata storage ("previous_player_data"):
+-- the sitting state is transient and lives no longer than the seat entity.
+local sitting_players = {}
 
 function SittingEntity:on_activate(staticdata)
 	if not FurnitureEntity.on_activate(self, staticdata) then
 		return false
 	end
 
-	self.sitting_player_name = self.sitting_player_name or ""
+	self.sitting = self.sitting or {}
+	self.sitting.current_player_name = self.sitting.current_player_name or ""
 	return true
 end
 
@@ -25,58 +33,41 @@ function SittingEntity:sit_player(player, seat_data, rand_anim)
 
 	local playername = player:get_player_name()
 
-	local physics = player:get_physics_override()
-	local prev_pdata = {
-		attached_to = self.attached_to.pos,
-		physics = { speed = physics.speed, jump = physics.jump }
-	}
-
 	if seat_data and seat_data.model and player_api then
-		prev_pdata.model = player_api.get_animation(player)
-	end
-
-	player:get_meta():set_string("previous_player_data", core.serialize(prev_pdata))
-
-	player:set_physics_override({speed=0, jump=0})
-	player:set_attach(self.object, "", {x=0, y=0, z=0}, {x=0, y=0, z=0}, true)
-
-	if seat_data and seat_data.model and player_api then
+		self.sitting.prev_model, _, self.sitting.prev_anim = player_api.get_animation(player)
 		player_api.set_model(player, seat_data.model)
 		player_api.set_animation(player, rand_anim)
 	end
 
-	self.sitting_player_name = playername
+	player:set_attach(self.object, "", {x=0, y=0, z=0}, {x=0, y=0, z=0}, true)
+
+	self.sitting.current_player_name = playername
+	sitting_players[playername] = self
 	return true
 end
 
 function SittingEntity:standup_player()
 	if not self:is_busy() then return false end
 
-	local player = core.get_player_by_name(self.sitting_player_name)
+	local playername = self.sitting.current_player_name
+	local player = core.get_player_by_name(playername)
 	if player then
-		local player_meta = player:get_meta()
-		local prev_pdata = core.deserialize(player_meta:get_string("previous_player_data"))
-
 		player:set_detach()
 
-		if prev_pdata then
-			player:set_physics_override(prev_pdata.physics)
-			if prev_pdata.model and player_api then
-				player_api.set_model(player, prev_pdata.model.model)
-			end
+		if self.sitting.prev_model and player_api then
+			player_api.set_model(player, self.sitting.prev_model)
+			player_api.set_animation(player, self.sitting.prev_anim)
 		end
-
-		player_meta:set_string("previous_player_data", "")
 	end
 
-	self.sitting_player_name = ""
+	sitting_players[playername] = nil
+	self.sitting.current_player_name = ""
 
-	FurnitureManager.remove_by_object(self.object)
 	return true
 end
 
 function SittingEntity:is_busy()
-	return self.sitting_player_name ~= ""
+	return self.sitting.current_player_name ~= ""
 end
 
 function SittingEntity:on_deactivate(removal)
@@ -86,8 +77,9 @@ function SittingEntity:on_deactivate(removal)
 	FurnitureEntity.on_deactivate(self, removal)
 end
 
+-- The seat entity is transient: it is spawned on demand and never saved
 FurnitureManager.register(SittingEntity.name, SittingEntity, {
-	pointable = false
+	static_save = false
 })
 
 -- Sitting API surface for furniture nodes
@@ -105,8 +97,23 @@ if player_api then
 	})
 end
 
+-- Returns the luaentity of the seat the player is currently sitting on, or nil.
+-- Stale registry entries (the seat entity is already gone) are cleaned up here.
+function sitting.get_player_seat(player)
+	if not player then return end
+
+	local playername = player:get_player_name()
+	local seat = sitting_players[playername]
+	if seat and seat.object and seat.object:is_valid() then
+		return seat
+	end
+
+	sitting_players[playername] = nil
+	return
+end
+
 function sitting.is_player_sitting(player)
-	return player:get_meta():get_string("previous_player_data") ~= ""
+	return sitting.get_player_seat(player) ~= nil
 end
 
 -- Returns the luaentity of a busy SittingEntity attached to the node at 'node_pos'
@@ -120,28 +127,22 @@ function sitting.get_active_seat(node_pos)
 			end
 		end
 	end
-	return nil
+	return
 end
 
-function sitting.on_rightclick(pos, node, clicker, itemstack, pointed_thing)
+function sitting.on_rightclick(pos, node, clicker)
 	if not clicker or not clicker:is_player() then return end
 
 	-- If this player already sits somewhere, stand him up first
-	if sitting.is_player_sitting(clicker) then
-		local player_meta = clicker:get_meta()
-		local prev_pdata = core.deserialize(player_meta:get_string("previous_player_data"))
-		if prev_pdata and prev_pdata.attached_to then
-			local active_seat = sitting.get_active_seat(prev_pdata.attached_to)
-			if active_seat then
-				active_seat:standup_player()
-				return
-			end
-		end
+	local player_seat = sitting.get_player_seat(clicker)
+	if player_seat then
+		player_seat:standup_player()
+		return
 	end
 
 	local active_seat = sitting.get_active_seat(pos)
 	if active_seat then
-		core.chat_send_player(clicker:get_player_name(), multidecor.S("This seat is busy!"))
+		common.msg("This seat is busy!", clicker)
 		return
 	end
 
@@ -152,6 +153,8 @@ function sitting.on_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	local rand_anim
 
 	if seat_data.model and player_api then
+		seat_data.anims = seat_data.anims or {"sit1"}
+
 		local node_dir = dir_ops.get_dir(pos)
 		local near_node = core.get_node(vector.add(pos, node_dir))
 
@@ -183,16 +186,12 @@ function sitting.on_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	local spawn_pos = pos + rot_seat_pos
 	local spawn_rot = dir_rot + (seat_data.rot or vector.new())
 
-	FurnitureManager.add(SittingEntity.name, pos, node.name, spawn_pos, spawn_rot)
+	local desc = FurnitureManager.add(SittingEntity.name, pos, node.name, spawn_pos, spawn_rot)
 
-	local list = FurnitureManager.get(pos)
-	for _, desc in ipairs(list) do
-		if desc.entity_name == SittingEntity.name and desc:exists() then
-			local lua_ent = desc.object:get_luaentity()
-			if lua_ent and not lua_ent:is_busy() then
-				lua_ent:sit_player(clicker, seat_data, rand_anim)
-				break
-			end
+	if desc and desc:exists() then
+		local lua_ent = desc.object:get_luaentity()
+		if lua_ent then
+			lua_ent:sit_player(clicker, seat_data, rand_anim)
 		end
 	end
 end
@@ -204,15 +203,17 @@ function sitting.on_destruct(pos)
 	end
 end
 
-function sitting.on_construct(pos) end
-
 core.register_on_leaveplayer(function(player)
-	local prev_pdata = core.deserialize(player:get_meta():get_string("previous_player_data"))
-	if prev_pdata and prev_pdata.attached_to then
-		local active_seat = sitting.get_active_seat(prev_pdata.attached_to)
-		if active_seat then
-			active_seat:standup_player()
-		end
+	local seat = sitting.get_player_seat(player)
+	if seat then
+		seat:standup_player()
+	end
+end)
+
+core.register_on_respawnplayer(function(player)
+	local seat = sitting.get_player_seat(player)
+	if seat then
+		seat:standup_player()
 	end
 end)
 

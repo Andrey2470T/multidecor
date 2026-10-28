@@ -331,14 +331,8 @@ multidecor.register.register_garniture(marble_garniture_def)
 
 local CeilingFanEntity = CyclicEntity:extend("modern:ceiling_fan_blades")
 
--- The blades spin via a keyframed mesh animation instead of the bone cycling
-function CeilingFanEntity:cycle()
-	if self.frame_animation then
-		self:play_frame_animation(self.frame_animation.range, self.frame_animation.speed)
-	end
-	self:play_sound()
-end
-
+-- The blades spin via the continuous cyclic bone animation of their own
+-- rig bone ("Bone" of multidecor_ceiling_fan_blades.b3d)
 FurnitureManager.register(CeilingFanEntity.name, CeilingFanEntity, {
 	visual = "mesh",
 	visual_size = {x=5, y=5, z=5},
@@ -364,12 +358,15 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 		on_construct = function(pos)
 			local node = core.get_node(pos)
 			FurnitureManager.add(CeilingFanEntity.name, pos, node.name, pos, vector.new(), {
-				frame_animation = {range = {x=1, y=40}, speed = 30},
+				cyclic_animation = {
+					angle = math.pi*2,         -- one full revolution per cycle
+					axis = "y",
+					velocity = math.pi*2/1.3   -- ~1.3 seconds per revolution
+				},
 				sound = {
 					name = "multidecor_fan_noise",
 					volume = 1.0,
-					max_distance = 15,
-					loop = true
+					max_distance = 15
 				}
 			})
 		end
