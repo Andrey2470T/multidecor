@@ -85,7 +85,7 @@ FurnitureManager.register(SittingEntity.name, SittingEntity, {
 -- Sitting API surface for furniture nodes
 ------------------------------------------------
 local sitting = {}
-sitting.standard_model = "multidecor_character_sitting.b3d"
+sitting.standard_model = "multidecor_character_sitting.glb"
 
 if player_api then
 	player_api.register_model(sitting.standard_model, {
@@ -99,32 +99,24 @@ end
 
 -- Returns the luaentity of the seat the player is currently sitting on, or nil.
 -- Stale registry entries (the seat entity is already gone) are cleaned up here.
-function sitting.get_player_seat(player)
+function sitting.get_player_seat_desc(player)
 	if not player then return end
 
 	local playername = player:get_player_name()
 	local seat = sitting_players[playername]
-	if seat and seat.object and seat.object:is_valid() then
-		return seat
-	end
-
-	sitting_players[playername] = nil
-	return
+	return FurnitureManager.get_by_object(seat and seat.object)
 end
 
 function sitting.is_player_sitting(player)
-	return sitting.get_player_seat(player) ~= nil
+	return sitting.get_player_seat_desc(player) ~= nil
 end
 
--- Returns the luaentity of a busy SittingEntity attached to the node at 'node_pos'
-function sitting.get_active_seat(node_pos)
+-- Returns the first found busy SittingEntity descriptor attached to the node at 'node_pos'
+function sitting.get_active_seat_desc(node_pos)
 	local list = FurnitureManager.get(node_pos)
 	for _, desc in ipairs(list) do
 		if desc.entity_name == SittingEntity.name and desc:exists() then
-			local lua_ent = desc.object:get_luaentity()
-			if lua_ent and lua_ent:is_busy() then
-				return lua_ent
-			end
+			return desc
 		end
 	end
 	return
@@ -134,13 +126,13 @@ function sitting.on_rightclick(pos, node, clicker)
 	if not clicker or not clicker:is_player() then return end
 
 	-- If this player already sits somewhere, stand him up first
-	local player_seat = sitting.get_player_seat(clicker)
+	local player_seat = sitting.get_player_seat_desc(clicker)
 	if player_seat then
-		player_seat:standup_player()
+		FurnitureManager.remove_by_object(player_seat.object)
 		return
 	end
 
-	local active_seat = sitting.get_active_seat(pos)
+	local active_seat = sitting.get_active_seat_desc(pos)
 	if active_seat then
 		common.msg("This seat is busy!", clicker)
 		return
@@ -155,10 +147,9 @@ function sitting.on_rightclick(pos, node, clicker)
 	if seat_data.model and player_api then
 		seat_data.anims = seat_data.anims or {"sit1"}
 
-		local node_dir = dir_ops.get_dir(pos) * -1
-		local near_node = core.get_node(vector.add(pos, node_dir))
+		local near_node = dir_ops.get_near_node(pos, "back", true)
 
-		if core.get_item_group(near_node.name, "table") ~= 1 then
+		if not near_node or core.get_item_group(near_node.name, "table") ~= 1 then
 			local anims2 = {}
 			for i = 1, #seat_data.anims do
 				local m_def = player_api.registered_models[seat_data.model]
@@ -175,13 +166,7 @@ function sitting.on_rightclick(pos, node, clicker)
 		end
 	end
 
-	local dir = dir_ops.get_dir(pos)
-	local dir_rot = vector.dir_to_rotation(dir * -1)
-	local rot_seat_pos = dir_ops.rotate_to_dir(seat_data.pos, dir)
-
-	local spawn_pos = pos + rot_seat_pos
-	local spawn_rot = dir_rot + (seat_data.rot or vector.new())
-
+	local spawn_pos, spawn_rot = dir_ops.rotate_to_node_dir(pos, seat_data.pos, true)
 	local desc = FurnitureManager.add(SittingEntity.name, pos, node.name, spawn_pos, spawn_rot)
 
 	if desc and desc:exists() then
@@ -193,23 +178,23 @@ function sitting.on_rightclick(pos, node, clicker)
 end
 
 function sitting.on_destruct(pos)
-	local active_seat = sitting.get_active_seat(pos)
+	local active_seat = sitting.get_active_seat_desc(pos)
 	if active_seat then
-		active_seat:standup_player()
+		FurnitureManager.remove_by_object(active_seat.object)
 	end
 end
 
 core.register_on_leaveplayer(function(player)
-	local seat = sitting.get_player_seat(player)
+	local seat = sitting.get_player_seat_desc(player)
 	if seat then
-		seat:standup_player()
+		FurnitureManager.remove_by_object(seat.object)
 	end
 end)
 
 core.register_on_respawnplayer(function(player)
-	local seat = sitting.get_player_seat(player)
+	local seat = sitting.get_player_seat_desc(player)
 	if seat then
-		seat:standup_player()
+		FurnitureManager.remove_by_object(seat.object)
 	end
 end)
 

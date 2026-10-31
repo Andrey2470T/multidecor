@@ -170,14 +170,6 @@ common.colors.cyan = "cyan"
 common.colors.magenta = "magenta"
 common.colors.grey = "grey"
 
--- Basic direction vectors
-vector.up = vector.new(0, 1, 0)
-vector.down = vector.new(0, -1, 0)
-vector.left = vector.new(-1, 0, 0)
-vector.right = vector.new(1, 0, 0)
-vector.forward = vector.new(0, 0, 1)
-vector.back = vector.new(0, 0, -1)
-
 -- Finds the full table length including non-integer keys
 function table.len(t)
     local count = 0
