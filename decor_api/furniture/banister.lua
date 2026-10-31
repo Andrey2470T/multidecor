@@ -85,7 +85,7 @@ function banister.place_banister(pos, common_name, itemstack)
 		check_and_set_banister(pos, {x=0, y=0, z=1}, "forward")
 		check_and_set_banister(pos, {x=0, y=0, z=-1}, "backward")
 	elseif shape == "raised" then
-		local dir = dir_ops.get_look_dir({x=pos.x, y=pos.y-1, z=pos.z})
+		local dir = dir_ops.get_dir({x=pos.x, y=pos.y-1, z=pos.z})
 		local dir_to_param2 = core.dir_to_facedir(dir)
 
 		local left_pos = pos + dir_ops.rotate_y(dir, math.pi/2)
@@ -101,7 +101,7 @@ function banister.place_banister(pos, common_name, itemstack)
 			itemstack:take_item()
 		end
 	elseif shape == "spiral" then
-		local dir = dir_ops.get_look_dir({x=pos.x, y=pos.y-1, z=pos.z})
+		local dir = dir_ops.get_dir({x=pos.x, y=pos.y-1, z=pos.z})
 		local dir_to_param2 = core.dir_to_facedir(dir)
 		core.set_node(pos, {name=name, param2=dir_to_param2})
 		itemstack:take_item()

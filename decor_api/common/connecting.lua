@@ -100,7 +100,7 @@ function connecting.replace_node_to(pos, disconnect, cmn_name)
 	local name = "multidecor:" .. cmn_name .. target_node
 	local old_param2 = core.get_node(pos).param2
 	local param2 = dir_ops.from_dir_get_param2(name, old_param2,
-		vector.rotate_around_axis({x=0, y=0, z=1}, {x=0, y=1, z=0}, math.rad(rel_rot)))
+		vector.rotate_around_axis({x=0, y=0, z=-1}, {x=0, y=1, z=0}, math.rad(rel_rot)))
 	core.set_node(pos, {name=name, param2=param2})
 end
 
@@ -248,7 +248,8 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_
 	local parts = add_props.connect_parts
 
 	local dir_rot = math.deg(vector.dir_to_rotation(dir).y)
-	local cur_dir = dir_ops.get_dir(pos)
+	-- the front (player-facing) dir: the left/right parts are named in this frame
+	local cur_dir = dir_ops.get_dir(pos) * -1
 	local dir_rot2 = math.deg(vector.dir_to_rotation(cur_dir).y)
 
 	if dir_rot == 180 and dir_rot2 == -90 then
@@ -344,7 +345,7 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_
 
 	local name = "multidecor:" .. add_props.common_name .. target_part
 	local rot_dir = vector.rotate_around_axis(t_dir, vector.new(0, 1, 0), rel_rot)
-	local param2 = dir_ops.from_dir_get_param2(name, node.param2, rot_dir)
+	local param2 = dir_ops.from_dir_get_param2(name, node.param2, rot_dir * -1)
 
 	core.set_node(pos, {name=name, param2=param2})
 end
@@ -367,7 +368,7 @@ function connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_
 	end
 
 	if type == "horizontal" then
-		local dir = disconnect and dir_ops.get_look_dir_from_param2(old_node.name, old_node.param2) or dir_ops.get_dir(pos)
+		local dir = disconnect and dir_ops.get_dir_from_param2(old_node.name, old_node.param2) or dir_ops.get_dir(pos)
 
 		local left_dir = type == "horizontal" and vector.new(-1, 0, 0) or dir_ops.rotate_y(dir, math.pi/2)
 		local right_dir = type == "horizontal" and vector.new(1, 0, 0) or dir_ops.rotate_y(dir, -math.pi/2)
@@ -430,9 +431,9 @@ function connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_
 		local dir
 
 		if disconnect then
-			dir = dir_ops.get_dir_from_param2(old_node.name, old_node.param2)
+			dir = dir_ops.get_dir_from_param2(old_node.name, old_node.param2) * -1
 		else
-			dir = dir_ops.get_dir(pos)
+			dir = dir_ops.get_dir(pos) * -1
 		end
 
 		local left_shift = dir_ops.rotate_y(dir, -math.pi/2)

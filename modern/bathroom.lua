@@ -507,7 +507,7 @@ multidecor.register.register_seat("toilet", {
 	},
 	callbacks = {
 		on_punch = function(pos, node, puncher)
-			local dir = multidecor.helpers.get_dir(pos)
+			local dir = multidecor.helpers.get_dir(pos) * -1
 			local rel_pos_min = multidecor.helpers.rotate_to_node_dir(pos, vector.new(-0.125, -0.2, 0.05))
 			local rel_pos_max = multidecor.helpers.rotate_to_node_dir(pos, vector.new(0.125, -0.2, -0.175))
 

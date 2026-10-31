@@ -11,7 +11,7 @@ function bed.on_rightclick(pos, node, clicker, itemstack, pointed_thing)
 		return
 	end
 
-	local bed_dir = dir_ops.get_dir(pos)
+	local bed_dir = dir_ops.get_dir(pos) * -1
 
 	local lpos = add_props.lay_pos1 or {x=0, y=0, z=0}
 	lpos = pos + dir_ops.rotate_y(lpos, vector.dir_to_rotation(bed_dir).y)
@@ -53,7 +53,7 @@ function bed.can_dig(pos)
 		return
 	end
 
-	local bed_dir = dir_ops.get_dir(pos)
+	local bed_dir = dir_ops.get_dir(pos) * -1
 
 	local lpos = add_props.lay_pos1 or {x=0, y=0, z=0}
 	lpos = pos + dir_ops.rotate_y(lpos, vector.dir_to_rotation(bed_dir).y)

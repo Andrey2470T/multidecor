@@ -94,7 +94,7 @@ function clock.on_construct(pos)
 	local node = core.get_node(pos)
 	local time_params = core.registered_nodes[node.name].add_properties.time_params
 
-	local dir = dir_ops.get_dir(pos)
+	local dir = dir_ops.get_dir(pos) * -1
 	local y_rot = vector.dir_to_rotation(dir).y
 
 	local model_def = time_params.def

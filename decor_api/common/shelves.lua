@@ -310,7 +310,7 @@ function Shelf:build_door_data(rel_pos, mirrored)
 		model_params.textures[1] = sd.base_texture
 	end
 
-	local dir = dir_ops.get_dir(self.node_pos)
+	local dir = dir_ops.get_dir(self.node_pos) * -1
 	local anim_params
 
 	if sd.type == "drawer" then
@@ -374,7 +374,7 @@ function Shelf:spawn_doors()
 		return
 	end
 
-	local dir = dir_ops.get_dir(self.node_pos)
+	local dir = dir_ops.get_dir(self.node_pos) * -1
 	local model_params = data.model_params
 
 	local spawn_pos = self.node_pos + dir_ops.rotate_to_dir(vector.new(model_params.pos), dir)

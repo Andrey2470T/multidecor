@@ -45,10 +45,10 @@ end
 
 -- Defines at which direction (unit vector) depending on the 'mover's look dir the curtains at the position 'pos' should be moved
 function curtains.define_move_dir(pos, mover)
-	local node_dir = dir_ops.get_look_dir(pos)
+	local node_dir = dir_ops.get_dir(pos)
 	node_dir.y = 0
 
-	local mover_dir = mover:get_look_dir()
+	local mover_dir = mover:get_dir()
 	mover_dir.y = 0
 
 	local node_dir_rot = vector.rotate_around_axis(node_dir, vector.new(0, 1, 0), math.pi/2)

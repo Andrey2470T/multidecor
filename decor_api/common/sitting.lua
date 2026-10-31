@@ -155,7 +155,7 @@ function sitting.on_rightclick(pos, node, clicker)
 	if seat_data.model and player_api then
 		seat_data.anims = seat_data.anims or {"sit1"}
 
-		local node_dir = dir_ops.get_dir(pos)
+		local node_dir = dir_ops.get_dir(pos) * -1
 		local near_node = core.get_node(vector.add(pos, node_dir))
 
 		if core.get_item_group(near_node.name, "table") ~= 1 then
@@ -176,12 +176,8 @@ function sitting.on_rightclick(pos, node, clicker)
 	end
 
 	local dir = dir_ops.get_dir(pos)
-	local dir_rot = vector.dir_to_rotation(dir)
-	local rot_seat_pos = vector.rotate_around_axis(
-		dir_ops.rotate_to_dir(seat_data.pos, dir),
-		vector.new(0, 1, 0),
-		math.pi
-	)
+	local dir_rot = vector.dir_to_rotation(dir * -1)
+	local rot_seat_pos = dir_ops.rotate_to_dir(seat_data.pos, dir)
 
 	local spawn_pos = pos + rot_seat_pos
 	local spawn_rot = dir_rot + (seat_data.rot or vector.new())

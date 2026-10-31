@@ -92,7 +92,7 @@ end
 function DoorEntity:update_door_state(new_mode)
 	-- The door node is absent during the transition, so the direction
 	-- comes from the spawn data
-	local dir = self.node_dir and vector.new(self.node_dir) or dir_ops.get_dir(self.attached_to.pos)
+	local dir = self.node_dir and vector.new(self.node_dir) or dir_ops.get_dir(self.attached_to.pos) * -1
 	local mparams = self.model_params
 	local aparams = self.anim_params
 
@@ -221,7 +221,7 @@ function Door.to_entity(pos, action, owner)
 	local door_data = add_data.door
 	local dtype = door_data.type
 
-	local dir = dir_ops.get_dir(pos)
+	local dir = dir_ops.get_dir(pos) * -1
 	local meta = core.get_meta(pos)
 	local is_mir = meta:get_string("mirrored_counterpart") == "true"
 	local mode = meta:get_string("door_mode")
@@ -364,7 +364,7 @@ function doors.node_on_rightclick(pos, node, clicker)
 	local action = cur_mode == "closed" and "open" or "close"
 
 	if door_data.type == "sliding" then
-		local node_dir = dir_ops.get_dir(pos)
+		local node_dir = dir_ops.get_dir(pos) * -1
 		local move_dir = get_rotation_dir(node_dir, action == "open", is_mir_cpart)
 
 		local place_check = multidecor.placement.check_for_placement(pos + move_dir, node.name)
@@ -386,8 +386,7 @@ function doors.after_place_node(pos, placer)
 
 	if add_props.door.has_mirrored_counterpart then
 		local dir = dir_ops.get_dir(pos)
-
-		local to_left = dir_ops.rotate_y(dir, -math.pi/2)
+		local to_left = dir_ops.rotate_y(dir * -1, -math.pi/2)
 		local left_nodedef = core.registered_nodes[core.get_node(pos + to_left).name]
 
 		if left_nodedef and left_nodedef.add_properties and left_nodedef.add_properties.common_name ==
@@ -395,8 +394,8 @@ function doors.after_place_node(pos, placer)
 
 			local mirrored_door_name = add_props.door.type == "regular" and add_props.common_name .. "_open" or
 				add_props.common_name .. "_mirrored"
-			dir = add_props.door.type == "sliding" and dir*-1 or dir
-			local mirrored_door_param2 = core.dir_to_facedir(dir)
+			local p2_dir = add_props.door.type == "sliding" and dir or dir * -1
+			local mirrored_door_param2 = core.dir_to_facedir(p2_dir)
 
 			core.swap_node(pos, {name="multidecor:" .. mirrored_door_name, param2=mirrored_door_param2})
 			meta:set_string("mirrored_counterpart", "true")
