@@ -2,16 +2,10 @@
 --------------------------------------------------------------
 
 local common = require("decor_api.helpers.common")
+local BBox = require("decor_api.helpers.box")
 local dir_ops = require("decor_api.helpers.dir_ops")
 
 local placement = {}
-
-function placement.is_free_space(pos)
-	local def = common.ndef(pos)
-	if not def then return false end
-
-	return def.drawtype == "airlike"
-end
 
 function placement.check_for_free_space(pos, size_bbox)
 	local free = true
@@ -22,7 +16,7 @@ function placement.check_for_free_space(pos, size_bbox)
 				local shift_pos = pos + vector.new(x, y, z)
 
 				if not vector.equals(pos, shift_pos) then
-					if not placement.is_free_space(shift_pos) then
+					if not common.is_airlike(shift_pos) then
 						free = false
 						break
 					end
@@ -38,52 +32,26 @@ function placement.check_for_free_space(pos, size_bbox)
 	return free
 end
 
-function placement.box_repair(box)
-	local rep_box = table.copy(box)
-
-	if rep_box[1] > rep_box[4] then
-		local x = rep_box[1]
-		rep_box[1] = rep_box[4]
-		rep_box[4] = x
-	end
-
-	if rep_box[2] > rep_box[5] then
-		local y = rep_box[2]
-		rep_box[2] = rep_box[5]
-		rep_box[5] = y
-	end
-
-	if rep_box[3] > rep_box[6] then
-		local z = rep_box[3]
-		rep_box[3] = rep_box[6]
-		rep_box[6] = z
-	end
-
-	return rep_box
-end
-
+-- Aggregates 'bboxes' ({x1, y1, z1, x2, y2, z2} arrays) into one BBox
+-- covering them all
 function placement.calc_place_space_size(bboxes)
-	local max_bbox = {0, 0, 0, 0, 0, 0}
+	local max_bbox = BBox.from_default()
 
-	for box_id, _ in ipairs(bboxes) do
-		local new_box = placement.box_repair(bboxes[box_id])
-
-		for i, v in ipairs(new_box) do
-			if i < 4 then
-				max_bbox[i] = box_id == 1 and v or math.min(max_bbox[i], v)
-			else
-				max_bbox[i] = math.max(max_bbox[i], v)
-			end
-		end
-	end
-
-	for i, coord in ipairs(max_bbox) do
-		local int, frac = math.modf(coord)
-		local sgn = math.sign(coord)
-		max_bbox[i] = math.abs(frac) > 0.5 and sgn*math.ceil(math.abs(coord)) or sgn*math.floor(math.abs(coord))
+	for _, bbox in ipairs(bboxes) do
+		max_bbox:extend_by(bbox)
 	end
 
 	return max_bbox
+end
+
+-- Rounds every coordinate of the plain {x1, ..., z2} array 'coords'
+-- to the whole node position it reaches into
+local function round_to_nodes(coords)
+	for i, coord in ipairs(coords) do
+		local _, frac = math.modf(coord)
+		local sgn = math.sign(coord)
+		coords[i] = math.abs(frac) > 0.5 and sgn*math.ceil(math.abs(coord)) or sgn*math.floor(math.abs(coord))
+	end
 end
 
 function placement.check_for_placement(pos, name)
@@ -111,21 +79,10 @@ function placement.check_for_placement(pos, name)
 	end
 
 	local max_bbox = placement.calc_place_space_size(bboxes)
+	local coords = dir_ops.rotate_box_to_node_dir(pos, max_bbox)
+	round_to_nodes(coords)
 
-	local rot_bbox = {}
-	rot_bbox.min = dir_ops.rotate_to_node_dir(pos,
-		vector.rotate_around_axis(vector.new(max_bbox[1], max_bbox[2], max_bbox[3]), vector.new(0, 1, 0), math.pi)
-	)
-	rot_bbox.max = dir_ops.rotate_to_node_dir(pos,
-		vector.rotate_around_axis(vector.new(max_bbox[4], max_bbox[5], max_bbox[6]), vector.new(0, 1, 0), math.pi)
-	)
-
-	max_bbox = placement.box_repair({
-		rot_bbox.min.x, rot_bbox.min.y, rot_bbox.min.z,
-		rot_bbox.max.x, rot_bbox.max.y, rot_bbox.max.z
-	})
-
-	return placement.check_for_free_space(pos, max_bbox)
+	return placement.check_for_free_space(pos, coords)
 end
 
 return placement

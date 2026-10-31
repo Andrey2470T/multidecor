@@ -166,7 +166,8 @@ function sitting.on_rightclick(pos, node, clicker)
 		end
 	end
 
-	local spawn_pos, spawn_rot = dir_ops.rotate_to_node_dir(pos, seat_data.pos, true)
+	local spawn_pos, spawn_rot = dir_ops.rotate_to_node_dir(
+		pos, seat_data.pos, true, seat_data.rot and seat_data.rot.y or 0)
 	local desc = FurnitureManager.add(SittingEntity.name, pos, node.name, spawn_pos, spawn_rot)
 
 	if desc and desc:exists() then

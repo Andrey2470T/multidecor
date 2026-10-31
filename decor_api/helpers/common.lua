@@ -48,6 +48,11 @@ function common.build_name_from_tmp(name, type, i, pos)
 	return resname
 end
 
+function common.is_airlike(pos)
+	local node_def = common.ndef(pos)
+	return node_def and node_def.drawtype == "airlike"
+end
+
 common.translator = S
 
 -- Short wrapper for sending messages to a player or to all players, or logging it if no player is given

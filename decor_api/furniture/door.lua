@@ -368,7 +368,7 @@ function doors.node_on_rightclick(pos, node, clicker)
 		local move_dir = get_rotation_dir(node_dir, action == "open", is_mir_cpart)
 
 		local place_check = multidecor.placement.check_for_placement(pos + move_dir, node.name)
-		local next_node_free = multidecor.placement.is_free_space(pos + move_dir)
+		local next_node_free = common.is_airlike(pos + move_dir)
 		if not place_check or not next_node_free then
 			core.chat_send_player(clicker:get_player_name(), "Not enough free place to move the door!")
 			return

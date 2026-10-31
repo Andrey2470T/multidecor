@@ -11,7 +11,7 @@ local function new(x1, y1, z1, x2, y2, z2)
 	local self = setmetatable({
 		min_edge = vector.new(x1, y1, z1),
 		max_edge = vector.new(x2, y2, z2),
-		hdir     = vector.new(vector.forward)
+		hdir     = dir_ops.forward()
 	}, BBox)
 
 	self:repair()
@@ -75,6 +75,26 @@ function BBox:rotate(dir)
 	self.hdir = vector.new(dir)
 
 	self:repair()
+end
+
+function BBox:extend_by(other_bbox)
+	if not other_bbox.min_edge then
+		-- a plain {x1, y1, z1, x2, y2, z2} array was passed
+		other_bbox = BBox.from_box(other_bbox)
+	end
+
+	self.min_edge.x = math.min(self.min_edge.x, other_bbox.min_edge.x)
+	self.min_edge.y = math.min(self.min_edge.y, other_bbox.min_edge.y)
+	self.min_edge.z = math.min(self.min_edge.z, other_bbox.min_edge.z)
+
+	self.max_edge.x = math.max(self.max_edge.x, other_bbox.max_edge.x)
+	self.max_edge.y = math.max(self.max_edge.y, other_bbox.max_edge.y)
+	self.max_edge.z = math.max(self.max_edge.z, other_bbox.max_edge.z)
+
+	self:repair()
+
+	self.orig_min_edge = vector.new(self.min_edge)
+	self.orig_max_edge = vector.new(self.max_edge)
 end
 
 return BBox
