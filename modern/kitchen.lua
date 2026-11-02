@@ -331,17 +331,22 @@ multidecor.register.register_garniture(marble_garniture_def)
 
 local CeilingFanEntity = CyclicEntity:extend("modern:ceiling_fan_blades")
 
--- The blades spin via the continuous cyclic bone animation of their own
--- rig bone ("Bone" of multidecor_ceiling_fan_blades.b3d)
-FurnitureManager.register(CeilingFanEntity.name, CeilingFanEntity, {
+function CeilingFanEntity:on_activate(staticdata)
+	if not CyclicEntity.on_activate(self, staticdata) then
+		return false
+	end
+
+	-- Ceiling fan is working always
+	self:cycle()
+
+	return true
+end
+
+FurnitureManager.register(CeilingFanEntity.name, CeilingFanEntity,
+{
 	visual = "mesh",
-	visual_size = {x=5, y=5, z=5},
-	mesh = "multidecor_ceiling_fan_blades.b3d",
-	textures = {"multidecor_ceiling_fan.png"},
-	physical = true,
-	backface_culling = false,
-	selectionbox = {-0.5, -0.2, -0.5, 0.5, 0, 0.5},
-	static_save = true
+	backface_culling = true,
+	mesh = "multidecor_bone_animator.glb"
 })
 
 
@@ -358,6 +363,12 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 		on_construct = function(pos)
 			local node = core.get_node(pos)
 			FurnitureManager.add(CeilingFanEntity.name, pos, node.name, pos, vector.new(), {
+				model_params = {
+					size = {x=5, y=5, z=5},
+					mesh = "multidecor_ceiling_fan_blades.b3d",
+					textures = {"multidecor_ceiling_fan.png"},
+					box = {-0.5, -0.2, -0.5, 0.5, 0, 0.5}
+				},
 				cyclic_animation = {
 					angle = math.pi*2,         -- one full revolution per cycle
 					axis = "y",
@@ -369,6 +380,9 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 					max_distance = 15
 				}
 			})
+		end,
+		on_destruct = function(pos)
+			FurnitureManager.remove(pos)
 		end
 	}
 },

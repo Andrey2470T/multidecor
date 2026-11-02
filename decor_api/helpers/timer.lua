@@ -3,8 +3,7 @@
 
 local common = require("decor_api.helpers.common")
 
-local Timer = {}
-Timer.__index = Timer
+local Timer = common.Extendable:extend()
 
 function Timer.new(duration, cyclic, callbacks)
 	callbacks = callbacks or {}

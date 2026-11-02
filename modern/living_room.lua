@@ -109,16 +109,16 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 	bounding_boxes = {{-0.4, -0.5, -0.3, 0.4, 2, 0.4}},
 	callbacks = {
 		on_construct = multidecor.clock.on_construct,
-		on_rightclick = multidecor.clock.on_rightclick
+		on_rightclick = multidecor.clock.on_rightclick,
+		on_destruct = multidecor.clock.on_destruct
 	},
 	add_properties = {
-		time_params = {
-			def = {
+		clock_params = {
+			model_params = {
 				mesh = "multidecor_floor_clock_balance_wheel.b3d",
-				textures = {"multidecor_gold_material.png"},
-				bone = "Bone"
+				textures = {"multidecor_gold_material.png"}
 			},
-			animation = {
+			cyclic_animation = {
 				-- the balance wheel swings around Z between -angle and +angle
 				angle = math.rad(15),
 				axis = "z",
@@ -127,7 +127,7 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 			},
 			sound = {
 				name = "multidecor_clock_chime",
-				max_hear_distance = 18
+				max_distance = 18
 			}
 		}
 	}
@@ -260,15 +260,14 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 	callbacks = {
 		on_construct = multidecor.clock.on_construct,
 		on_rightclick = multidecor.clock.on_rightclick,
+		on_destruct = multidecor.clock.on_destruct
 	},
 	add_properties = {
-		time_params = {
-			-- no wheel model: the non-looped ticking sound is just restarted
-			-- by the cyclic entity every 'interval' seconds
+		clock_params = {
 			sound = {
 				name = "multidecor_clock_ticking",
-				max_hear_distance = 12,
-				interval = 1.0
+				max_distance = 12,
+				duration = 8.07
 			}
 		}
 	}

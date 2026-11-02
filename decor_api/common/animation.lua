@@ -1,7 +1,26 @@
+local common = require("decor_api.helpers.common")
 local BBox = require("decor_api.helpers.box")
 local Timer = require("decor_api.helpers.timer")
 local furniture_t = require("decor_api.common.furniture_entity")
 local FurnitureEntity, FurnitureManager = furniture_t[1], furniture_t[3]
+
+local EntityTimer = Timer:extend()
+
+function EntityTimer.new(object, duration, cyclic, callbacks)
+	callbacks = callbacks or {}
+	callbacks.end_callback_data = callbacks.end_callback_data or { guid = object:get_guid() }
+	local self = Timer.new(duration, cyclic, callbacks)
+	return setmetatable(self, EntityTimer)
+end
+
+function EntityTimer:tick(dtime)
+	local desc = FurnitureManager.get_by_guid(self.end_callback_data.guid)
+	if desc and desc:exists() then
+		Timer.tick(self, dtime)
+	end
+end
+
+common.register_class("EntityTimer", EntityTimer)
 
 -- AnimatedEntity
 -- The child class of FurnitureEntity handling the bone animation and the sound playback.
@@ -20,6 +39,9 @@ function AnimatedEntity:on_activate(staticdata)
 	self.model_params.mesh = self.model_params.mesh or ""
 	self.model_params.textures = self.model_params.textures or {}
 	self.model_params.box = self.model_params.box or BBox.from_default()
+	if self.model_params.box.min_edge == nil then
+		self.model_params.box = BBox.from_box(self.model_params.box)
+	end
 
 	self.sound = self.sound or {}
 	self.sound.handle = nil
@@ -27,19 +49,15 @@ function AnimatedEntity:on_activate(staticdata)
 	self.sound.volume = self.sound.volume or 1.0
 	self.sound.max_distance = self.sound.max_distance or 10.0
 
-	local cb_data = { guid = self.object:get_guid() }
-	self.anim_timer = Timer.new(0, false, {
+	self.anim_timer = EntityTimer.new(self.object, 0, false, {
 		end_callback = function(data)
 			local desc = FurnitureManager.get_by_guid(data.guid)
-			if desc and desc:exists() then
-				local desc_self = desc.object:get_luaentity()
+			local desc_self = desc.object:get_luaentity()
 
-				if desc_self and desc_self.on_animation_end then
-					desc_self:on_animation_end()
-				end
+			if desc_self.on_animation_end then
+				desc_self:on_animation_end()
 			end
-		end,
-		end_callback_data = cb_data
+		end
 	})
 
 	self:create_dummy_model()
@@ -159,11 +177,18 @@ function AnimatedEntity:on_deactivate(removal)
 end
 
 -- Registers the "decor_api:animated_furniture" entity
-FurnitureManager.register(AnimatedEntity.name, AnimatedEntity)
+FurnitureManager.register(AnimatedEntity.name, AnimatedEntity,
+{
+	visual = "mesh",
+	backface_culling = true,
+	mesh = "multidecor_bone_animator.glb"
+})
 
 core.register_entity("decor_api:animator_dummy", {
 	visual = "mesh",
-	physical = false,
+	backface_culling = false,
+	use_texture_alpha = "blend",
+	physical = true,
 	pointable = true,
 	static_save = false,
 	-- The dummy carries the visible model, so it receives clicks instead of the bone entity:
@@ -204,14 +229,12 @@ function CyclicEntity:cycle()
 	if anim then
 		time = math.abs(anim.angle) / math.max(0.001, anim.velocity)
 		self:play_animation(true, anim.angle * anim.direction, anim.axis, anim.velocity)
-	end
-
-	if not time then
+	else
 		time = self.sound.duration or 0
 	end
 	self:play_sound()
 
-	if not self.anim_timer:is_started() then
+	if not self.anim_timer:is_started() and time > 0 then
 		self.anim_timer:start(time)
 	end
 end
@@ -221,11 +244,13 @@ function CyclicEntity:on_activate(staticdata)
 		return false
 	end
 
-	self.cyclic_animation = self.cyclic_animation or {}
-	self.cyclic_animation.angle = self.cyclic_animation.angle or math.pi/2
-	self.cyclic_animation.axis = self.cyclic_animation.axis or "y"
-	self.cyclic_animation.velocity = self.cyclic_animation.velocity or math.pi/4
-	self.cyclic_animation.direction = self.cyclic_animation.direction or 1
+	if self.cyclic_animation then
+		local anim = self.cyclic_animation
+		anim.angle = anim.angle or math.pi/2
+		anim.axis = anim.axis or "y"
+		anim.velocity = anim.velocity or math.pi/4
+		anim.direction = anim.direction or 1
+	end
 	self.anim_timer.cyclic = true
 
 	return true
@@ -235,7 +260,7 @@ end
 -- Inverts the animation direction if "swap_direction=true", used for the floor clock balance wheel,
 -- the ceiling fan blades don't invert it
 function CyclicEntity:on_animation_end()
-	if self.cyclic_animation.swap_direction then
+	if self.cyclic_animation and self.cyclic_animation.swap_direction then
 		self.cyclic_animation.direction = self.cyclic_animation.direction * -1
 	end
 
@@ -243,6 +268,11 @@ function CyclicEntity:on_animation_end()
 end
 
 -- Registers the "decor_api:cyclic_furniture" entity
-FurnitureManager.register(CyclicEntity.name, CyclicEntity)
+FurnitureManager.register(CyclicEntity.name, CyclicEntity,
+{
+	visual = "mesh",
+	backface_culling = true,
+	mesh = "multidecor_bone_animator.glb"
+})
 
-return { AnimatedEntity, CyclicEntity }
+return { AnimatedEntity, CyclicEntity, EntityTimer }

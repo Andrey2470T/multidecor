@@ -12,11 +12,10 @@ local FurnitureManager = {
 -- The root class of all furniture entities.
 -- It handles the serialization and deserialization of the entity data saved in "self" table, as well as the attachment to a node.
 --------------------------------------
-local FurnitureEntity = {
+local FurnitureEntity = common.Extendable:extend({
 	name = "decor_api:base_furniture",
 	attached_to = nil, -- table { pos = vector, name = string }
-}
-FurnitureEntity.__index = FurnitureEntity
+})
 
 function FurnitureEntity.new(node_pos, node_name, data)
 	local self = setmetatable({}, FurnitureEntity)
@@ -29,12 +28,7 @@ function FurnitureEntity.new(node_pos, node_name, data)
 end
 
 function FurnitureEntity:extend(name)
-	local child = {}
-	child.__index = child
-	child.name = name
-
-	setmetatable(child, { __index = self })
-	return child
+	return common.Extendable.extend(self, {name = name})
 end
 
 function FurnitureEntity.spawn(entity_name, node_pos, node_name, pos, rot, data)

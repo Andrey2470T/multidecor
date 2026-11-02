@@ -199,4 +199,19 @@ function table.copy_to(t1, t2)
 	end
 end
 
+-- The common class for all other ones which can be extended
+common.Extendable = {}
+common.Extendable.__index = common.Extendable
+
+function common.Extendable:extend(data)
+	local child = {}
+	child.__index = child
+
+	data = data or {}
+	table.copy_to(data, child)
+
+	setmetatable(child, { __index = self })
+	return child
+end
+
 return common

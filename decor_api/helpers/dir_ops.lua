@@ -99,6 +99,13 @@ function dir_ops.get_near_node(pos, dir_name)
 	
 end
 
+-- Returns the name of the axis 'dir' points along ("x", "y" or "z")
+function dir_ops.get_dominant_axis(dir)
+	if dir.x ~= 0 then return "x"
+	elseif dir.y ~= 0 then return "y"
+	else return "z" end
+end
+
 -- Gets the yaw rotation of 'dir' in radians counting from +Z axis (0, 0, 1) in clockwise direction
 function dir_ops.get_rot_y(dir)
 	return vector.dir_to_rotation(dir).y

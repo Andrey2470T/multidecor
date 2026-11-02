@@ -496,7 +496,6 @@ function register.register_garniture(def)
 			pos = pos1,
 			pos2 = pos2,
 			length = type == "drawer" and 0.5,
-			acc = type ~= "drawer" and 1,
 			orig_angle = orig_angle,
 			side = side,
 			sounds = type == "drawer" and drawer_sounds or door_sounds

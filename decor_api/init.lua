@@ -34,7 +34,8 @@ multidecor.helpers = {
 
 -- Common
 local animation_t = require("decor_api.common.animation")
-multidecor.AnimatedEntity, multidecor.CyclicEntity = animation_t[1], animation_t[2]
+multidecor.AnimatedEntity, multidecor.CyclicEntity, multidecor.EntityTimer =
+	animation_t[1], animation_t[2], animation_t[3]
 local furniture_t = require("decor_api.common.furniture_entity")
 multidecor.FurnitureEntity, multidecor.FurnitureDescriptor, multidecor.FurnitureManager = furniture_t[1], furniture_t[2], furniture_t[3]
 multidecor.connecting = require("decor_api.common.connecting")

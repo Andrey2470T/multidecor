@@ -1,5 +1,6 @@
 local animation_t = require("decor_api.common.animation")
 local CyclicEntity = animation_t[2]
+local EntityTimer = animation_t[3]
 local FurnitureManager = require("decor_api.common.furniture_entity")[3]
 local common = require("decor_api.helpers.common")
 local dir_ops = require("decor_api.helpers.dir_ops")
@@ -17,32 +18,66 @@ function ClockEntity:on_activate(staticdata)
 		return false
 	end
 
-	self.is_running = core.get_meta(self.attached_to.pos):get_string("is_activated") == "true"
-	self.infotext_time = 0
+	self.is_running = self.is_running or false
+	self.infotext_timer = EntityTimer.new(self.object, 1, true, {
+		end_callback = function(data)
+			local desc = FurnitureManager.get_by_guid(data.guid)
+			local desc_self = desc and desc.object:get_luaentity()
+
+			if desc_self then
+				desc_self:update_infotext()
+			end
+		end
+	})
 	self:apply_running_state()
 
 	return true
 end
 
--- The balance wheel swings via the cyclic bone animation; the (non-looped)
--- sound is restarted on every cycle by CyclicEntity
+-- Ticks both timers: the animation cycle timer and the once-per-second
+-- infotext refresh one
+function ClockEntity:on_step(dtime)
+	CyclicEntity.on_step(self, dtime)
+
+	if self.infotext_timer then
+		self.infotext_timer:tick(dtime)
+	end
+end
+
+-- Runs one swing-and-sound cycle while the clock is running and halts
+-- the animation, the sound and the cycle timer otherwise
 function ClockEntity:cycle()
 	if self.is_running then
 		CyclicEntity.cycle(self)
+
+		if not self.infotext_timer:is_started() then
+			self.infotext_timer:start()
+		end
 	else
+		self.anim_timer:stop()
+		self.infotext_timer:stop()
 		self:stop_animation()
 		self:stop_sound()
 	end
 end
 
-function ClockEntity:apply_running_state()
-	self:cycle()
+-- Refreshes the infotext of the attached node with the current in-game
+-- time, or clears it when the clock is not running
+function ClockEntity:update_infotext()
+	local infotext = ""
 
 	if self.is_running then
 		local hours, minutes = clock.get_current_time()
-		core.get_meta(self.attached_to.pos):set_string(
-			"infotext", clock.get_formatted_time_str(hours, minutes))
+		infotext = clock.get_formatted_time_str(hours, minutes)
 	end
+
+	core.get_meta(self.attached_to.pos):set_string("infotext", infotext)
+end
+
+-- Applies the current running state to the animation, the sound and the infotext
+function ClockEntity:apply_running_state()
+	self:cycle()
+	self:update_infotext()
 end
 
 function ClockEntity:start()
@@ -55,90 +90,84 @@ function ClockEntity:stop()
 	if not self.is_running then return end
 	self.is_running = false
 	self:apply_running_state()
-	core.get_meta(self.attached_to.pos):set_string("infotext", "")
 end
 
-function ClockEntity:on_step(dtime)
-	CyclicEntity.on_step(self, dtime)
-
-	if self.is_running then
-		self.infotext_time = self.infotext_time + dtime
-		if self.infotext_time >= 1 then
-			self.infotext_time = 0
-			local hours, minutes = clock.get_current_time()
-			core.get_meta(self.attached_to.pos):set_string(
-				"infotext", clock.get_formatted_time_str(hours, minutes))
-		end
-	end
-end
-
-FurnitureManager.register(ClockEntity.name, ClockEntity, {
-	pointable = false,
-	static_save = true
+FurnitureManager.register(ClockEntity.name, ClockEntity,
+{
+	visual = "mesh",
+	backface_culling = true,
+	mesh = "multidecor_bone_animator.glb"
 })
 
+-- Returns the current in-game time as the hours and minutes pair
 function clock.get_current_time()
-	local timeofday = core.get_timeofday()
-	local time = math.floor(timeofday * 1440)
-	local minute = time % 60
-	local hour = (time - minute) / 60
+	local time = math.floor(core.get_timeofday() * 1440)
+	local minutes = time % 60
+	local hours = (time - minutes) / 60
 
-	return hour, minute
+	return hours, minutes
 end
 
 function clock.get_formatted_time_str(hours, minutes)
-	return (common.translator("Current time: %d:%d")):format(hours, minutes)
+	return (common.translator("Current time: %d:%02d")):format(hours, minutes)
 end
 
-function clock.on_construct(pos)
-	local node = core.get_node(pos)
-	local time_params = core.registered_nodes[node.name].add_properties.time_params
-
-	local dir = dir_ops.get_dir(pos) * -1
-	local y_rot = vector.dir_to_rotation(dir).y
-
-	local model_def = time_params.def
-
-	FurnitureManager.add(ClockEntity.name, pos, node.name, pos, {x=0, y=y_rot, z=0}, {
-		model_params = model_def and {
-			mesh = model_def.mesh or "",
-			textures = model_def.textures or {},
-			size = model_def.visual_size or {x=5, y=5, z=5},
-			pointable = false
-		} or nil,
-		-- the bone swing parameters of the balance wheel
-		cyclic_animation = time_params.animation,
-		sound = time_params.sound and {
-			name = time_params.sound.name,
-			volume = time_params.sound.gain or 1.0,
-			max_distance = time_params.sound.max_hear_distance or 10.0,
-			-- for clocks without a wheel: the non-looped sound is restarted
-			-- every 'interval' seconds
-			interval = time_params.sound.interval
-		} or nil
-	})
-
-	core.get_meta(pos):set_string("is_activated", "false")
-end
-
-function clock.on_rightclick(pos, node, clicker)
-	local meta = core.get_meta(pos)
-	local is_activated = meta:get_string("is_activated") == "true"
-
-	meta:set_string("is_activated", tostring(not is_activated))
-
+-- Returns the luaentity of the clock animator entity at 'pos', if it exists
+function clock.get_wheel_entity(pos)
 	for _, desc in ipairs(FurnitureManager.get(pos)) do
 		if desc.entity_name == ClockEntity.name and desc:exists() then
-			local lua_ent = desc.object:get_luaentity()
-			if lua_ent then
-				if is_activated then
-					lua_ent:stop()
-				else
-					lua_ent:start()
-				end
-			end
+			return desc.object:get_luaentity()
 		end
 	end
+end
+
+-- Returns whether the clock at 'pos' is currently running
+function clock.is_running(pos)
+	local wheel_entity = clock.get_wheel_entity(pos)
+	if wheel_entity then
+		return wheel_entity.is_running
+	end
+	return false
+end
+
+-- Spawns the clock animator entity. Requires "clock_params".
+-- A clock without 'model_params'/'cyclic_animation' is sound-only (alarm clock)
+function clock.on_construct(pos)
+	local node = core.get_node(pos)
+	local add_props = core.registered_nodes[node.name].add_properties
+	local clock_params = add_props and add_props.clock_params
+
+	if not clock_params then
+		return
+	end
+
+	-- The default pos is the zero offset: the animator spawns right in the node
+	local spawn_pos, spawn_rot = dir_ops.rotate_to_node_dir(pos, clock_params.pos or vector.zero(), true)
+
+	FurnitureManager.add(ClockEntity.name, pos, node.name, spawn_pos, spawn_rot, {
+		-- The balance wheel model carried by the animator dummy
+		model_params = clock_params.model_params and table.copy(clock_params.model_params) or nil,
+		-- The bone swing parameters of the balance wheel
+		cyclic_animation = clock_params.cyclic_animation,
+		sound = clock_params.sound and table.copy(clock_params.sound) or nil
+	})
+end
+
+-- Toggles the running state on the animator entity
+function clock.on_rightclick(pos)
+	local is_running = clock.is_running(pos)
+	local wheel_entity = clock.get_wheel_entity(pos)
+	if wheel_entity then
+		if not is_running then
+			wheel_entity:start()
+		else
+			wheel_entity:stop()
+		end
+	end
+end
+
+function clock.on_destruct(pos)
+	FurnitureManager.remove(pos)
 end
 
 return { ClockEntity, clock }
