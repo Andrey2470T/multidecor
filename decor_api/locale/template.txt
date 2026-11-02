@@ -6,10 +6,11 @@
 This bed is already occupied!=
 
 # clock.lua
-Current time: %d:%d=
+Current time: %d:%02d=
 
 # door.lua
 This door has locked!=
+Not enough free place to move the door!=
 
 # register.lua
 @nStyle: =

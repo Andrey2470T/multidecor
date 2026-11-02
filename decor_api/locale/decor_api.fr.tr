@@ -6,10 +6,11 @@
 This bed is already occupied!=Ce lit est déjà occupé !
 
 # clock.lua
-Current time: %d:%d=Heure actuelle : %d:%d
+Current time: %d:02d=Heure actuelle : %d:02d
 
 # door.lua
 This door has locked!=Cette porte est verrouillée !
+Not enough free place to move the door!=Pas assez d'espace libre pour déplacer la porte!
 
 # register.lua
 @nStyle: =@nStyle : 
