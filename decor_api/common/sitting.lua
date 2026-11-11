@@ -28,15 +28,33 @@ function SittingEntity:on_activate(staticdata)
 	return true
 end
 
-function SittingEntity:sit_player(player, seat_data, rand_anim)
+function SittingEntity:sit_player(player, seat_data, rand_anim, look_yaw)
 	if not player or self:is_busy() then return false end
 
 	local playername = player:get_player_name()
 
 	if seat_data and seat_data.model and player_api then
-		self.sitting.prev_model, _, self.sitting.prev_anim = player_api.get_animation(player)
+		local anim_data = player_api.get_animation(player)
+		if anim_data then
+			self.sitting.prev_model = anim_data.model
+			self.sitting.prev_anim = anim_data.animation
+		end
 		player_api.set_model(player, seat_data.model)
-		player_api.set_animation(player, rand_anim)
+		if rand_anim then
+			player_api.set_animation(player, rand_anim)
+		end
+	end
+
+	local physics = player:get_physics_override()
+	self.sitting.prev_physics = {speed = physics.speed, jump = physics.jump}
+	player:set_physics_override({speed = 0, jump = 0})
+
+	if player_api then
+		player_api.player_attached[playername] = true
+	end
+
+	if look_yaw then
+		player:set_look_horizontal(look_yaw)
 	end
 
 	player:set_attach(self.object, "", {x=0, y=0, z=0}, {x=0, y=0, z=0}, true)
@@ -54,9 +72,19 @@ function SittingEntity:standup_player()
 	if player then
 		player:set_detach()
 
+		if self.sitting.prev_physics then
+			player:set_physics_override(self.sitting.prev_physics)
+		end
+
+		if player_api then
+			player_api.player_attached[playername] = false
+		end
+
 		if self.sitting.prev_model and player_api then
 			player_api.set_model(player, self.sitting.prev_model)
-			player_api.set_animation(player, self.sitting.prev_anim)
+			if self.sitting.prev_anim then
+				player_api.set_animation(player, self.sitting.prev_anim)
+			end
 		end
 	end
 
@@ -77,18 +105,39 @@ function SittingEntity:on_deactivate(removal)
 	FurnitureEntity.on_deactivate(self, removal)
 end
 
--- The seat entity is transient: it is spawned on demand and never saved
+-- The seat entity is transient: it is spawned on demand and never saved.
+-- It is rendered as a fully transparent cube instead of is_visible = false:
+-- invisible objects get no scene node at all (addToScene returns early), so
+-- an attached player would have no parent transform to glue to (the model
+-- ends up at a garbage position). pointable = false keeps it click-through,
+-- its rotation is what the attached sitting player is glued to
 FurnitureManager.register(SittingEntity.name, SittingEntity, {
-	static_save = false
+	static_save = false,
+	visual = "cube",
+	textures = {
+		"multidecor_transparency.png",
+		"multidecor_transparency.png",
+		"multidecor_transparency.png",
+		"multidecor_transparency.png",
+		"multidecor_transparency.png",
+		"multidecor_transparency.png"
+	},
+	physical = false,
+	pointable = false
 })
 
 -- Sitting API surface for furniture nodes
 ------------------------------------------------
 local sitting = {}
-sitting.standard_model = "multidecor_character_sitting.glb"
+-- The .b3d model keeps the sit1/sit2/sit3 keyframe animations: the .glb
+-- sibling was converted without animation tracks (empty "animations" array),
+-- and glTF keyframes would have to be selected by clip name instead of frame
+-- ranges anyway
+sitting.standard_model = "multidecor_character_sitting.b3d"
 
 if player_api then
 	player_api.register_model(sitting.standard_model, {
+		textures = {"character.png"},
 		animations = {
 			sit1 = { x = 4, y = 84 },
 			sit2 = { x = 0, y = 1 },
@@ -168,12 +217,19 @@ function sitting.on_rightclick(pos, node, clicker)
 
 	local spawn_pos, spawn_rot = dir_ops.rotate_to_node_dir(
 		pos, seat_data.pos, true, seat_data.rot)
+	-- The sitting player model is authored facing +Z at yaw 0 (unlike the
+	-- furniture models, whose player-facing front side is -Z), so the seat
+	-- entity is half-turned from the node dir: the attached player then looks
+	-- along the front side of the seat (against the engine dir). Matches the
+	-- 1.3.x formula dir_to_rotation(-dir) + seat_data.rot
+	spawn_rot.y = spawn_rot.y + math.pi
+
 	local desc = FurnitureManager.add(SittingEntity.name, pos, node.name, spawn_pos, spawn_rot)
 
 	if desc and desc:exists() then
 		local lua_ent = desc.object:get_luaentity()
 		if lua_ent then
-			lua_ent:sit_player(clicker, seat_data, rand_anim)
+			lua_ent:sit_player(clicker, seat_data, rand_anim, spawn_rot.y)
 		end
 	end
 end

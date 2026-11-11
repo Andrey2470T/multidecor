@@ -249,6 +249,7 @@ multidecor.register.register_furniture_unit("alarm_clock", {
 	style = "modern",
 	material = "plastic",
 	description = modern.S("Alarm Clock"),
+	inventory_image = "multidecor_alarm_clock_inv.png",
 	mesh = "multidecor_alarm_clock.obj",
 	tiles = {
 		"multidecor_plastic_material.png^[multiply:green",

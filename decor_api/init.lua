@@ -1,8 +1,49 @@
 multidecor = {}
 
-local modpath = core.get_modpath("decor_api")
+-- Module loader
+--------------------------------------------------------------------------------
+-- Every file of this modpack is loaded with require("<mod>.<subfolder>.<file>")
+-- (package-style names: dots are directory separators). The engine's mod
+-- security (on by default) disables require() completely and strips
+-- package.loaded, so a restricted require is emulated on top of dofile():
+-- a module name resolves to <modpath of its mod>/<subfolders>.lua and the
+-- returned value is cached in package.loaded like the real require does
+-- (a nil return becomes true). Mod security allows reading the files of every
+-- installed mod, so the dependent mods use the same global require for
+-- decor_api modules (e.g. modern/kitchen.lua). Names that are not a module of
+-- an installed mod fall back to the previous require (the engine's
+-- "require() is disabled" error under mod security, the real require
+-- otherwise).
+package = package or {}
+package.loaded = package.loaded or {}
 
-package.path = modpath .. "/?.lua;" .. package.path
+local previous_require = require
+
+local function secure_require(name)
+	if type(name) ~= "string" or not name:match("^[%w_]+%.[%w_.]+$") then
+		-- Not a "<mod>.<path>" module name: not ours to resolve
+		return previous_require(name)
+	end
+
+	if package.loaded[name] == nil then
+		local modname, rel = name:match("^([%w_]+)%.(.+)$")
+		local modpath = core.get_modpath(modname)
+
+		if not modpath then
+			return previous_require(name)
+		end
+
+		-- Pre-register the module (like Lua's require) so circular
+		-- dependencies cannot recurse infinitely
+		package.loaded[name] = true
+		local module = dofile(modpath .. "/" .. rel:gsub("%.", "/") .. ".lua")
+		package.loaded[name] = module ~= nil and module or true
+	end
+
+	return package.loaded[name]
+end
+
+require = secure_require
 
 -- Helpers
 multidecor.BBox = require("decor_api.helpers.box")
