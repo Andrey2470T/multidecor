@@ -94,6 +94,24 @@ function BBox:shift(x, y, z)
 	self.orig_max_edge.z = self.orig_max_edge.z + z
 end
 
+-- Mirrors the box along the X and Z axes: the current and the original
+-- edges swap their sides. The entity dummy models look against the node
+-- dir, so boxes authored in the node frame reach them mirrored
+function BBox:mirror_h()
+	self.min_edge.x, self.max_edge.x = -self.min_edge.x, -self.max_edge.x
+	self.min_edge.z, self.max_edge.z = -self.min_edge.z, -self.max_edge.z
+
+	self.orig_min_edge.x, self.orig_max_edge.x = -self.orig_min_edge.x, -self.orig_max_edge.x
+	self.orig_min_edge.z, self.orig_max_edge.z = -self.orig_min_edge.z, -self.orig_max_edge.z
+
+	self.orig_min_edge.x, self.orig_max_edge.x =
+		common.swap(self.orig_min_edge.x, self.orig_max_edge.x, self.orig_min_edge.x > self.orig_max_edge.x)
+	self.orig_min_edge.z, self.orig_max_edge.z =
+		common.swap(self.orig_min_edge.z, self.orig_max_edge.z, self.orig_min_edge.z > self.orig_max_edge.z)
+
+	self:repair()
+end
+
 -- Rotates 'bbox' bounding box vertically (collision or selection) corresponding to 'dir'
 function BBox:rotate(dir)
 	self.min_edge = dir_ops.rotate_to_dir(self.orig_min_edge, dir)

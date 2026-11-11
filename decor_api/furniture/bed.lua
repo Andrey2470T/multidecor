@@ -11,13 +11,14 @@ function bed.on_rightclick(pos, node, clicker, itemstack, pointed_thing)
 		return
 	end
 
-	local bed_dir = dir_ops.get_dir(pos) * -1
+	-- The lay positions are node-relative in the engine frame
+	local lay_yaw = dir_ops.get_rot_y(dir_ops.get_dir(pos))
 
 	local lpos = add_props.lay_pos1 or {x=0, y=0, z=0}
-	lpos = pos + dir_ops.rotate_y(lpos, vector.dir_to_rotation(bed_dir).y)
+	lpos = pos + dir_ops.rotate_y(lpos, lay_yaw)
 
 	local lpos2 = add_props.lay_pos2
-	lpos2 = lpos2 and pos + dir_ops.rotate_y(lpos2, vector.dir_to_rotation(bed_dir).y)
+	lpos2 = lpos2 and pos + dir_ops.rotate_y(lpos2, lay_yaw)
 
 	local is_lpos_fr = true
 	local is_lpos2_fr = true
@@ -53,10 +54,11 @@ function bed.can_dig(pos)
 		return
 	end
 
-	local bed_dir = dir_ops.get_dir(pos) * -1
+	-- The lay position is node-relative in the engine frame
+	local lay_yaw = dir_ops.get_rot_y(dir_ops.get_dir(pos))
 
 	local lpos = add_props.lay_pos1 or {x=0, y=0, z=0}
-	lpos = pos + dir_ops.rotate_y(lpos, vector.dir_to_rotation(bed_dir).y)
+	lpos = pos + dir_ops.rotate_y(lpos, lay_yaw)
 
 	return beds.can_dig(lpos)
 end

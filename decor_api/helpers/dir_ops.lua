@@ -58,9 +58,17 @@ function dir_ops.from_dir_get_param2(name, old_param2, dir)
 	return param2
 end
 
+-- Returns the param2 of the node turned around the vertical axis by 'angle'
+-- (keeps the palette index of the original 'param2')
+function dir_ops.rotate_param2_y(name, param2, angle)
+	local dir = dir_ops.rotate_y(dir_ops.get_dir_from_param2(name, param2), angle)
+	return dir_ops.from_dir_get_param2(name, param2, dir)
+end
+
 function dir_ops.get_near_pos_from_dir(pos, dir)
 	return pos + dir
 end
+
 function dir_ops.get_near_node_from_dir(pos, dir)
 	local near_pos = dir_ops.get_near_pos_from_dir(pos, dir)
 	return core.get_node_or_nil(near_pos)

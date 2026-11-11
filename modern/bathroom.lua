@@ -239,8 +239,8 @@ for _, style in ipairs(bathroom_styles) do
 			common_name = "bathroom_washbasin_" .. style_name,
 			{
 				type = "sym_doors",
-				pos = {x=0.35, y=-0.2, z=0.08},
-				pos2 = {x=-0.35, y=-0.2, z=0.08},
+				pos = {x=-0.35, y=-0.2, z=-0.08},
+				pos2 = {x=0.35, y=-0.2, z=-0.08},
 				base_texture = tex_name,
 				def = washbasin_door_def,
 				inv_size = {w=5,h=3},
@@ -292,8 +292,8 @@ for _, style in ipairs(bathroom_styles) do
 			common_name = "bathroom_wall_cabinet_" .. style_name,
 			{
 				type = "sym_doors",
-				pos = {x=0.5, y=0, z=0.1},
-				pos2 = {x=-0.5, y=0, z=0.1},
+				pos = {x=-0.5, y=0, z=-0.1},
+				pos2 = {x=0.5, y=0, z=-0.1},
 				base_texture = tex_name,
 				def = wall_cabinet_door_def,
 				inv_size = {w=6,h=4},
@@ -341,7 +341,7 @@ for _, style in ipairs(bathroom_styles) do
 			common_name = "bathroom_wall_set_with_mirror_" .. style_name,
 			{
 				type = "door",
-				pos = {x=0.5, y=-0.25, z=0.05},
+				pos = {x=-0.5, y=-0.25, z=-0.05},
 				base_texture = tex_name,
 				def = wall_set_with_mirror_door_def,
 				inv_size = {w=5,h=2},
@@ -507,7 +507,9 @@ multidecor.register.register_seat("toilet", {
 	},
 	callbacks = {
 		on_punch = function(pos, node, puncher)
-			local dir = multidecor.helpers.get_dir(pos) * -1
+			local dir = multidecor.helpers.get_dir(pos)
+			-- the splash flies against the engine dir, to the player-facing side
+			local splash_vel = vector.multiply(dir, -0.5)
 			local rel_pos_min = multidecor.helpers.rotate_to_node_dir(pos, vector.new(-0.125, -0.2, -0.05))
 			local rel_pos_max = multidecor.helpers.rotate_to_node_dir(pos, vector.new(0.125, -0.2, 0.175))
 
@@ -522,8 +524,8 @@ multidecor.register.register_seat("toilet", {
 				texture = "multidecor_water_drop.png",
 				minpos = pos+rel_pos_min,
 				maxpos = pos+rel_pos_max,
-				minvel = dir*0.5,
-				maxvel = dir*0.5,
+				minvel = splash_vel,
+				maxvel = splash_vel,
 				minacc = vector.new(0, -9.8, 0),
 				maxacc = vector.new(0, -9.8, 0),
 				minsize = 0.8,
@@ -841,7 +843,7 @@ multidecor.register.register_furniture_unit("underwear_tank", {
 			{
 				type = "door",
 				def = underwear_tank_cover_def,
-				pos = {x=0, y=0.225, z=-0.3},
+				pos = {x=0, y=0.225, z=0.3},
 				acc = 1,
 				inv_size = {w=5,h=4},
 				side = "up",

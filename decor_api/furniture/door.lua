@@ -23,22 +23,17 @@ local DoorEntity = AnimatedEntity:extend("decor_api:bone_animator")
 
 -- Returns the rest ("closed") transform of the door model: the hinge-relative
 -- offset rotated to 'dir' plus the yaw of 'dir' added to the model rotation.
--- The model data ('pos'/'rot') is authored in the front (player-facing) frame
--- with +Z looking at the player, while 'dir' is the plain engine dir (get_dir)
--- pointing at the node's back side — the data is converted here, in the only
--- place where it meets the dir. Shelf uses this as well to spawn its doors
+-- Everything is authored in the engine frame: a model showing its front side
+-- to the player carries the half turn in its 'rot.y' by itself. Shelf uses
+-- this as well to spawn its doors
 function DoorEntity.get_base_transform(node_pos, mparams, dir)
 	local rel_pos = vector.new(mparams.pos)
 	if mparams.hinge_shifted then
-		rel_pos.x = rel_pos.x + mparams.box:width() * 2
+		rel_pos.x = rel_pos.x - mparams.box:width() * 2
 	end
 
-	-- front -> engine frame: the half turn around Y ("up"/"down" door
-	-- hinges keep their vertical offsets unaffected)
-	rel_pos = dir_ops.rotate_y(rel_pos, math.pi)
-
 	local pos = node_pos + dir_ops.rotate_to_dir(rel_pos, dir)
-	local rot = vector.new(mparams.rot.x, dir_ops.get_rot_y(dir) + mparams.rot.y + math.pi, mparams.rot.z)
+	local rot = vector.new(mparams.rot.x, dir_ops.get_rot_y(dir) + mparams.rot.y, mparams.rot.z)
 	return pos, rot
 end
 
@@ -246,8 +241,7 @@ function Door.to_entity(pos, action, owner)
 	local dtype = door_data.type
 	local is_regular = dtype == "regular"
 
-	-- The plain engine dir; the front-framed model data is converted
-	-- inside get_base_transform
+	-- The plain engine dir of the door node
 	local dir = dir_ops.get_dir(pos)
 	local meta = core.get_meta(pos)
 	local is_mir = meta:get_string("mirrored_counterpart") == "true"
@@ -263,9 +257,12 @@ function Door.to_entity(pos, action, owner)
 	local base_def = core.registered_nodes[base_name]
 
 	local bbox = BBox.from_box(base_def.collision_box.fixed[1])
+	-- the dummy model looks against the node dir, so the node frame box
+	-- reaches it mirrored
+	bbox:mirror_h()
 	if is_regular then
-		-- The box is re-centered around the hinge corner the entity sits at
-		bbox:shift(-0.5, 0, -bbox:center().z)
+		-- the box is re-centered around the hinge corner the entity sits at
+		bbox:shift(0.5, 0, -bbox:center().z)
 	end
 
 	local model_params = {
@@ -273,8 +270,11 @@ function Door.to_entity(pos, action, owner)
 		mesh = base_def.mesh,
 		textures = base_def.tiles,
 		box = bbox,
-		pos = vector.new(door_data.object_offset or {x=0.495, y=0, z=0.45}),
-		rot = vector.new(0, dtype == "sliding" and math.pi or 0, 0),
+		pos = vector.new(door_data.object_offset or {x=-0.495, y=0, z=-0.45}),
+		-- the models show their front side to the player: relative to the
+		-- engine dir (pointing at the node's back) the regular door leaf
+		-- carries the half turn, the sliding panel does not
+		rot = vector.new(0, is_regular and math.pi or 0, 0),
 		mirrored = is_mir,
 		hinge_shifted = is_mir,
 		use_texture_alpha = base_def.use_texture_alpha == "blend",
@@ -413,15 +413,15 @@ function doors.after_place_node(pos, placer)
 
 			local is_regular = door_data.type == "regular"
 			local swap_name = add_props.common_name .. (is_regular and "_open" or "_mirrored")
-			-- The open slab of the mirrored pair faces the player (the front
-			-- dir is the engine dir turned around); sliding doors keep facing
-			-- away from them
-			local swap_dir = is_regular and dir_ops.rotate_y(dir, math.pi) or dir
+			-- the open slab of the mirrored pair is turned towards the
+			-- player; sliding doors keep the plain engine dir
+			local swap_param2 = is_regular and
+				dir_ops.rotate_param2_y(node.name, node.param2, math.pi) or
+				dir_ops.from_dir_get_param2(node.name, node.param2, dir)
 
 			core.swap_node(pos, {
 				name = "multidecor:" .. swap_name,
-				-- keeps the palette index of just placed node
-				param2 = dir_ops.from_dir_get_param2(node.name, node.param2, swap_dir)
+				param2 = swap_param2
 			})
 			meta:set_string("mirrored_counterpart", "true")
 		end

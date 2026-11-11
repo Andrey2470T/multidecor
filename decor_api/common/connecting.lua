@@ -226,7 +226,9 @@ end
 
 -- Replaces the current sofa part at 'pos' position depending on the adjacent sofas parts.
 -- 'pos' - position of the replacing sofa.
--- 'dir' - the face direction that the placed/destructed sofa part has.
+-- 'dir' - the plain engine dir of the placed/destructed sofa part.
+-- The "left"/"right" part names are as seen by the player facing the sofa
+-- front, which is the engine dir looking the opposite way.
 -- 'side' - "left"/"right".
 -- 'disconnect' - sofas should be disconnected or connected?
 -- 'cmn_name' - common name.
@@ -247,43 +249,42 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_
 
 	local parts = add_props.connect_parts
 
-	local dir_rot = math.deg(vector.dir_to_rotation(dir).y)
-	-- the front (player-facing) dir: the left/right parts are named in this frame
-	local cur_dir = dir_ops.get_dir(pos) * -1
-	local dir_rot2 = math.deg(vector.dir_to_rotation(cur_dir).y)
-
-	if dir_rot == 180 and dir_rot2 == -90 then
-		dir_rot2 = 270
-	end
+	-- The facings of this part and the placed one as the engine yaw degrees:
+	-- the connection cases below are plain quarter-turn relations between
+	-- them (rel 90 - one way, 270 - the other) or equal/opposite facings
+	local dir_yaw = math.deg(dir_ops.get_rot_y(dir))
+	local cur_yaw = math.deg(dir_ops.get_rot_y(dir_ops.get_dir(pos)))
+	local rel_diff = (cur_yaw - dir_yaw) % 360
 
 	-- The left and right adjacent sofa parts should have the same face dir to be connected/disconnected, but there are six exceptions below
 	local is_right_side = not disconnect and parts.right_side == def.mesh and side == "left" and
-		math.abs(dir_rot+90) == math.abs(dir_rot2)
+		rel_diff == 90
 
 	local is_left_side = not disconnect and parts.left_side == def.mesh and side == "right" and
-		math.abs(dir_rot-90) == math.abs(dir_rot2)
+		rel_diff == 270
 
 	local is_left_corner = disconnect and parts.corner == def.mesh and side == "right" and
-		math.abs(dir_rot-90) == math.abs(dir_rot2)
+		rel_diff == 270
 
 	local is_right_corner = disconnect and parts.corner == def.mesh and side == "left" and
-		math.abs(dir_rot) == math.abs(dir_rot2)
+		(cur_yaw == dir_yaw or cur_yaw == -dir_yaw)
 
 	local is_corner_1 = is_corner and (parts.middle == def.mesh or parts.left_side == def.mesh) and side == "left" and
-		math.abs(dir_rot+90) == math.abs(dir_rot2)
+		rel_diff == 90
 
 	local is_corner_2 = is_corner and (parts.middle == def.mesh or parts.right_side == def.mesh) and side == "right" and
-		math.abs(dir_rot) == math.abs(dir_rot2)
+		(cur_yaw == dir_yaw or cur_yaw == -dir_yaw)
 
-	if dir_rot ~= dir_rot2 and not is_right_side and not is_left_side and
+	if cur_yaw ~= dir_yaw and not is_right_side and not is_left_side and
 		not is_left_corner and not is_right_corner and not is_corner_1 and not is_corner_2 then return end
 
 	local target_part
 	local rel_rot = 0
 	local t_dir = dir
 
-	if dir_rot ~= dir_rot2 or is_right_corner then
-		local adj_pos = pos + dir
+	if cur_yaw ~= dir_yaw or is_right_corner then
+		-- the node in front of this part, on the player side
+		local adj_pos = pos - dir
 		local is_adj_node_identical = connecting.are_nodes_identical(adj_pos, pos)
 
 		if is_adj_node_identical then
@@ -307,9 +308,11 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_
 	if not target_part then
 		target_part = ""
 		rel_rot = 0
-		t_dir = cur_dir
-		local left_pos = pos + vector.rotate_around_axis(cur_dir, vector.new(0, 1, 0), -math.pi/2)
-		local right_pos = pos + vector.rotate_around_axis(cur_dir, vector.new(0, 1, 0), math.pi/2)
+		t_dir = dir_ops.get_dir(pos)
+		-- the "left"/"right" neighbours are named as seen by the player
+		-- facing the part front
+		local left_pos = pos + dir_ops.rotate_y(t_dir, math.pi/2)
+		local right_pos = pos + dir_ops.rotate_y(t_dir, -math.pi/2)
 
 		local is_left_node_identical = connecting.are_nodes_identical(left_pos, pos)
 		local is_right_node_identical = connecting.are_nodes_identical(right_pos, pos)
@@ -344,8 +347,8 @@ function connecting.directional_replace_node_to(pos, dir, side, disconnect, cmn_
 	end
 
 	local name = "multidecor:" .. add_props.common_name .. target_part
-	local rot_dir = vector.rotate_around_axis(t_dir, vector.new(0, 1, 0), rel_rot)
-	local param2 = dir_ops.from_dir_get_param2(name, node.param2, rot_dir * -1)
+	local rot_dir = dir_ops.rotate_y(t_dir, rel_rot)
+	local param2 = dir_ops.from_dir_get_param2(name, node.param2, rot_dir)
 
 	core.set_node(pos, {name=name, param2=param2})
 end
@@ -431,20 +434,23 @@ function connecting.update_adjacent_nodes_connection(pos, type, disconnect, old_
 		local dir
 
 		if disconnect then
-			dir = dir_ops.get_dir_from_param2(old_node.name, old_node.param2) * -1
+			dir = dir_ops.get_dir_from_param2(old_node.name, old_node.param2)
 		else
-			dir = dir_ops.get_dir(pos) * -1
+			dir = dir_ops.get_dir(pos)
 		end
 
-		local left_shift = dir_ops.rotate_y(dir, -math.pi/2)
+		-- the "left"/"right" parts are named as seen by the player facing
+		-- the sofa front: from the engine dir (looking the opposite way)
+		-- the sides swap
+		local left = pos + dir_ops.rotate_y(dir, math.pi/2)
+		local right = pos + dir_ops.rotate_y(dir, -math.pi/2)
 
 		local corner = false
 		if disconnect and def.add_properties.connect_parts.corner == def.mesh then
-			left_shift = dir
+			-- the corner's pair piece sits on the opposite side of the node
+			left = pos - dir
 			corner = true
 		end
-		local left = pos+left_shift
-		local right = pos+dir_ops.rotate_y(dir, math.pi/2)
 
 		local cmn_name = def.add_properties.common_name
 		connecting.directional_replace_node_to(left, dir, "left", disconnect, cmn_name, corner)

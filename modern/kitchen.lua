@@ -68,8 +68,8 @@ local cmpnts = {
 		inventory_image = "multidecor_kitchen_%s_cabinet_with_doors_inv.png",
 		bounding_boxes = cab_bboxes,
 		shelves_data = {
-			pos_left = {x=0.425, y=0, z=0.4},
-			pos_right = {x=-0.425, y=0, z=0.4},
+			pos_left = {x=-0.425, y=0, z=-0.4},
+			pos_right = {x=0.425, y=0, z=-0.4},
 			inv_size = {w=8, h=2}
 		},
 		craft = {
@@ -84,8 +84,8 @@ local cmpnts = {
 		inventory_image = "multidecor_kitchen_%s_cabinet_with_doors_inv.png",
 		bounding_boxes = cab_bboxes,
 		shelves_data = {
-			pos_left = {x=0.425, y=0, z=0.4},
-			pos_right = {x=-0.425, y=0, z=0.4},
+			pos_left = {x=-0.425, y=0, z=-0.4},
+			pos_right = {x=0.425, y=0, z=-0.4},
 			inv_size = {w=8, h=3}
 		},
 		craft = {
@@ -101,8 +101,8 @@ local cmpnts = {
 		bounding_boxes = cab_bboxes,
 		shelves_data = {
 			pos_upper = {x=0, y=0.3, z=0},
-			pos_left = {x=0.425, y=-0.125, z=0.4},
-			pos_right = {x=-0.425, y=-0.125, z=0.4},
+			pos_left = {x=-0.425, y=-0.125, z=-0.4},
+			pos_right = {x=0.425, y=-0.125, z=-0.4},
 			inv_size = {w=8, h=2}
 		},
 		craft = {
@@ -119,7 +119,7 @@ local cmpnts = {
 		tap_pos = tap_pos,
 		shelves_data = {
 			invlist_type = "trash",
-			pos_trash = {x=0.45, y=0, z=0.4},
+			pos_trash = {x=-0.45, y=0, z=-0.4},
 			side = "left"
 		},
 		tap_data = {
@@ -237,7 +237,7 @@ granite_cmpnts.two_wall_door = {
 	inventory_image = "multidecor_kitchen_wall_cabinet_with_door_inv.png",
 	bounding_boxes = wall_cab_bbox,
 	shelves_data = {
-		pos = {x=0.45, y=0, z=0.4},
+		pos = {x=-0.45, y=0, z=-0.4},
 		inv_size = {w=8, h=2},
 		side = "left"
 	},
@@ -287,8 +287,8 @@ granite_cmpnts.two_wall_crn_hgldoor = {
 	mesh = "multidecor_kitchen_wall_corner_cabinet_two_shelves.obj",
 	bounding_boxes = wall_cab_bbox,
 	shelves_data = {
-		pos_left = {x=1.25, y=0, z=0.65},
-		pos_right = {x=0.65, y=0, z=1.25},
+		pos_left = {x=-1.25, y=0, z=-0.65},
+		pos_right = {x=-0.65, y=0, z=-1.25},
 		inv_size = {w=8, h=4}
 	},
 	craft = {
@@ -452,7 +452,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker", {
 			{
 				type = "door",
 				def = cooker_oven_door_def,
-				pos = {x=0, y=-0.35, z=0.4},
+				pos = {x=0, y=-0.35, z=-0.4},
 				invlist_type = "cooker",
 				acc = 1,
 				side = "down",
@@ -497,7 +497,7 @@ multidecor.register.register_furniture_unit("kitchen_cooker_activated", {
 			{
 				type = "door",
 				def = cooker_oven_door_def,
-				pos = {x=0, y=-0.35, z=0.4},
+				pos = {x=0, y=-0.35, z=-0.4},
 				invlist_type = "cooker",
 				acc = 1,
 				side = "centered",
@@ -566,7 +566,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 			{
 				type = "door",
 				def = fridge_upper_door_def,
-				pos = {x=-0.5, y=0.7, z=0.4},
+				pos = {x=0.5, y=0.7, z=-0.4},
 				inv_size = {w=8, h=4},
 				acc = 1,
 				side = "right",
@@ -578,7 +578,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 			{
 				type = "door",
 				def = fridge_lower_door_def,
-				pos = {x=-0.5, y=0, z=0.4},
+				pos = {x=0.5, y=0, z=-0.4},
 				inv_size = {w=8, h=2},
 				acc = 1,
 				side = "right",
@@ -1047,7 +1047,7 @@ multidecor.register.register_furniture_unit("microwave", {
 			{
 				type = "door",
 				def = microwave_door_def,
-				pos = {x=0.425, y=-0.25, z=0.225},
+				pos = {x=-0.425, y=-0.25, z=-0.225},
 				invlist_type = "cooker",
 				acc = 1,
 				side = "left",
@@ -1096,7 +1096,7 @@ multidecor.register.register_furniture_unit("microwave_activated", {
 			{
 				type = "door",
 				def = microwave_door_def,
-				pos = {x=0.425, y=-0.25, z=0.225},
+				pos = {x=-0.425, y=-0.25, z=-0.225},
 				invlist_type = "cooker",
 				acc = 1,
 				side = "left",

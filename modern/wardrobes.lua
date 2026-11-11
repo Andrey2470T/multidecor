@@ -35,8 +35,8 @@ multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 		common_name = "modern_cupboard_with_glass_doors",
 		{
 			type = "sym_doors",
-			pos = {x=0.5, y=1.6625, z=0.25},
-			pos2 = {x=-0.5, y=1.6625, z=0.25},
+			pos = {x=-0.5, y=1.6625, z=-0.25},
+			pos2 = {x=0.5, y=1.6625, z=-0.25},
 			def = wardrobe_wooden_glass_door_def,
 			inv_size = {w=8,h=6},
 			acc = 1,
@@ -47,8 +47,8 @@ multidecor.register.register_table("modern_cupboard_with_glass_doors", {
 		},
 		{
 			type = "sym_doors",
-			pos = {x=0.5, y=0.2375, z=0.25},
-			pos2 = {x=-0.5, y=0.2375, z=0.25},
+			pos = {x=-0.5, y=0.2375, z=-0.25},
+			pos2 = {x=0.5, y=0.2375, z=-0.25},
 			def = wardrobe_wooden_door_def,
 			inv_size = {w=8,h=6},
 			acc = 1,
