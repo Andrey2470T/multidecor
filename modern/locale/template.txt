@@ -162,6 +162,7 @@ Louvers Bottom Open =
 Floor Clock=
 Book=
 Books Stack=
+Save=
 Alarm Clock=
 White Plastic Flowerpot=
 Quadratic Painting Alps =

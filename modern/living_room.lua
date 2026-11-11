@@ -2,10 +2,11 @@ local function return_book_form(pos)
 	local meta = core.get_meta(pos)
 	local text = meta:get_string("text")
 
-	local formstr = "formspec_version[5]size[8,9]" ..
-		"textarea[1,1;6,6;book_textarea;;" .. text .."]button[3,7.5;2,1;book_save;Save]"
-
-	return formstr
+	return multidecor.Formspec.new(5)
+		:size(8, 9)
+		:textarea(1, 1, 6, 6, "book_textarea", "", core.formspec_escape(text))
+		:button(3, 7.5, 2, 1, "book_save", modern.S("Save"))
+		:to_string()
 end
 
 local function book_save_meta_after_dig(pos, oldnode, oldmeta, drops)

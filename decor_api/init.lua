@@ -41,6 +41,8 @@ multidecor.FurnitureEntity, multidecor.FurnitureDescriptor, multidecor.Furniture
 multidecor.connecting = require("decor_api.common.connecting")
 multidecor.placement = require("decor_api.common.placement")
 multidecor.register = require("decor_api.common.register")
+multidecor.Formspec = require("decor_api.common.formspec")
+multidecor.ShelfFormspec = require("decor_api.common.shelves_formspec")
 local shelves_t = require("decor_api.common.shelves")
 multidecor.Shelf, multidecor.shelves = shelves_t[1], shelves_t[2]
 local sitting_t = require("decor_api.common.sitting")
