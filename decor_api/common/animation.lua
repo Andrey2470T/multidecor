@@ -97,20 +97,21 @@ function AnimatedEntity:create_dummy_model()
 	end
 end
 
-function AnimatedEntity:play_animation(rotate, target_offset, offset_axis, velocity)
-	self:stop_animation(true)
-
-	local time = math.abs(target_offset) / math.max(0.001, velocity)
-
+-- Applies the raw bone override to the "Door" bone: 'offset' along 'offset_axis'
+-- reached in 'time' seconds, as a rotation when 'rotate' is true or as a position
+-- otherwise. The engine interpolates from the current bone pose, so 'time' == 0
+-- applies the offset instantly. Subclasses build their transitions on it instead
+-- of constructing the set_bone_override table themselves
+function AnimatedEntity:apply_bone_override(rotate, offset, offset_axis, time)
 	local target_pos = vector.new()
-	target_pos[offset_axis] = target_offset
+	target_pos[offset_axis] = offset
 
-	local override
-	if rotate then
-		override = {rotation = {vec = target_pos, interpolation = time}}
-	else
-		override = {position = {vec = target_pos, interpolation = time}}
-	end
+	local override_key = rotate and "rotation" or "position"
+	self.object:set_bone_override("Door", {[override_key] = {vec = target_pos, interpolation = time or 0}})
+end
+
+function AnimatedEntity:play_animation(rotate, target_offset, offset_axis, velocity, time)
+	self:stop_animation(true)
 
 	self.animation = {
 		rotate = rotate,
@@ -118,7 +119,7 @@ function AnimatedEntity:play_animation(rotate, target_offset, offset_axis, veloc
 		target_offset = target_offset,
 		velocity = velocity
 	}
-	self.object:set_bone_override("Door", override)
+	self:apply_bone_override(rotate, target_offset, offset_axis, time)
 end
 
 function AnimatedEntity:stop_animation(instant)
@@ -127,17 +128,8 @@ function AnimatedEntity:stop_animation(instant)
 	local cur_time = self.anim_timer:get_time()
 	local cur_offset = -self.animation.velocity * cur_time
 
-	local target_pos = vector.new()
-	target_pos[self.animation.offset_axis] = cur_offset
-
-	local override
-	if self.animation.rotate then
-		override = {rotation = {vec = target_pos, interpolation = instant and 0.0 or cur_time}}
-	else
-		override = {position = {vec = target_pos, interpolation = instant and 0.0 or cur_time}}
-	end
-
-	self.object:set_bone_override("Door", override)
+	self:apply_bone_override(self.animation.rotate, cur_offset, self.animation.offset_axis,
+		instant and 0.0 or cur_time)
 	self.animation = nil
 end
 
@@ -158,6 +150,11 @@ function AnimatedEntity:stop_sound()
 		core.sound_stop(self.sound.handle)
 		self.sound.handle = nil
 	end
+end
+
+-- The subclasses must override the method
+function AnimatedEntity:calc_anim_time()
+	return 0
 end
 
 function AnimatedEntity:on_step(dtime)
@@ -221,16 +218,25 @@ core.register_entity("decor_api:animator_dummy", {
 ------------------------------------------------
 local CyclicEntity = AnimatedEntity:extend("decor_api:cyclic_furniture")
 
+function CyclicEntity:calc_anim_time()
+	local time = 0
+	local anim = self.cyclic_animation
+
+	if anim then
+		time = math.abs(anim.angle) / math.max(0.001, anim.velocity)
+	else
+		time = self.sound.duration or 0
+	end
+	return time
+end
+
 -- Calls the one animation cycle
 function CyclicEntity:cycle()
 	local anim = self.cyclic_animation
+	local time = self:calc_anim_time()
 
-	local time
 	if anim then
-		time = math.abs(anim.angle) / math.max(0.001, anim.velocity)
-		self:play_animation(true, anim.angle * anim.direction, anim.axis, anim.velocity)
-	else
-		time = self.sound.duration or 0
+		self:play_animation(true, anim.angle * anim.direction, anim.axis, anim.velocity, time)
 	end
 	self:play_sound()
 

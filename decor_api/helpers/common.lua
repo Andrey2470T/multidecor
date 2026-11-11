@@ -6,7 +6,7 @@ local S = core.get_translator("decor_api")
 function common.ndef(pos)
 	local node = core.get_node_or_nil(pos)
 	if not node then return end
-	return core.registered_nodes[core.get_node(pos).name]
+	return core.registered_nodes[node.name]
 end
 
 -- Swaps two values if a > b

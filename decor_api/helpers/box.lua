@@ -45,6 +45,15 @@ function BBox:depth()
 	return self.orig_max_edge.z - self.orig_min_edge.z
 end
 
+-- Returns the geometric center of the original (unrotated) box
+function BBox:center()
+	return vector.new(
+		(self.orig_min_edge.x + self.orig_max_edge.x) / 2,
+		(self.orig_min_edge.y + self.orig_max_edge.y) / 2,
+		(self.orig_min_edge.z + self.orig_max_edge.z) / 2
+	)
+end
+
 function BBox:get_dir()
 	return self.hdir
 end
@@ -66,6 +75,24 @@ function BBox:repair()
 end
 
 common.register_class("BBox", BBox)
+
+function BBox:shift(x, y, z)
+	self.min_edge.x = self.min_edge.x + x
+	self.min_edge.y = self.min_edge.y + y
+	self.min_edge.z = self.min_edge.z + z
+
+	self.max_edge.x = self.max_edge.x + x
+	self.max_edge.y = self.max_edge.y + y
+	self.max_edge.z = self.max_edge.z + z
+
+	self.orig_min_edge.x = self.orig_min_edge.x + x
+	self.orig_min_edge.y = self.orig_min_edge.y + y
+	self.orig_min_edge.z = self.orig_min_edge.z + z
+
+	self.orig_max_edge.x = self.orig_max_edge.x + x
+	self.orig_max_edge.y = self.orig_max_edge.y + y
+	self.orig_max_edge.z = self.orig_max_edge.z + z
+end
 
 -- Rotates 'bbox' bounding box vertically (collision or selection) corresponding to 'dir'
 function BBox:rotate(dir)

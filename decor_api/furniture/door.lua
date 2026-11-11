@@ -2,42 +2,90 @@ local dir_ops = require("decor_api.helpers.dir_ops")
 local BBox = require("decor_api.helpers.box")
 local common = require("decor_api.helpers.common")
 local register = require("decor_api.common.register")
-local AnimatedEntity = require("decor_api.common.animation")[1]
-local FurnitureManager = require("decor_api.common.furniture_entity")[3]
+local animation_t = require("decor_api.common.animation")
+local AnimatedEntity = animation_t[1]
+local furniture_t = require("decor_api.common.furniture_entity")
+local FurnitureEntity, FurnitureManager = furniture_t[1], furniture_t[3]
 
 local Door = {}
 Door.__index = Door
 
 -- DoorEntity
--- The child class of AnimatedEntity handling the door/drawer opening/closing logic.
--- This is used for the shelves and the regular doors, while the sliding doors are handled by the same class but with a different animation.
--- For the door nodes, it exists only while the transition runs, then converts back to the door node.
+-- The AnimatedEntity subclass driving door and drawer models: it swings or slides
+-- the model through the "Door" bone of its carrier. The bone mechanics itself
+-- stays in AnimatedEntity — the class only declares its "anim_params" and keeps
+-- the open/close state logic. For real door nodes the entity exists only while
+-- the transition runs (the node itself is removed for that time and restored on
+-- animation end); shelf doors and drawers are persistent and validate against
+-- their node as usual.
 --------------------------------------------------------------------------------
 local DoorEntity = AnimatedEntity:extend("decor_api:bone_animator")
+
+-- Returns the rest ("closed") transform of the door model: the hinge-relative
+-- offset rotated to 'dir' plus the yaw of 'dir' added to the model rotation.
+-- The model data ('pos'/'rot') is authored in the front (player-facing) frame
+-- with +Z looking at the player, while 'dir' is the plain engine dir (get_dir)
+-- pointing at the node's back side — the data is converted here, in the only
+-- place where it meets the dir. Shelf uses this as well to spawn its doors
+function DoorEntity.get_base_transform(node_pos, mparams, dir)
+	local rel_pos = vector.new(mparams.pos)
+	if mparams.hinge_shifted then
+		rel_pos.x = rel_pos.x + mparams.box:width() * 2
+	end
+
+	-- front -> engine frame: the half turn around Y ("up"/"down" door
+	-- hinges keep their vertical offsets unaffected)
+	rel_pos = dir_ops.rotate_y(rel_pos, math.pi)
+
+	local pos = node_pos + dir_ops.rotate_to_dir(rel_pos, dir)
+	local rot = vector.new(mparams.rot.x, dir_ops.get_rot_y(dir) + mparams.rot.y + math.pi, mparams.rot.z)
+	return pos, rot
+end
 
 function DoorEntity:on_activate(staticdata)
 	if not AnimatedEntity.on_activate(self, staticdata) then
 		return false
 	end
 
-	self.anim_params = self.anim_params or {}
-	self.anim_params.rotate = self.anim_params.rotate ~= false
-	self.anim_params.target_axis = self.anim_params.target_axis or "y"
-	self.anim_params.target_offset = self.anim_params.target_offset or math.pi/2
-	self.anim_params.velocity = self.anim_params.velocity or math.pi/1.5
-	self.anim_params.rotate_dir = self.anim_params.rotate_dir or "inward"
+	local aparams = self.anim_params or {}
+	aparams.rotate = aparams.rotate ~= false
+	aparams.target_axis = aparams.target_axis or "y"
+	aparams.target_offset = aparams.target_offset or math.pi/2
+	aparams.velocity = aparams.velocity or math.pi/1.5
+	self.anim_params = aparams
 
 	self.cur_mode = self.cur_mode or "closed"
 
 	if not self.initialized then
 		self.initialized = true
 		self:update_door_state(self.cur_mode)
-		self:apply_bone_override(false)
+		-- snaps into the current mode without a transition
+		self:apply_door_offset(true)
 
 		if self.pending_action then
 			local action = self.pending_action
 			self.pending_action = nil
 			self:set_action(action)
+		end
+	else
+		if not FurnitureManager.get_by_object(self.object) then
+			-- An already initialized entity not tracked by the manager means the
+			-- server restarted while it was active (the descriptors are runtime-only).
+			-- Persistent shelf doors with their node still present keep working;
+			-- a transition door would never finish (its animation end callback is
+			-- manager-driven), so its node is restored right away instead
+			if not self.persistent or not self:check_node_valid() then
+				self:on_orphan()
+				return false
+			end
+		end
+
+		-- The dummy is recreated above, but the bone override is not persisted:
+		-- restore the visual state of the persistent doors (shelf doors/drawers)
+		-- instead of leaving them in the rest pose
+		if self.persistent then
+			self:update_door_state(self.cur_mode)
+			self:apply_door_offset(true)
 		end
 	end
 
@@ -46,22 +94,24 @@ end
 
 -- The door node is intentionally absent while the entity animates:
 -- non-persistent entities are valid only during the transition, persistent ones
--- (shelf doors) validate against their node as usual
+-- (shelf doors) validate against their node exactly like FurnitureEntity does —
+-- except when the node may swap inside its family ("node_pattern", e.g. to
+-- "_activated" while cooking)
 function DoorEntity:check_node_valid()
 	if not self.attached_to then
 		return false
 	end
-	if self.persistent then
-		local cur_node = core.get_node_or_nil(self.attached_to.pos)
-		if not cur_node then
-			return false
-		end
-		if self.node_pattern then
-			return cur_node.name:match(self.node_pattern) ~= nil
-		end
-		return cur_node.name == self.attached_to.name
+
+	if not self.persistent then
+		return self.anim_timer:is_started() or self.pending_action ~= nil
 	end
-	return self.anim_timer:is_started() or self.pending_action ~= nil
+
+	if not self.node_pattern then
+		return FurnitureEntity.check_node_valid(self)
+	end
+
+	local cur_node = core.get_node_or_nil(self.attached_to.pos)
+	return cur_node ~= nil and cur_node.name:match(self.node_pattern) ~= nil
 end
 
 function DoorEntity:on_rightclick(clicker)
@@ -84,70 +134,57 @@ function DoorEntity:set_action(action)
 	end
 
 	self:update_door_state(action == "open" and "open" or "closed")
-	self:animate_door()
+	self:apply_door_offset()
 end
 
--- Recalculates the entity base transform (always the "closed" rest pose)
--- and the bone target offset for 'new_mode'
+-- Recalculates the entity base transform (always the "closed" rest pose),
+-- the bone target offset for 'new_mode' and the rotated collision box
 function DoorEntity:update_door_state(new_mode)
 	-- The door node is absent during the transition, so the direction
 	-- comes from the spawn data
-	local dir = self.node_dir and vector.new(self.node_dir) or dir_ops.get_dir(self.attached_to.pos) * -1
+	local dir = self.node_dir and vector.new(self.node_dir) or dir_ops.get_dir(self.attached_to.pos)
 	local mparams = self.model_params
-	local aparams = self.anim_params
 
-	local pos = vector.new(mparams.pos)
-	if mparams.hinge_shifted then
-		pos.x = pos.x + mparams.box:width() * 2
+	self.bone_offset = new_mode == "closed" and 0 or self.anim_params.target_offset
+
+	-- The box rotation must also reach the dummy carrying the visible model
+	mparams.box:rotate(dir)
+	if self.dummy_entity and self.dummy_entity:is_valid() then
+		local coords = mparams.box:get_coords()
+		self.dummy_entity:set_properties({collisionbox = coords, selectionbox = coords})
 	end
 
-	self.cur_pos = self.attached_to.pos + dir_ops.rotate_to_dir(pos, dir)
-	self.cur_rot = vector.new(mparams.rot)
-	self.cur_rot.y = self.cur_rot.y + dir_ops.get_rot_y(dir)
-	self.cur_mode = new_mode
-
-	self.bone_offset = new_mode == "closed" and 0 or aparams.target_offset
-
-	mparams.box:rotate(dir)
-
-	self.object:set_pos(self.cur_pos)
-	self.object:set_rotation(self.cur_rot)
+	local pos, rot = DoorEntity.get_base_transform(self.attached_to.pos, mparams, dir)
+	self.object:set_pos(pos)
+	self.object:set_rotation(rot)
 end
 
-function DoorEntity:apply_bone_override(interpolate)
-	if not self.object then return end
-
+function DoorEntity:calc_anim_time()
 	local aparams = self.anim_params
-	local vec = vector.new()
-	vec[aparams.target_axis] = self.bone_offset
+	return math.abs(self.bone_offset - (self.cur_bone_offset or 0)) / math.max(0.001, aparams.velocity)
+end
 
-	local time = interpolate and math.abs(self.bone_offset - (self.cur_bone_offset or 0))
-		/ math.max(0.001, aparams.velocity) or 0
+-- Moves the "Door" bone towards the current 'bone_offset' target through the
+-- AnimatedEntity mechanics: instantly with 'instant' (the rest pose right after
+-- activation), otherwise the transition takes |delta|/velocity seconds and the
+-- animation timer is armed for exactly that duration
+function DoorEntity:apply_door_offset(instant)
+	local aparams = self.anim_params
+	local time = 0
 
-	local override
-	if aparams.rotate then
-		override = {rotation = {vec = vec, interpolation = time}}
-	else
-		override = {position = {vec = vec, interpolation = time}}
+	if not instant then
+		time = self:calc_anim_time()
 	end
 
-	self.object:set_bone_override("Door", override)
+	self:apply_bone_override(aparams.rotate, self.bone_offset, aparams.target_axis, time)
 	self.cur_bone_offset = self.bone_offset
 
-	return time
-end
-
-function DoorEntity:animate_door()
-	local time = self:apply_bone_override(true)
-	self.anim_timer:start(math.max(time, 0))
+	if not instant then
+		self.anim_timer:start(time)
+	end
 end
 
 function DoorEntity:on_animation_end()
-	if self.object and self.model_params.box then
-		local coords = self.model_params.box:get_coords()
-		self.object:set_properties({collisionbox = coords, selectionbox = coords})
-	end
-
 	if self.convert_on_end and self.action then
 		Door.from_entity(self)
 	end
@@ -160,16 +197,11 @@ function DoorEntity:on_deactivate(removal)
 	AnimatedEntity.on_deactivate(self, removal)
 end
 
--- A reactivated untracked door entity with its node absent means the server
--- restarted (or unloaded) mid-transition: restore the door node instead of
--- losing it (the node was removed for the transition time)
 function DoorEntity:on_orphan()
 	if self.convert_on_end then
 		Door.from_entity(self)
-	else
-		if self.object and self.object:is_valid() then
-			self.object:remove()
-		end
+	elseif self.object and self.object:is_valid() then
+		self.object:remove()
 	end
 end
 
@@ -184,95 +216,86 @@ FurnitureManager.register(DoorEntity.name, DoorEntity, {
 -- Converts the node to DoorEntity on interaction and back on animation end.
 --------------------------------------------------------------------------------
 
-local function get_rotation_dir(dir, is_open, is_mirrored)
-	local movedir_rot = is_open and math.pi/2 or -math.pi/2
-	movedir_rot = is_mirrored and -movedir_rot or movedir_rot
-
-	return dir_ops.rotate_y(dir, movedir_rot)
+-- Returns the world direction the sliding door moves to when going to the
+-- 'is_open' state ('dir' is the plain engine dir of the door node)
+local function get_move_dir(dir, is_open, is_mirrored)
+	local angle = is_open and -math.pi/2 or math.pi/2
+	return dir_ops.rotate_y(dir, is_mirrored and -angle or angle)
 end
 
--- Returns the signed target offset for the door bone;
--- for sliding doors also the movement axis
-local function get_target_offset(door_type, dir, is_open, is_mirrored)
-	if door_type == "regular" then
-		local rot_offset = is_open and -math.pi/2 or math.pi/2
-		rot_offset = is_mirrored and -rot_offset or rot_offset
-
-		return rot_offset
+-- Returns the signed target bone offset of the door; for sliding doors
+-- also the axis the door moves along
+local function get_target_offset(is_regular, dir, is_open, is_mirrored)
+	if is_regular then
+		local offset = is_open and -math.pi/2 or math.pi/2
+		return is_mirrored and -offset or offset
 	end
 
-	local movedir = get_rotation_dir(dir, is_open, is_mirrored)
+	local move_dir = get_move_dir(dir, is_open, is_mirrored)
+	local move_axis = dir_ops.get_dominant_axis(move_dir)
 
-	local move_axis
-	if movedir.x ~= 0 then move_axis = "x"
-	elseif movedir.y ~= 0 then move_axis = "y"
-	else move_axis = "z"
-	end
-
-	return movedir[move_axis], move_axis
+	return move_dir[move_axis], move_axis
 end
 
 -- Removes the door node and spawns the animating DoorEntity in its place.
--- 'action' is the transition target ("open"/"close")
+-- 'action' is the transition target ("open"/"close"), 'owner' is kept for locked doors
 function Door.to_entity(pos, action, owner)
-	local node = core.get_node(pos)
-	local node_def = core.registered_nodes[node.name]
+	local node_def = common.ndef(pos)
 	local add_data = node_def.add_properties
 	local door_data = add_data.door
 	local dtype = door_data.type
+	local is_regular = dtype == "regular"
 
-	local dir = dir_ops.get_dir(pos) * -1
+	-- The plain engine dir; the front-framed model data is converted
+	-- inside get_base_transform
+	local dir = dir_ops.get_dir(pos)
 	local meta = core.get_meta(pos)
 	local is_mir = meta:get_string("mirrored_counterpart") == "true"
 	local mode = meta:get_string("door_mode")
 
+	-- A mirrored regular door shows the opposite model of its mode
 	local is_open_model = mode == "open"
-	if dtype == "regular" then
-		is_open_model = (not is_mir and mode == "open") or (is_mir and mode == "closed")
+	if is_regular then
+		is_open_model = (mode == "open") ~= is_mir
 	end
 
 	local base_name = "multidecor:" .. add_data.common_name
 	local base_def = core.registered_nodes[base_name]
 
-	local bbox = table.copy(base_def.collision_box.fixed[1])
-	if dtype == "regular" then
-		local z_center = (bbox[3]+bbox[6])/2
-		bbox[3] = bbox[3] - z_center
-		bbox[6] = bbox[6] - z_center
-		bbox[1] = bbox[1] - 0.5
-		bbox[4] = bbox[4] - 0.5
+	local bbox = BBox.from_box(base_def.collision_box.fixed[1])
+	if is_regular then
+		-- The box is re-centered around the hinge corner the entity sits at
+		bbox:shift(-0.5, 0, -bbox:center().z)
 	end
 
 	local model_params = {
 		size = door_data.size or {x=5, y=5, z=5},
 		mesh = base_def.mesh,
 		textures = base_def.tiles,
-		box = BBox.from_box(bbox),
+		box = bbox,
 		pos = vector.new(door_data.object_offset or {x=0.495, y=0, z=0.45}),
-		rot = {x=0, y = dtype == "sliding" and math.pi or 0, z=0},
+		rot = vector.new(0, dtype == "sliding" and math.pi or 0, 0),
 		mirrored = is_mir,
 		hinge_shifted = is_mir,
-		bone = "Door",
 		use_texture_alpha = base_def.use_texture_alpha == "blend",
 		backface_culling = false
 	}
 
+	-- rotate/target_axis/velocity defaults are owned by DoorEntity itself;
+	-- "vel" is always preset by register.register_door
 	local anim_params
-	if dtype == "regular" then
+	if is_regular then
 		anim_params = {
-			rotate = true,
-			target_axis = "y",
-			target_offset = get_target_offset(dtype, dir, true, is_mir),
-			velocity = math.rad(door_data.vel or 120),
-			rotate_dir = "inward"
+			target_offset = get_target_offset(true, dir, true, is_mir),
+			velocity = math.rad(door_data.vel)
 		}
 	else
-		local offset, move_axis = get_target_offset(dtype, dir, true, is_mir)
+		local offset, move_axis = get_target_offset(false, dir, true, is_mir)
 		anim_params = {
 			rotate = false,
 			target_axis = move_axis,
 			target_offset = offset,
-			velocity = door_data.vel or 1
+			velocity = door_data.vel
 		}
 	end
 
@@ -281,7 +304,7 @@ function Door.to_entity(pos, action, owner)
 		anim_params = anim_params,
 		sound_defs = door_data.sounds,
 		door_type = dtype,
-		node_param2 = node.param2,
+		node_param2 = dir_ops.from_dir_get_param2(base_name, core.get_node(pos).param2, dir),
 		node_dir = vector.new(dir),
 		owner = owner ~= "" and owner or nil,
 		pending_action = action,
@@ -290,13 +313,7 @@ function Door.to_entity(pos, action, owner)
 		persistent = false
 	}
 
-	local pos_rel = vector.new(model_params.pos)
-	if model_params.hinge_shifted then
-		pos_rel.x = pos_rel.x + model_params.box:width() * 2
-	end
-	local spawn_pos = pos + dir_ops.rotate_to_dir(pos_rel, dir)
-	local spawn_rot = vector.new(model_params.rot)
-	spawn_rot.y = spawn_rot.y + dir_ops.get_rot_y(dir)
+	local spawn_pos, spawn_rot = DoorEntity.get_base_transform(pos, model_params, dir)
 
 	core.remove_node(pos)
 
@@ -308,21 +325,24 @@ function Door.from_entity(door_ent)
 	local obj = door_ent.object
 	-- The entity sits at the hinge corner; the node position is exact
 	local pos = vector.new(door_ent.attached_to.pos)
-	local action = door_ent.action or door_ent.cur_mode or "close"
+	local action = door_ent.action or door_ent.cur_mode or "closed"
 	local base_name = door_ent.attached_to.name
-	local dtype = door_ent.door_type
 	local is_mir = door_ent.model_params.mirrored == true
 
 	local name = base_name
-	if dtype == "regular" then
+	if door_ent.door_type == "regular" then
 		if (action == "open" and not is_mir) or (action == "close" and is_mir) then
 			name = name .. "_open"
 		end
-	elseif dtype == "sliding" and is_mir then
+	elseif is_mir then
 		name = name .. "_mirrored"
 	end
 
 	FurnitureManager.remove_by_object(obj)
+	-- The object may be untracked (a restart orphan); remove it directly then
+	if obj and obj:is_valid() then
+		obj:remove()
+	end
 
 	core.set_node(pos, {name=name, param2=door_ent.node_param2})
 
@@ -338,39 +358,33 @@ function Door.from_entity(door_ent)
 	end
 end
 
-local doors = {}
-function doors.node_on_rightclick(pos, node, clicker)
-	local def = core.registered_nodes[node.name]
+-- Node callbacks of the registered door nodes
+--------------------------------------------------------------------------------
 
-	if not def.add_properties or not def.add_properties.door then
-		core.log("error", "Node at " .. core.pos_to_string(pos) .. " has no add_properties.door!")
+local doors = {}
+
+function doors.node_on_rightclick(pos, node, clicker)
+	local door_data = register.get_decor_api(pos, "door")
+	if not door_data then return end
+
+	local meta = core.get_meta(pos)
+	local owner = meta:get_string("owner")
+
+	if door_data.has_lock and owner ~= clicker:get_player_name() then
+		common.msg("This door has locked!", clicker)
 		return
 	end
 
-	local door_data = def.add_properties.door
-	local meta = core.get_meta(pos)
-	local owner = meta:get_string("owner")
-	local cur_mode = meta:get_string("door_mode")
-	local is_mir_cpart = meta:get_string("mirrored_counterpart") == "true"
-
-	if door_data.has_lock then
-		local playername = clicker:get_player_name()
-		if owner ~= playername then
-			common.msg("This door has locked!", clicker)
-			return
-		end
-	end
-
-	local action = cur_mode == "closed" and "open" or "close"
+	local action = meta:get_string("door_mode") == "closed" and "open" or "close"
 
 	if door_data.type == "sliding" then
-		local node_dir = dir_ops.get_dir(pos) * -1
-		local move_dir = get_rotation_dir(node_dir, action == "open", is_mir_cpart)
+		-- The sliding door needs a free node to move into
+		local is_mir = meta:get_string("mirrored_counterpart") == "true"
+		local move_dir = get_move_dir(dir_ops.get_dir(pos), action == "open", is_mir)
 
-		local place_check = multidecor.placement.check_for_placement(pos + move_dir, node.name)
-		local next_node_free = common.is_airlike(pos + move_dir)
-		if not place_check or not next_node_free then
-			core.chat_send_player(clicker:get_player_name(), "Not enough free place to move the door!")
+		if not common.is_airlike(pos + move_dir) or
+			not multidecor.placement.check_for_placement(pos + move_dir, node.name) then
+			common.msg("Not enough free place to move the door!", clicker)
 			return
 		end
 	end
@@ -379,54 +393,63 @@ function doors.node_on_rightclick(pos, node, clicker)
 end
 
 function doors.after_place_node(pos, placer)
-	local add_props = core.registered_nodes[core.get_node(pos).name].add_properties
+	local node = core.get_node(pos)
+	local add_props = core.registered_nodes[node.name].add_properties
+	local door_data = add_props.door
 
 	local meta = core.get_meta(pos)
 	meta:set_string("door_mode", "closed")
 
-	if add_props.door.has_mirrored_counterpart then
+	if door_data.has_mirrored_counterpart then
 		local dir = dir_ops.get_dir(pos)
-		local to_left = dir_ops.rotate_y(dir * -1, -math.pi/2)
-		local left_nodedef = core.registered_nodes[core.get_node(pos + to_left).name]
+		-- The neighbor to the left of the player facing the door front
+		local to_left = dir_ops.rotate_y(dir, math.pi/2)
+		local left_def = common.ndef(pos + to_left)
 
-		if left_nodedef and left_nodedef.add_properties and left_nodedef.add_properties.common_name ==
-			add_props.common_name and vector.equals(dir, dir_ops.get_dir(pos + to_left)) then
+		-- A co-directional door of the same family to the left makes this door
+		-- the mirrored counterpart of the pair
+		if left_def and left_def.add_properties and left_def.add_properties.common_name == add_props.common_name
+			and vector.equals(dir, dir_ops.get_dir(pos + to_left)) then
 
-			local mirrored_door_name = add_props.door.type == "regular" and add_props.common_name .. "_open" or
-				add_props.common_name .. "_mirrored"
-			local p2_dir = add_props.door.type == "sliding" and dir or dir * -1
-			local mirrored_door_param2 = core.dir_to_facedir(p2_dir)
+			local is_regular = door_data.type == "regular"
+			local swap_name = add_props.common_name .. (is_regular and "_open" or "_mirrored")
+			-- The open slab of the mirrored pair faces the player (the front
+			-- dir is the engine dir turned around); sliding doors keep facing
+			-- away from them
+			local swap_dir = is_regular and dir_ops.rotate_y(dir, math.pi) or dir
 
-			core.swap_node(pos, {name="multidecor:" .. mirrored_door_name, param2=mirrored_door_param2})
+			core.swap_node(pos, {
+				name = "multidecor:" .. swap_name,
+				-- keeps the palette index of just placed node
+				param2 = dir_ops.from_dir_get_param2(node.name, node.param2, swap_dir)
+			})
 			meta:set_string("mirrored_counterpart", "true")
 		end
 	end
 
-	if add_props.door.has_lock then
+	if door_data.has_lock then
 		local playername = placer:get_player_name()
 		meta:set_string("owner", playername)
 		meta:set_string("infotext", "Owned by " .. playername)
 	end
 end
 
+-- Registers the door node plus its counterpart the door converts to:
+-- the "_open" node for regular doors and the "_mirrored" node for sliding
+-- ones with a mirrored counterpart
 function register.register_door(name, base_def, add_def, craft_def)
-	local c_def = table.copy(base_def)
-
-	c_def.type = "door"
-
-	if not add_def or not add_def.door then
+	local door_data = add_def and add_def.door
+	if not door_data then
 		return
 	end
 
+	local c_def = table.copy(base_def)
+	c_def.type = "door"
 	c_def.add_properties = add_def
-	c_def.add_properties.door.type = c_def.add_properties.door.type or "regular"
 
-	if c_def.add_properties.door.type == "regular" then
-		-- in degrees per sec, converted to radians in Door.to_entity
-		c_def.add_properties.door.vel = c_def.add_properties.door.vel or 120
-	else
-		c_def.add_properties.door.vel = c_def.add_properties.door.vel or 1
-	end
+	door_data.type = door_data.type or "regular"
+	-- regular doors rotate (degrees/sec), sliding ones translate (nodes/sec)
+	door_data.vel = door_data.vel or (door_data.type == "regular" and 120 or 1)
 
 	c_def.callbacks = c_def.callbacks or {}
 	c_def.callbacks.on_rightclick = c_def.callbacks.on_rightclick or doors.node_on_rightclick
@@ -434,28 +457,27 @@ function register.register_door(name, base_def, add_def, craft_def)
 
 	register.register_furniture_unit(name, c_def, craft_def)
 
-	local type = c_def.add_properties.door.type
-	local mesh_format = "." .. (c_def.add_properties.door.format or "b3d")
+	if door_data.type == "regular" or door_data.has_mirrored_counterpart then
+		local c_def2 = table.copy(c_def)
+		local suffix = door_data.type == "regular" and "_open" or "_mirrored"
 
-	local c_def2 = table.copy(c_def)
-
-	if type == "regular" or (type == "sliding" and c_def.add_properties.door.has_mirrored_counterpart) then
-		local endformat = type == "regular" and "_open" or ""
-		c_def2.mesh = c_def2.mesh:gsub(mesh_format, endformat .. mesh_format)
-		c_def2.drop = "multidecor:" .. name
-
-		if type == "regular" then
+		if door_data.type == "regular" then
+			-- inserts the suffix before the mesh file extension
+			c_def2.mesh = c_def2.mesh:gsub("%.[^.]+$", suffix .. "%0")
+			-- the opened door slab sticks out to the opposite side
 			c_def2.bounding_boxes[1][3] = c_def2.bounding_boxes[1][3] * -1
 			c_def2.bounding_boxes[1][6] = c_def2.bounding_boxes[1][6] * -1
 		end
+		-- sliding doors share the base model: the mirroring is applied
+		-- by the animating entity only
 
+		c_def2.drop = "multidecor:" .. name
 		c_def2.groups = c_def2.groups or {}
 		c_def2.groups.not_in_creative_inventory = 1
 
 		c_def2.callbacks.after_place_node = nil
 
-		local endname = type == "regular" and "_open" or "_mirrored"
-		register.register_furniture_unit(name .. endname, c_def2)
+		register.register_furniture_unit(name .. suffix, c_def2)
 	end
 end
 

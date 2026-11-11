@@ -77,6 +77,18 @@ function register.build_description(style, material, base_desc)
 	return desc:format(common.translator(style), common.translator(material))
 end
 
+function register.get_decor_api(pos, required_api, error_on_fail)
+	local def = common.ndef(pos)
+	local api = def and def.add_properties and def.add_properties[required_api]
+
+	if not api and error_on_fail then
+		core.log(
+			"error", "Node at " .. core.pos_to_string(pos) ..
+			" doesn't have any decor API or this is not multidecor thing at all!")
+	end
+	return api
+end
+
 function register.after_place_node(pos, placer, itemstack)
 	local place = placement.check_for_placement(pos, itemstack:get_name())
 	local name = placer and placer:get_player_name() or ""
