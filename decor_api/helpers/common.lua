@@ -88,10 +88,22 @@ function common.register_class(name, metatable)
 	class_mt_by_name[name] = metatable
 end
 
+-- Values core.serialize cannot store (functions, userdata — ObjectRefs, sound
+-- handles, timer callbacks): dropped from the output with their keys. They
+-- are runtime-only references that cannot survive a save/load round trip
+-- anyway and are recreated on entity activation
+local DROPPED = {}
+
 -- Detached deep copy with class markers injected; preserves reference sharing
 -- and cycles, never mutates the value being serialized
 local function transform_out(value, seen)
-	if type(value) ~= "table" then
+	local vtype = type(value)
+
+	if vtype == "function" or vtype == "userdata" or vtype == "thread" then
+		return DROPPED
+	end
+
+	if vtype ~= "table" then
 		return value
 	end
 
@@ -109,7 +121,11 @@ local function transform_out(value, seen)
 	end
 
 	for k, v in pairs(value) do
-		copy[transform_out(k, seen)] = transform_out(v, seen)
+		local out_k = transform_out(k, seen)
+		local out_v = transform_out(v, seen)
+		if out_k ~= DROPPED and out_v ~= DROPPED then
+			copy[out_k] = out_v
+		end
 	end
 
 	return copy

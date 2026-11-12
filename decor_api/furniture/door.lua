@@ -98,7 +98,8 @@ function DoorEntity:check_node_valid()
 	end
 
 	if not self.persistent then
-		return self.anim_timer:is_started() or self.pending_action ~= nil
+		-- no timer yet (a restart orphan activating) == no running transition
+		return (self.anim_timer and self.anim_timer:is_started()) or self.pending_action ~= nil
 	end
 
 	if not self.node_pattern then
@@ -156,7 +157,20 @@ end
 
 function DoorEntity:calc_anim_time()
 	local aparams = self.anim_params
-	return math.abs(self.bone_offset - (self.cur_bone_offset or 0)) / math.max(0.001, aparams.velocity)
+	local delta = math.abs(self.bone_offset - (self.cur_bone_offset or 0))
+	local vel = math.max(0.001, aparams.velocity)
+
+	-- The 1.3.x stepped animation grew its speed by 'acc' every ~0.1s server
+	-- step ('vel' was only the initial one); the engine-interpolated override
+	-- is linear, so the acceleration is folded into the equivalent duration
+	-- of that motion: vel*t + (vel*acc/0.1)*t^2/2 == delta
+	local acc = aparams.acc and aparams.acc * vel / 0.1 or 0
+
+	if acc <= 0 then
+		return delta / vel
+	end
+
+	return (math.sqrt(vel*vel + 2*acc*delta) - vel) / acc
 end
 
 -- Moves the "Door" bone towards the current 'bone_offset' target through the
@@ -203,6 +217,8 @@ end
 FurnitureManager.register(DoorEntity.name, DoorEntity, {
 	visual = "mesh",
 	mesh = "multidecor_bone_animator.glb",
+	textures = {"multidecor_transparency.png"},
+	use_texture_alpha = true,
 	physical = true,
 	static_save = true
 })
@@ -287,7 +303,8 @@ function Door.to_entity(pos, action, owner)
 	if is_regular then
 		anim_params = {
 			target_offset = get_target_offset(true, dir, true, is_mir),
-			velocity = math.rad(door_data.vel)
+			velocity = math.rad(door_data.vel),
+			acc = door_data.acc or 0
 		}
 	else
 		local offset, move_axis = get_target_offset(false, dir, true, is_mir)
@@ -295,7 +312,8 @@ function Door.to_entity(pos, action, owner)
 			rotate = false,
 			target_axis = move_axis,
 			target_offset = offset,
-			velocity = door_data.vel
+			velocity = door_data.vel,
+			acc = door_data.acc or 0
 		}
 	end
 

@@ -346,7 +346,9 @@ FurnitureManager.register(CeilingFanEntity.name, CeilingFanEntity,
 {
 	visual = "mesh",
 	backface_culling = true,
-	mesh = "multidecor_bone_animator.glb"
+	mesh = "multidecor_bone_animator.glb",
+	textures = {"multidecor_transparency.png"},
+	use_texture_alpha = true
 })
 
 

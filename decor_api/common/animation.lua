@@ -100,14 +100,20 @@ end
 -- Applies the raw bone override to the "Door" bone: 'offset' along 'offset_axis'
 -- reached in 'time' seconds, as a rotation when 'rotate' is true or as a position
 -- otherwise. The engine interpolates from the current bone pose, so 'time' == 0
--- applies the offset instantly. Subclasses build their transitions on it instead
+-- applies the offset instantly. The override is absolute: a relative one would
+-- be ADDED to the bone's own transform every frame (fine on animated models
+-- where the animation resets the joint each frame, but the carrier mesh has no
+-- animation track — a relative override accumulates: the door would spin and
+-- the drawer would drift away). Subclasses build their transitions on it instead
 -- of constructing the set_bone_override table themselves
 function AnimatedEntity:apply_bone_override(rotate, offset, offset_axis, time)
 	local target_pos = vector.new()
 	target_pos[offset_axis] = offset
 
 	local override_key = rotate and "rotation" or "position"
-	self.object:set_bone_override("Door", {[override_key] = {vec = target_pos, interpolation = time or 0}})
+	self.object:set_bone_override("Door", {
+		[override_key] = {vec = target_pos, absolute = true, interpolation = time or 0}
+	})
 end
 
 function AnimatedEntity:play_animation(rotate, target_offset, offset_axis, velocity, time)
@@ -178,13 +184,15 @@ FurnitureManager.register(AnimatedEntity.name, AnimatedEntity,
 {
 	visual = "mesh",
 	backface_culling = true,
-	mesh = "multidecor_bone_animator.glb"
+	mesh = "multidecor_bone_animator.glb",
+	textures = {"multidecor_transparency.png"},
+	use_texture_alpha = true
 })
 
 core.register_entity("decor_api:animator_dummy", {
 	visual = "mesh",
 	backface_culling = false,
-	use_texture_alpha = "blend",
+	use_texture_alpha = true,
 	physical = true,
 	pointable = true,
 	static_save = false,
@@ -278,7 +286,9 @@ FurnitureManager.register(CyclicEntity.name, CyclicEntity,
 {
 	visual = "mesh",
 	backface_culling = true,
-	mesh = "multidecor_bone_animator.glb"
+	mesh = "multidecor_bone_animator.glb",
+	textures = {"multidecor_transparency.png"},
+	use_texture_alpha = true
 })
 
 return { AnimatedEntity, CyclicEntity, EntityTimer }

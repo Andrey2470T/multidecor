@@ -33,7 +33,9 @@ end
 
 function FurnitureEntity.spawn(entity_name, node_pos, node_name, pos, rot, data)
 	local serialize_t = FurnitureEntity.new(node_pos, node_name, data)
+	FurnitureManager.spawning = true
 	local entity = core.add_entity(pos, entity_name, common.serialize(serialize_t))
+	FurnitureManager.spawning = nil
 	if entity then
 		entity:set_rotation(rot)
 	end
@@ -49,7 +51,34 @@ function FurnitureEntity:on_activate(staticdata)
 	end
 
 	self.object:set_armor_groups({immortal = 1})
+
+	if staticdata and staticdata ~= "" and not FurnitureManager.spawning
+		and not FurnitureManager.get_by_object(self.object) then
+		-- A saved entity activating without a descriptor: the server restarted
+		-- (the descriptors are runtime-only). Entities whose node still exists
+		-- are adopted back into the manager — without it their timers halt
+		-- (EntityTimer resolves the descriptor by guid) and they are never
+		-- validated or removed together with their node. Orphans without
+		-- their node go through on_orphan instead
+		if self:check_node_valid() then
+			FurnitureManager.adopt(self)
+		else
+			self:on_orphan()
+			return false
+		end
+	end
+
 	return true
+end
+
+-- Called when a saved entity activates with its node gone (the node was
+-- removed while the mapblock was unloaded, a server restart happened in the
+-- middle of a door transition, ...). The default just drops the entity;
+-- DoorEntity overrides it to restore the door node
+function FurnitureEntity:on_orphan()
+	if self.object and self.object:is_valid() then
+		self.object:remove()
+	end
 end
 
 function FurnitureEntity:on_deactivate(removal)
@@ -66,6 +95,9 @@ function FurnitureEntity:get_staticdata()
 
 	serialize_t.name = nil
 	serialize_t.object = nil
+	serialize_t.dummy_entity = nil
+	serialize_t.anim_timer = nil
+	serialize_t.infotext_timer = nil
 
 	return common.serialize(serialize_t)
 end
@@ -206,6 +238,46 @@ end
 function FurnitureManager.register(name, class, override_def)
 	FurnitureManager.registered_entities[name] = class
 	core.register_entity(name, FurnitureEntity.build_definition(class, override_def))
+end
+
+-- Adopts a static-saved entity that activated without a descriptor (server
+-- restart: the descriptors are runtime-only) back into the manager, so that
+-- its EntityTimers keep firing and it is validated/removed with its node
+function FurnitureManager.adopt(ent)
+	local object = ent.object
+	if not object or not object:is_valid() or FurnitureManager.get_by_object(object) then
+		return nil
+	end
+	if not ent.attached_to or not ent.name then
+		return nil
+	end
+
+	local data = {}
+	table.copy_to(ent, data)
+	data.name = nil
+	data.object = nil
+	data.dummy_entity = nil
+	data.anim_timer = nil
+	data.infotext_timer = nil
+
+	local desc = setmetatable({}, FurnitureDescriptor)
+	desc.entity_name = ent.name
+	desc.node_pos = vector.new(ent.attached_to.pos)
+	desc.node_name = ent.attached_to.name
+	desc.spawn_pos = vector.new(object:get_pos())
+	desc.spawn_rot = vector.new(object:get_rotation())
+	desc.data = data
+	desc.object = object
+	desc.guid = object:get_guid()
+
+	local pos_str = core.pos_to_string(desc.node_pos)
+	if not FurnitureManager.descriptors[pos_str] then
+		FurnitureManager.descriptors[pos_str] = {}
+	end
+	table.insert(FurnitureManager.descriptors[pos_str], desc)
+	FurnitureManager.guid_to_desc[desc.guid] = desc
+
+	return desc
 end
 
 function FurnitureManager.add(entity_name, node_pos, node_name, spawn_pos, spawn_rot, data)

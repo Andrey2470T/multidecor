@@ -305,7 +305,8 @@ function Shelf:build_door_data(rel_pos, mirrored)
 			target_axis = axis,
 			-- against the (rotated) dir: to the player-facing side
 			target_offset = (dir[axis] < 0 and 1 or -1)*move_dist,
-			velocity = 0.6
+			velocity = 0.6,
+			acc = sd.acc or 0
 		}
 	else
 		local move_dist
@@ -322,7 +323,8 @@ function Shelf:build_door_data(rel_pos, mirrored)
 			rotate = true,
 			target_axis = (sd.side == "up" or sd.side == "down") and "x" or "y",
 			target_offset = move_dist,
-			velocity = math.rad(sd.vel or 30)
+			velocity = math.rad(sd.vel or 30),
+			acc = sd.acc or 0
 		}
 	end
 

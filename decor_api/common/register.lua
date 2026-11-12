@@ -271,6 +271,21 @@ function register.register_furniture_unit(name, def, craft_def)
 		f_def[cb_name] = f
 	end
 
+	-- Digging the node must remove its furniture entities immediately;
+	-- without the wrapper they would linger until the next manager
+	-- validation round (~3 seconds later)
+	if f_def.on_destruct then
+		local prev_on_destruct = f_def.on_destruct
+		f_def.on_destruct = function(pos)
+			prev_on_destruct(pos)
+			multidecor.FurnitureManager.remove(pos)
+		end
+	else
+		f_def.on_destruct = function(pos)
+			multidecor.FurnitureManager.remove(pos)
+		end
+	end
+
 	if f_def.after_place_node then
 		local prev_after_place = f_def.after_place_node
 		local function after_place(pos, placer, itemstack)

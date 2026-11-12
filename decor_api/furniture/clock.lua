@@ -96,7 +96,9 @@ FurnitureManager.register(ClockEntity.name, ClockEntity,
 {
 	visual = "mesh",
 	backface_culling = true,
-	mesh = "multidecor_bone_animator.glb"
+	mesh = "multidecor_bone_animator.glb",
+	textures = {"multidecor_transparency.png"},
+	use_texture_alpha = true
 })
 
 -- Returns the current in-game time as the hours and minutes pair
