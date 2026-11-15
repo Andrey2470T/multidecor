@@ -249,7 +249,19 @@ function CyclicEntity:cycle()
 	local time = self:calc_anim_time()
 
 	if anim then
-		self:play_animation(true, anim.angle * anim.direction, anim.axis, anim.velocity, time)
+		local target
+		if anim.swap_direction then
+			-- a swinging animation: the target alternates around the rest pose
+			target = anim.angle * anim.direction
+		else
+			-- a continuous rotation (ceiling fan): the absolute bone target
+			-- has to grow every cycle — a repeating constant target (a full
+			-- 2*pi turn especially, which normalizes to the rest pose) would
+			-- not move the bone at all after the first cycle
+			self.cycle_step = (self.cycle_step or 0) + 1
+			target = anim.angle * anim.direction * self.cycle_step
+		end
+		self:play_animation(true, target, anim.axis, anim.velocity, time)
 	end
 	self:play_sound()
 

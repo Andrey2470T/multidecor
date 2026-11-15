@@ -254,8 +254,10 @@ granite_cmpnts.two_wall_hdoor = {
 	inventory_image = "multidecor_kitchen_wall_cabinet_with_half_door_inv.png",
 	bounding_boxes = wall_cab_bbox,
 	shelves_data = {
-		pos_left = {x=0.425, y=0, z=0.4},
-		pos_right = {x=-0.425, y=0, z=0.4},
+		-- the wall cabinet front is at -Z (engine frame): the door hinges sit
+		-- there, like the floor cabinet doors do
+		pos_left = {x=-0.425, y=0, z=-0.4},
+		pos_right = {x=0.425, y=0, z=-0.4},
 		inv_size = {w=8, h=2}
 	},
 	craft = {
@@ -271,8 +273,8 @@ granite_cmpnts.two_wall_hgldoor = {
 	inventory_image = "multidecor_kitchen_wall_cabinet_with_half_glass_doors_inv.png",
 	bounding_boxes = wall_cab_bbox,
 	shelves_data = {
-		pos_left = {x=0.425, y=0, z=0.4},
-		pos_right = {x=-0.425, y=0, z=0.4},
+		pos_left = {x=-0.425, y=0, z=-0.4},
+		pos_right = {x=0.425, y=0, z=-0.4},
 		inv_size = {w=8, h=2}
 	},
 	craft = {
@@ -570,7 +572,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 			{
 				type = "door",
 				def = fridge_upper_door_def,
-				pos = {x=0.5, y=0.7, z=-0.4},
+				pos = {x=-0.5, y=0.7, z=-0.4},
 				inv_size = {w=8, h=4},
 				acc = 1,
 				side = "right",
@@ -582,7 +584,7 @@ multidecor.register.register_furniture_unit("kitchen_fridge", {
 			{
 				type = "door",
 				def = fridge_lower_door_def,
-				pos = {x=0.5, y=0, z=-0.4},
+				pos = {x=-0.5, y=0, z=-0.4},
 				inv_size = {w=8, h=2},
 				acc = 1,
 				side = "right",

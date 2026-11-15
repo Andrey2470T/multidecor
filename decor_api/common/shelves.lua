@@ -167,7 +167,9 @@ function Shelf:create_inventory()
 	end
 
 	-- The non-storage list types work with a single slot
-	local invsize = self.shelf_data.invlist_type == "storage" and self.shelf_data.inv_size or {w=1, h=1}
+	local list_type = self.shelf_data.invlist_type or "storage"
+	local invsize = list_type == "storage"
+		and (self.shelf_data.inv_size or {w = 8, h = 4}) or {w = 1, h = 1}
 	inv:set_list(self:list_name(), inv_list)
 	inv:set_size(self:list_name(), invsize.w*invsize.h)
 	inv:set_width(self:list_name(), invsize.w)
@@ -303,20 +305,21 @@ function Shelf:build_door_data(rel_pos, mirrored)
 		anim_params = {
 			rotate = false,
 			target_axis = axis,
-			-- against the (rotated) dir: to the player-facing side
-			target_offset = (dir[axis] < 0 and 1 or -1)*move_dist,
+			-- along the (rotated) dir: away from the node back, to the
+			-- player-facing side
+			target_offset = (dir[axis] < 0 and -1 or 1)*move_dist,
 			velocity = 0.6,
 			acc = sd.acc or 0
 		}
 	else
 		local move_dist
 		if sd.type == "door" then
-			move_dist = (sd.side == "left" or sd.side == "down") and -math.pi/2 or math.pi/2
+			move_dist = (sd.side == "left" or sd.side == "down") and math.pi/2 or -math.pi/2
 			if mirrored then
 				move_dist = -move_dist
 			end
 		else -- "sym_doors": the sign comes from the door side itself
-			move_dist = (mirrored and 1 or -1)*math.pi/2
+			move_dist = (mirrored and -1 or 1)*math.pi/2
 		end
 
 		anim_params = {

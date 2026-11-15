@@ -123,7 +123,9 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 				-- the balance wheel swings around Z between -angle and +angle
 				angle = math.rad(15),
 				axis = "z",
-				velocity = math.rad(60),
+				-- 15 degrees at 30 deg/s: one 0.5 s swing, a 1 s full period —
+				-- the natural pace of a pendulum clock
+				velocity = math.rad(30),
 				swap_direction = true
 			},
 			sound = {

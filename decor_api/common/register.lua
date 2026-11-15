@@ -525,6 +525,8 @@ function register.register_garniture(def)
 			length = type == "drawer" and 0.5,
 			orig_angle = orig_angle,
 			side = side,
+			-- the same door speed growth as the wardrobe doors have
+			acc = type ~= "drawer" and 1 or nil,
 			sounds = type == "drawer" and drawer_sounds or door_sounds
 		}
 	end

@@ -284,7 +284,13 @@ function Door.to_entity(pos, action, owner)
 
 	local model_params = {
 		size = door_data.size or {x=5, y=5, z=5},
-		mesh = base_def.mesh,
+		-- the animating leaf of a regular door is the "_activated" model: it
+		-- is authored with the hinge at its origin so the entity hanging at
+		-- the hinge corner swings the leaf around it (the 1.3.x behaviour;
+		-- the base mesh is node-centered and used by the resting door nodes
+		-- and by the sliding panels)
+		mesh = is_regular and base_def.mesh:gsub("%.[^.]+$", "_activated%0")
+			or base_def.mesh,
 		textures = base_def.tiles,
 		box = bbox,
 		pos = vector.new(door_data.object_offset or {x=-0.495, y=0, z=-0.45}),
