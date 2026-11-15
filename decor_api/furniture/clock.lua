@@ -98,7 +98,9 @@ FurnitureManager.register(ClockEntity.name, ClockEntity,
 	backface_culling = true,
 	mesh = "multidecor_bone_animator.glb",
 	textures = {"multidecor_transparency.png"},
-	use_texture_alpha = true
+	use_texture_alpha = true,
+	physical = false,
+	pointable = false
 })
 
 -- Returns the current in-game time as the hours and minutes pair
@@ -144,7 +146,7 @@ function clock.on_construct(pos)
 	end
 
 	-- The default pos is the zero offset: the animator spawns right in the node
-	local spawn_pos, spawn_rot = dir_ops.rotate_to_node_dir(pos, clock_params.pos or vector.zero(), true)
+	local spawn_pos, spawn_rot = dir_ops.rotate_to_node_dir(pos, clock_params.pos, true)
 
 	FurnitureManager.add(ClockEntity.name, pos, node.name, spawn_pos, spawn_rot, {
 		-- The balance wheel model carried by the animator dummy

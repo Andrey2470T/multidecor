@@ -219,7 +219,8 @@ FurnitureManager.register(DoorEntity.name, DoorEntity, {
 	mesh = "multidecor_bone_animator.glb",
 	textures = {"multidecor_transparency.png"},
 	use_texture_alpha = true,
-	physical = true,
+	physical = false,
+	pointable = false,
 	static_save = true
 })
 
@@ -356,13 +357,24 @@ function Door.from_entity(door_ent)
 		name = name .. "_mirrored"
 	end
 
+	-- The base and "_open" slabs are both authored with their leaf against the
+	-- local -Z side of the model, so the resting node states are quarter-turned
+	-- per state (the 1.3.x behaviour): a plain door turns its param2 by
+	-- -90 deg (facedir - 1) when it opens and back when it closes; a mirrored
+	-- counterpart rests at one turned param2 for both states and never rotates
+	local p2 = door_ent.node_param2
+	if door_ent.door_type == "regular" and not is_mir then
+		p2 = dir_ops.rotate_param2_y(base_name, p2,
+			action == "open" and math.pi/2 or -math.pi/2)
+	end
+
 	FurnitureManager.remove_by_object(obj)
 	-- The object may be untracked (a restart orphan); remove it directly then
 	if obj and obj:is_valid() then
 		obj:remove()
 	end
 
-	core.set_node(pos, {name=name, param2=door_ent.node_param2})
+	core.set_node(pos, {name=name, param2=p2})
 
 	local meta = core.get_meta(pos)
 	if is_mir then

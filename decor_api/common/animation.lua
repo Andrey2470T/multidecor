@@ -186,7 +186,9 @@ FurnitureManager.register(AnimatedEntity.name, AnimatedEntity,
 	backface_culling = true,
 	mesh = "multidecor_bone_animator.glb",
 	textures = {"multidecor_transparency.png"},
-	use_texture_alpha = true
+	use_texture_alpha = true,
+	physical = false,
+	pointable = false
 })
 
 core.register_entity("decor_api:animator_dummy", {
@@ -196,6 +198,9 @@ core.register_entity("decor_api:animator_dummy", {
 	physical = true,
 	pointable = true,
 	static_save = false,
+	on_activate = function(self)
+		self.object:set_armor_groups({immortal=1})
+	end,
 	-- The dummy carries the visible model, so it receives clicks instead of the bone entity:
 	-- delegate them to the parent entity class
 	on_rightclick = function(self, clicker)
@@ -288,7 +293,9 @@ FurnitureManager.register(CyclicEntity.name, CyclicEntity,
 	backface_culling = true,
 	mesh = "multidecor_bone_animator.glb",
 	textures = {"multidecor_transparency.png"},
-	use_texture_alpha = true
+	use_texture_alpha = true,
+	physical = false,
+	pointable = false
 })
 
 return { AnimatedEntity, CyclicEntity, EntityTimer }

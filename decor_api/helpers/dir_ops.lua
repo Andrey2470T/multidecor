@@ -136,6 +136,7 @@ end
 -- Rotates the vertically rotated 'rel_pos' which is relative to 'pos' of some node or
 -- returns the absolute position of the rotated 'rel_pos' if 'make_absolute' is true
 function dir_ops.rotate_to_node_dir(pos, rel_pos, make_absolute, rel_rot)
+	rel_pos = rel_pos or vector.zero()
 	rel_rot = rel_rot or vector.zero()
 
 	local dir = dir_ops.get_dir(pos)
