@@ -92,16 +92,7 @@ function ClockEntity:stop()
 	self:apply_running_state()
 end
 
-FurnitureManager.register(ClockEntity.name, ClockEntity,
-{
-	visual = "mesh",
-	backface_culling = true,
-	mesh = "multidecor_bone_animator.glb",
-	textures = {"multidecor_transparency.png"},
-	use_texture_alpha = true,
-	physical = false,
-	pointable = false
-})
+FurnitureManager.register(ClockEntity.name, ClockEntity)
 
 -- Returns the current in-game time as the hours and minutes pair
 function clock.get_current_time()

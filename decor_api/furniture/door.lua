@@ -214,15 +214,7 @@ function DoorEntity:on_orphan()
 	end
 end
 
-FurnitureManager.register(DoorEntity.name, DoorEntity, {
-	visual = "mesh",
-	mesh = "multidecor_bone_animator.glb",
-	textures = {"multidecor_transparency.png"},
-	use_texture_alpha = true,
-	physical = false,
-	pointable = false,
-	static_save = true
-})
+FurnitureManager.register(DoorEntity.name, DoorEntity)
 
 -- Door: manages the door node in its inactive (resting) state.
 -- Converts the node to DoorEntity on interaction and back on animation end.

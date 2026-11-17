@@ -105,26 +105,14 @@ function SittingEntity:on_deactivate(removal)
 	FurnitureEntity.on_deactivate(self, removal)
 end
 
--- The seat entity is transient: it is spawned on demand and never saved.
--- It is rendered as a fully transparent cube instead of is_visible = false:
--- invisible objects get no scene node at all (addToScene returns early), so
--- an attached player would have no parent transform to glue to (the model
--- ends up at a garbage position). pointable = false keeps it click-through,
--- its rotation is what the attached sitting player is glued to
-FurnitureManager.register(SittingEntity.name, SittingEntity, {
-	static_save = false,
-	visual = "cube",
-	textures = {
-		"multidecor_transparency.png",
-		"multidecor_transparency.png",
-		"multidecor_transparency.png",
-		"multidecor_transparency.png",
-		"multidecor_transparency.png",
-		"multidecor_transparency.png"
-	},
-	physical = false,
-	pointable = false
-})
+-- The seat entity is transient: spawned on demand at the moment of sitting
+-- and removed at the standup, never saved (a saved seat would survive the
+-- restart with the player name in it — stuck busy, nobody can sit anymore).
+-- is_visible = false is fine here: the engine anchors attachments to the
+-- matrix node of invisible objects too (it used to leave the attached player
+-- without a parent transform — fixed in the engine), and the entity needs no
+-- visual of its own, it only carries the rotation the player is glued to
+FurnitureManager.register(SittingEntity.name, SittingEntity, {static_save = false})
 
 -- Sitting API surface for furniture nodes
 ------------------------------------------------

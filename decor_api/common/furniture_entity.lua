@@ -33,6 +33,8 @@ end
 
 function FurnitureEntity.spawn(entity_name, node_pos, node_name, pos, rot, data)
 	local serialize_t = FurnitureEntity.new(node_pos, node_name, data)
+	-- The descriptor is registered only after the spawn returns, so the flag
+	-- tells on_activate that the missing tracking is expected — not a restart
 	FurnitureManager.spawning = true
 	local entity = core.add_entity(pos, entity_name, common.serialize(serialize_t))
 	FurnitureManager.spawning = nil
@@ -54,12 +56,10 @@ function FurnitureEntity:on_activate(staticdata)
 
 	if staticdata and staticdata ~= "" and not FurnitureManager.spawning
 		and not FurnitureManager.get_by_object(self.object) then
-		-- A saved entity activating without a descriptor: the server restarted
-		-- (the descriptors are runtime-only). Entities whose node still exists
-		-- are adopted back into the manager — without it their timers halt
-		-- (EntityTimer resolves the descriptor by guid) and they are never
-		-- validated or removed together with their node. Orphans without
-		-- their node go through on_orphan instead
+		-- After the server shutdown the furniture entities lose their descriptors
+		-- (they are runtime-only), so a saved entity activating untracked is
+		-- adopted back into the manager — but only when its node still exists,
+		-- otherwise it is an orphan (on_orphan drops it or restores the node)
 		if self:check_node_valid() then
 			FurnitureManager.adopt(self)
 		else
@@ -94,10 +94,13 @@ function FurnitureEntity:get_staticdata()
 	table.copy_to(self, serialize_t)
 
 	serialize_t.name = nil
-	serialize_t.object = nil
-	serialize_t.dummy_entity = nil
-	serialize_t.anim_timer = nil
-	serialize_t.infotext_timer = nil
+	
+	for k, v in pairs(serialize_t) do
+		-- The userdatas are not serializable
+		if type(v) == "userdata" then
+			serialize_t[k] = nil
+		end
+	end
 
 	return common.serialize(serialize_t)
 end
@@ -117,6 +120,11 @@ end
 function FurnitureEntity.build_definition(class_table, override_def)
 	local properties = {
 		physical = false,
+		pointable = false,
+		is_visible = false,
+		visual = "mesh",
+		backface_culling = true,
+		mesh = "",
 		static_save = true
 	}
 	if override_def then
@@ -237,7 +245,7 @@ end
 
 function FurnitureManager.register(name, class, override_def)
 	FurnitureManager.registered_entities[name] = class
-	core.register_entity(name, FurnitureEntity.build_definition(class, override_def))
+	core.register_entity(name, class.build_definition(class, override_def))
 end
 
 -- Adopts a static-saved entity that activated without a descriptor (server

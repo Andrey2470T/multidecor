@@ -179,25 +179,27 @@ function AnimatedEntity:on_deactivate(removal)
 	FurnitureEntity.on_deactivate(self, removal)
 end
 
+function AnimatedEntity.build_definition(class_table, override_def)
+	override_def = override_def or {}
+	override_def.mesh = "multidecor_bone_animator.glb"
+	override_def.is_visible = true
+	override_def.textures = override_def.textures or {"multidecor_transparency.png"}
+	override_def.use_texture_alpha = true
+	return FurnitureEntity.build_definition(class_table, override_def)
+end
+
 -- Registers the "decor_api:animated_furniture" entity
-FurnitureManager.register(AnimatedEntity.name, AnimatedEntity,
-{
-	visual = "mesh",
-	backface_culling = true,
-	mesh = "multidecor_bone_animator.glb",
-	textures = {"multidecor_transparency.png"},
-	use_texture_alpha = true,
-	physical = false,
-	pointable = false
-})
+FurnitureManager.register(AnimatedEntity.name, AnimatedEntity)
 
 core.register_entity("decor_api:animator_dummy", {
-	visual = "mesh",
-	backface_culling = false,
-	use_texture_alpha = true,
-	physical = true,
-	pointable = true,
-	static_save = false,
+	initial_properties = {
+		visual = "mesh",
+		backface_culling = false,
+		use_texture_alpha = true,
+		physical = true,
+		pointable = true,
+		static_save = false
+	},
 	on_activate = function(self)
 		self.object:set_armor_groups({immortal=1})
 	end,
@@ -299,15 +301,6 @@ function CyclicEntity:on_animation_end()
 end
 
 -- Registers the "decor_api:cyclic_furniture" entity
-FurnitureManager.register(CyclicEntity.name, CyclicEntity,
-{
-	visual = "mesh",
-	backface_culling = true,
-	mesh = "multidecor_bone_animator.glb",
-	textures = {"multidecor_transparency.png"},
-	use_texture_alpha = true,
-	physical = false,
-	pointable = false
-})
+FurnitureManager.register(CyclicEntity.name, CyclicEntity)
 
 return { AnimatedEntity, CyclicEntity, EntityTimer }

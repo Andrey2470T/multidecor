@@ -344,16 +344,7 @@ function CeilingFanEntity:on_activate(staticdata)
 	return true
 end
 
-FurnitureManager.register(CeilingFanEntity.name, CeilingFanEntity,
-{
-	visual = "mesh",
-	backface_culling = true,
-	mesh = "multidecor_bone_animator.glb",
-	textures = {"multidecor_transparency.png"},
-	use_texture_alpha = true,
-	physical = false,
-	pointable = false
-})
+FurnitureManager.register(CeilingFanEntity.name, CeilingFanEntity)
 
 
 multidecor.register.register_furniture_unit("ceiling_fan", {
