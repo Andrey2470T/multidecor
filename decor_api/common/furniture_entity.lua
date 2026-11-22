@@ -173,8 +173,8 @@ function FurnitureDescriptor.new(entity_name, node_pos, node_name, spawn_pos, sp
 	self.entity_name = entity_name
 	self.node_pos = vector.new(node_pos)
 	self.node_name = node_name
-	self.spawn_pos = spawn_pos and vector.new(spawn_pos) or vector.new(node_pos)
-	self.spawn_rot = spawn_rot and vector.new(spawn_rot) or vector.new()
+	self.spawn_pos = spawn_pos and vector.new(spawn_pos or node_pos)
+	self.spawn_rot = spawn_rot and vector.new(spawn_rot)
 	self.data = data or {}
 
 	local class_table = FurnitureManager.registered_entities[self.entity_name]

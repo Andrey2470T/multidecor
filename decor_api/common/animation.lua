@@ -239,7 +239,7 @@ function CyclicEntity:calc_anim_time()
 
 	if anim then
 		time = math.abs(anim.angle) / math.max(0.001, anim.velocity)
-	else
+	elseif self.sound then
 		time = self.sound.duration or 0
 	end
 	return time
@@ -267,7 +267,7 @@ function CyclicEntity:cycle()
 	end
 	self:play_sound()
 
-	if not self.anim_timer:is_started() and time > 0 then
+	if not self.anim_timer:is_started() then
 		self.anim_timer:start(time)
 	end
 end

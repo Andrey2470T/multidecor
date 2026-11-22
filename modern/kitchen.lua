@@ -367,7 +367,7 @@ multidecor.register.register_furniture_unit("ceiling_fan", {
 					box = {-0.5, -0.2, -0.5, 0.5, 0, 0.5}
 				},
 				cyclic_animation = {
-					angle = math.pi*2,         -- one full revolution per cycle
+					angle = math.pi/2,         -- one full revolution per cycle
 					axis = "y",
 					velocity = math.pi*2/1.3   -- ~1.3 seconds per revolution
 				},

@@ -115,6 +115,7 @@ multidecor.register.register_furniture_unit("modern_floor_clock", {
 	},
 	add_properties = {
 		clock_params = {
+			pos = {x=0, y=0.95, z=0},
 			model_params = {
 				mesh = "multidecor_floor_clock_balance_wheel.b3d",
 				textures = {"multidecor_gold_material.png"}
