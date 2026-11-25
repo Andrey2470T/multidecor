@@ -29,7 +29,7 @@ local DoorEntity = AnimatedEntity:extend("decor_api:bone_animator")
 function DoorEntity.get_base_transform(node_pos, mparams, dir)
 	local rel_pos = vector.new(mparams.pos)
 	if mparams.hinge_shifted then
-		rel_pos.x = rel_pos.x - mparams.box:width() * 2
+		rel_pos.x = rel_pos.x - mparams.box:width()
 	end
 
 	local pos = node_pos + dir_ops.rotate_to_dir(rel_pos, dir)
@@ -276,18 +276,11 @@ local function get_move_dir(dir, is_open, is_mirrored)
 	return dir_ops.rotate_y(dir, is_mirrored and -angle or angle)
 end
 
--- Returns the signed target bone offset of the door; for sliding doors
--- also the axis the door moves along
-local function get_target_offset(is_regular, dir, is_open, is_mirrored)
-	if is_regular then
-		local offset = is_open and -math.pi/2 or math.pi/2
-		return is_mirrored and -offset or offset
-	end
-
-	local move_dir = get_move_dir(dir, is_open, is_mirrored)
-	local move_axis = dir_ops.get_dominant_axis(move_dir)
-
-	return move_dir[move_axis], move_axis
+-- Returns the signed target bone rotation offset of a regular door leaf in
+-- its open state (the closed state is always the zero rest pose)
+local function get_regular_open_offset(is_mirrored)
+	local offset = -math.pi/2
+	return is_mirrored and -offset or offset
 end
 
 -- Removes the door node and spawns the animating NodeDoorEntity in its place.
@@ -362,16 +355,22 @@ function NodeDoorEntity.to_entity(pos, action, owner)
 	local anim_params
 	if is_regular then
 		anim_params = {
-			target_offset = get_target_offset(true, dir, true, is_mir),
+			target_offset = get_regular_open_offset(is_mir),
 			velocity = math.rad(door_data.vel),
 			acc = door_data.acc or 0
 		}
 	else
-		local offset, move_axis = get_target_offset(false, dir, true, is_mir)
+		local move_dir = get_move_dir(dir, true, is_mir)
+		-- The bone frame follows the carrier rotation (the node dir yaw for
+		-- the sliding panels): like the shelf drawers, the slide direction is
+		-- pre-rotated into that carrier-local frame -- a named world axis
+		-- would ignore the node orientation
+		local local_vec = vector.rotate(move_dir,
+			vector.new(0, -dir_ops.get_rot_y(dir), 0))
 		anim_params = {
 			rotate = false,
-			target_axis = move_axis,
-			target_offset = offset,
+			target_vec = local_vec,
+			target_offset = 1,
 			velocity = door_data.vel,
 			acc = door_data.acc or 0
 		}

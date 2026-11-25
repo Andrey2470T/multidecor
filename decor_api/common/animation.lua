@@ -106,6 +106,13 @@ end
 -- animation track — a relative override accumulates: the door would spin and
 -- the drawer would drift away). Subclasses build their transitions on it instead
 -- of constructing the set_bone_override table themselves
+--
+-- Position offsets are passed in NODE units and converted here: the carrier
+-- mesh is glTF (the loader does not BS-scale it, unlike the .obj models) and
+-- keeps the default visual_size {1,1,1}, so its bone/joint space is 1:1 to the
+-- engine world units where one node is BS = 10
+local BONE_POS_SCALE = 10
+
 function AnimatedEntity:apply_bone_override(rotate, offset, offset_axis, time)
 	local target_pos = vector.new()
 	if type(offset) == "table" then
@@ -113,6 +120,10 @@ function AnimatedEntity:apply_bone_override(rotate, offset, offset_axis, time)
 		target_pos = vector.new(offset)
 	else
 		target_pos[offset_axis] = offset
+	end
+
+	if not rotate then
+		target_pos = vector.multiply(target_pos, BONE_POS_SCALE)
 	end
 
 	local override_key = rotate and "rotation" or "position"

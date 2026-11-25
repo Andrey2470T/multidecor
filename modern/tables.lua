@@ -151,7 +151,6 @@ multidecor.register.register_table("modern_wooden_desk", {
 			type = "drawer",
 			pos = {x=1.15, y=0.225, z=-0.025},
 			def = wooden_drawer_def,
-			length = 0.8,
 			inv_size = {w=6,h=1},
 			sounds = {
 				open = "multidecor_drawer_open",
@@ -226,7 +225,6 @@ multidecor.register.register_table("modern_bedside_table", {
 			visual_size_adds = {x=1.2*2.2, y=1.5*2.2, z=-0.8*2.2},
 			pos = {x=0, y=-0.22, z=-0.2375},
 			def = wooden_drawer_def,
-			length = 0.8,
 			inv_size = {w=6,h=1},
 			sounds = {
 				open = "multidecor_drawer_open",
@@ -239,7 +237,6 @@ multidecor.register.register_table("modern_bedside_table", {
 			visual_size_adds = {x=1.2*2.2, y=1.5*2.2, z=-0.8*2.2},
 			pos = {x=0, y=0.205, z=-0.2375},
 			def = wooden_drawer_def,
-			length = 0.8,
 			inv_size = {w=6,h=1},
 			sounds = {
 				open = "multidecor_drawer_open",
