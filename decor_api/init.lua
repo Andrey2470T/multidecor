@@ -95,10 +95,12 @@ multidecor.banister = require("decor_api.furniture.banister")
 local clock_t = require("decor_api.furniture.clock")
 multidecor.ClockEntity, multidecor.clock = clock_t[1], clock_t[2]
 multidecor.curtains = require("decor_api.furniture.curtains")
--- Note: door.lua attaches "register_door" through the "multidecor.register" global,
--- so it must load only after the register module is assigned above
 local door_t = require("decor_api.furniture.door")
-multidecor.DoorEntity, multidecor.Door, multidecor.doors = door_t[1], door_t[2], door_t[3]
+multidecor.DoorEntity = door_t[1]
+multidecor.NodeDoorEntity = door_t[2]
+multidecor.ShelfDoorEntity = shelves_t[3]
+multidecor.CookShelfDoorEntity = shelves_t[4]
+multidecor.Door, multidecor.doors = door_t[3], door_t[4]
 multidecor.bed = require("decor_api.furniture.bed")
 multidecor.hanging = require("decor_api.furniture.hanging")
 multidecor.hedge = require("decor_api.furniture.hedge")

@@ -56,7 +56,8 @@ function ClockEntity:cycle()
 	else
 		self.anim_timer:stop()
 		self.infotext_timer:stop()
-		self:stop_animation()
+		-- the balance wheel snaps back to the strictly vertical rest pose
+		self:reset_animation()
 		self:stop_sound()
 	end
 end
@@ -83,7 +84,13 @@ end
 function ClockEntity:start()
 	if self.is_running then return end
 	self.is_running = true
-	self:apply_running_state()
+
+	self:apply_start_angle()
+	core.after(0.15, function()
+		if self.is_running and self.object and self.object:is_valid() then
+			self:apply_running_state()
+		end
+	end)
 end
 
 function ClockEntity:stop()

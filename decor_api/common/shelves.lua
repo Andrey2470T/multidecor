@@ -32,10 +32,42 @@ local common = require("decor_api.helpers.common")
 local BBox = require("decor_api.helpers.box")
 local furniture_t = require("decor_api.common.furniture_entity")
 local FurnitureManager = furniture_t[3]
-local DoorEntity = require("decor_api.furniture.door")[1]
+local animation_t = require("decor_api.common.animation")
+local AnimatedEntity = animation_t[1]
+local door_t = require("decor_api.furniture.door")
+local DoorEntity = door_t[1]
 local ShelfFormspec = require("decor_api.common.shelves_formspec")
 
 local shelves_api = {}
+
+-- Forward declaration: Shelf methods defined before the CookShelfDoorEntity
+-- block (spawn_doors) reference the class
+local CookShelfDoorEntity
+
+-- ShelfDoorEntity
+-- The DoorEntity subclass of the persistent shelf doors and drawers: it stays
+-- for the node's lifetime, validates against the node family pattern and
+-- routes the clicks/deactivation into the Shelf API.
+--------------------------------------------------------------------------------
+local ShelfDoorEntity = DoorEntity:extend("decor_api:shelf_door")
+
+-- The class-level marker of the persistent doors: they stay for the node's
+-- lifetime and never convert into it and back
+ShelfDoorEntity.persistent = true
+
+-- The click and the deactivation route into the Shelf API directly; the
+-- parent cleanup chain is entered at the AnimatedEntity level (DoorEntity
+-- itself defines no on_deactivate)
+function ShelfDoorEntity:on_rightclick(clicker)
+	shelves_api.handle_door_click(self, clicker)
+end
+
+function ShelfDoorEntity:on_deactivate(removal)
+	shelves_api.on_door_deactivated(self, removal)
+	AnimatedEntity.on_deactivate(self, removal)
+end
+
+FurnitureManager.register(ShelfDoorEntity.name, ShelfDoorEntity)
 
 -- Shelf: manages one shelf of a furniture node — its detached inventory,
 -- lock/share info, cooking and one or two DoorEntity doors
@@ -48,9 +80,6 @@ local shelves_registry = {}
 
 -- Players currently having a shelf formspec open: [playername] = Shelf
 local open_shelves = {}
-
--- Nodes with cooking in progress: [pos_str] = true
-local cooking_shelves = {}
 
 function Shelf.get_or_new(node_pos, shelf_i)
 	local def = common.ndef(node_pos)
@@ -75,6 +104,7 @@ function Shelf.get_or_new(node_pos, shelf_i)
 	self.shelf_i = shelf_i
 	self.inv_list = {}
 	self.lock_info = nil
+	-- a live view of the CookShelfDoorEntity cooking state, read by the formspec
 	self.cook_info = nil
 	self.is_open = false
 
@@ -155,7 +185,11 @@ function Shelf:create_inventory()
 				inv:remove_item(listname, inv:get_stack(listname, 1))
 				core.sound_play("multidecor_trash", {to_player=player:get_player_name()})
 			elseif shelf.shelf_data.invlist_type == "cooker" then
-				shelf:start_cooking(inv, listname, stack)
+				-- the cooker door entity owns the cooking
+				local door = shelf:get_cooker_door()
+				if door then
+					door:start_cooking(inv, listname, stack)
+				end
 			end
 		end
 	})
@@ -173,97 +207,6 @@ function Shelf:create_inventory()
 	inv:set_list(self:list_name(), inv_list)
 	inv:set_size(self:list_name(), invsize.w*invsize.h)
 	inv:set_width(self:list_name(), invsize.w)
-end
-
--- Cooking (invlist_type == "cooker")
---------------------------------------------------------------------------
-
--- Starts cooking the just put stack: swaps the node to the "_activated"
--- variant and starts the hum sound
-function Shelf:start_cooking(inv, listname, stack)
-	local output = core.get_craft_result({method="cooking", width=1, items=inv:get_list(listname)})
-	output.item = {
-		name = output.item:get_name(),
-		count = output.item:get_count()*stack:get_count(),
-		wear = output.item:get_wear()
-	}
-
-	core.swap_node(self.node_pos, {
-		name = "multidecor:" .. self.common_name .. "_activated",
-		param2 = core.get_node(self.node_pos).param2
-	})
-
-	self.cook_info = {
-		output = output,
-		elapsed = 0,
-		total = output.time*stack:get_count(),
-		percent = 0,
-		sound_handle = core.sound_play("multidecor_hum",
-			{pos=self.node_pos, fade=1.0, max_hear_distance=10, loop=true})
-	}
-
-	cooking_shelves[core.pos_to_string(self.node_pos)] = true
-end
-
-function Shelf:stop_cooking()
-	core.sound_stop(self.cook_info.sound_handle)
-	self.cook_info = nil
-
-	core.get_meta(self.node_pos):set_string("infotext", "")
-	core.swap_node(self.node_pos, {
-		name = "multidecor:" .. self.common_name,
-		param2 = core.get_node(self.node_pos).param2
-	})
-
-	cooking_shelves[core.pos_to_string(self.node_pos)] = nil
-end
-
--- Advances the running cooking: updates the progress infotext, finishes
--- when the time is over or the cooked stack was taken away
-function Shelf:cook_step(dtime)
-	local inv = core.get_inventory({type="detached", name=self:inv_name()})
-	if not inv then
-		cooking_shelves[core.pos_to_string(self.node_pos)] = nil
-		return
-	end
-
-	local cook = self.cook_info
-	if not cook then
-		return
-	end
-
-	cook.elapsed = cook.elapsed + dtime
-	cook.percent = math.min(cook.elapsed/cook.total*100, 100)
-
-	core.get_meta(self.node_pos):set_string("infotext",
-		common.translator("Cooked to: ") .. tostring(math.round(cook.percent)) .. " %")
-
-	local is_empty = inv:is_empty(self:list_name())
-	local is_done = cook.elapsed >= cook.total
-
-	if is_empty or is_done then
-		if is_done then
-			local item = cook.output.item
-			local output = ItemStack(item.name)
-			output:set_count(item.count)
-			output:set_wear(item.wear)
-			inv:set_stack(self:list_name(), 1, output)
-		end
-
-		self:stop_cooking()
-	end
-
-	-- Refresh the formspec of the player having this shelf open
-	-- about once per second
-	local whole_secs = math.floor(cook.elapsed)
-	if is_empty or is_done or whole_secs ~= math.floor(cook.elapsed - dtime) then
-		for pl_name, open_shelf in pairs(open_shelves) do
-			if open_shelf == self then
-				self:show_formspec(pl_name)
-				break
-			end
-		end
-	end
 end
 
 -- DoorEntity doors
@@ -291,7 +234,7 @@ function Shelf:build_door_data(rel_pos, mirrored)
 	end
 
 	-- Drawers with an initial rotation (corner cabinets) pull out along the
-	-- rotated direction: against the (rotated) dir, to the player-facing side
+	-- rotated direction: to the player-facing side (against the engine dir)
 	local anim_params
 	if sd.type == "drawer" then
 		local dir = dir_ops.get_dir(self.node_pos)
@@ -299,16 +242,22 @@ function Shelf:build_door_data(rel_pos, mirrored)
 			dir = vector.rotate(dir, sd.orig_angle)
 		end
 
-		local move_dist = 2/3*(sd.length or 0.5)
-		local axis = dir_ops.get_dominant_axis(dir)
+		local move_dist = sd.length or 0.5
+
+		-- The bone axes do not follow the node facedir: the carrier is yawed
+		-- by the dir plus the model half turn, so the pull-out direction is
+		-- pre-rotated into that carrier-local bone frame as a unit vector
+		-- (a named axis would ignore the node orientation); the travel
+		-- magnitude comes separately in 'target_offset'
+		local move_vec = vector.multiply(dir, -1)
+		local yaw = dir_ops.get_rot_y(dir) + math.pi
+		local local_vec = vector.rotate(move_vec, vector.new(0, -yaw, 0))
 
 		anim_params = {
 			rotate = false,
-			target_axis = axis,
-			-- along the (rotated) dir: away from the node back, to the
-			-- player-facing side
-			target_offset = (dir[axis] < 0 and -1 or 1)*move_dist,
-			velocity = 0.6,
+			target_vec = local_vec,
+			target_offset = move_dist,
+			velocity = 1.0,
 			acc = sd.acc or 0
 		}
 	else
@@ -359,9 +308,7 @@ function Shelf:build_door_data(rel_pos, mirrored)
 		sound_defs = sd.sounds,
 		shelf_i = self.shelf_i,
 		node_pattern = self.common_name,
-		cur_mode = "closed",
-		convert_on_end = false,
-		persistent = true
+		cur_mode = "closed"
 	}
 end
 
@@ -383,17 +330,21 @@ function Shelf:spawn_doors()
 		if data then
 			local spawn_pos, spawn_rot = DoorEntity.get_base_transform(self.node_pos, data.model_params, dir)
 
-			FurnitureManager.add(DoorEntity.name, self.node_pos, self.node_name, spawn_pos, spawn_rot, data)
+			-- The cooker doors spawn as their own subclass owning the cooking
+			local cls = sd.invlist_type == "cooker" and CookShelfDoorEntity or ShelfDoorEntity
+			FurnitureManager.add(cls.name, self.node_pos, self.node_name, spawn_pos, spawn_rot, data)
 		end
 	end
 end
 
--- Returns the DoorEntity luaentities of this shelf
+-- Returns the ShelfDoorEntity luaentities of this shelf (also matches the
+-- pre-split "bone_animator" saves)
 function Shelf:get_door_entities()
 	local result = {}
+	local names = {DoorEntity.name, ShelfDoorEntity.name, CookShelfDoorEntity.name}
 
 	for _, desc in ipairs(FurnitureManager.get(self.node_pos)) do
-		if desc.entity_name == DoorEntity.name and desc:exists() then
+		if table.indexof(names, desc.entity_name) ~= -1 and desc:exists() then
 			local lua_ent = desc.object:get_luaentity()
 			if lua_ent and lua_ent.shelf_i == self.shelf_i then
 				table.insert(result, lua_ent)
@@ -402,6 +353,17 @@ function Shelf:get_door_entities()
 	end
 
 	return result
+end
+
+-- Returns the CookShelfDoorEntity driving this shelf's cooking. The method
+-- presence also matches the migrated pre-split saves whose descriptor still
+-- carries the "bone_animator" name
+function Shelf:get_cooker_door()
+	for _, lua_ent in ipairs(self:get_door_entities()) do
+		if lua_ent.start_cooking then
+			return lua_ent
+		end
+	end
 end
 
 -- Animates all doors of the shelf to the open or closed state
@@ -459,9 +421,7 @@ end
 
 -- Drops the runtime registry entry of the node
 local function clear_node_shelves(pos)
-	local pos_str = core.pos_to_string(pos)
-	shelves_registry[pos_str] = nil
-	cooking_shelves[pos_str] = nil
+	shelves_registry[core.pos_to_string(pos)] = nil
 end
 
 -- Removes the Shelf from the registry together with the whole node entry
@@ -491,6 +451,187 @@ local function for_each_shelf(pos, fn)
 		end
 	end
 end
+
+-- CookShelfDoorEntity
+-- The ShelfDoorEntity subclass of the cooker (oven, microwave) doors: it owns
+-- the cooking state machine moved here from the Shelf class. The progress is
+-- driven by its own on_step, the hum by its own sound handle, and the state
+-- survives restarts through the staticdata (the old runtime registry lost the
+-- cooking on every restart and left the "_activated" node stuck). The cooking
+-- pauses while the entity is unloaded, like the engine furnaces do
+--------------------------------------------------------------------------------
+CookShelfDoorEntity = ShelfDoorEntity:extend("decor_api:cook_shelf_door")
+
+-- Returns the Shelf this cooker door belongs to
+function CookShelfDoorEntity:get_shelf()
+	return Shelf.get_or_new(self.attached_to.pos, self.shelf_i)
+end
+
+-- Starts cooking the just put stack: swaps the node to the "_activated"
+-- variant and starts the hum sound. 'node_pattern' carries the family
+-- common_name the swap names are built from
+function CookShelfDoorEntity:start_cooking(inv, listname, stack)
+	local output = core.get_craft_result({method="cooking", width=1, items=inv:get_list(listname)})
+
+	core.swap_node(self.attached_to.pos, {
+		name = "multidecor:" .. self.node_pattern .. "_activated",
+		param2 = core.get_node(self.attached_to.pos).param2
+	})
+
+	-- Plain data only: the whole table goes through the staticdata round-trip
+	self.cook_info = {
+		output = {
+			item = {
+				name = output.item:get_name(),
+				count = output.item:get_count()*stack:get_count(),
+				wear = output.item:get_wear()
+			},
+			time = output.time
+		},
+		elapsed = 0,
+		total = output.time*stack:get_count(),
+		percent = 0
+	}
+
+	-- The formspec reads the progress through this live shelf view
+	local shelf = self:get_shelf()
+	if shelf then
+		shelf.cook_info = self.cook_info
+	end
+
+	self:play_hum()
+end
+
+-- Plays the looping cooking hum. It is a positional sound (not attached to
+-- the entity object — the engine misbehaves with looped entity sounds), so
+-- the loop is fine. The handle is a userdata: it is dropped from the
+-- staticdata and replayed on the next activation
+function CookShelfDoorEntity:play_hum()
+	self:stop_hum()
+	self.cook_info.sound_handle = core.sound_play("multidecor_hum",
+		{pos = self.attached_to.pos, fade = 1.0, max_hear_distance = 10, loop = true})
+end
+
+function CookShelfDoorEntity:stop_hum()
+	if self.cook_info and self.cook_info.sound_handle then
+		core.sound_stop(self.cook_info.sound_handle)
+		self.cook_info.sound_handle = nil
+	end
+end
+
+-- Stops the cooking: stops the hum and restores the base node. The node is
+-- swapped back only while it still matches the family — an externally
+-- replaced node must not be clobbered
+function CookShelfDoorEntity:stop_cooking()
+	self:stop_hum()
+	self.cook_info = nil
+
+	local pos = self.attached_to.pos
+	local node = core.get_node_or_nil(pos)
+	if node and node.name:match(self.node_pattern) then
+		core.get_meta(pos):set_string("infotext", "")
+		core.swap_node(pos, {
+			name = "multidecor:" .. self.node_pattern,
+			param2 = node.param2
+		})
+	end
+
+	local shelf = Shelf.get_or_new(pos, self.shelf_i)
+	if shelf then
+		shelf.cook_info = nil
+	end
+end
+
+-- Advances the running cooking (driven from on_step): updates the progress
+-- infotext, finishes when the time is over or the cooked stack was taken away
+function CookShelfDoorEntity:cook_step(dtime)
+	local shelf = self:get_shelf()
+	local inv = shelf and core.get_inventory({type="detached", name=shelf:inv_name()})
+
+	if not inv then
+		-- The detached inventory is runtime-only: after a restart it is gone
+		-- and the cooking cannot continue — restore the node instead of
+		-- leaving the "_activated" variant stuck
+		self:stop_cooking()
+		return
+	end
+
+	local cook = self.cook_info
+	if not cook then
+		return
+	end
+
+	cook.elapsed = cook.elapsed + dtime
+	cook.percent = math.min(cook.elapsed/cook.total*100, 100)
+
+	core.get_meta(self.attached_to.pos):set_string("infotext",
+		common.translator("Cooked to: ") .. tostring(math.round(cook.percent)) .. " %")
+
+	local list_name = shelf:list_name()
+	local is_empty = inv:is_empty(list_name)
+	local is_done = cook.elapsed >= cook.total
+
+	if is_empty or is_done then
+		if is_done then
+			local item = cook.output.item
+			local output = ItemStack(item.name)
+			output:set_count(item.count)
+			output:set_wear(item.wear)
+			inv:set_stack(list_name, 1, output)
+		end
+
+		self:stop_cooking()
+	end
+
+	-- Refresh the formspec of the player having this shelf open
+	-- about once per second
+	local whole_secs = math.floor(cook.elapsed)
+	if is_empty or is_done or whole_secs ~= math.floor(cook.elapsed - dtime) then
+		for pl_name, open_shelf in pairs(open_shelves) do
+			if open_shelf == shelf then
+				shelf:show_formspec(pl_name)
+				break
+			end
+		end
+	end
+end
+
+function CookShelfDoorEntity:on_activate(staticdata)
+	if not DoorEntity.on_activate(self, staticdata) then
+		return false
+	end
+
+	-- The cooking state survives the restart through the staticdata: the hum
+	-- handle is a userdata (dropped from the save), so the sound is replayed.
+	-- The pre-split saves upgraded onto this class re-enter this activation
+	-- through the DoorEntity upgrade re-dispatch, so they resume as well
+	if self.cook_info then
+		local shelf = self:get_shelf()
+		if shelf then
+			shelf.cook_info = self.cook_info
+		end
+		self:play_hum()
+	end
+
+	return true
+end
+
+function CookShelfDoorEntity:on_step(dtime)
+	if self.cook_info then
+		self:cook_step(dtime)
+	end
+	-- keeps the door animation timer ticking
+	AnimatedEntity.on_step(self, dtime)
+end
+
+function CookShelfDoorEntity:on_deactivate(removal)
+	-- The hum must not outlive the entity: the sound is replayed on the next
+	-- activation while the state itself survives in the staticdata
+	self:stop_hum()
+	ShelfDoorEntity.on_deactivate(self, removal)
+end
+
+FurnitureManager.register(CookShelfDoorEntity.name, CookShelfDoorEntity)
 
 -- Node callbacks
 --------------------------------------------------------------------------
@@ -548,7 +689,7 @@ end
 -- DoorEntity integration
 --------------------------------------------------------------------------
 
--- Called by DoorEntity:on_rightclick for shelf doors
+-- Called by ShelfDoorEntity:on_rightclick for shelf doors
 function shelves_api.handle_door_click(door_ent, clicker)
 	local shelf = Shelf.get_or_new(door_ent.attached_to.pos, door_ent.shelf_i)
 	if shelf then
@@ -556,7 +697,7 @@ function shelves_api.handle_door_click(door_ent, clicker)
 	end
 end
 
--- Called by DoorEntity:on_deactivate for shelf doors
+-- Called by ShelfDoorEntity:on_deactivate for shelf doors
 function shelves_api.on_door_deactivated(door_ent, removal)
 	if not removal then
 		return
@@ -625,22 +766,4 @@ end
 
 core.register_on_player_receive_fields(shelves_api.on_receive_fields)
 
--- Cooking global step
---------------------------------------------------------------------------
-
-core.register_globalstep(function(dtime)
-	for pos_str in pairs(cooking_shelves) do
-		local reg = shelves_registry[pos_str]
-		if not reg then
-			cooking_shelves[pos_str] = nil
-		else
-			for _, shelf in pairs(reg) do
-				if shelf.cook_info then
-					shelf:cook_step(dtime)
-				end
-			end
-		end
-	end
-end)
-
-return { Shelf, shelves_api }
+return { Shelf, shelves_api, ShelfDoorEntity, CookShelfDoorEntity }

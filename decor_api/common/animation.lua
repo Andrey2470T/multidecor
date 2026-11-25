@@ -108,7 +108,12 @@ end
 -- of constructing the set_bone_override table themselves
 function AnimatedEntity:apply_bone_override(rotate, offset, offset_axis, time)
 	local target_pos = vector.new()
-	target_pos[offset_axis] = offset
+	if type(offset) == "table" then
+		-- a full bone-local vector (drawers): pre-rotated by the caller
+		target_pos = vector.new(offset)
+	else
+		target_pos[offset_axis] = offset
+	end
 
 	local override_key = rotate and "rotation" or "position"
 	self.object:set_bone_override("Door", {
@@ -117,7 +122,7 @@ function AnimatedEntity:apply_bone_override(rotate, offset, offset_axis, time)
 end
 
 function AnimatedEntity:play_animation(rotate, target_offset, offset_axis, velocity, time)
-	self:stop_animation(true)
+	self:reset_animation()
 
 	self.animation = {
 		rotate = rotate,
@@ -128,20 +133,16 @@ function AnimatedEntity:play_animation(rotate, target_offset, offset_axis, veloc
 	self:apply_bone_override(rotate, target_offset, offset_axis, time)
 end
 
-function AnimatedEntity:stop_animation(instant)
+function AnimatedEntity:reset_animation()
 	if not self.animation then return end
 
-	local cur_time = self.anim_timer:get_time()
-	local cur_offset = -self.animation.velocity * cur_time
-
-	self:apply_bone_override(self.animation.rotate, cur_offset, self.animation.offset_axis,
-		instant and 0.0 or cur_time)
+	self:apply_bone_override(self.animation.rotate, 0, self.animation.offset_axis, 0)
 	self.animation = nil
 end
 
 function AnimatedEntity:play_sound()
-	self:stop_sound()
 	if self.sound.name ~= "" and self.object then
+		self:stop_sound()
 		self.sound.handle = core.sound_play(self.sound.name, {
 			object = self.object,
 			gain = self.sound.volume,
@@ -170,7 +171,7 @@ function AnimatedEntity:on_step(dtime)
 end
 
 function AnimatedEntity:on_deactivate(removal)
-	self:stop_animation(true)
+	self:reset_animation()
 	self:stop_sound()
 
 	if self.dummy_entity and self.dummy_entity:is_valid() then
@@ -272,6 +273,19 @@ function CyclicEntity:cycle()
 	end
 end
 
+-- Instantly deflects the bone to the start pose before the swinging begins:
+-- the balance wheel is pulled e.g. 15 degrees aside and then released.
+-- The first cycle swings away from the deflection
+function CyclicEntity:apply_start_angle()
+	local anim = self.cyclic_animation
+
+	if not anim or anim.start_angle == 0 then
+		return
+	end
+
+	self:apply_bone_override(true, anim.start_angle, anim.axis, 0)
+end
+
 function CyclicEntity:on_activate(staticdata)
 	if not AnimatedEntity.on_activate(self, staticdata) then
 		return false
@@ -283,6 +297,7 @@ function CyclicEntity:on_activate(staticdata)
 		anim.axis = anim.axis or "y"
 		anim.velocity = anim.velocity or math.pi/4
 		anim.direction = anim.direction or 1
+		anim.start_angle = anim.start_angle or 0
 	end
 	self.anim_timer.cyclic = true
 

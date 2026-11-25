@@ -74,7 +74,7 @@ end
 -- Called when a saved entity activates with its node gone (the node was
 -- removed while the mapblock was unloaded, a server restart happened in the
 -- middle of a door transition, ...). The default just drops the entity;
--- DoorEntity overrides it to restore the door node
+-- NodeDoorEntity overrides it to restore the door node
 function FurnitureEntity:on_orphan()
 	if self.object and self.object:is_valid() then
 		self.object:remove()
@@ -111,10 +111,14 @@ function FurnitureEntity:check_node_valid()
 	end
 
 	local cur_node = core.get_node_or_nil(self.attached_to.pos)
-	if not cur_node or cur_node.name ~= self.attached_to.name then
-		return false
+
+	-- Any furniture entity can be attached to a specific node name,
+	-- or to any node matching a pattern (like "sofa_(left|center|corner)" for the sofa sitting entities)
+	if not self.node_pattern then
+		return cur_node and cur_node.name == self.attached_to.name
 	end
-	return true
+
+	return cur_node ~= nil and cur_node.name:match(self.node_pattern) ~= nil
 end
 
 function FurnitureEntity.build_definition(class_table, override_def)
@@ -145,14 +149,18 @@ function FurnitureEntity.build_definition(class_table, override_def)
 			end
 			return ""
 		end,
+		-- on_step and on_deactivate are dispatched through the instance class
+		-- (installed by the on_activate wrapper above): DoorEntity re-points
+		-- the pre-split saves onto their subclass during the activation, and
+		-- the upgraded instances must dispatch to the subclass behaviour
 		on_step = function(self, dtime)
-			if class_table.on_step then
-				class_table.on_step(self, dtime)
+			if self.on_step then
+				self:on_step(dtime)
 			end
 		end,
 		on_deactivate = function(self, removal)
-			if class_table.on_deactivate then
-				class_table.on_deactivate(self, removal)
+			if self.on_deactivate then
+				self:on_deactivate(removal)
 			end
 		end
 	}
@@ -310,8 +318,15 @@ function FurnitureManager.remove(node_pos)
 	local list = FurnitureManager.descriptors[pos_str]
 	if list then
 		for _, desc in ipairs(list) do
-			if desc:exists() then
-				FurnitureManager.guid_to_desc[desc.object:get_guid()] = nil
+			-- A "removed == false" descriptor is an object unloaded from the
+			-- memory: its dead ObjectRef cannot be touched — the saved entity
+			-- reactivates on the next block load and is dropped by its
+			-- on_orphan (the node is gone) or re-adopted (the node stays)
+			if desc.object and desc.object:is_valid() then
+				local guid = desc.object:get_guid()
+				if guid ~= nil then
+					FurnitureManager.guid_to_desc[guid] = nil
+				end
 				desc.object:remove()
 			end
 		end

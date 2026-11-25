@@ -5,7 +5,7 @@ local register = require("decor_api.common.register")
 local animation_t = require("decor_api.common.animation")
 local AnimatedEntity = animation_t[1]
 local furniture_t = require("decor_api.common.furniture_entity")
-local FurnitureEntity, FurnitureManager = furniture_t[1], furniture_t[3]
+local FurnitureManager = furniture_t[3]
 
 local Door = {}
 Door.__index = Door
@@ -14,10 +14,10 @@ Door.__index = Door
 -- The AnimatedEntity subclass driving door and drawer models: it swings or slides
 -- the model through the "Door" bone of its carrier. The bone mechanics itself
 -- stays in AnimatedEntity — the class only declares its "anim_params" and keeps
--- the open/close state logic. For real door nodes the entity exists only while
--- the transition runs (the node itself is removed for that time and restored on
--- animation end); shelf doors and drawers are persistent and validate against
--- their node as usual.
+-- the open/close state logic, nothing subclass-specific. It is also the class
+-- every pre-split save activates as (all doors were registered under its
+-- historical "bone_animator" name): on_activate upgrades such an instance onto
+-- the subclass it belongs to, so the base holds no behaviour of the heirs.
 --------------------------------------------------------------------------------
 local DoorEntity = AnimatedEntity:extend("decor_api:bone_animator")
 
@@ -38,6 +38,51 @@ function DoorEntity.get_base_transform(node_pos, mparams, dir)
 end
 
 function DoorEntity:on_activate(staticdata)
+	-- The pre-split saves all carry the historical "decor_api:bone_animator"
+	-- name of this base class, so they activate here no matter which door
+	-- they are. Upgrade such an instance onto the subclass it belongs to
+	-- right away — before the base activation runs: the adopt/orphan decision
+	-- inside it and every later callback (on_step, on_deactivate,
+	-- on_animation_end) dispatch through the instance class
+	if staticdata and staticdata ~= "" then
+		local data = common.deserialize(staticdata)
+		if data and data.attached_to then
+			local subclass
+			if data.shelf_i then
+				-- the family pattern keeps the entity valid while the cooker
+				-- node is swapped to its "_activated" variant
+				self.node_pattern = data.node_pattern or data.attached_to.name:sub(12)
+				subclass = multidecor.ShelfDoorEntity
+
+				local ndef = common.ndef(data.attached_to.pos)
+				local shelves_data = ndef and ndef.add_properties and ndef.add_properties.shelves_data
+				local shelf_data = shelves_data and shelves_data[data.shelf_i]
+				if shelf_data and shelf_data.invlist_type == "cooker" then
+					subclass = multidecor.CookShelfDoorEntity
+				end
+			elseif data.convert_on_end then
+				subclass = multidecor.NodeDoorEntity
+			end
+
+			-- a fresh spawn is already on the right class: nothing to upgrade
+			if subclass and subclass ~= getmetatable(self) then
+				-- the fields are copied early: the subclass activation below
+				-- runs before the base activation copies them itself
+				table.copy_to(data, self)
+				setmetatable(self, subclass)
+
+				-- Enter the subclass activation when it defines one of its
+				-- own (NodeDoorEntity, CookShelfDoorEntity): the resumed
+				-- instance must run it too. The call re-enters this method
+				-- through its own super call, where the already-installed
+				-- metatable makes the upgrade a no-op
+				if subclass.on_activate ~= DoorEntity.on_activate then
+					return subclass.on_activate(self, staticdata)
+				end
+			end
+		end
+	end
+
 	if not AnimatedEntity.on_activate(self, staticdata) then
 		return false
 	end
@@ -56,19 +101,14 @@ function DoorEntity:on_activate(staticdata)
 		self:update_door_state(self.cur_mode)
 		-- snaps into the current mode without a transition
 		self:apply_door_offset(true)
-
-		if self.pending_action then
-			local action = self.pending_action
-			self.pending_action = nil
-			self:set_action(action)
-		end
 	else
 		if not FurnitureManager.get_by_object(self.object) then
 			-- An already initialized entity not tracked by the manager means the
-			-- server restarted while it was active (the descriptors are runtime-only).
-			-- Persistent shelf doors with their node still present keep working;
-			-- a transition door would never finish (its animation end callback is
-			-- manager-driven), so its node is restored right away instead
+			-- server restarted while it was active (the descriptors are
+			-- runtime-only). Persistent shelf doors with their node still
+			-- present keep working; a transition door would never finish (its
+			-- animation end callback is manager-driven), so its node is
+			-- restored right away instead
 			if not self.persistent or not self:check_node_valid() then
 				self:on_orphan()
 				return false
@@ -85,35 +125,6 @@ function DoorEntity:on_activate(staticdata)
 	end
 
 	return true
-end
-
--- The door node is intentionally absent while the entity animates:
--- non-persistent entities are valid only during the transition, persistent ones
--- (shelf doors) validate against their node exactly like FurnitureEntity does —
--- except when the node may swap inside its family ("node_pattern", e.g. to
--- "_activated" while cooking)
-function DoorEntity:check_node_valid()
-	if not self.attached_to then
-		return false
-	end
-
-	if not self.persistent then
-		-- no timer yet (a restart orphan activating) == no running transition
-		return (self.anim_timer and self.anim_timer:is_started()) or self.pending_action ~= nil
-	end
-
-	if not self.node_pattern then
-		return FurnitureEntity.check_node_valid(self)
-	end
-
-	local cur_node = core.get_node_or_nil(self.attached_to.pos)
-	return cur_node ~= nil and cur_node.name:match(self.node_pattern) ~= nil
-end
-
-function DoorEntity:on_rightclick(clicker)
-	if self.shelf_i and multidecor.shelves then
-		multidecor.shelves.handle_door_click(self, clicker)
-	end
 end
 
 -- Starts the transition to 'action' ("open"/"close"): plays the sound,
@@ -185,7 +196,16 @@ function DoorEntity:apply_door_offset(instant)
 		time = self:calc_anim_time()
 	end
 
-	self:apply_bone_override(aparams.rotate, self.bone_offset, aparams.target_axis, time)
+	-- 'bone_offset' is the signed travel magnitude: along 'target_axis' for
+	-- the swinging doors, along the full 'target_vec' for the sliding parts
+	-- (drawers; the vec is pre-rotated into the carrier-local bone frame —
+	-- the bone axes themselves do not follow the node facedir)
+	local offset = self.bone_offset
+	if aparams.target_vec then
+		offset = vector.multiply(aparams.target_vec, self.bone_offset)
+	end
+
+	self:apply_bone_override(aparams.rotate, offset, aparams.target_axis, time)
 	self.cur_bone_offset = self.bone_offset
 
 	if not instant then
@@ -193,32 +213,61 @@ function DoorEntity:apply_door_offset(instant)
 	end
 end
 
-function DoorEntity:on_animation_end()
-	if self.convert_on_end and self.action then
-		Door.from_entity(self)
-	end
-end
-
-function DoorEntity:on_deactivate(removal)
-	if self.shelf_i and multidecor.shelves then
-		multidecor.shelves.on_door_deactivated(self, removal)
-	end
-	AnimatedEntity.on_deactivate(self, removal)
-end
-
-function DoorEntity:on_orphan()
-	if self.convert_on_end then
-		Door.from_entity(self)
-	elseif self.object and self.object:is_valid() then
-		self.object:remove()
-	end
-end
-
 FurnitureManager.register(DoorEntity.name, DoorEntity)
 
--- Door: manages the door node in its inactive (resting) state.
--- Converts the node to DoorEntity on interaction and back on animation end.
+-- NodeDoorEntity
+-- The DoorEntity subclass driving the real door nodes: the node is removed
+-- while the transition runs and restored from the entity afterwards. The class
+-- owns everything node-specific — the mesh selection ("_activated"), the
+-- resting param2 quarter-turns, the meta restore, the pending action of a
+-- fresh spawn and the transition end and orphan handling.
 --------------------------------------------------------------------------------
+local NodeDoorEntity = DoorEntity:extend("decor_api:node_door")
+
+-- The class-level marker of the transition entities: the node converts into
+-- the entity and back
+NodeDoorEntity.convert_on_end = true
+
+-- The node door activation specifics: the pending action of a fresh spawn and
+-- an interrupted transition of a reactivation
+function NodeDoorEntity:on_activate(staticdata)
+	if not DoorEntity.on_activate(self, staticdata) then
+		return false
+	end
+
+	-- to_entity stores the requested transition until the entity is fully
+	-- set up (the door node is already removed by then): it is present
+	-- exactly on the first activation of a fresh spawn — a saved entity
+	-- always has it consumed already
+	if self.pending_action then
+		local action = self.pending_action
+		self.pending_action = nil
+		self:set_action(action)
+	elseif self.action then
+		-- The transition was interrupted by the reactivation (a restart or
+		-- a mapblock unload in the middle of the swing): the animation
+		-- timer is recreated fresh and not armed, so the swing would never
+		-- reach its end — the 3-second validator would drop the entity
+		-- with the door node still absent. Finish it right away instead:
+		-- 'cur_bone_offset' already holds the target, so the transition
+		-- has a zero delta and ends on the very next step
+		self:set_action(self.action)
+	end
+
+	return true
+end
+
+-- The door node is intentionally absent while the entity animates: the
+-- entity is valid exactly during the transition (the timer armed or a
+-- pending action)
+function NodeDoorEntity:check_node_valid()
+	if not self.attached_to then
+		return false
+	end
+
+	-- no timer running == no running transition
+	return (self.anim_timer and self.anim_timer:is_started()) or self.pending_action ~= nil
+end
 
 -- Returns the world direction the sliding door moves to when going to the
 -- 'is_open' state ('dir' is the plain engine dir of the door node)
@@ -241,9 +290,9 @@ local function get_target_offset(is_regular, dir, is_open, is_mirrored)
 	return move_dir[move_axis], move_axis
 end
 
--- Removes the door node and spawns the animating DoorEntity in its place.
+-- Removes the door node and spawns the animating NodeDoorEntity in its place.
 -- 'action' is the transition target ("open"/"close"), 'owner' is kept for locked doors
-function Door.to_entity(pos, action, owner)
+function NodeDoorEntity.to_entity(pos, action, owner)
 	local node_def = common.ndef(pos)
 	local add_data = node_def.add_properties
 	local door_data = add_data.door
@@ -325,20 +374,18 @@ function Door.to_entity(pos, action, owner)
 		node_dir = vector.new(dir),
 		owner = owner ~= "" and owner or nil,
 		pending_action = action,
-		cur_mode = is_open_model and "open" or "closed",
-		convert_on_end = true,
-		persistent = false
+		cur_mode = is_open_model and "open" or "closed"
 	}
 
 	local spawn_pos, spawn_rot = DoorEntity.get_base_transform(pos, model_params, dir)
 
 	core.remove_node(pos)
 
-	return FurnitureManager.add(DoorEntity.name, pos, base_name, spawn_pos, spawn_rot, data)
+	return FurnitureManager.add(NodeDoorEntity.name, pos, base_name, spawn_pos, spawn_rot, data)
 end
 
--- Restores the door node from the finished DoorEntity
-function Door.from_entity(door_ent)
+-- Restores the door node from the finished NodeDoorEntity
+function NodeDoorEntity.from_entity(door_ent)
 	local obj = door_ent.object
 	-- The entity sits at the hinge corner; the node position is exact
 	local pos = vector.new(door_ent.attached_to.pos)
@@ -386,6 +433,36 @@ function Door.from_entity(door_ent)
 	end
 end
 
+-- The swing is over: restore the door node from the finished entity
+function NodeDoorEntity:on_animation_end()
+	if self.convert_on_end and self.action then
+		Door.from_entity(self)
+	end
+end
+
+-- A node door entity without its node (a server restart during the
+-- transition): the swing cannot resume with its node absent, so the node is
+-- restored right away
+function NodeDoorEntity:on_orphan()
+	if self.convert_on_end then
+		Door.from_entity(self)
+	elseif self.object and self.object:is_valid() then
+		self.object:remove()
+	end
+end
+
+FurnitureManager.register(NodeDoorEntity.name, NodeDoorEntity)
+
+-- Door: manages the door node in its inactive (resting) state.
+-- Converts the node to NodeDoorEntity on interaction and back on animation
+-- end. The namespace keeps the historical interface used by the node
+-- callbacks; NodeDoorEntity's transition end/orphan handling routes through
+-- it as well.
+--------------------------------------------------------------------------------
+
+Door.to_entity = NodeDoorEntity.to_entity
+Door.from_entity = NodeDoorEntity.from_entity
+
 -- Node callbacks of the registered door nodes
 --------------------------------------------------------------------------------
 
@@ -417,7 +494,7 @@ function doors.node_on_rightclick(pos, node, clicker)
 		end
 	end
 
-	Door.to_entity(pos, action, owner)
+	NodeDoorEntity.to_entity(pos, action, owner)
 end
 
 function doors.after_place_node(pos, placer)
@@ -509,4 +586,4 @@ function register.register_door(name, base_def, add_def, craft_def)
 	end
 end
 
-return { DoorEntity, Door, doors }
+return { DoorEntity, NodeDoorEntity, Door, doors }
