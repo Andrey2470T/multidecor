@@ -311,6 +311,18 @@ function NodeDoorEntity.to_entity(pos, action, owner)
 		is_open_model = (mode == "open") ~= is_mir
 	end
 
+	-- The "_open" resting slab of a plain regular door is quarter-turned
+	-- from the closed param2 (from_entity rotates it by +pi/2 on opening),
+	-- so its engine dir is not the hinge frame the entity animates in.
+	-- Rotate the dir back, so the closing transition starts at the exact
+	-- base transform the opening ended with and the swing is its exact
+	-- reverse. Mirrored doors and sliding panels never rotate their
+	-- resting param2 and keep the plain dir
+	local raw_dir = dir
+	if is_regular and not is_mir and mode == "open" then
+		dir = dir_ops.rotate_y(dir, -math.pi/2)
+	end
+
 	local base_name = "multidecor:" .. add_data.common_name
 	local base_def = core.registered_nodes[base_name]
 
@@ -370,7 +382,7 @@ function NodeDoorEntity.to_entity(pos, action, owner)
 		anim_params = anim_params,
 		sound_defs = door_data.sounds,
 		door_type = dtype,
-		node_param2 = dir_ops.from_dir_get_param2(base_name, core.get_node(pos).param2, dir),
+		node_param2 = dir_ops.from_dir_get_param2(base_name, core.get_node(pos).param2, raw_dir),
 		node_dir = vector.new(dir),
 		owner = owner ~= "" and owner or nil,
 		pending_action = action,

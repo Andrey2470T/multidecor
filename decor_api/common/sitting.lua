@@ -105,6 +105,14 @@ function SittingEntity:on_deactivate(removal)
 	FurnitureEntity.on_deactivate(self, removal)
 end
 
+function SittingEntity.build_definition(class_table, override_def)
+	override_def = override_def or {}
+	override_def.is_visible = true
+	override_def.mesh = "multidecor_bone_animator.glb"
+	override_def.textures = override_def.textures or {"multidecor_transparency.png"}
+	return FurnitureEntity.build_definition(class_table, override_def)
+end
+
 -- The seat entity is transient: spawned on demand at the moment of sitting
 -- and removed at the standup, never saved (a saved seat would survive the
 -- restart with the player name in it — stuck busy, nobody can sit anymore).
